@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>dashboard</title>
+    <link rel="stylesheet" type="text/css" href="bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+<input id="btnClose" type="button" value="X"/>
+<input id="btnDbg" type="button" value="?"/>
+
+<div id="topPanel">
+    <input id="btnAddLeftScore" type="button" value="加分L"/>
+    <input id="btnAddRightScore" type="button" value="加分R"/>
+    <input id="btnToggleTime" type="button" value="开始"/>
+    <input id="btnResetTime" type="button" value="重置时间"/>
+</div>
+
+<div class="playerCard" id="playerPanel">
+    <input id="playerQuery"/>
+    <input id="btnQuery" type="button" value="查找球员"/>
+    <img src="img/player/p1.png">
+
+    <br/>姓名<input class="playerName">
+    <br/>天梯分<input class="playerScore">
+    <br/>球风<input class="playerStyle">
+    <br/>胜率<input class="playerStyle">
+    <br/>比赛数<input class="playerStyle">
+    <input id="btnSavePlayer" type="button" value="保存数据"/>
+</div>
+<div class="Team">
+    p1<input class="PlayerId"/>
+    p2<input class="PlayerId"/>
+    p3<input class="PlayerId"/>
+    p4<input class="PlayerId"/>
+    p5<input class="PlayerId"/>
+    p6<input class="PlayerId"/>
+    p7<input class="PlayerId"/>
+    p8<input class="PlayerId"/>
+    <input type="button" value="更新到舞台"/>
+</div>
+
+
+</body>
+</html>

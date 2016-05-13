@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript" src="js/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="js/animateText.min.js"></script>
+    <!--<script type="text/javascript">-->
+        <!--var textObjects = [-->
+                    <!--{-->
+                        <!--offset: 0,-->
+                        <!--duration: 2000,-->
+                        <!--animation: 'leftToRight'-->
+                    <!--},-->
+                    <!--{-->
+                        <!--offset: 1000,-->
+                        <!--duration: 2000,-->
+                        <!--animation: 'rightToLeft'-->
+                    <!--},-->
+                    <!--{-->
+                        <!--offset: 2000,-->
+                        <!--duration: 2000,-->
+                        <!--animation: 'topToBottom'-->
+                    <!--}-->
+                <!--],-->
+                <!--options = {-->
+                    <!--repeat: 5-->
+                <!--},-->
+                <!--animations = {-->
+                    <!--topToBottom: {-->
+                        <!--positions: {-->
+                            <!--start: {-->
+                                <!--bottom: '100%',-->
+                                <!--left: '50%',-->
+                            <!--},-->
+                            <!--1:  {-->
+                                <!--bottom: '0%'-->
+                            <!--}-->
+                        <!--}-->
+                    <!--}-->
+                <!--};-->
+        <!--$("#example").animateText(textObjects, options, animations);-->
+    <!--</script>-->
+    <script type="text/javascript">
+
+        $(function(){
+            $("#example").animateText([
+                {
+                    offset: 0,
+                    duration: 1,
+                    animation: "explode"
+                }
+            ]);
+            console.log("run!");
+        });
+    </script>
+</head>
+<body>
+<ul id="example"><li>Kaboom!</li></ul>
+<!--<ul id="example">-->
+    <!--<li>Coming from the left</li>-->
+    <!--<li>Coming in from the right</li>-->
+    <!--<li>Coming in from the top</li>-->
+<!--</ul>-->
+
+</body>
+</html>

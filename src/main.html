@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>YuanqiTV</title>
+
+
+    <script src="js/jquery-2.1.4.min.js"></script>
+    <script src="js/trackingjs/tracking-min.js"></script>
+    <script src="js/trackingjs/data/face-min.js"></script>
+
+    <script type="text/javascript" src="./js/createjs/createjs.min.js"></script>
+    <script type="text/javascript" src="./js/createjs/easeljs.min.js"></script>
+    <script type="text/javascript" src="./js/createjs/tweenjs.min.js"></script>
+
+    <script src="ts/main.js"></script>
+    <style>
+        body {
+            background: #ccc;
+            overflow-x: hidden;
+            overflow-y: hidden;
+            -webkit-user-select: none;
+            margin: 0;
+
+        }
+
+        .StageBg {
+            position: fixed;
+            width: 1280px;
+            height: 720px;
+            background: red;
+            z-index: 997;
+        }
+
+        video {
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 998;
+        }
+
+        .faceTracking {
+            /*width: 320px;*/
+            /*height: 320px;*/
+            position: fixed;
+            z-index: 999;
+            /*background: rebeccapurple;*/
+            /*opacity: 0.5;*/
+        }
+
+        #stage {
+            position: fixed;
+            z-index: 1000;
+        }
+
+    </style>
+</head>
+<body style="-webkit-app-region:drag">
+<!--<input id="btnClose" type="button" value="X"/>-->
+<!--<input id="btnDbg" type="button" value="?"/>-->
+<!--<input id="btnAddLeftScore" type="button" value="加分L"/>-->
+<!--<input id="btnAddRightScore" type="button" value="加分R"/>-->
+<!--<input id="btnToggleTime" type="button" value="开始"/>-->
+<!--<input id="btnResetTime" type="button" value="重置时间"/>-->
+<div style="width: 800px">
+    <div class="StageBg">
+
+    </div>
+    <div>
+        <video id="camFeed" width="320" height="240" autoplay>
+        </video>
+        <canvas id="camCanvas" class="faceTracking">
+        </canvas>
+    </div>
+    <div>
+        <canvas id="stage" style="-webkit-app-region: no-drag">
+        </canvas>
+    </div>
+</div>
+</body>
+</html>

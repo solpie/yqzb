@@ -1,0 +1,14 @@
+{
+  "name": "YuanQiTV",
+  "description": "Yuanqi TV",
+  "main": "main.html",
+  "version": "0.1.0",
+  "window": {
+    "frame": true,
+    "width": 1250,
+    "height": 850,
+    "show": true,
+    "title": "YuanQiTV",
+    "toolbar": true
+  }
+}
