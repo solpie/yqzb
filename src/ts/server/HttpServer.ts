@@ -85,6 +85,8 @@ class HttpServer {
                         param: {
                             leftScore: appInfo.panelInfo.stagePanelInfo.leftScore,
                             rightScore: appInfo.panelInfo.stagePanelInfo.rightScore,
+                            time: appInfo.panelInfo.stagePanelInfo.time,
+                            state: appInfo.panelInfo.stagePanelInfo.timerState,
                         }
                     })
                 }

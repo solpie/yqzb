@@ -114,6 +114,7 @@ var StagePanelInfo = (function (_super) {
         this.leftScore = 0;
         this.rightScore = 0;
         this.time = 0;
+        this.timerState = 0;
     }
     StagePanelInfo.prototype.addLeftScore = function () {
         this.leftScore = (this.leftScore + 1) % (this.winScore + 1);
@@ -211,6 +212,13 @@ var BaseView = (function () {
     };
     BaseView.prototype.hide = function () {
     };
+    BaseView.prototype.newBtn = function (func) {
+        var btn = new createjs.Shape();
+        btn.graphics.beginFill("#ccc");
+        btn.graphics.drawRect(0, 0, 75, 30);
+        btn.addEventListener("click", func);
+        return btn;
+    };
     BaseView.prototype.path = function (p) {
         if (this.isClient)
             return '/' + p;
@@ -223,6 +231,7 @@ var TopPanelView = (function (_super) {
     __extends(TopPanelView, _super);
     function TopPanelView(stage, isClient) {
         _super.call(this, stage, isClient);
+        this.time = 0;
         if (!this.isClient)
             this.init(null);
         this.handle();
@@ -259,12 +268,23 @@ var TopPanelView = (function (_super) {
             }
         }
     };
+    TopPanelView.prototype.setTime = function (time, state) {
+        var _this = this;
+        this.timeLabel.text = this.formatSecond(time);
+        if (state) {
+            this.timerId = setInterval(function () {
+                _this.time++;
+                _this.timeLabel.text = _this.formatSecond(time);
+            }, 1000);
+        }
+    };
     TopPanelView.prototype.init = function (param) {
         var _this = this;
+        var container = new createjs.Container();
+        this.stage.addChild(container);
         var bg = new createjs.Bitmap(this.path("img/panelTop.png"));
         bg.x = 150;
-        bg.y = 5;
-        this.stage.addChild(bg);
+        container.addChild(bg);
         //left
         this.leftCircleArr = [];
         this.rightCircleArr = [];
@@ -281,11 +301,11 @@ var TopPanelView = (function (_super) {
             //         appInfo.panelInfo.stagePanelInfo.addLeftScore();
             //     });
             // }
-            this.stage.addChild(spCircle);
+            container.addChild(spCircle);
             var circleHide = new createjs.Shape();
             circleHide.graphics.beginFill("#ffff00");
             circleHide.graphics.drawCircle(px + i * 50, py, 12);
-            this.stage.addChild(circleHide);
+            container.addChild(circleHide);
             // if (!this.isClient) {
             //     circleHide.addEventListener("click", function () {
             //         appInfo.panelInfo.stagePanelInfo.addLeftScore();
@@ -307,7 +327,7 @@ var TopPanelView = (function (_super) {
             //         appInfo.panelInfo.stagePanelInfo.addRightScore();
             //     });
             // }
-            this.stage.addChild(spCircle);
+            container.addChild(spCircle);
             var circleHide = new createjs.Shape();
             circleHide.graphics.beginFill("#0c83fc");
             circleHide.graphics.drawCircle(px + i * 50, py, 12);
@@ -316,58 +336,62 @@ var TopPanelView = (function (_super) {
             //         appInfo.panelInfo.stagePanelInfo.addRightScore();
             //     });
             // }
-            this.stage.addChild(circleHide);
+            container.addChild(circleHide);
             circleHide.alpha = 0;
             this.rightCircleArr.push(circleHide);
         }
         var leftScoreLabel = new createjs.Text("0", "30px Arial", "#a2a2a2");
         leftScoreLabel.x = 490;
         leftScoreLabel.y = 30;
-        if (!this.isClient)
-            leftScoreLabel.addEventListener("click", function () {
-                appInfo.panelInfo.stagePanelInfo.addLeftScore();
-            });
         this.leftScoreLabel = leftScoreLabel;
         var rightScoreLabel = new createjs.Text("0", "30px Arial", "#a2a2a2");
         rightScoreLabel.x = 600;
         rightScoreLabel.y = 30;
-        if (!this.isClient)
-            rightScoreLabel.addEventListener("click", function () {
-                appInfo.panelInfo.stagePanelInfo.addRightScore();
-            });
         this.rightScoreLabel = rightScoreLabel;
-        this.stage.addChild(leftScoreLabel);
-        this.stage.addChild(rightScoreLabel);
+        container.addChild(leftScoreLabel);
+        container.addChild(rightScoreLabel);
         ///time label---------------------------------------------------
-        var time = 0;
         var timeLabel = new createjs.Text("99:99", "30px Arial", "#a2a2a2");
         timeLabel.x = 520;
         timeLabel.y = 90;
-        var isRunning = false;
         cmd.on(CommandId.toggleTimer, function () {
-            if (isRunning) {
+            if (_this.timerId) {
                 clearInterval(_this.timerId);
                 // $("#btnToggleTime").val("开始");
-                isRunning = false;
+                _this.timerId = 0;
             }
             else {
                 _this.timerId = setInterval(function () {
-                    time++;
-                    timeLabel.text = _this.formatSecond(time);
+                    _this.time++;
+                    timeLabel.text = _this.formatSecond(_this.time);
                 }, 1000);
-                // $("#btnToggleTime").val("暂停");
-                isRunning = true;
             }
         });
         cmd.on(CommandId.resetTimer, function () {
             //$("#btnResetTime").on(MouseEvt.CLICK, ()=> {
-            time = 0;
-            timeLabel.text = _this.formatSecond(time);
+            _this.time = 0;
+            timeLabel.text = _this.formatSecond(_this.time);
         });
-        this.stage.addChild(timeLabel);
+        this.timeLabel = timeLabel;
+        container.addChild(timeLabel);
+        if (!this.isClient) {
+            var btnLeft = this.newBtn(function () {
+                appInfo.panelInfo.stagePanelInfo.addLeftScore();
+            });
+            btnLeft.x = 450;
+            btnLeft.y = 5;
+            container.addChild(btnLeft);
+            var btnLeft = this.newBtn(function () {
+                appInfo.panelInfo.stagePanelInfo.addRightScore();
+            });
+            btnLeft.x = 650;
+            btnLeft.y = 5;
+            container.addChild(btnLeft);
+        }
         if (param) {
             this.setLeftScore(param.leftScore);
             this.setRightScore(param.rightScore);
+            this.setTime(param.time, param.state);
         }
     };
     TopPanelView.prototype.formatSecond = function (sec) {
@@ -854,7 +878,9 @@ var HttpServer = (function () {
                         res: "init",
                         param: {
                             leftScore: appInfo.panelInfo.stagePanelInfo.leftScore,
-                            rightScore: appInfo.panelInfo.stagePanelInfo.rightScore
+                            rightScore: appInfo.panelInfo.stagePanelInfo.rightScore,
+                            time: appInfo.panelInfo.stagePanelInfo.time,
+                            state: appInfo.panelInfo.stagePanelInfo.timerState
                         }
                     });
                 }

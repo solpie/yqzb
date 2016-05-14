@@ -1,12 +1,15 @@
 /// <reference path="BaseView.ts"/>
 
 class TopPanelView extends BaseView {
-    time:number;
+    time:number = 0;
     timerId:number;
     leftCircleArr:any;
     rightCircleArr:any;
     leftScoreLabel:any;
     rightScoreLabel:any;
+    // time = 0;
+
+    timeLabel:any;
 
     constructor(stage, isClient) {
         super(stage, isClient);
@@ -53,12 +56,24 @@ class TopPanelView extends BaseView {
         }
     }
 
+    setTime(time, state) {
+        this.timeLabel.text = this.formatSecond(time);
+        if (state) {
+            this.timerId = setInterval(()=> {
+                this.time++;
+                this.timeLabel.text = this.formatSecond(time);
+            }, 1000);
+        }
+    }
+
     init(param) {
+        var container = new createjs.Container();
+
+        this.stage.addChild(container);
 
         var bg = new createjs.Bitmap(this.path("img/panelTop.png"));
         bg.x = 150;
-        bg.y = 5;
-        this.stage.addChild(bg);
+        container.addChild(bg);
         //left
         this.leftCircleArr = [];
         this.rightCircleArr = [];
@@ -75,11 +90,11 @@ class TopPanelView extends BaseView {
             //         appInfo.panelInfo.stagePanelInfo.addLeftScore();
             //     });
             // }
-            this.stage.addChild(spCircle);
+            container.addChild(spCircle);
             var circleHide = new createjs.Shape();
             circleHide.graphics.beginFill("#ffff00");
             circleHide.graphics.drawCircle(px + i * 50, py, 12);
-            this.stage.addChild(circleHide);
+            container.addChild(circleHide);
             // if (!this.isClient) {
             //     circleHide.addEventListener("click", function () {
             //         appInfo.panelInfo.stagePanelInfo.addLeftScore();
@@ -101,7 +116,7 @@ class TopPanelView extends BaseView {
             //         appInfo.panelInfo.stagePanelInfo.addRightScore();
             //     });
             // }
-            this.stage.addChild(spCircle);
+            container.addChild(spCircle);
             var circleHide = new createjs.Shape();
             circleHide.graphics.beginFill("#0c83fc");
             circleHide.graphics.drawCircle(px + i * 50, py, 12);
@@ -110,7 +125,7 @@ class TopPanelView extends BaseView {
             //         appInfo.panelInfo.stagePanelInfo.addRightScore();
             //     });
             // }
-            this.stage.addChild(circleHide);
+            container.addChild(circleHide);
             circleHide.alpha = 0;
             this.rightCircleArr.push(circleHide)
         }
@@ -118,55 +133,59 @@ class TopPanelView extends BaseView {
         var leftScoreLabel = new createjs.Text("0", "30px Arial", "#a2a2a2");
         leftScoreLabel.x = 490;
         leftScoreLabel.y = 30;
-        if (!this.isClient)
-            leftScoreLabel.addEventListener("click", function () {
-                appInfo.panelInfo.stagePanelInfo.addLeftScore();
-            });
         this.leftScoreLabel = leftScoreLabel;
         var rightScoreLabel = new createjs.Text("0", "30px Arial", "#a2a2a2");
         rightScoreLabel.x = 600;
         rightScoreLabel.y = 30;
-        if (!this.isClient)
-            rightScoreLabel.addEventListener("click", function () {
-                appInfo.panelInfo.stagePanelInfo.addRightScore();
-            });
         this.rightScoreLabel = rightScoreLabel;
-        this.stage.addChild(leftScoreLabel);
-        this.stage.addChild(rightScoreLabel);
+        container.addChild(leftScoreLabel);
+        container.addChild(rightScoreLabel);
 
 
         ///time label---------------------------------------------------
-        var time = 0;
         var timeLabel = new createjs.Text("99:99", "30px Arial", "#a2a2a2");
         timeLabel.x = 520;
         timeLabel.y = 90;
-        var isRunning = false;
         cmd.on(CommandId.toggleTimer, ()=> {
-            if (isRunning) {
+            if (this.timerId) {
                 clearInterval(this.timerId);
                 // $("#btnToggleTime").val("开始");
-                isRunning = false;
+                this.timerId = 0
             }
             else {
                 this.timerId = setInterval(()=> {
-                    time++;
-                    timeLabel.text = this.formatSecond(time);
+                    this.time++;
+                    timeLabel.text = this.formatSecond(this.time);
                 }, 1000);
                 // $("#btnToggleTime").val("暂停");
-                isRunning = true;
             }
         });
         cmd.on(CommandId.resetTimer, ()=> {
             //$("#btnResetTime").on(MouseEvt.CLICK, ()=> {
-            time = 0;
-            timeLabel.text = this.formatSecond(time);
+            this.time = 0;
+            timeLabel.text = this.formatSecond(this.time);
         });
+        this.timeLabel = timeLabel;
+        container.addChild(timeLabel);
+        if (!this.isClient) {
+            var btnLeft = this.newBtn(()=> {
+                appInfo.panelInfo.stagePanelInfo.addLeftScore();
+            });
+            btnLeft.x = 450;
+            btnLeft.y = 5;
+            container.addChild(btnLeft);
 
-        this.stage.addChild(timeLabel);
-
+            var btnLeft = this.newBtn(()=> {
+                appInfo.panelInfo.stagePanelInfo.addRightScore();
+            });
+            btnLeft.x = 650;
+            btnLeft.y = 5;
+            container.addChild(btnLeft);
+        }
         if (param) {
             this.setLeftScore(param.leftScore);
             this.setRightScore(param.rightScore);
+            this.setTime(param.time, param.state);
         }
     }
 

@@ -12,6 +12,7 @@ class StagePanelInfo extends EventDispatcher {
     leftScore:number = 0;
     rightScore:number = 0;
     time:number = 0;
+    timerState:number = 0;
 
     addLeftScore() {
         this.leftScore = (this.leftScore + 1) % (this.winScore + 1);

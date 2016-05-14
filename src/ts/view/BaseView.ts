@@ -20,8 +20,17 @@ class BaseView {
     hide() {
 
     }
-    path(p){
-        if(this.isClient)
+
+    newBtn(func) {
+        var btn = new createjs.Shape();
+        btn.graphics.beginFill("#ccc");
+        btn.graphics.drawRect(0, 0, 75, 30);
+        btn.addEventListener("click", func);
+        return btn;
+    }
+
+    path(p) {
+        if (this.isClient)
             return '/' + p;
         return p;
     }
