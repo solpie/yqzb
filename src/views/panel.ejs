@@ -17,8 +17,9 @@
 </head>
 <body>
 <script>
+    var client;
     $(function () {
-        new Client("<%= pid %>")
+        client = new Client("<%= pid %>")
     });
 </script>
 <div>

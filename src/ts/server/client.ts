@@ -2,23 +2,32 @@
 /// <reference path="../model/Command.ts"/>
 /// <reference path="../view/StagePanelView.ts"/>
 var cmd:Command = new Command();
-
+var appInfo = null;
 class Client {
     panel:any;
-
+    pid:number;
     constructor(pid) {
-        this.initWsClient();
-        if (pid == PanelId.stagePanel) {
-            this.panel = new TopPanelView(this.initCanvas(), true);
-        }
+        this.pid = pid;
+        this.initWsClient(pid);
     }
 
-    initWsClient() {
+    initWsClient(pid) {
         var wsc = new WebSocket('ws://localhost:8080');
-        wsc.onmessage = function (event) {
+        wsc.onopen = function () {
+            wsc.send('{"req":"info","param":"' + pid + '"}');
+        };
+        wsc.onmessage =  (event)=> {
             console.log(event.data);
             var info = JSON.parse(event.data);
-            cmd.emit(info.cmd, info.param);
+            if (info.res == "cmd")
+                cmd.emit(info.cmd, info.param);
+            else if (info.res == "init") {
+                if (pid == PanelId.stagePanel) {
+                    this.panel = new TopPanelView(this.initCanvas(), true);
+                    this.panel.init(info.param);
+                    console.log("new panel");
+                }
+            }
         };
     }
 

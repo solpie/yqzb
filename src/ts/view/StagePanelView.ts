@@ -3,48 +3,90 @@
 class TopPanelView extends BaseView {
     time:number;
     timerId:number;
+    leftCircleArr:any;
+    rightCircleArr:any;
+    leftScoreLabel:any;
+    rightScoreLabel:any;
 
     constructor(stage, isClient) {
         super(stage, isClient);
+        if (!this.isClient)
+            this.init(null);
 
-        this.init();
+        this.handle();
     }
 
-    init() {
+    handle() {
+        cmd.on(CommandId.addLeftScore, (leftScore)=> {
+            this.setLeftScore(leftScore)
+        });
+
+        cmd.on(CommandId.addRightScore, (rightScore)=> {
+            this.setRightScore(rightScore);
+        });
+    }
+
+    setLeftScore(leftScore) {
+        this.leftScoreLabel.text = leftScore + "";
+        for (var i = 0; i < 5; i++) {
+            if (i < leftScore) {
+                createjs.Tween.get(this.leftCircleArr[i]).to({alpha: 1}, 200);
+                //circleArr[i].alpha = 1;
+            }
+            else {
+                createjs.Tween.get(this.leftCircleArr[i]).to({alpha: 0}, 200);
+                //circleArr[i].alpha = 0;
+            }
+        }
+        console.log(leftScore);
+    }
+
+    setRightScore(rightScore) {
+        this.rightScoreLabel.text = rightScore + "";
+        for (var i = 0; i < 5; i++) {
+            if (i < rightScore) {
+                createjs.Tween.get(this.rightCircleArr[5 - 1 - i]).to({alpha: 1}, 200);
+            }
+            else {
+                createjs.Tween.get(this.rightCircleArr[5 - 1 - i]).to({alpha: 0}, 200);
+            }
+        }
+    }
+
+    init(param) {
+
         var bg = new createjs.Bitmap(this.path("img/panelTop.png"));
         bg.x = 150;
         bg.y = 5;
         this.stage.addChild(bg);
         //left
-        var leftScore = 0;
-        var rightScore = 0;
+        this.leftCircleArr = [];
+        this.rightCircleArr = [];
         var px = 205;
         var py = 40;
-        var circleArr = [];
-        var circleRArr = [];
         for (var i = 0; i < 5; i++) {
             var spCircle = new createjs.Shape();
             spCircle.graphics.beginFill("#7f745b");
             spCircle.graphics.drawCircle(px + i * 50, py, 15);
             spCircle.graphics.beginFill("#4b4b4b");
             spCircle.graphics.drawCircle(px + i * 50, py, 12);
-            if (!this.isClient) {
-                spCircle.addEventListener("click", function () {
-                    cmd.emit(CommandId.addLeftScore);
-                });
-            }
+            // if (!this.isClient) {
+            //     spCircle.addEventListener("click", function () {
+            //         appInfo.panelInfo.stagePanelInfo.addLeftScore();
+            //     });
+            // }
             this.stage.addChild(spCircle);
             var circleHide = new createjs.Shape();
             circleHide.graphics.beginFill("#ffff00");
             circleHide.graphics.drawCircle(px + i * 50, py, 12);
             this.stage.addChild(circleHide);
-            if (!this.isClient) {
-                circleHide.addEventListener("click", function () {
-                    cmd.emit(CommandId.addLeftScore);
-                });
-            }
+            // if (!this.isClient) {
+            //     circleHide.addEventListener("click", function () {
+            //         appInfo.panelInfo.stagePanelInfo.addLeftScore();
+            //     });
+            // }
             circleHide.alpha = 0;
-            circleArr.push(circleHide)
+            this.leftCircleArr.push(circleHide)
         }
         //right
         px = 700;
@@ -54,69 +96,44 @@ class TopPanelView extends BaseView {
             spCircle.graphics.drawCircle(px + i * 50, py, 15);
             spCircle.graphics.beginFill("#4b4b4b");
             spCircle.graphics.drawCircle(px + i * 50, py, 12);
-            if (!this.isClient) {
-                spCircle.addEventListener("click", function () {
-                    cmd.emit(CommandId.addRightScore);
-                });
-            }
+            // if (!this.isClient) {
+            //     spCircle.addEventListener("click", function () {
+            //         appInfo.panelInfo.stagePanelInfo.addRightScore();
+            //     });
+            // }
             this.stage.addChild(spCircle);
             var circleHide = new createjs.Shape();
             circleHide.graphics.beginFill("#0c83fc");
             circleHide.graphics.drawCircle(px + i * 50, py, 12);
-            if (!this.isClient) {
-                circleHide.addEventListener("click", function () {
-                    cmd.emit(CommandId.addRightScore);
-                });
-            }
+            // if (!this.isClient) {
+            //     circleHide.addEventListener("click", function () {
+            //         appInfo.panelInfo.stagePanelInfo.addRightScore();
+            //     });
+            // }
             this.stage.addChild(circleHide);
             circleHide.alpha = 0;
-            circleRArr.push(circleHide)
+            this.rightCircleArr.push(circleHide)
         }
 
         var leftScoreLabel = new createjs.Text("0", "30px Arial", "#a2a2a2");
         leftScoreLabel.x = 490;
         leftScoreLabel.y = 30;
+        if (!this.isClient)
+            leftScoreLabel.addEventListener("click", function () {
+                appInfo.panelInfo.stagePanelInfo.addLeftScore();
+            });
+        this.leftScoreLabel = leftScoreLabel;
         var rightScoreLabel = new createjs.Text("0", "30px Arial", "#a2a2a2");
         rightScoreLabel.x = 600;
         rightScoreLabel.y = 30;
+        if (!this.isClient)
+            rightScoreLabel.addEventListener("click", function () {
+                appInfo.panelInfo.stagePanelInfo.addRightScore();
+            });
+        this.rightScoreLabel = rightScoreLabel;
         this.stage.addChild(leftScoreLabel);
         this.stage.addChild(rightScoreLabel);
 
-        cmd.on(CommandId.addLeftScore, ()=> {
-            leftScore++;
-            if (leftScore > 5) {
-                leftScore = 0;
-            }
-
-            leftScoreLabel.text = leftScore + "";
-            for (var i = 0; i < 5; i++) {
-                if (i < leftScore) {
-                    createjs.Tween.get(circleArr[i]).to({alpha: 1}, 200);
-                    //circleArr[i].alpha = 1;
-                }
-                else {
-                    createjs.Tween.get(circleArr[i]).to({alpha: 0}, 200);
-                    //circleArr[i].alpha = 0;
-                }
-            }
-            console.log(leftScore);
-        });
-
-        cmd.on(CommandId.addRightScore, ()=> {
-            rightScore++;
-            if (rightScore > 5) {
-                rightScore = 0;
-            }
-            rightScoreLabel.text = rightScore + "";
-            for (var i = 0; i < 5; i++) {
-                if (i < rightScore) {
-                    createjs.Tween.get(circleRArr[5 - 1 - i]).to({alpha: 1}, 200);
-                }
-                else {
-                    createjs.Tween.get(circleRArr[5 - 1 - i]).to({alpha: 0}, 200);
-                }
-            }
-        });
 
         ///time label---------------------------------------------------
         var time = 0;
@@ -146,6 +163,11 @@ class TopPanelView extends BaseView {
         });
 
         this.stage.addChild(timeLabel);
+
+        if (param) {
+            this.setLeftScore(param.leftScore);
+            this.setRightScore(param.rightScore);
+        }
     }
 
 

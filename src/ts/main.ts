@@ -3,7 +3,6 @@
 /// <reference path="model/Command.ts"/>
 /// <reference path="view/AppView.ts"/>
 /// <reference path="server/HttpServer.ts"/>
-
 var cmd:Command = new Command();
 var appInfo = new AppInfo();
 var app:YuanqiTvView;

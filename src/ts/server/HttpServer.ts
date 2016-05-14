@@ -74,12 +74,23 @@ class HttpServer {
             var location = url.parse(ws.upgradeReq.url, true);
             // you might use location.query.access_token to authenticate or share sessions
             // or ws.upgradeReq.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
-
+            console.log(location);
             ws.on('message', function incoming(message) {
                 console.log('received: %s', message);
+                var req = JSON.parse(message);
+                if (req.param == PanelId.stagePanel) {
+                    // console.log('received: %s', message);
+                    wss.broadcast({
+                        res: "init",
+                        param: {
+                            leftScore: appInfo.panelInfo.stagePanelInfo.leftScore,
+                            rightScore: appInfo.panelInfo.stagePanelInfo.rightScore,
+                        }
+                    })
+                }
             });
 
-            ws.send(JSON.stringify({op: "keep"}));
+            ws.send(JSON.stringify({res: "keep"}));
         });
 
         wss.broadcast = function broadcast(data) {
@@ -91,7 +102,7 @@ class HttpServer {
         };
 
         cmd.broadCast = function broadcastCmd(cmdId, param) {
-            var strData = JSON.stringify({cmd: cmdId, param: param});
+            var strData = JSON.stringify({res: "cmd", cmd: cmdId, param: param});
             console.log("server:", strData);
             wss.clients.forEach(function each(client) {
                 client.send(strData);

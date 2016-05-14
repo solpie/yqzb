@@ -3,7 +3,6 @@
 /// <reference path="../Model/ElemID.ts"/>
 /// <reference path="../JQuery.ts"/>
 /// <reference path="../lib.ts"/>
-
 class BaseView {
     stage:any;
     isClient:Boolean = false;
@@ -11,6 +10,7 @@ class BaseView {
     constructor(stage, isClient) {
         this.stage = stage;
         this.isClient = isClient;
+
     }
 
     show() {
