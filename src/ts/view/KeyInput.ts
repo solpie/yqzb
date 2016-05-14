@@ -38,6 +38,9 @@ class KeyInput {
         else if (Keys.Char(key, "O") && isCtrl) {//enter
 
         }
+        else if (key=123) {//F12
+            win.showDevTools();
+        }
         else if (Keys.Char(key, "S") && isCtrl) {//enter
             //cmd.emit(CommandId.FileMenuSave);
         }

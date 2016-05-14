@@ -4,9 +4,8 @@ import Container = createjs.Container;
 class TrackerView extends BaseView {
     tracker:Container;
     ballCtn:Container;
-    constructor(stage) {
-        super();
-        this.stage = stage;
+    constructor(stage,isClient) {
+        super(stage,isClient);
         this.init();
 
         cmd.on(CommandId.toggleTracker, ()=> {
@@ -64,28 +63,28 @@ class TrackerView extends BaseView {
 
 
 
-        var video = document.getElementById('camFeed');
-        var canvas = document.getElementById('camCanvas');
-        var context = canvas.getContext('2d');
-
-        var tracker1 = new tracking.ObjectTracker('face');
-        tracker1.setInitialScale(4);
-        tracker1.setStepSize(2);
-        tracker1.setEdgesDensity(0.1);
-
-        tracking.track('#camFeed', tracker1, { camera: true });
-
-        tracker1.on('track', function(event) {
-            context.clearRect(0, 0, canvas.width, canvas.height);
-
-            event.data.forEach(function(rect) {
-                context.strokeStyle = '#a64ceb';
-                context.strokeRect(rect.x, rect.y, rect.width, rect.height);
-                context.font = '11px Helvetica';
-                context.fillStyle = "#fff";
-                context.fillText('x: ' + rect.x + 'px', rect.x + rect.width + 5, rect.y + 11);
-                context.fillText('y: ' + rect.y + 'px', rect.x + rect.width + 5, rect.y + 22);
-            });
-        });
+        // var video = document.getElementById('camFeed');
+        // var canvas = document.getElementById('camCanvas');
+        // var context = canvas.getContext('2d');
+        //
+        // var tracker1 = new tracking.ObjectTracker('face');
+        // tracker1.setInitialScale(4);
+        // tracker1.setStepSize(2);
+        // tracker1.setEdgesDensity(0.1);
+        //
+        // tracking.track('#camFeed', tracker1, { camera: true });
+        //
+        // tracker1.on('track', function(event) {
+        //     context.clearRect(0, 0, canvas.width, canvas.height);
+        //
+        //     event.data.forEach(function(rect) {
+        //         context.strokeStyle = '#a64ceb';
+        //         context.strokeRect(rect.x, rect.y, rect.width, rect.height);
+        //         context.font = '11px Helvetica';
+        //         context.fillStyle = "#fff";
+        //         context.fillText('x: ' + rect.x + 'px', rect.x + rect.width + 5, rect.y + 11);
+        //         context.fillText('y: ' + rect.y + 'px', rect.x + rect.width + 5, rect.y + 22);
+        //     });
+        // });
     }
 }

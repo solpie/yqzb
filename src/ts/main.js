@@ -1,3 +1,8 @@
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 function chooseFile(name) {
     var chooser = $(name);
     chooser.unbind('change');
@@ -18,12 +23,15 @@ var EventDispatcher = (function () {
         this._func[type].push({ func: func, id: this._funcId });
     };
     EventDispatcher.prototype.emit = function (type, param) {
-        if (this._func[type])
+        if (this._func[type]) {
             for (var i = 0; i < this._func[type].length; ++i) {
                 var f = this._func[type][i];
                 if (f)
                     f.func(param);
             }
+            if (this.broadCast)
+                this.broadCast(type, param);
+        }
     };
     EventDispatcher.prototype.del = function (type, funcId) {
         if (funcId === void 0) { funcId = -1; }
@@ -48,13 +56,13 @@ var EventDispatcher = (function () {
         this._func = {};
     };
     return EventDispatcher;
-})();
+}());
 /// <reference path="EventDispatcher.ts"/>
 var BaseEvent = (function () {
     function BaseEvent() {
     }
     return BaseEvent;
-})();
+}());
 var MouseButton;
 (function (MouseButton) {
     MouseButton[MouseButton["LEFT"] = 0] = "LEFT";
@@ -72,7 +80,7 @@ var MouseEvt = (function () {
     MouseEvt.LEAVE = "mouseleave"; //build-in name
     MouseEvt.RCLICK = "contextmenu"; //build-in name
     return MouseEvt;
-})();
+}());
 var KeyEvt = (function () {
     function KeyEvt() {
     }
@@ -80,7 +88,7 @@ var KeyEvt = (function () {
     KeyEvt.UP = "keyup"; //build-in name
     KeyEvt.PRESS = "keypress"; //build-in name
     return KeyEvt;
-})();
+}());
 var ViewEvent = (function () {
     function ViewEvent() {
     }
@@ -90,77 +98,11 @@ var ViewEvent = (function () {
     ViewEvent.LOADED = "loaded";
     ViewEvent.HIDED = "hided";
     return ViewEvent;
-})();
-///   model  events
-var ProjectInfoEvent = (function () {
-    function ProjectInfoEvent() {
-    }
-    ProjectInfoEvent.NEW_PROJ = "NEW_PROJ";
-    return ProjectInfoEvent;
-})();
-var SettingInfoEvent = (function () {
-    function SettingInfoEvent() {
-    }
-    SettingInfoEvent.SET_TMP_PATH = "SET_TMP_PATH";
-    SettingInfoEvent.SET_DRAW_APP1 = "SET_DRAW_APP1";
-    SettingInfoEvent.SET_DRAW_APP2 = "SET_DRAW_APP2";
-    return SettingInfoEvent;
-})();
-var CompInfoEvent = (function () {
-    function CompInfoEvent() {
-    }
-    CompInfoEvent.NEW_COMP = "new comp";
-    CompInfoEvent.NEW_TRACK = "new track";
-    CompInfoEvent.DEL_TRACK = "delete track";
-    CompInfoEvent.SWAP_TRACK = "swap track";
-    CompInfoEvent.UPDATE_CURSOR = "UPDATE_Cursor";
-    CompInfoEvent.FRAME_WIDTH_CHANGE = "frame width change";
-    return CompInfoEvent;
-})();
-var TrackInfoEvent = (function () {
-    function TrackInfoEvent() {
-    }
-    TrackInfoEvent.LOADED = "load all imgs";
-    TrackInfoEvent.SEL_TRACK = "select track";
-    TrackInfoEvent.SEL_FRAME = "select frame";
-    TrackInfoEvent.DEL_FRAME = "delete frame";
-    TrackInfoEvent.SET_ACT_TYPE = "set act type";
-    TrackInfoEvent.SET_OPACITY = "set track opacity";
-    TrackInfoEvent.SET_ENABLE = "set track enable";
-    TrackInfoEvent.SET_NAME = "set track name";
-    TrackInfoEvent.SET_TRACK_START = "SET_TRACK_START";
-    return TrackInfoEvent;
-})();
-var FrameTimerEvent = (function () {
-    function FrameTimerEvent() {
-    }
-    FrameTimerEvent.TICK = "TICK";
-    return FrameTimerEvent;
-})();
-var TheMachineEvent = (function () {
-    function TheMachineEvent() {
-    }
-    TheMachineEvent.UPDATE_IMG = "UPDATE_IMG";
-    TheMachineEvent.ADD_IMG = "ADD_IMG";
-    return TheMachineEvent;
-})();
-var TeamEvent = (function () {
-    function TeamEvent() {
-    }
-    TeamEvent.UPDATE = "UPDATE_TEAM";
-    TeamEvent.ADD_IMG = "ADD_IMG";
-    return TeamEvent;
-})();
+}());
 /**
  * Created by toramisu on 2016/5/9.
  */
 /// <reference path="../event/ActEvent.ts"/>
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 var AppInfo = (function (_super) {
     __extends(AppInfo, _super);
     function AppInfo() {
@@ -168,7 +110,7 @@ var AppInfo = (function (_super) {
         console.log("");
     }
     return AppInfo;
-})(EventDispatcher);
+}(EventDispatcher));
 /// <reference path="../event/EventDispatcher.ts"/>
 var CommandId;
 (function (CommandId) {
@@ -191,7 +133,7 @@ var CommandItem = (function () {
         this.id = id;
     }
     return CommandItem;
-})();
+}());
 var Command = (function (_super) {
     __extends(Command, _super);
     function Command() {
@@ -213,35 +155,51 @@ var Command = (function (_super) {
         this.cmdArr.push(ci);
     };
     return Command;
-})(EventDispatcher);
+}(EventDispatcher));
+/// <reference path="JQuery.ts"/>
+/// <reference path="libs/createjs/easeljs.d.ts"/>
+/// <reference path="libs/createjs/createjs.d.ts"/>
+/// <reference path="libs/createjs/createjs-lib.d.ts"/>
+/// <reference path="libs/createjs/tweenjs.d.ts"/>
 var ElmId$ = {
     buttonAddLeftScore: "#btnAddLeftScore",
     buttonAddRightScore: "#btnAddRightScore"
+};
+var PanelId = {
+    stagePanel: 'StagePanel'
 };
 /// <reference path="../Model/appInfo.ts"/>
 /// <reference path="../Model/Command.ts"/>
 /// <reference path="../Model/ElemID.ts"/>
 /// <reference path="../JQuery.ts"/>
+/// <reference path="../lib.ts"/>
 var BaseView = (function () {
-    function BaseView() {
+    function BaseView(stage, isClient) {
+        this.isClient = false;
+        this.stage = stage;
+        this.isClient = isClient;
     }
     BaseView.prototype.show = function () {
     };
     BaseView.prototype.hide = function () {
     };
+    BaseView.prototype.path = function (p) {
+        if (this.isClient)
+            return '/' + p;
+        return p;
+    };
     return BaseView;
-})();
+}());
 /// <reference path="BaseView.ts"/>
 var TopPanelView = (function (_super) {
     __extends(TopPanelView, _super);
-    function TopPanelView(stage) {
-        this.stage = stage;
-        _super.call(this);
+    function TopPanelView(stage, isClient) {
+        _super.call(this, stage, isClient);
         this.init();
     }
     TopPanelView.prototype.init = function () {
         var _this = this;
-        var bg = new createjs.Bitmap("img/panelTop.png");
+        var bg = new createjs.Bitmap(this.path("img/panelTop.png"));
         bg.x = 150;
         bg.y = 5;
         this.stage.addChild(bg);
@@ -258,11 +216,21 @@ var TopPanelView = (function (_super) {
             spCircle.graphics.drawCircle(px + i * 50, py, 15);
             spCircle.graphics.beginFill("#4b4b4b");
             spCircle.graphics.drawCircle(px + i * 50, py, 12);
+            if (!this.isClient) {
+                spCircle.addEventListener("click", function () {
+                    cmd.emit(CommandId.addLeftScore);
+                });
+            }
             this.stage.addChild(spCircle);
             var circleHide = new createjs.Shape();
             circleHide.graphics.beginFill("#ffff00");
             circleHide.graphics.drawCircle(px + i * 50, py, 12);
             this.stage.addChild(circleHide);
+            if (!this.isClient) {
+                circleHide.addEventListener("click", function () {
+                    cmd.emit(CommandId.addLeftScore);
+                });
+            }
             circleHide.alpha = 0;
             circleArr.push(circleHide);
         }
@@ -274,10 +242,20 @@ var TopPanelView = (function (_super) {
             spCircle.graphics.drawCircle(px + i * 50, py, 15);
             spCircle.graphics.beginFill("#4b4b4b");
             spCircle.graphics.drawCircle(px + i * 50, py, 12);
+            if (!this.isClient) {
+                spCircle.addEventListener("click", function () {
+                    cmd.emit(CommandId.addRightScore);
+                });
+            }
             this.stage.addChild(spCircle);
             var circleHide = new createjs.Shape();
             circleHide.graphics.beginFill("#0c83fc");
             circleHide.graphics.drawCircle(px + i * 50, py, 12);
+            if (!this.isClient) {
+                circleHide.addEventListener("click", function () {
+                    cmd.emit(CommandId.addRightScore);
+                });
+            }
             this.stage.addChild(circleHide);
             circleHide.alpha = 0;
             circleRArr.push(circleHide);
@@ -361,14 +339,13 @@ var TopPanelView = (function (_super) {
         return strMin + ":" + strSec;
     };
     return TopPanelView;
-})(BaseView);
+}(BaseView));
 var Container = createjs.Container;
 var TrackerView = (function (_super) {
     __extends(TrackerView, _super);
-    function TrackerView(stage) {
+    function TrackerView(stage, isClient) {
         var _this = this;
-        _super.call(this);
-        this.stage = stage;
+        _super.call(this, stage, isClient);
         this.init();
         cmd.on(CommandId.toggleTracker, function () {
             if (_this.tracker.parent)
@@ -417,36 +394,37 @@ var TrackerView = (function (_super) {
         ballCtn.addChild(ball);
         this.ballCtn = ballCtn;
         ////
-        var video = document.getElementById('camFeed');
-        var canvas = document.getElementById('camCanvas');
-        var context = canvas.getContext('2d');
-        var tracker1 = new tracking.ObjectTracker('face');
-        tracker1.setInitialScale(4);
-        tracker1.setStepSize(2);
-        tracker1.setEdgesDensity(0.1);
-        tracking.track('#camFeed', tracker1, { camera: true });
-        tracker1.on('track', function (event) {
-            context.clearRect(0, 0, canvas.width, canvas.height);
-            event.data.forEach(function (rect) {
-                context.strokeStyle = '#a64ceb';
-                context.strokeRect(rect.x, rect.y, rect.width, rect.height);
-                context.font = '11px Helvetica';
-                context.fillStyle = "#fff";
-                context.fillText('x: ' + rect.x + 'px', rect.x + rect.width + 5, rect.y + 11);
-                context.fillText('y: ' + rect.y + 'px', rect.x + rect.width + 5, rect.y + 22);
-            });
-        });
+        // var video = document.getElementById('camFeed');
+        // var canvas = document.getElementById('camCanvas');
+        // var context = canvas.getContext('2d');
+        //
+        // var tracker1 = new tracking.ObjectTracker('face');
+        // tracker1.setInitialScale(4);
+        // tracker1.setStepSize(2);
+        // tracker1.setEdgesDensity(0.1);
+        //
+        // tracking.track('#camFeed', tracker1, { camera: true });
+        //
+        // tracker1.on('track', function(event) {
+        //     context.clearRect(0, 0, canvas.width, canvas.height);
+        //
+        //     event.data.forEach(function(rect) {
+        //         context.strokeStyle = '#a64ceb';
+        //         context.strokeRect(rect.x, rect.y, rect.width, rect.height);
+        //         context.font = '11px Helvetica';
+        //         context.fillStyle = "#fff";
+        //         context.fillText('x: ' + rect.x + 'px', rect.x + rect.width + 5, rect.y + 11);
+        //         context.fillText('y: ' + rect.y + 'px', rect.x + rect.width + 5, rect.y + 22);
+        //     });
+        // });
     };
     return TrackerView;
-})(BaseView);
+}(BaseView));
 /**
  * Created by toramisu on 2016/5/9.
  */
-/// <reference path="../createjs-lib.d.ts"/>
-/// <reference path="../createjs.d.ts"/>
-/// <reference path="../easeljs.d.ts"/>
-/// <reference path="../tweenjs.d.ts"/>
-/// <reference path="TopPanelView.ts"/>
+/// <reference path="../lib.ts"/>
+/// <reference path="StagePanelView.ts"/>
 /// <reference path="TrackerView.ts"/>
 var Stage = createjs.Stage;
 var StageView = (function () {
@@ -475,8 +453,8 @@ var StageView = (function () {
         //bgRed.graphics.endFill();
         //this.stage.addChild(bgRed);
         //add mod
-        this.panelView = new TopPanelView(this.stage);
-        this.trackerView = new TrackerView(this.stage);
+        this.panelView = new TopPanelView(this.stage, false);
+        this.trackerView = new TrackerView(this.stage, false);
         ////avatar panel
         //var bgAvatar = new createjs.Shape();
         //bgAvatar.graphics.beginFill("#cccccc");
@@ -539,7 +517,7 @@ var StageView = (function () {
     StageView.prototype.addScore = function () {
     };
     return StageView;
-})();
+}());
 var fs = require('fs');
 var Stream = require('stream');
 var zlib = require('zlib');
@@ -657,7 +635,7 @@ var WindowView = (function () {
         //});
     }
     return WindowView;
-})();
+}());
 var KeyInput = (function () {
     function KeyInput() {
     }
@@ -688,6 +666,9 @@ var KeyInput = (function () {
         }
         else if (Keys.Char(key, "O") && isCtrl) {
         }
+        else if (key = 123) {
+            win.showDevTools();
+        }
         else if (Keys.Char(key, "S") && isCtrl) {
         }
         else if (Keys.GraveAccent(key)) {
@@ -695,13 +676,13 @@ var KeyInput = (function () {
         }
     };
     return KeyInput;
-})();
+}());
 /**
  * Created by toramisu on 2016/5/9.
  */
-/// <reference path="StageView.ts"/>
+/// <reference path="ServerView.ts"/>
 /// <reference path="WinView.ts"/>
-/// <reference path="TopPanelView.ts"/>
+/// <reference path="StagePanelView.ts"/>
 /// <reference path="KeyInput.ts"/>
 /// <reference path="../JQuery.ts"/>
 var Keys = {
@@ -746,7 +727,7 @@ var YuanqiTvView = (function () {
         function onFail() {
             alert('could not connect stream');
         }
-        initCamera();
+        // initCamera();
     }
     YuanqiTvView.prototype.run = function () {
         this.winView = new WindowView();
@@ -754,7 +735,7 @@ var YuanqiTvView = (function () {
         console.log("run");
     };
     return YuanqiTvView;
-})();
+}());
 /**
  * Created by toramisu on 2016/5/13.
  */
@@ -780,21 +761,30 @@ var HttpServer = (function () {
         app.get('/', function (req, res) {
             res.render('dashboard');
         });
+        app.get('/panel/:id', function (req, res) {
+            var pid = req.params.id;
+            if (pid == "stage") {
+                res.render('panel', { pid: PanelId.stagePanel });
+            }
+            else {
+                res.send(pid);
+            }
+        });
         app.post('/getPlayerInfo', function (req, res) {
             var playerId = req.body.id;
             console.log("PlayerInfo ", playerId);
         });
-        var postToCmd = function (route, cmdId) {
-            app.post(route, function (req, res) {
-                cmd.emit(cmdId);
-                res.send("sus");
-            });
-        };
-        //top panel
-        postToCmd('/addLeftScore', CommandId.addLeftScore);
-        postToCmd('/addRightScore', CommandId.addRightScore);
-        postToCmd('/toggleTimer', CommandId.toggleTimer);
-        postToCmd('/resetTimer', CommandId.resetTimer);
+        // var postToCmd = function (route, cmdId) {
+        //     app.post(route, function (req, res) {
+        //         cmd.emit(cmdId);
+        //         res.send("sus");
+        //     });
+        // };
+        // //top panel
+        // postToCmd('/addLeftScore', CommandId.addLeftScore);
+        // postToCmd('/addRightScore', CommandId.addRightScore);
+        // postToCmd('/toggleTimer', CommandId.toggleTimer);
+        // postToCmd('/resetTimer', CommandId.resetTimer);
         //setup the web server
         app.server = http.createServer(app);
         //listen up
@@ -802,9 +792,40 @@ var HttpServer = (function () {
             //and... we're live
             console.log('Server is running on port ' + 80);
         });
+        this.serverSend();
     }
+    HttpServer.prototype.serverSend = function () {
+        var url = require('url');
+        var WebSocketServer = require('ws').Server, wss = new WebSocketServer({ port: 8080 });
+        wss.on('connection', function connection(ws) {
+            var location = url.parse(ws.upgradeReq.url, true);
+            // you might use location.query.access_token to authenticate or share sessions
+            // or ws.upgradeReq.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
+            ws.on('message', function incoming(message) {
+                console.log('received: %s', message);
+            });
+            ws.send(JSON.stringify({ op: "keep" }));
+        });
+        wss.broadcast = function broadcast(data) {
+            var strData = JSON.stringify(data);
+            console.log("server:", strData);
+            wss.clients.forEach(function each(client) {
+                client.send(strData);
+            });
+        };
+        cmd.broadCast = function broadcastCmd(cmdId, param) {
+            var strData = JSON.stringify({ cmd: cmdId, param: param });
+            console.log("server:", strData);
+            wss.clients.forEach(function each(client) {
+                client.send(strData);
+            });
+        };
+        // cmd.on(CommandId.addLeftScore, ()=> {
+        //     wss.broadcast({op: "addLeftScore"});
+        // });
+    };
     return HttpServer;
-})();
+}());
 /// <reference path="JQuery.ts"/>
 /// <reference path="model/AppInfo.ts"/>
 /// <reference path="model/Command.ts"/>

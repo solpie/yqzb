@@ -1,9 +1,9 @@
 /**
  * Created by toramisu on 2016/5/9.
  */
-/// <reference path="StageView.ts"/>
+/// <reference path="ServerView.ts"/>
 /// <reference path="WinView.ts"/>
-/// <reference path="TopPanelView.ts"/>
+/// <reference path="StagePanelView.ts"/>
 /// <reference path="KeyInput.ts"/>
 /// <reference path="../JQuery.ts"/>
 var Keys = {
@@ -60,7 +60,7 @@ class YuanqiTvView {
             alert('could not connect stream');
         }
 
-        initCamera();
+        // initCamera();
     }
 
     run() {

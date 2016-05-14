@@ -5,7 +5,7 @@ var minifyCSS = require('gulp-minify-css');
 var run = require('gulp-run');
 var NwBuilder = require('nw-builder');
 //setting
-var nwjsVersion = "0.12.1";
+var nwjsVersion = "0.12.3";
 var isDev = true;
 var tsc = function () {
     return run('tsc --out src/main.js src/ts/main.ts').exec();

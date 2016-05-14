@@ -1,11 +1,8 @@
 /**
  * Created by toramisu on 2016/5/9.
  */
-/// <reference path="../createjs-lib.d.ts"/>
-/// <reference path="../createjs.d.ts"/>
-/// <reference path="../easeljs.d.ts"/>
-/// <reference path="../tweenjs.d.ts"/>
-/// <reference path="TopPanelView.ts"/>
+/// <reference path="../lib.ts"/>
+/// <reference path="StagePanelView.ts"/>
 /// <reference path="TrackerView.ts"/>
 import Stage = createjs.Stage;
 
@@ -18,6 +15,7 @@ class StageView {
     stageHeight:number = 800;
     panelView:TopPanelView;
     trackerView:TrackerView;
+
     constructor() {
         //this.canvasEl = document.getElementById("stage");
         //this.canvasEl.setAttribute("width", 800 + "");
@@ -44,9 +42,8 @@ class StageView {
         //bgRed.graphics.endFill();
         //this.stage.addChild(bgRed);
         //add mod
-        this.panelView = new TopPanelView(this.stage);
-        this.trackerView = new TrackerView(this.stage);
-
+        this.panelView = new TopPanelView(this.stage, false);
+        this.trackerView = new TrackerView(this.stage, false);
 
 
         ////avatar panel

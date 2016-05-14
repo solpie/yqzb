@@ -1,6 +1,7 @@
 class EventDispatcher {
     _func:Object;
     _funcId:number;
+    broadCast:any;
 
     constructor() {
         this._func = {};
@@ -15,12 +16,15 @@ class EventDispatcher {
     }
 
     emit(type:any, param?) {
-        if (this._func[type])
+        if (this._func[type]) {
             for (var i = 0; i < this._func[type].length; ++i) {
                 var f = this._func[type][i];
                 if (f)
                     f.func(param);
             }
+            if (this.broadCast)
+                this.broadCast(type,param);
+        }
     }
 
     del(type:string, funcId:number = -1) {

@@ -13,7 +13,6 @@ class WindowView {
         $("#btnDbg").on(MouseEvt.CLICK, function () {
             win.showDevTools('', true);
         });
-
         ///dashboard
         //var win = gui.Window.open ('panel.html', {
         //    position: 'center',

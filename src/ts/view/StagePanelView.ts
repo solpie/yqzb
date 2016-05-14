@@ -4,14 +4,14 @@ class TopPanelView extends BaseView {
     time:number;
     timerId:number;
 
-    constructor(stage) {
-        this.stage = stage;
-        super();
+    constructor(stage, isClient) {
+        super(stage, isClient);
+
         this.init();
     }
 
     init() {
-        var bg = new createjs.Bitmap("img/panelTop.png");
+        var bg = new createjs.Bitmap(this.path("img/panelTop.png"));
         bg.x = 150;
         bg.y = 5;
         this.stage.addChild(bg);
@@ -28,11 +28,21 @@ class TopPanelView extends BaseView {
             spCircle.graphics.drawCircle(px + i * 50, py, 15);
             spCircle.graphics.beginFill("#4b4b4b");
             spCircle.graphics.drawCircle(px + i * 50, py, 12);
+            if (!this.isClient) {
+                spCircle.addEventListener("click", function () {
+                    cmd.emit(CommandId.addLeftScore);
+                });
+            }
             this.stage.addChild(spCircle);
             var circleHide = new createjs.Shape();
             circleHide.graphics.beginFill("#ffff00");
             circleHide.graphics.drawCircle(px + i * 50, py, 12);
             this.stage.addChild(circleHide);
+            if (!this.isClient) {
+                circleHide.addEventListener("click", function () {
+                    cmd.emit(CommandId.addLeftScore);
+                });
+            }
             circleHide.alpha = 0;
             circleArr.push(circleHide)
         }
@@ -44,10 +54,20 @@ class TopPanelView extends BaseView {
             spCircle.graphics.drawCircle(px + i * 50, py, 15);
             spCircle.graphics.beginFill("#4b4b4b");
             spCircle.graphics.drawCircle(px + i * 50, py, 12);
+            if (!this.isClient) {
+                spCircle.addEventListener("click", function () {
+                    cmd.emit(CommandId.addRightScore);
+                });
+            }
             this.stage.addChild(spCircle);
             var circleHide = new createjs.Shape();
             circleHide.graphics.beginFill("#0c83fc");
             circleHide.graphics.drawCircle(px + i * 50, py, 12);
+            if (!this.isClient) {
+                circleHide.addEventListener("click", function () {
+                    cmd.emit(CommandId.addRightScore);
+                });
+            }
             this.stage.addChild(circleHide);
             circleHide.alpha = 0;
             circleRArr.push(circleHide)
@@ -104,10 +124,10 @@ class TopPanelView extends BaseView {
         timeLabel.x = 520;
         timeLabel.y = 90;
         var isRunning = false;
-        cmd.on(CommandId.toggleTimer,()=>{
+        cmd.on(CommandId.toggleTimer, ()=> {
             if (isRunning) {
                 clearInterval(this.timerId);
-                $("#btnToggleTime").val("开始");
+                // $("#btnToggleTime").val("开始");
                 isRunning = false;
             }
             else {
@@ -115,17 +135,14 @@ class TopPanelView extends BaseView {
                     time++;
                     timeLabel.text = this.formatSecond(time);
                 }, 1000);
-                $("#btnToggleTime").val("暂停");
+                // $("#btnToggleTime").val("暂停");
                 isRunning = true;
             }
         });
-        cmd.on(CommandId.resetTimer,()=>{
-
+        cmd.on(CommandId.resetTimer, ()=> {
             //$("#btnResetTime").on(MouseEvt.CLICK, ()=> {
             time = 0;
             timeLabel.text = this.formatSecond(time);
-
-
         });
 
         this.stage.addChild(timeLabel);

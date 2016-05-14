@@ -2,11 +2,15 @@
 /// <reference path="../Model/Command.ts"/>
 /// <reference path="../Model/ElemID.ts"/>
 /// <reference path="../JQuery.ts"/>
+/// <reference path="../lib.ts"/>
+
 class BaseView {
-    stage:Stage;
+    stage:any;
+    isClient:Boolean = false;
 
-    constructor() {
-
+    constructor(stage, isClient) {
+        this.stage = stage;
+        this.isClient = isClient;
     }
 
     show() {
@@ -15,5 +19,10 @@ class BaseView {
 
     hide() {
 
+    }
+    path(p){
+        if(this.isClient)
+            return '/' + p;
+        return p;
     }
 }
