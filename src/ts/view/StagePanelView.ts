@@ -85,21 +85,11 @@ class TopPanelView extends BaseView {
             spCircle.graphics.drawCircle(px + i * 50, py, 15);
             spCircle.graphics.beginFill("#4b4b4b");
             spCircle.graphics.drawCircle(px + i * 50, py, 12);
-            // if (!this.isClient) {
-            //     spCircle.addEventListener("click", function () {
-            //         appInfo.panelInfo.stagePanelInfo.addLeftScore();
-            //     });
-            // }
             container.addChild(spCircle);
             var circleHide = new createjs.Shape();
             circleHide.graphics.beginFill("#ffff00");
             circleHide.graphics.drawCircle(px + i * 50, py, 12);
             container.addChild(circleHide);
-            // if (!this.isClient) {
-            //     circleHide.addEventListener("click", function () {
-            //         appInfo.panelInfo.stagePanelInfo.addLeftScore();
-            //     });
-            // }
             circleHide.alpha = 0;
             this.leftCircleArr.push(circleHide)
         }
@@ -111,20 +101,10 @@ class TopPanelView extends BaseView {
             spCircle.graphics.drawCircle(px + i * 50, py, 15);
             spCircle.graphics.beginFill("#4b4b4b");
             spCircle.graphics.drawCircle(px + i * 50, py, 12);
-            // if (!this.isClient) {
-            //     spCircle.addEventListener("click", function () {
-            //         appInfo.panelInfo.stagePanelInfo.addRightScore();
-            //     });
-            // }
             container.addChild(spCircle);
             var circleHide = new createjs.Shape();
             circleHide.graphics.beginFill("#0c83fc");
             circleHide.graphics.drawCircle(px + i * 50, py, 12);
-            // if (!this.isClient) {
-            //     circleHide.addEventListener("click", function () {
-            //         appInfo.panelInfo.stagePanelInfo.addRightScore();
-            //     });
-            // }
             container.addChild(circleHide);
             circleHide.alpha = 0;
             this.rightCircleArr.push(circleHide)
@@ -149,7 +129,6 @@ class TopPanelView extends BaseView {
         cmd.on(CommandId.toggleTimer, ()=> {
             if (this.timerId) {
                 clearInterval(this.timerId);
-                // $("#btnToggleTime").val("开始");
                 this.timerId = 0
             }
             else {
@@ -157,7 +136,6 @@ class TopPanelView extends BaseView {
                     this.time++;
                     timeLabel.text = this.formatSecond(this.time);
                 }, 1000);
-                // $("#btnToggleTime").val("暂停");
             }
         });
         cmd.on(CommandId.resetTimer, ()=> {
