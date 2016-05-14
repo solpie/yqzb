@@ -5,7 +5,7 @@ class TrackerView extends BaseView {
     tracker:Container;
     ballCtn:Container;
     constructor(stage,isClient) {
-        super(stage,isClient);
+        super(stage,isClient,false);
         this.init();
 
         cmd.on(CommandId.toggleTracker, ()=> {

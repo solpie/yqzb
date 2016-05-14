@@ -6,9 +6,12 @@ var appInfo = null;
 class Client {
     panel:any;
     pid:number;
-    constructor(pid) {
+    isOB:boolean;
+
+    constructor(pid, isOB) {
         this.pid = pid;
         this.initWsClient(pid);
+        this.isOB = isOB;
     }
 
     initWsClient(pid) {
@@ -16,14 +19,14 @@ class Client {
         wsc.onopen = function () {
             wsc.send('{"req":"info","param":"' + pid + '"}');
         };
-        wsc.onmessage =  (event)=> {
+        wsc.onmessage = (event)=> {
             console.log(event.data);
             var info = JSON.parse(event.data);
             if (info.res == "cmd")
                 cmd.emit(info.cmd, info.param);
             else if (info.res == "init") {
                 if (pid == PanelId.stagePanel) {
-                    this.panel = new TopPanelView(this.initCanvas(), true);
+                        this.panel = new TopPanelView(this.initCanvas(), true,this.isOB);
                     this.panel.init(info.param);
                     console.log("new panel");
                 }

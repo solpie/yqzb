@@ -11,8 +11,8 @@ class TopPanelView extends BaseView {
 
     timeLabel:any;
 
-    constructor(stage, isClient) {
-        super(stage, isClient);
+    constructor(stage, isClient, isOp) {
+        super(stage, isClient, isOp);
         if (!this.isClient)
             this.init(null);
 
@@ -145,7 +145,7 @@ class TopPanelView extends BaseView {
         });
         this.timeLabel = timeLabel;
         container.addChild(timeLabel);
-        if (!this.isClient) {
+        if (this.isOp) {
             var btnLeft = this.newBtn(()=> {
                 appInfo.panelInfo.stagePanelInfo.addLeftScore();
             });

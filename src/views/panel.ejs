@@ -18,8 +18,9 @@
 <body>
 <script>
     var client;
+    var isOp = "<%= op %>";
     $(function () {
-        client = new Client("<%= pid %>")
+        client = new Client("<%= pid %>", isOp === "op");
     });
 </script>
 <div>

@@ -42,8 +42,8 @@ class StageView {
         //bgRed.graphics.endFill();
         //this.stage.addChild(bgRed);
         //add mod
-        this.panelView = new TopPanelView(this.stage, false);
-        this.trackerView = new TrackerView(this.stage, false);
+        this.panelView = new TopPanelView(this.stage, false, true);
+        // this.trackerView = new TrackerView(this.stage, false,true);
 
 
         ////avatar panel

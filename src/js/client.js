@@ -203,10 +203,12 @@ var PanelId = {
 /// <reference path="../JQuery.ts"/>
 /// <reference path="../lib.ts"/>
 var BaseView = (function () {
-    function BaseView(stage, isClient) {
+    function BaseView(stage, isClient, isOp) {
         this.isClient = false;
+        this.isOp = false;
         this.stage = stage;
         this.isClient = isClient;
+        this.isOp = isOp;
     }
     BaseView.prototype.show = function () {
     };
@@ -219,6 +221,14 @@ var BaseView = (function () {
         btn.addEventListener("click", func);
         return btn;
     };
+    BaseView.prototype.emit = function (clientFunc, serverFunc) {
+        if (this.isClient) {
+            clientFunc();
+        }
+        else {
+            serverFunc();
+        }
+    };
     BaseView.prototype.path = function (p) {
         if (this.isClient)
             return '/' + p;
@@ -229,8 +239,8 @@ var BaseView = (function () {
 /// <reference path="BaseView.ts"/>
 var TopPanelView = (function (_super) {
     __extends(TopPanelView, _super);
-    function TopPanelView(stage, isClient) {
-        _super.call(this, stage, isClient);
+    function TopPanelView(stage, isClient, isOp) {
+        _super.call(this, stage, isClient, isOp);
         this.time = 0;
         if (!this.isClient)
             this.init(null);
@@ -296,21 +306,11 @@ var TopPanelView = (function (_super) {
             spCircle.graphics.drawCircle(px + i * 50, py, 15);
             spCircle.graphics.beginFill("#4b4b4b");
             spCircle.graphics.drawCircle(px + i * 50, py, 12);
-            // if (!this.isClient) {
-            //     spCircle.addEventListener("click", function () {
-            //         appInfo.panelInfo.stagePanelInfo.addLeftScore();
-            //     });
-            // }
             container.addChild(spCircle);
             var circleHide = new createjs.Shape();
             circleHide.graphics.beginFill("#ffff00");
             circleHide.graphics.drawCircle(px + i * 50, py, 12);
             container.addChild(circleHide);
-            // if (!this.isClient) {
-            //     circleHide.addEventListener("click", function () {
-            //         appInfo.panelInfo.stagePanelInfo.addLeftScore();
-            //     });
-            // }
             circleHide.alpha = 0;
             this.leftCircleArr.push(circleHide);
         }
@@ -322,20 +322,10 @@ var TopPanelView = (function (_super) {
             spCircle.graphics.drawCircle(px + i * 50, py, 15);
             spCircle.graphics.beginFill("#4b4b4b");
             spCircle.graphics.drawCircle(px + i * 50, py, 12);
-            // if (!this.isClient) {
-            //     spCircle.addEventListener("click", function () {
-            //         appInfo.panelInfo.stagePanelInfo.addRightScore();
-            //     });
-            // }
             container.addChild(spCircle);
             var circleHide = new createjs.Shape();
             circleHide.graphics.beginFill("#0c83fc");
             circleHide.graphics.drawCircle(px + i * 50, py, 12);
-            // if (!this.isClient) {
-            //     circleHide.addEventListener("click", function () {
-            //         appInfo.panelInfo.stagePanelInfo.addRightScore();
-            //     });
-            // }
             container.addChild(circleHide);
             circleHide.alpha = 0;
             this.rightCircleArr.push(circleHide);
@@ -357,7 +347,6 @@ var TopPanelView = (function (_super) {
         cmd.on(CommandId.toggleTimer, function () {
             if (_this.timerId) {
                 clearInterval(_this.timerId);
-                // $("#btnToggleTime").val("开始");
                 _this.timerId = 0;
             }
             else {
@@ -374,7 +363,7 @@ var TopPanelView = (function (_super) {
         });
         this.timeLabel = timeLabel;
         container.addChild(timeLabel);
-        if (!this.isClient) {
+        if (this.isOp) {
             var btnLeft = this.newBtn(function () {
                 appInfo.panelInfo.stagePanelInfo.addLeftScore();
             });
@@ -413,9 +402,10 @@ var TopPanelView = (function (_super) {
 var cmd = new Command();
 var appInfo = null;
 var Client = (function () {
-    function Client(pid) {
+    function Client(pid, isOB) {
         this.pid = pid;
         this.initWsClient(pid);
+        this.isOB = isOB;
     }
     Client.prototype.initWsClient = function (pid) {
         var _this = this;
@@ -430,7 +420,7 @@ var Client = (function () {
                 cmd.emit(info.cmd, info.param);
             else if (info.res == "init") {
                 if (pid == PanelId.stagePanel) {
-                    _this.panel = new TopPanelView(_this.initCanvas(), true);
+                    _this.panel = new TopPanelView(_this.initCanvas(), true, _this.isOB);
                     _this.panel.init(info.param);
                     console.log("new panel");
                 }

@@ -6,11 +6,12 @@
 class BaseView {
     stage:any;
     isClient:Boolean = false;
+    isOp:Boolean = false;
 
-    constructor(stage, isClient) {
+    constructor(stage, isClient, isOp) {
         this.stage = stage;
         this.isClient = isClient;
-
+        this.isOp = isOp;
     }
 
     show() {
@@ -27,6 +28,15 @@ class BaseView {
         btn.graphics.drawRect(0, 0, 75, 30);
         btn.addEventListener("click", func);
         return btn;
+    }
+
+    emit(clientFunc, serverFunc) {
+        if (this.isClient) {
+            clientFunc();
+        }
+        else {
+            serverFunc();
+        }
     }
 
     path(p) {

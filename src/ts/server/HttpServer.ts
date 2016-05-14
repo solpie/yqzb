@@ -6,15 +6,6 @@ class HttpServer {
         ///server
         var http = require('http');
         var path = require('path');
-        //var fs = require('fs');
-        //var index = fs.readFileSync('index.html');
-
-        //http.createServer(function (req, res) {
-        //    //res.writeHead(200, {'Content-Type': 'text/plain'});
-        //    console.log(req);
-        //    res.end(index);
-        //}).listen(80);
-
 
         var express = require('express');
         var app = express();
@@ -29,10 +20,11 @@ class HttpServer {
             res.render('dashboard');
         });
 
-        app.get('/panel/:id', function (req, res) {
+        app.get('/panel/:id/:op', function (req, res) {
             var pid = req.params.id;
+            var op = req.params.op;
             if (pid == "stage") {
-                res.render('panel', {pid: PanelId.stagePanel});
+                res.render('panel', {pid: PanelId.stagePanel, op: op});
             }
             else {
                 res.send(pid);
@@ -44,24 +36,13 @@ class HttpServer {
             console.log("PlayerInfo ", playerId);
         });
 
-        // var postToCmd = function (route, cmdId) {
-        //     app.post(route, function (req, res) {
-        //         cmd.emit(cmdId);
-        //         res.send("sus");
-        //     });
-        // };
-        // //top panel
-        // postToCmd('/addLeftScore', CommandId.addLeftScore);
-        // postToCmd('/addRightScore', CommandId.addRightScore);
-        // postToCmd('/toggleTimer', CommandId.toggleTimer);
-        // postToCmd('/resetTimer', CommandId.resetTimer);
 
 //setup the web server
         app.server = http.createServer(app);
         //listen up
         app.server.listen(80, function () {
             //and... we're live
-            console.log('Server is running on port ' + 80);
+            console.log('Server is running');
         });
         this.serverSend();
     }

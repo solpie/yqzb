@@ -203,10 +203,12 @@ var PanelId = {
 /// <reference path="../JQuery.ts"/>
 /// <reference path="../lib.ts"/>
 var BaseView = (function () {
-    function BaseView(stage, isClient) {
+    function BaseView(stage, isClient, isOp) {
         this.isClient = false;
+        this.isOp = false;
         this.stage = stage;
         this.isClient = isClient;
+        this.isOp = isOp;
     }
     BaseView.prototype.show = function () {
     };
@@ -219,6 +221,14 @@ var BaseView = (function () {
         btn.addEventListener("click", func);
         return btn;
     };
+    BaseView.prototype.emit = function (clientFunc, serverFunc) {
+        if (this.isClient) {
+            clientFunc();
+        }
+        else {
+            serverFunc();
+        }
+    };
     BaseView.prototype.path = function (p) {
         if (this.isClient)
             return '/' + p;
@@ -229,8 +239,8 @@ var BaseView = (function () {
 /// <reference path="BaseView.ts"/>
 var TopPanelView = (function (_super) {
     __extends(TopPanelView, _super);
-    function TopPanelView(stage, isClient) {
-        _super.call(this, stage, isClient);
+    function TopPanelView(stage, isClient, isOp) {
+        _super.call(this, stage, isClient, isOp);
         this.time = 0;
         if (!this.isClient)
             this.init(null);
@@ -296,21 +306,11 @@ var TopPanelView = (function (_super) {
             spCircle.graphics.drawCircle(px + i * 50, py, 15);
             spCircle.graphics.beginFill("#4b4b4b");
             spCircle.graphics.drawCircle(px + i * 50, py, 12);
-            // if (!this.isClient) {
-            //     spCircle.addEventListener("click", function () {
-            //         appInfo.panelInfo.stagePanelInfo.addLeftScore();
-            //     });
-            // }
             container.addChild(spCircle);
             var circleHide = new createjs.Shape();
             circleHide.graphics.beginFill("#ffff00");
             circleHide.graphics.drawCircle(px + i * 50, py, 12);
             container.addChild(circleHide);
-            // if (!this.isClient) {
-            //     circleHide.addEventListener("click", function () {
-            //         appInfo.panelInfo.stagePanelInfo.addLeftScore();
-            //     });
-            // }
             circleHide.alpha = 0;
             this.leftCircleArr.push(circleHide);
         }
@@ -322,20 +322,10 @@ var TopPanelView = (function (_super) {
             spCircle.graphics.drawCircle(px + i * 50, py, 15);
             spCircle.graphics.beginFill("#4b4b4b");
             spCircle.graphics.drawCircle(px + i * 50, py, 12);
-            // if (!this.isClient) {
-            //     spCircle.addEventListener("click", function () {
-            //         appInfo.panelInfo.stagePanelInfo.addRightScore();
-            //     });
-            // }
             container.addChild(spCircle);
             var circleHide = new createjs.Shape();
             circleHide.graphics.beginFill("#0c83fc");
             circleHide.graphics.drawCircle(px + i * 50, py, 12);
-            // if (!this.isClient) {
-            //     circleHide.addEventListener("click", function () {
-            //         appInfo.panelInfo.stagePanelInfo.addRightScore();
-            //     });
-            // }
             container.addChild(circleHide);
             circleHide.alpha = 0;
             this.rightCircleArr.push(circleHide);
@@ -357,7 +347,6 @@ var TopPanelView = (function (_super) {
         cmd.on(CommandId.toggleTimer, function () {
             if (_this.timerId) {
                 clearInterval(_this.timerId);
-                // $("#btnToggleTime").val("开始");
                 _this.timerId = 0;
             }
             else {
@@ -374,7 +363,7 @@ var TopPanelView = (function (_super) {
         });
         this.timeLabel = timeLabel;
         container.addChild(timeLabel);
-        if (!this.isClient) {
+        if (this.isOp) {
             var btnLeft = this.newBtn(function () {
                 appInfo.panelInfo.stagePanelInfo.addLeftScore();
             });
@@ -412,7 +401,7 @@ var TrackerView = (function (_super) {
     __extends(TrackerView, _super);
     function TrackerView(stage, isClient) {
         var _this = this;
-        _super.call(this, stage, isClient);
+        _super.call(this, stage, isClient, false);
         this.init();
         cmd.on(CommandId.toggleTracker, function () {
             if (_this.tracker.parent)
@@ -520,8 +509,8 @@ var StageView = (function () {
         //bgRed.graphics.endFill();
         //this.stage.addChild(bgRed);
         //add mod
-        this.panelView = new TopPanelView(this.stage, false);
-        this.trackerView = new TrackerView(this.stage, false);
+        this.panelView = new TopPanelView(this.stage, false, true);
+        // this.trackerView = new TrackerView(this.stage, false,true);
         ////avatar panel
         //var bgAvatar = new createjs.Shape();
         //bgAvatar.graphics.beginFill("#cccccc");
@@ -811,13 +800,6 @@ var HttpServer = (function () {
         ///server
         var http = require('http');
         var path = require('path');
-        //var fs = require('fs');
-        //var index = fs.readFileSync('index.html');
-        //http.createServer(function (req, res) {
-        //    //res.writeHead(200, {'Content-Type': 'text/plain'});
-        //    console.log(req);
-        //    res.end(index);
-        //}).listen(80);
         var express = require('express');
         var app = express();
         // view engine setup
@@ -828,10 +810,11 @@ var HttpServer = (function () {
         app.get('/', function (req, res) {
             res.render('dashboard');
         });
-        app.get('/panel/:id', function (req, res) {
+        app.get('/panel/:id/:op', function (req, res) {
             var pid = req.params.id;
+            var op = req.params.op;
             if (pid == "stage") {
-                res.render('panel', { pid: PanelId.stagePanel });
+                res.render('panel', { pid: PanelId.stagePanel, op: op });
             }
             else {
                 res.send(pid);
@@ -841,23 +824,12 @@ var HttpServer = (function () {
             var playerId = req.body.id;
             console.log("PlayerInfo ", playerId);
         });
-        // var postToCmd = function (route, cmdId) {
-        //     app.post(route, function (req, res) {
-        //         cmd.emit(cmdId);
-        //         res.send("sus");
-        //     });
-        // };
-        // //top panel
-        // postToCmd('/addLeftScore', CommandId.addLeftScore);
-        // postToCmd('/addRightScore', CommandId.addRightScore);
-        // postToCmd('/toggleTimer', CommandId.toggleTimer);
-        // postToCmd('/resetTimer', CommandId.resetTimer);
         //setup the web server
         app.server = http.createServer(app);
         //listen up
         app.server.listen(80, function () {
             //and... we're live
-            console.log('Server is running on port ' + 80);
+            console.log('Server is running');
         });
         this.serverSend();
     }
