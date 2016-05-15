@@ -64,11 +64,12 @@ class StagePanelView extends BaseView {
             if (!isBusy) {
                 isBusy = true;
                 createjs.Tween.get(this.scoreCtn)
-                    .to({y: 200, alpha: 1}, 100)
+                    .to({x: 1080, alpha: 1}, 100)
                     .wait(3000)
                     .to({y: 150, alpha: 0}, 200)
                     .call(()=> {
-                        this.scoreCtn.y = 300;
+                        this.scoreCtn.x = 800;
+                        this.scoreCtn.y = 200;
                         isBusy = false;
                     });
             }
@@ -188,9 +189,9 @@ class StagePanelView extends BaseView {
         avatar.x = 130;
         avatar.y = 5;
         this.scoreCtn.addChild(avatar);
-        this.scoreCtn.x = 1280 - 200;
         this.scoreCtn.alpha = 0;
-        this.scoreCtn.y = 300;
+        this.scoreCtn.x = 800;
+        this.scoreCtn.y = 200;
         avatar.addEventListener('click', ()=> {
             console.log("click score");
         });

@@ -320,11 +320,12 @@ var StagePanelView = (function (_super) {
             if (!isBusy) {
                 isBusy = true;
                 createjs.Tween.get(_this.scoreCtn)
-                    .to({ y: 200, alpha: 1 }, 100)
+                    .to({ x: 1080, alpha: 1 }, 100)
                     .wait(3000)
                     .to({ y: 150, alpha: 0 }, 200)
                     .call(function () {
-                    _this.scoreCtn.y = 300;
+                    _this.scoreCtn.x = 800;
+                    _this.scoreCtn.y = 200;
                     isBusy = false;
                 });
             }
@@ -432,9 +433,9 @@ var StagePanelView = (function (_super) {
         avatar.x = 130;
         avatar.y = 5;
         this.scoreCtn.addChild(avatar);
-        this.scoreCtn.x = 1280 - 200;
         this.scoreCtn.alpha = 0;
-        this.scoreCtn.y = 300;
+        this.scoreCtn.x = 800;
+        this.scoreCtn.y = 200;
         avatar.addEventListener('click', function () {
             console.log("click score");
         });
