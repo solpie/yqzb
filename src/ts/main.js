@@ -243,9 +243,10 @@ var BaseView = (function () {
     BaseView.prototype.newBtn = function (func, text) {
         var ctn = new createjs.Container();
         var btn = new createjs.Shape();
-        btn.graphics.beginFill("#3c3c3c");
-        btn.graphics.drawRect(0, 0, 75, 30);
-        btn.addEventListener("click", func);
+        btn.graphics
+            .beginFill("#3c3c3c")
+            .drawRect(0, 0, 75, 30);
+        btn.addEventListener("mousedown", func);
         ctn.addChild(btn);
         if (text) {
             var txt = new createjs.Text(text, "15px Arial", "#e2e2e2");
@@ -422,13 +423,24 @@ var StagePanelView = (function (_super) {
         ctn.addChild(timeLabel);
         /// score panel------------------------------------------------------
         this.scoreCtn = new createjs.Container();
-        var bg1 = new createjs.Shape();
-        bg1.graphics.beginFill("#105386");
-        bg1.graphics.drawRect(0, 0, 200, 70);
-        bg1.graphics.beginFill("#ffff00");
-        bg1.graphics.drawRect(128, 3, 64, 64);
-        bg1.alpha = .7;
-        this.scoreCtn.addChild(bg1);
+        // var bg1 = new createjs.Shape();
+        // bg1.graphics.beginFill("#105386");
+        // bg1.graphics.drawRect(0, 0, 200, 70);
+        // // bg1.graphics.beginLinearGradientFill(['#105386',''])
+        // bg1.graphics.beginFill("#ffff00");
+        // bg1.graphics.drawRect(128, 3, 64, 64);
+        // bg1.alpha = .7;
+        var box = new createjs.Shape();
+        box.graphics.beginLinearGradientFill(["rgba(11, 80, 125, 0)", "#105386"], [0, .7], 0, 0, 200, 0);
+        // box.graphics.beginLinearGradientFill(["rgba(255, 0, 0, 0)","#105386" ], [0, .7], 0, 0, 200, 0);
+        box.graphics.drawRect(0, 0, 200, 70);
+        box.graphics.endFill();
+        box.graphics.beginFill("#ffff00");
+        box.graphics.drawRect(128, 3, 64, 64);
+        box.cache(0, 0, 200, 70);
+        box.alpha = .8;
+        this.scoreCtn.addChild(box);
+        // this.scoreCtn.addChild(bg1);
         var avatar = new createjs.Bitmap("/img/player/p1.png");
         avatar.x = 130;
         avatar.y = 5;
@@ -596,7 +608,7 @@ var TrackerView = (function (_super) {
  */
 /// <reference path="../lib.ts"/>
 /// <reference path="../server/views/StagePanelView.ts"/>
-/// <reference path="TrackerView.ts"/>
+/// <reference path="../server/views/TrackerView.ts"/>
 var Stage = createjs.Stage;
 var ServerView = (function () {
     function ServerView() {
@@ -654,38 +666,6 @@ var ServerView = (function () {
         //     this.stage.update(event);
         // });
     }
-    ServerView.prototype.init = function () {
-    };
-    ServerView.prototype.test = function () {
-        //var image = new Image();
-        //image.onload = ()=> {
-        //    //this.ctx.drawImage(image, 0, 60, 53, 53);
-        //    //this.ctx.drawImage(image, 0, 0, 53, 80, 10, 10, 53, 80);
-        //    //this._drawImage(image, 50, 50, 586, 111, 0, 0);
-        //
-        //    var posy = 0;
-        //    var tween = TweenLite.to(image, 2, {
-        //        paused: true,
-        //        setFilterRadius: 0,
-        //        onUpdate: ()=> {
-        //            this.ctx.clearRect(0, 0, 800, 300);
-        //            this._drawImage(image, posy, 5, 586, 111, 0, 0);
-        //            posy += 1;
-        //            console.log(posy);
-        //        }
-        //    });
-        //    //tween.play();
-        //};
-        ////image.src = "img/digits.png";
-        //image.src = "img/panel.png";
-        //TweenLite.to("#img2", 2, {left: 200, opacity: 0}).play();
-        //TweenLite.to("#quote", 2, {
-        //    left: 200, opacity: 0, onUpdate: ()=> {
-        //    }
-        //}).play();
-    };
-    ServerView.prototype.addScore = function () {
-    };
     return ServerView;
 }());
 var fs = require('fs');
@@ -843,7 +823,7 @@ var KeyInput = (function () {
         }
         else if (Keys.Char(key, "O") && isCtrl) {
         }
-        else if (key = 123) {
+        else if (key == 123) {
             win.showDevTools();
         }
         else if (Keys.Char(key, "S") && isCtrl) {
@@ -943,8 +923,14 @@ var HttpServer = (function () {
                 res.send(pid);
             }
         });
-        app.post('/getPlayerInfo', function (req, res) {
-            var playerId = req.body.id;
+        app.post('/getPlayerInfo/:playerId', function (req, res) {
+            var playerId = req.params.playerId;
+            console.log("PlayerInfo ", playerId);
+            var playerInfo;
+            res.send(JSON.stringify({ playerInfo: playerInfo }));
+        });
+        app.post('/getPlayerInfo/:playerId', function (req, res) {
+            var playerId = req.params.playerId;
             console.log("PlayerInfo ", playerId);
         });
         //setup the web server

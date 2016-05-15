@@ -9,21 +9,23 @@
     <script>
         $(function () {
             $("#btnAddLeftScore").on("click", function () {
-                $.post("/addLeftScore",null,function(res){
-                    console.log(res);
-                });
+//                $.post("/addLeftScore",null,function(res){
+//                    console.log(res);
+//                });
             })
             $("#btnAddRightScore").on("click", function () {
-                $.post("/addRightScore");
+//                $.post("/addRightScore");
             })
             $("#btnToggleTimer").on("click", function () {
-                $.post("/toggleTimer");
+//                $.post("/toggleTimer");
             });
             $("#btnResetTimer").on("click", function () {
-                $.post("/resetTimer");
+//                $.post("/resetTimer");
             });
             $("#btnQuery").on("click", function () {
-                $.post("/getPlayerInfo",null,function(res){});
+                var playerId = $("#playerId").val();
+                $.post("/getPlayerInfo/"+playerId, null, function (res) {
+                });
             });
         });
     </script>
@@ -37,7 +39,7 @@
 </div>
 
 <div class="playerCard" id="playerPanel">
-    <input id="playerQuery"/>
+    <input id="playerId"/>
     <input id="btnQuery" type="button" value="查找球员"/>
     <img src="img/player/p1.png">
 

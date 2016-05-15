@@ -3,7 +3,7 @@
  */
 /// <reference path="../lib.ts"/>
 /// <reference path="../server/views/StagePanelView.ts"/>
-/// <reference path="TrackerView.ts"/>
+/// <reference path="../server/views/TrackerView.ts"/>
 import Stage = createjs.Stage;
 
 class ServerView {
@@ -13,8 +13,6 @@ class ServerView {
     ctx:any;
     stageWidth:number = 1200;
     stageHeight:number = 800;
-    panelView:StagePanelView;
-    trackerView:TrackerView;
 
     constructor() {
         //this.canvasEl = document.getElementById("stage");
@@ -80,41 +78,4 @@ class ServerView {
         // });
     }
 
-
-    init() {
-
-    }
-
-    test() {
-        //var image = new Image();
-        //image.onload = ()=> {
-        //    //this.ctx.drawImage(image, 0, 60, 53, 53);
-        //    //this.ctx.drawImage(image, 0, 0, 53, 80, 10, 10, 53, 80);
-        //    //this._drawImage(image, 50, 50, 586, 111, 0, 0);
-        //
-        //    var posy = 0;
-        //    var tween = TweenLite.to(image, 2, {
-        //        paused: true,
-        //        setFilterRadius: 0,
-        //        onUpdate: ()=> {
-        //            this.ctx.clearRect(0, 0, 800, 300);
-        //            this._drawImage(image, posy, 5, 586, 111, 0, 0);
-        //            posy += 1;
-        //            console.log(posy);
-        //        }
-        //    });
-        //    //tween.play();
-        //};
-        ////image.src = "img/digits.png";
-        //image.src = "img/panel.png";
-        //TweenLite.to("#img2", 2, {left: 200, opacity: 0}).play();
-        //TweenLite.to("#quote", 2, {
-        //    left: 200, opacity: 0, onUpdate: ()=> {
-        //    }
-        //}).play();
-    }
-
-    addScore() {
-
-    }
 }

@@ -243,9 +243,10 @@ var BaseView = (function () {
     BaseView.prototype.newBtn = function (func, text) {
         var ctn = new createjs.Container();
         var btn = new createjs.Shape();
-        btn.graphics.beginFill("#3c3c3c");
-        btn.graphics.drawRect(0, 0, 75, 30);
-        btn.addEventListener("click", func);
+        btn.graphics
+            .beginFill("#3c3c3c")
+            .drawRect(0, 0, 75, 30);
+        btn.addEventListener("mousedown", func);
         ctn.addChild(btn);
         if (text) {
             var txt = new createjs.Text(text, "15px Arial", "#e2e2e2");
@@ -422,13 +423,24 @@ var StagePanelView = (function (_super) {
         ctn.addChild(timeLabel);
         /// score panel------------------------------------------------------
         this.scoreCtn = new createjs.Container();
-        var bg1 = new createjs.Shape();
-        bg1.graphics.beginFill("#105386");
-        bg1.graphics.drawRect(0, 0, 200, 70);
-        bg1.graphics.beginFill("#ffff00");
-        bg1.graphics.drawRect(128, 3, 64, 64);
-        bg1.alpha = .7;
-        this.scoreCtn.addChild(bg1);
+        // var bg1 = new createjs.Shape();
+        // bg1.graphics.beginFill("#105386");
+        // bg1.graphics.drawRect(0, 0, 200, 70);
+        // // bg1.graphics.beginLinearGradientFill(['#105386',''])
+        // bg1.graphics.beginFill("#ffff00");
+        // bg1.graphics.drawRect(128, 3, 64, 64);
+        // bg1.alpha = .7;
+        var box = new createjs.Shape();
+        box.graphics.beginLinearGradientFill(["rgba(11, 80, 125, 0)", "#105386"], [0, .7], 0, 0, 200, 0);
+        // box.graphics.beginLinearGradientFill(["rgba(255, 0, 0, 0)","#105386" ], [0, .7], 0, 0, 200, 0);
+        box.graphics.drawRect(0, 0, 200, 70);
+        box.graphics.endFill();
+        box.graphics.beginFill("#ffff00");
+        box.graphics.drawRect(128, 3, 64, 64);
+        box.cache(0, 0, 200, 70);
+        box.alpha = .8;
+        this.scoreCtn.addChild(box);
+        // this.scoreCtn.addChild(bg1);
         var avatar = new createjs.Bitmap("/img/player/p1.png");
         avatar.x = 130;
         avatar.y = 5;

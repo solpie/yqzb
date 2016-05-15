@@ -177,13 +177,25 @@ class StagePanelView extends BaseView {
         ctn.addChild(timeLabel);
         /// score panel------------------------------------------------------
         this.scoreCtn = new createjs.Container();
-        var bg1 = new createjs.Shape();
-        bg1.graphics.beginFill("#105386");
-        bg1.graphics.drawRect(0, 0, 200, 70);
-        bg1.graphics.beginFill("#ffff00");
-        bg1.graphics.drawRect(128, 3, 64, 64);
-        bg1.alpha = .7;
-        this.scoreCtn.addChild(bg1);
+        // var bg1 = new createjs.Shape();
+        // bg1.graphics.beginFill("#105386");
+        // bg1.graphics.drawRect(0, 0, 200, 70);
+        // // bg1.graphics.beginLinearGradientFill(['#105386',''])
+        // bg1.graphics.beginFill("#ffff00");
+        // bg1.graphics.drawRect(128, 3, 64, 64);
+        // bg1.alpha = .7;
+
+        var box = new createjs.Shape();
+        box.graphics.beginLinearGradientFill(["rgba(11, 80, 125, 0)","#105386" ], [0, .7], 0, 0, 200, 0);
+        // box.graphics.beginLinearGradientFill(["rgba(255, 0, 0, 0)","#105386" ], [0, .7], 0, 0, 200, 0);
+        box.graphics.drawRect(0, 0, 200, 70);
+        box.graphics.endFill();
+        box.graphics.beginFill("#ffff00");
+        box.graphics.drawRect(128, 3, 64, 64);
+        box.cache(0, 0, 200, 70);
+        box.alpha = .8;
+        this.scoreCtn.addChild(box);
+        // this.scoreCtn.addChild(bg1);
 
         var avatar = new createjs.Bitmap("/img/player/p1.png");
         avatar.x = 130;

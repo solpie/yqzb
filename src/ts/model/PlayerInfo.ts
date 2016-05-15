@@ -12,4 +12,9 @@ class PlayerInfo {
     constructor() {
 
     }
+    static getPlayerInfo(pid){
+        var playerInfo = new PlayerInfo();
+
+        return playerInfo
+    }
 }

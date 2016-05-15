@@ -31,8 +31,15 @@ class HttpServer {
             }
         });
 
-        app.post('/getPlayerInfo', function (req, res) {
-            var playerId = req.body.id;
+        app.post('/getPlayerInfo/:playerId', function (req, res) {
+            var playerId = req.params.playerId;
+            console.log("PlayerInfo ", playerId);
+            var playerInfo;
+            res.send(JSON.stringify({playerInfo:playerInfo}));
+        });
+        
+        app.post('/getPlayerInfo/:playerId', function (req, res) {
+            var playerId = req.params.playerId;
             console.log("PlayerInfo ", playerId);
         });
 
