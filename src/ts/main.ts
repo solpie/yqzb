@@ -7,6 +7,8 @@ var cmd:Command = new Command();
 var appInfo = new AppInfo();
 var app:YuanqiTvView;
 var server = new HttpServer();
+appInfo.isServer = true;
+
 $(() => {
     app = new YuanqiTvView(appInfo);
     app.run();

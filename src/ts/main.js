@@ -23,6 +23,7 @@ var EventDispatcher = (function () {
         this._func[type].push({ func: func, id: this._funcId });
     };
     EventDispatcher.prototype.emit = function (type, param) {
+        if (param === void 0) { param = null; }
         if (this._func[type]) {
             for (var i = 0; i < this._func[type].length; ++i) {
                 var f = this._func[type][i];
@@ -153,9 +154,11 @@ var CommandId;
     CommandId[CommandId["resetTimer"] = 100005] = "resetTimer";
     CommandId[CommandId["disableTracker"] = 100006] = "disableTracker";
     CommandId[CommandId["addLeftScore"] = 100007] = "addLeftScore";
-    CommandId[CommandId["addRightScore"] = 100008] = "addRightScore";
-    CommandId[CommandId["updateLeftTeam"] = 100009] = "updateLeftTeam";
-    CommandId[CommandId["updateRightTeam"] = 100010] = "updateRightTeam";
+    CommandId[CommandId["cs_addLeftScore"] = 100008] = "cs_addLeftScore";
+    CommandId[CommandId["addRightScore"] = 100009] = "addRightScore";
+    CommandId[CommandId["cs_addRightScore"] = 100010] = "cs_addRightScore";
+    CommandId[CommandId["updateLeftTeam"] = 100011] = "updateLeftTeam";
+    CommandId[CommandId["updateRightTeam"] = 100012] = "updateRightTeam";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {
@@ -290,6 +293,7 @@ var TopPanelView = (function (_super) {
     };
     TopPanelView.prototype.init = function (param) {
         var _this = this;
+        console.log("init");
         var container = new createjs.Container();
         this.stage.addChild(container);
         var bg = new createjs.Bitmap(this.path("img/panelTop.png"));
@@ -365,17 +369,21 @@ var TopPanelView = (function (_super) {
         container.addChild(timeLabel);
         if (this.isOp) {
             var btnLeft = this.newBtn(function () {
-                appInfo.panelInfo.stagePanelInfo.addLeftScore();
+                cmd.proxy(CommandId.cs_addLeftScore);
+                console.log("click left btn");
             });
             btnLeft.x = 450;
             btnLeft.y = 5;
+            btnLeft.alpha = .5;
             container.addChild(btnLeft);
-            var btnLeft = this.newBtn(function () {
-                appInfo.panelInfo.stagePanelInfo.addRightScore();
+            var btnRight = this.newBtn(function () {
+                cmd.proxy(CommandId.cs_addRightScore);
+                console.log("click right btn");
             });
-            btnLeft.x = 650;
-            btnLeft.y = 5;
-            container.addChild(btnLeft);
+            btnRight.x = 650;
+            btnRight.y = 5;
+            btnRight.alpha = .5;
+            container.addChild(btnRight);
         }
         if (param) {
             this.setLeftScore(param.leftScore);
@@ -832,7 +840,16 @@ var HttpServer = (function () {
             console.log('Server is running');
         });
         this.serverSend();
+        this.handleOp();
     }
+    HttpServer.prototype.handleOp = function () {
+        cmd.on(CommandId.cs_addLeftScore, function () {
+            appInfo.panelInfo.stagePanelInfo.addLeftScore();
+        });
+        cmd.on(CommandId.cs_addRightScore, function () {
+            appInfo.panelInfo.stagePanelInfo.addRightScore();
+        });
+    };
     HttpServer.prototype.serverSend = function () {
         var url = require('url');
         var WebSocketServer = require('ws').Server, wss = new WebSocketServer({ port: 8080 });
@@ -842,11 +859,11 @@ var HttpServer = (function () {
             // or ws.upgradeReq.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
             console.log(location);
             ws.on('message', function incoming(message) {
-                console.log('received: %s', message);
+                console.log('client: ', message);
                 var req = JSON.parse(message);
                 if (req.param == PanelId.stagePanel) {
                     // console.log('received: %s', message);
-                    wss.broadcast({
+                    ws.send(JSON.stringify({
                         res: "init",
                         param: {
                             leftScore: appInfo.panelInfo.stagePanelInfo.leftScore,
@@ -854,7 +871,10 @@ var HttpServer = (function () {
                             time: appInfo.panelInfo.stagePanelInfo.time,
                             state: appInfo.panelInfo.stagePanelInfo.timerState
                         }
-                    });
+                    }));
+                }
+                else if (req.req == "op") {
+                    cmd.emit(req.param.type, req.param.param);
                 }
             });
             ws.send(JSON.stringify({ res: "keep" }));
@@ -888,6 +908,7 @@ var cmd = new Command();
 var appInfo = new AppInfo();
 var app;
 var server = new HttpServer();
+appInfo.isServer = true;
 $(function () {
     app = new YuanqiTvView(appInfo);
     app.run();

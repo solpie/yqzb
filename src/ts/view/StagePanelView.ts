@@ -67,6 +67,7 @@ class TopPanelView extends BaseView {
     }
 
     init(param) {
+        console.log("init");
         var container = new createjs.Container();
 
         this.stage.addChild(container);
@@ -147,18 +148,23 @@ class TopPanelView extends BaseView {
         container.addChild(timeLabel);
         if (this.isOp) {
             var btnLeft = this.newBtn(()=> {
-                appInfo.panelInfo.stagePanelInfo.addLeftScore();
+                cmd.proxy(CommandId.cs_addLeftScore);
+                console.log("click left btn");
+
             });
             btnLeft.x = 450;
             btnLeft.y = 5;
+            btnLeft.alpha = .5;
             container.addChild(btnLeft);
 
-            var btnLeft = this.newBtn(()=> {
-                appInfo.panelInfo.stagePanelInfo.addRightScore();
+            var btnRight = this.newBtn(()=> {
+                cmd.proxy(CommandId.cs_addRightScore);
+                console.log("click right btn");
             });
-            btnLeft.x = 650;
-            btnLeft.y = 5;
-            container.addChild(btnLeft);
+            btnRight.x = 650;
+            btnRight.y = 5;
+            btnRight.alpha = .5;
+            container.addChild(btnRight);
         }
         if (param) {
             this.setLeftScore(param.leftScore);

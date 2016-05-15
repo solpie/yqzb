@@ -45,8 +45,17 @@ class HttpServer {
             console.log('Server is running');
         });
         this.serverSend();
+        this.handleOp();
     }
 
+    handleOp(){
+        cmd.on(CommandId.cs_addLeftScore, ()=> {
+            appInfo.panelInfo.stagePanelInfo.addLeftScore();
+        });
+        cmd.on(CommandId.cs_addRightScore, ()=> {
+            appInfo.panelInfo.stagePanelInfo.addRightScore();
+        });
+    }
     serverSend() {
         var url = require('url');
         var WebSocketServer = require('ws').Server
@@ -57,11 +66,11 @@ class HttpServer {
             // or ws.upgradeReq.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
             console.log(location);
             ws.on('message', function incoming(message) {
-                console.log('received: %s', message);
+                console.log('client: ', message);
                 var req = JSON.parse(message);
                 if (req.param == PanelId.stagePanel) {
                     // console.log('received: %s', message);
-                    wss.broadcast({
+                    ws.send(JSON.stringify({
                         res: "init",
                         param: {
                             leftScore: appInfo.panelInfo.stagePanelInfo.leftScore,
@@ -69,13 +78,15 @@ class HttpServer {
                             time: appInfo.panelInfo.stagePanelInfo.time,
                             state: appInfo.panelInfo.stagePanelInfo.timerState,
                         }
-                    })
+                    }));
+                }
+                else if (req.req == "op") {
+                    cmd.emit(req.param.type,req.param.param);
                 }
             });
 
             ws.send(JSON.stringify({res: "keep"}));
         });
-
         wss.broadcast = function broadcast(data) {
             var strData = JSON.stringify(data);
             console.log("server:", strData);

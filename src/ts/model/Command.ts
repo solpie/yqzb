@@ -10,7 +10,9 @@ enum CommandId{
     resetTimer,
     disableTracker,
     addLeftScore,
+    cs_addLeftScore,
     addRightScore,
+    cs_addRightScore,
     updateLeftTeam,
     updateRightTeam,
 }

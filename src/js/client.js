@@ -28,6 +28,7 @@ var EventDispatcher = (function () {
         this._func[type].push({ func: func, id: this._funcId });
     };
     EventDispatcher.prototype.emit = function (type, param) {
+        if (param === void 0) { param = null; }
         if (this._func[type]) {
             for (var i = 0; i < this._func[type].length; ++i) {
                 var f = this._func[type][i];
@@ -75,9 +76,11 @@ var CommandId;
     CommandId[CommandId["resetTimer"] = 100005] = "resetTimer";
     CommandId[CommandId["disableTracker"] = 100006] = "disableTracker";
     CommandId[CommandId["addLeftScore"] = 100007] = "addLeftScore";
-    CommandId[CommandId["addRightScore"] = 100008] = "addRightScore";
-    CommandId[CommandId["updateLeftTeam"] = 100009] = "updateLeftTeam";
-    CommandId[CommandId["updateRightTeam"] = 100010] = "updateRightTeam";
+    CommandId[CommandId["cs_addLeftScore"] = 100008] = "cs_addLeftScore";
+    CommandId[CommandId["addRightScore"] = 100009] = "addRightScore";
+    CommandId[CommandId["cs_addRightScore"] = 100010] = "cs_addRightScore";
+    CommandId[CommandId["updateLeftTeam"] = 100011] = "updateLeftTeam";
+    CommandId[CommandId["updateRightTeam"] = 100012] = "updateRightTeam";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {
@@ -290,6 +293,7 @@ var TopPanelView = (function (_super) {
     };
     TopPanelView.prototype.init = function (param) {
         var _this = this;
+        console.log("init");
         var container = new createjs.Container();
         this.stage.addChild(container);
         var bg = new createjs.Bitmap(this.path("img/panelTop.png"));
@@ -365,17 +369,21 @@ var TopPanelView = (function (_super) {
         container.addChild(timeLabel);
         if (this.isOp) {
             var btnLeft = this.newBtn(function () {
-                appInfo.panelInfo.stagePanelInfo.addLeftScore();
+                cmd.proxy(CommandId.cs_addLeftScore);
+                console.log("click left btn");
             });
             btnLeft.x = 450;
             btnLeft.y = 5;
+            btnLeft.alpha = .5;
             container.addChild(btnLeft);
-            var btnLeft = this.newBtn(function () {
-                appInfo.panelInfo.stagePanelInfo.addRightScore();
+            var btnRight = this.newBtn(function () {
+                cmd.proxy(CommandId.cs_addRightScore);
+                console.log("click right btn");
             });
-            btnLeft.x = 650;
-            btnLeft.y = 5;
-            container.addChild(btnLeft);
+            btnRight.x = 650;
+            btnRight.y = 5;
+            btnRight.alpha = .5;
+            container.addChild(btnRight);
         }
         if (param) {
             this.setLeftScore(param.leftScore);
@@ -400,7 +408,8 @@ var TopPanelView = (function (_super) {
 /// <reference path="../model/Command.ts"/>
 /// <reference path="../view/StagePanelView.ts"/>
 var cmd = new Command();
-var appInfo = null;
+var appInfo = new AppInfo();
+appInfo.isServer = false;
 var Client = (function () {
     function Client(pid, isOB) {
         this.pid = pid;
@@ -426,6 +435,10 @@ var Client = (function () {
                 }
             }
         };
+        cmd.proxy = function (type, param) {
+            wsc.send(JSON.stringify({ req: "op", param: { type: type, param: param } }));
+        };
+        appInfo.wsc = wsc;
     };
     Client.prototype.initCanvas = function () {
         var stageWidth = 1280;
