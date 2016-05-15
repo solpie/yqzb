@@ -1,7 +1,7 @@
 /// <reference path="BaseView.ts"/>
 
 class TopPanelView extends BaseView {
-    time:number = 0;
+    // time:number = 0;
     timerId:number;
     leftCircleArr:any;
     rightCircleArr:any;
@@ -26,6 +26,26 @@ class TopPanelView extends BaseView {
 
         cmd.on(CommandId.addRightScore, (rightScore)=> {
             this.setRightScore(rightScore);
+        });
+
+        cmd.on(CommandId.toggleTimer, ()=> {
+            if (this.timerId) {
+                clearInterval(this.timerId);
+                this.timerId = 0;
+                appInfo.panel.stage.timerState = 0;
+            }
+            else {
+                this.timerId = setInterval(()=> {
+                    appInfo.panel.stage.time++;
+                    this.timeLabel.text = this.formatSecond(appInfo.panel.stage.time);
+                }, 1000);
+                appInfo.panel.stage.timerState = 1;
+            }
+        });
+        cmd.on(CommandId.resetTimer, ()=> {
+            //$("#btnResetTime").on(MouseEvt.CLICK, ()=> {
+            appInfo.panel.stage.time = 0;
+            this.timeLabel.text = this.formatSecond(appInfo.panel.stage.time);
         });
     }
 
@@ -58,23 +78,21 @@ class TopPanelView extends BaseView {
 
     setTime(time, state) {
         this.timeLabel.text = this.formatSecond(time);
+        appInfo.panel.stage.time = time;
         if (state) {
-            this.timerId = setInterval(()=> {
-                this.time++;
-                this.timeLabel.text = this.formatSecond(time);
-            }, 1000);
+            cmd.emit(CommandId.toggleTimer);
         }
     }
 
     init(param) {
         console.log("init");
-        var container = new createjs.Container();
+        var ctn = new createjs.Container();
 
-        this.stage.addChild(container);
+        this.stage.addChild(ctn);
 
         var bg = new createjs.Bitmap(this.path("img/panelTop.png"));
         bg.x = 150;
-        container.addChild(bg);
+        ctn.addChild(bg);
         //left
         this.leftCircleArr = [];
         this.rightCircleArr = [];
@@ -86,11 +104,11 @@ class TopPanelView extends BaseView {
             spCircle.graphics.drawCircle(px + i * 50, py, 15);
             spCircle.graphics.beginFill("#4b4b4b");
             spCircle.graphics.drawCircle(px + i * 50, py, 12);
-            container.addChild(spCircle);
+            ctn.addChild(spCircle);
             var circleHide = new createjs.Shape();
             circleHide.graphics.beginFill("#ffff00");
             circleHide.graphics.drawCircle(px + i * 50, py, 12);
-            container.addChild(circleHide);
+            ctn.addChild(circleHide);
             circleHide.alpha = 0;
             this.leftCircleArr.push(circleHide)
         }
@@ -102,11 +120,11 @@ class TopPanelView extends BaseView {
             spCircle.graphics.drawCircle(px + i * 50, py, 15);
             spCircle.graphics.beginFill("#4b4b4b");
             spCircle.graphics.drawCircle(px + i * 50, py, 12);
-            container.addChild(spCircle);
+            ctn.addChild(spCircle);
             var circleHide = new createjs.Shape();
             circleHide.graphics.beginFill("#0c83fc");
             circleHide.graphics.drawCircle(px + i * 50, py, 12);
-            container.addChild(circleHide);
+            ctn.addChild(circleHide);
             circleHide.alpha = 0;
             this.rightCircleArr.push(circleHide)
         }
@@ -119,52 +137,48 @@ class TopPanelView extends BaseView {
         rightScoreLabel.x = 600;
         rightScoreLabel.y = 30;
         this.rightScoreLabel = rightScoreLabel;
-        container.addChild(leftScoreLabel);
-        container.addChild(rightScoreLabel);
+        ctn.addChild(leftScoreLabel);
+        ctn.addChild(rightScoreLabel);
 
 
         ///time label---------------------------------------------------
         var timeLabel = new createjs.Text("99:99", "30px Arial", "#a2a2a2");
         timeLabel.x = 520;
         timeLabel.y = 90;
-        cmd.on(CommandId.toggleTimer, ()=> {
-            if (this.timerId) {
-                clearInterval(this.timerId);
-                this.timerId = 0
-            }
-            else {
-                this.timerId = setInterval(()=> {
-                    this.time++;
-                    timeLabel.text = this.formatSecond(this.time);
-                }, 1000);
-            }
-        });
-        cmd.on(CommandId.resetTimer, ()=> {
-            //$("#btnResetTime").on(MouseEvt.CLICK, ()=> {
-            this.time = 0;
-            timeLabel.text = this.formatSecond(this.time);
-        });
+
         this.timeLabel = timeLabel;
-        container.addChild(timeLabel);
+        ctn.addChild(timeLabel);
         if (this.isOp) {
             var btnLeft = this.newBtn(()=> {
                 cmd.proxy(CommandId.cs_addLeftScore);
-                console.log("click left btn");
 
             });
             btnLeft.x = 450;
             btnLeft.y = 5;
             btnLeft.alpha = .5;
-            container.addChild(btnLeft);
+            ctn.addChild(btnLeft);
 
             var btnRight = this.newBtn(()=> {
                 cmd.proxy(CommandId.cs_addRightScore);
-                console.log("click right btn");
             });
-            btnRight.x = 650;
+            btnRight.x = 590;
             btnRight.y = 5;
             btnRight.alpha = .5;
-            container.addChild(btnRight);
+            ctn.addChild(btnRight);
+            var btn = this.newBtn(()=> {
+                cmd.proxy(CommandId.cs_toggleTimer);
+            }, "toggle");
+            btn.x = 450;
+            btn.y = 100;
+            btn.alpha = .5;
+            ctn.addChild(btn);
+            var btn = this.newBtn(()=> {
+                cmd.proxy(CommandId.cs_resetTimer);
+            }, "reset");
+            btn.x = 590;
+            btn.y = 100;
+            btn.alpha = .5;
+            ctn.addChild(btn);
         }
         if (param) {
             this.setLeftScore(param.leftScore);

@@ -7,12 +7,12 @@
 class AppInfo extends EventDispatcher {
     mouseX:number;
     mouseY:number;
-    panelInfo:PanelInfo;
+    panel:PanelInfo;
     isServer:boolean;
     wsc:any;
     constructor() {
         super();
         console.log("");
-        this.panelInfo = new PanelInfo();
+        this.panel = new PanelInfo();
     }
 }

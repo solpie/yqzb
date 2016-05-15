@@ -103,7 +103,7 @@ var ViewEvent = (function () {
 /// <reference path="../event/ActEvent.ts"/>
 var PanelInfo = (function () {
     function PanelInfo() {
-        this.stagePanelInfo = new StagePanelInfo();
+        this.stage = new StagePanelInfo();
     }
     return PanelInfo;
 }());
@@ -125,6 +125,12 @@ var StagePanelInfo = (function (_super) {
         this.rightScore = (this.rightScore + 1) % (this.winScore + 1);
         cmd.emit(CommandId.addRightScore, this.rightScore);
     };
+    StagePanelInfo.prototype.toggleTimer = function () {
+        cmd.emit(CommandId.toggleTimer);
+    };
+    StagePanelInfo.prototype.resetTimer = function () {
+        cmd.emit(CommandId.resetTimer);
+    };
     return StagePanelInfo;
 }(EventDispatcher));
 /**
@@ -137,7 +143,7 @@ var AppInfo = (function (_super) {
     function AppInfo() {
         _super.call(this);
         console.log("");
-        this.panelInfo = new PanelInfo();
+        this.panel = new PanelInfo();
     }
     return AppInfo;
 }(EventDispatcher));
@@ -151,14 +157,16 @@ var CommandId;
     CommandId[CommandId["toggleTracker"] = 100002] = "toggleTracker";
     CommandId[CommandId["toggleBallRolling"] = 100003] = "toggleBallRolling";
     CommandId[CommandId["toggleTimer"] = 100004] = "toggleTimer";
-    CommandId[CommandId["resetTimer"] = 100005] = "resetTimer";
-    CommandId[CommandId["disableTracker"] = 100006] = "disableTracker";
-    CommandId[CommandId["addLeftScore"] = 100007] = "addLeftScore";
-    CommandId[CommandId["cs_addLeftScore"] = 100008] = "cs_addLeftScore";
-    CommandId[CommandId["addRightScore"] = 100009] = "addRightScore";
-    CommandId[CommandId["cs_addRightScore"] = 100010] = "cs_addRightScore";
-    CommandId[CommandId["updateLeftTeam"] = 100011] = "updateLeftTeam";
-    CommandId[CommandId["updateRightTeam"] = 100012] = "updateRightTeam";
+    CommandId[CommandId["cs_toggleTimer"] = 100005] = "cs_toggleTimer";
+    CommandId[CommandId["resetTimer"] = 100006] = "resetTimer";
+    CommandId[CommandId["cs_resetTimer"] = 100007] = "cs_resetTimer";
+    CommandId[CommandId["disableTracker"] = 100008] = "disableTracker";
+    CommandId[CommandId["addLeftScore"] = 100009] = "addLeftScore";
+    CommandId[CommandId["cs_addLeftScore"] = 100010] = "cs_addLeftScore";
+    CommandId[CommandId["addRightScore"] = 100011] = "addRightScore";
+    CommandId[CommandId["cs_addRightScore"] = 100012] = "cs_addRightScore";
+    CommandId[CommandId["updateLeftTeam"] = 100013] = "updateLeftTeam";
+    CommandId[CommandId["updateRightTeam"] = 100014] = "updateRightTeam";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {
@@ -217,12 +225,21 @@ var BaseView = (function () {
     };
     BaseView.prototype.hide = function () {
     };
-    BaseView.prototype.newBtn = function (func) {
+    BaseView.prototype.newBtn = function (func, text) {
+        var ctn = new createjs.Container();
         var btn = new createjs.Shape();
-        btn.graphics.beginFill("#ccc");
+        btn.graphics.beginFill("#3c3c3c");
         btn.graphics.drawRect(0, 0, 75, 30);
         btn.addEventListener("click", func);
-        return btn;
+        ctn.addChild(btn);
+        if (text) {
+            var txt = new createjs.Text(text, "15px Arial", "#e2e2e2");
+            txt.x = (75 - txt.getMeasuredWidth()) * .5;
+            txt.y = 5;
+            txt.mouseEnabled = false;
+            ctn.addChild(txt);
+        }
+        return ctn;
     };
     BaseView.prototype.emit = function (clientFunc, serverFunc) {
         if (this.isClient) {
@@ -244,7 +261,6 @@ var TopPanelView = (function (_super) {
     __extends(TopPanelView, _super);
     function TopPanelView(stage, isClient, isOp) {
         _super.call(this, stage, isClient, isOp);
-        this.time = 0;
         if (!this.isClient)
             this.init(null);
         this.handle();
@@ -256,6 +272,25 @@ var TopPanelView = (function (_super) {
         });
         cmd.on(CommandId.addRightScore, function (rightScore) {
             _this.setRightScore(rightScore);
+        });
+        cmd.on(CommandId.toggleTimer, function () {
+            if (_this.timerId) {
+                clearInterval(_this.timerId);
+                _this.timerId = 0;
+                appInfo.panel.stage.timerState = 0;
+            }
+            else {
+                _this.timerId = setInterval(function () {
+                    appInfo.panel.stage.time++;
+                    _this.timeLabel.text = _this.formatSecond(appInfo.panel.stage.time);
+                }, 1000);
+                appInfo.panel.stage.timerState = 1;
+            }
+        });
+        cmd.on(CommandId.resetTimer, function () {
+            //$("#btnResetTime").on(MouseEvt.CLICK, ()=> {
+            appInfo.panel.stage.time = 0;
+            _this.timeLabel.text = _this.formatSecond(appInfo.panel.stage.time);
         });
     };
     TopPanelView.prototype.setLeftScore = function (leftScore) {
@@ -282,23 +317,19 @@ var TopPanelView = (function (_super) {
         }
     };
     TopPanelView.prototype.setTime = function (time, state) {
-        var _this = this;
         this.timeLabel.text = this.formatSecond(time);
+        appInfo.panel.stage.time = time;
         if (state) {
-            this.timerId = setInterval(function () {
-                _this.time++;
-                _this.timeLabel.text = _this.formatSecond(time);
-            }, 1000);
+            cmd.emit(CommandId.toggleTimer);
         }
     };
     TopPanelView.prototype.init = function (param) {
-        var _this = this;
         console.log("init");
-        var container = new createjs.Container();
-        this.stage.addChild(container);
+        var ctn = new createjs.Container();
+        this.stage.addChild(ctn);
         var bg = new createjs.Bitmap(this.path("img/panelTop.png"));
         bg.x = 150;
-        container.addChild(bg);
+        ctn.addChild(bg);
         //left
         this.leftCircleArr = [];
         this.rightCircleArr = [];
@@ -310,11 +341,11 @@ var TopPanelView = (function (_super) {
             spCircle.graphics.drawCircle(px + i * 50, py, 15);
             spCircle.graphics.beginFill("#4b4b4b");
             spCircle.graphics.drawCircle(px + i * 50, py, 12);
-            container.addChild(spCircle);
+            ctn.addChild(spCircle);
             var circleHide = new createjs.Shape();
             circleHide.graphics.beginFill("#ffff00");
             circleHide.graphics.drawCircle(px + i * 50, py, 12);
-            container.addChild(circleHide);
+            ctn.addChild(circleHide);
             circleHide.alpha = 0;
             this.leftCircleArr.push(circleHide);
         }
@@ -326,11 +357,11 @@ var TopPanelView = (function (_super) {
             spCircle.graphics.drawCircle(px + i * 50, py, 15);
             spCircle.graphics.beginFill("#4b4b4b");
             spCircle.graphics.drawCircle(px + i * 50, py, 12);
-            container.addChild(spCircle);
+            ctn.addChild(spCircle);
             var circleHide = new createjs.Shape();
             circleHide.graphics.beginFill("#0c83fc");
             circleHide.graphics.drawCircle(px + i * 50, py, 12);
-            container.addChild(circleHide);
+            ctn.addChild(circleHide);
             circleHide.alpha = 0;
             this.rightCircleArr.push(circleHide);
         }
@@ -342,48 +373,43 @@ var TopPanelView = (function (_super) {
         rightScoreLabel.x = 600;
         rightScoreLabel.y = 30;
         this.rightScoreLabel = rightScoreLabel;
-        container.addChild(leftScoreLabel);
-        container.addChild(rightScoreLabel);
+        ctn.addChild(leftScoreLabel);
+        ctn.addChild(rightScoreLabel);
         ///time label---------------------------------------------------
         var timeLabel = new createjs.Text("99:99", "30px Arial", "#a2a2a2");
         timeLabel.x = 520;
         timeLabel.y = 90;
-        cmd.on(CommandId.toggleTimer, function () {
-            if (_this.timerId) {
-                clearInterval(_this.timerId);
-                _this.timerId = 0;
-            }
-            else {
-                _this.timerId = setInterval(function () {
-                    _this.time++;
-                    timeLabel.text = _this.formatSecond(_this.time);
-                }, 1000);
-            }
-        });
-        cmd.on(CommandId.resetTimer, function () {
-            //$("#btnResetTime").on(MouseEvt.CLICK, ()=> {
-            _this.time = 0;
-            timeLabel.text = _this.formatSecond(_this.time);
-        });
         this.timeLabel = timeLabel;
-        container.addChild(timeLabel);
+        ctn.addChild(timeLabel);
         if (this.isOp) {
             var btnLeft = this.newBtn(function () {
                 cmd.proxy(CommandId.cs_addLeftScore);
-                console.log("click left btn");
             });
             btnLeft.x = 450;
             btnLeft.y = 5;
             btnLeft.alpha = .5;
-            container.addChild(btnLeft);
+            ctn.addChild(btnLeft);
             var btnRight = this.newBtn(function () {
                 cmd.proxy(CommandId.cs_addRightScore);
-                console.log("click right btn");
             });
-            btnRight.x = 650;
+            btnRight.x = 590;
             btnRight.y = 5;
             btnRight.alpha = .5;
-            container.addChild(btnRight);
+            ctn.addChild(btnRight);
+            var btn = this.newBtn(function () {
+                cmd.proxy(CommandId.cs_toggleTimer);
+            }, "toggle");
+            btn.x = 450;
+            btn.y = 100;
+            btn.alpha = .5;
+            ctn.addChild(btn);
+            var btn = this.newBtn(function () {
+                cmd.proxy(CommandId.cs_resetTimer);
+            }, "reset");
+            btn.x = 590;
+            btn.y = 100;
+            btn.alpha = .5;
+            ctn.addChild(btn);
         }
         if (param) {
             this.setLeftScore(param.leftScore);
@@ -844,10 +870,16 @@ var HttpServer = (function () {
     }
     HttpServer.prototype.handleOp = function () {
         cmd.on(CommandId.cs_addLeftScore, function () {
-            appInfo.panelInfo.stagePanelInfo.addLeftScore();
+            appInfo.panel.stage.addLeftScore();
         });
         cmd.on(CommandId.cs_addRightScore, function () {
-            appInfo.panelInfo.stagePanelInfo.addRightScore();
+            appInfo.panel.stage.addRightScore();
+        });
+        cmd.on(CommandId.cs_toggleTimer, function () {
+            appInfo.panel.stage.toggleTimer();
+        });
+        cmd.on(CommandId.cs_resetTimer, function () {
+            appInfo.panel.stage.resetTimer();
         });
     };
     HttpServer.prototype.serverSend = function () {
@@ -866,10 +898,10 @@ var HttpServer = (function () {
                     ws.send(JSON.stringify({
                         res: "init",
                         param: {
-                            leftScore: appInfo.panelInfo.stagePanelInfo.leftScore,
-                            rightScore: appInfo.panelInfo.stagePanelInfo.rightScore,
-                            time: appInfo.panelInfo.stagePanelInfo.time,
-                            state: appInfo.panelInfo.stagePanelInfo.timerState
+                            leftScore: appInfo.panel.stage.leftScore,
+                            rightScore: appInfo.panel.stage.rightScore,
+                            time: appInfo.panel.stage.time,
+                            state: appInfo.panel.stage.timerState
                         }
                     }));
                 }
@@ -893,9 +925,6 @@ var HttpServer = (function () {
                 client.send(strData);
             });
         };
-        // cmd.on(CommandId.addLeftScore, ()=> {
-        //     wss.broadcast({op: "addLeftScore"});
-        // });
     };
     return HttpServer;
 }());

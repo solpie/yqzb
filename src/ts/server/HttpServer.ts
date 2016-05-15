@@ -48,14 +48,21 @@ class HttpServer {
         this.handleOp();
     }
 
-    handleOp(){
+    handleOp() {
         cmd.on(CommandId.cs_addLeftScore, ()=> {
-            appInfo.panelInfo.stagePanelInfo.addLeftScore();
+            appInfo.panel.stage.addLeftScore();
         });
         cmd.on(CommandId.cs_addRightScore, ()=> {
-            appInfo.panelInfo.stagePanelInfo.addRightScore();
+            appInfo.panel.stage.addRightScore();
+        });
+        cmd.on(CommandId.cs_toggleTimer, ()=> {
+            appInfo.panel.stage.toggleTimer();
+        });
+        cmd.on(CommandId.cs_resetTimer, ()=> {
+            appInfo.panel.stage.resetTimer();
         });
     }
+
     serverSend() {
         var url = require('url');
         var WebSocketServer = require('ws').Server
@@ -73,15 +80,15 @@ class HttpServer {
                     ws.send(JSON.stringify({
                         res: "init",
                         param: {
-                            leftScore: appInfo.panelInfo.stagePanelInfo.leftScore,
-                            rightScore: appInfo.panelInfo.stagePanelInfo.rightScore,
-                            time: appInfo.panelInfo.stagePanelInfo.time,
-                            state: appInfo.panelInfo.stagePanelInfo.timerState,
+                            leftScore: appInfo.panel.stage.leftScore,
+                            rightScore: appInfo.panel.stage.rightScore,
+                            time: appInfo.panel.stage.time,
+                            state: appInfo.panel.stage.timerState,
                         }
                     }));
                 }
                 else if (req.req == "op") {
-                    cmd.emit(req.param.type,req.param.param);
+                    cmd.emit(req.param.type, req.param.param);
                 }
             });
 
@@ -102,9 +109,6 @@ class HttpServer {
                 client.send(strData);
             });
         };
-        // cmd.on(CommandId.addLeftScore, ()=> {
-        //     wss.broadcast({op: "addLeftScore"});
-        // });
     }
 
 }

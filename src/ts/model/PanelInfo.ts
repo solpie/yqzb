@@ -1,9 +1,9 @@
 /// <reference path="../event/ActEvent.ts"/>
 class PanelInfo {
-    stagePanelInfo:StagePanelInfo;
+    stage:StagePanelInfo;
 
     constructor() {
-        this.stagePanelInfo = new StagePanelInfo();
+        this.stage = new StagePanelInfo();
     }
 }
 
@@ -22,5 +22,13 @@ class StagePanelInfo extends EventDispatcher {
     addRightScore() {
         this.rightScore = (this.rightScore + 1) % (this.winScore + 1);
         cmd.emit(CommandId.addRightScore, this.rightScore);
+    }
+    
+    toggleTimer(){
+        cmd.emit(CommandId.toggleTimer);    
+    }
+
+    resetTimer() {
+        cmd.emit(CommandId.resetTimer);
     }
 }
