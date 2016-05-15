@@ -15,61 +15,16 @@
 
     <script src="ts/main.js"></script>
     <style>
-        body {
-            background: #ccc;
-            overflow-x: hidden;
-            overflow-y: hidden;
-            -webkit-user-select: none;
+        body{
+            overflow: hidden;
             margin: 0;
-
         }
-
-        .StageBg {
-            position: fixed;
-            width: 1280px;
-            height: 720px;
-            /*background: red;*/
-            z-index: 997;
-        }
-
-        video {
-            position: fixed;
-            left: 0;
-            top: 0;
-            z-index: 998;
-        }
-
-        .faceTracking {
-            /*width: 320px;*/
-            /*height: 320px;*/
-            position: fixed;
-            z-index: 999;
-            /*background: rebeccapurple;*/
-            /*opacity: 0.5;*/
-        }
-
-        #stage {
-            position: fixed;
-            z-index: 1000;
-        }
-
     </style>
 </head>
-<body style="-webkit-app-region:drag">
-<div style="width: 800px">
-    <div class="StageBg">
-
-    </div>
-    <!--<div>-->
-        <!--<video id="camFeed" width="320" height="240" autoplay>-->
-        <!--</video>-->
-        <!--<canvas id="camCanvas" class="faceTracking">-->
-        <!--</canvas>-->
-    <!--</div>-->
-    <div>
-        <canvas id="stage" style="-webkit-app-region: no-drag">
-        </canvas>
-    </div>
+<body>
+<div>
+    <img src="img/index.gif" width="250" height="250">
+    </img>
 </div>
 </body>
 </html>

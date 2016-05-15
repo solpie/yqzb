@@ -30,9 +30,9 @@ var EventDispatcher = (function () {
                 if (f)
                     f.func(param);
             }
-            if (this.broadCast)
-                this.broadCast(type, param);
         }
+        if (this.broadCast)
+            this.broadCast(type, param);
     };
     EventDispatcher.prototype.del = function (type, funcId) {
         if (funcId === void 0) { funcId = -1; }
@@ -256,18 +256,20 @@ var BaseView = (function () {
     };
     return BaseView;
 }());
-/// <reference path="BaseView.ts"/>
-var TopPanelView = (function (_super) {
-    __extends(TopPanelView, _super);
-    function TopPanelView(stage, isClient, isOp) {
+/// <reference path="../../view/BaseView.ts"/>
+var StagePanelView = (function (_super) {
+    __extends(StagePanelView, _super);
+    function StagePanelView(stage, isClient, isOp) {
         _super.call(this, stage, isClient, isOp);
         if (!this.isClient)
             this.init(null);
         this.handle();
     }
-    TopPanelView.prototype.handle = function () {
+    StagePanelView.prototype.handle = function () {
         var _this = this;
+        console.log("handle()");
         cmd.on(CommandId.addLeftScore, function (leftScore) {
+            console.log("handle left score");
             _this.setLeftScore(leftScore);
         });
         cmd.on(CommandId.addRightScore, function (rightScore) {
@@ -293,7 +295,7 @@ var TopPanelView = (function (_super) {
             _this.timeLabel.text = _this.formatSecond(appInfo.panel.stage.time);
         });
     };
-    TopPanelView.prototype.setLeftScore = function (leftScore) {
+    StagePanelView.prototype.setLeftScore = function (leftScore) {
         this.leftScoreLabel.text = leftScore + "";
         for (var i = 0; i < 5; i++) {
             if (i < leftScore) {
@@ -305,7 +307,7 @@ var TopPanelView = (function (_super) {
         }
         console.log(leftScore);
     };
-    TopPanelView.prototype.setRightScore = function (rightScore) {
+    StagePanelView.prototype.setRightScore = function (rightScore) {
         this.rightScoreLabel.text = rightScore + "";
         for (var i = 0; i < 5; i++) {
             if (i < rightScore) {
@@ -316,14 +318,14 @@ var TopPanelView = (function (_super) {
             }
         }
     };
-    TopPanelView.prototype.setTime = function (time, state) {
+    StagePanelView.prototype.setTime = function (time, state) {
         this.timeLabel.text = this.formatSecond(time);
         appInfo.panel.stage.time = time;
         if (state) {
             cmd.emit(CommandId.toggleTimer);
         }
     };
-    TopPanelView.prototype.init = function (param) {
+    StagePanelView.prototype.init = function (param) {
         console.log("init");
         var ctn = new createjs.Container();
         this.stage.addChild(ctn);
@@ -417,7 +419,7 @@ var TopPanelView = (function (_super) {
             this.setTime(param.time, param.state);
         }
     };
-    TopPanelView.prototype.formatSecond = function (sec) {
+    StagePanelView.prototype.formatSecond = function (sec) {
         var min = Math.floor(sec / 60);
         var s = sec % 60;
         var strMin = min + "";
@@ -428,7 +430,7 @@ var TopPanelView = (function (_super) {
             strSec = "0" + strSec;
         return strMin + ":" + strSec;
     };
-    return TopPanelView;
+    return StagePanelView;
 }(BaseView));
 var Container = createjs.Container;
 var TrackerView = (function (_super) {
@@ -514,11 +516,11 @@ var TrackerView = (function (_super) {
  * Created by toramisu on 2016/5/9.
  */
 /// <reference path="../lib.ts"/>
-/// <reference path="StagePanelView.ts"/>
+/// <reference path="../server/views/StagePanelView.ts"/>
 /// <reference path="TrackerView.ts"/>
 var Stage = createjs.Stage;
-var StageView = (function () {
-    function StageView() {
+var ServerView = (function () {
+    function ServerView() {
         //this.canvasEl = document.getElementById("stage");
         //this.canvasEl.setAttribute("width", 800 + "");
         //this.canvasEl.setAttribute("height", 300 + "");
@@ -526,15 +528,14 @@ var StageView = (function () {
         /////////draw bar
         //this._fillRect("#ffff00", 0, 0, 800, 300);
         //this.test()
-        var _this = this;
         this.stageWidth = 1200;
         this.stageHeight = 800;
         ////createjs
-        this.canvas = document.getElementById("stage");
-        this.canvas.setAttribute("width", this.stageWidth + "");
-        this.canvas.setAttribute("height", this.stageHeight + "");
-        this.stage = new createjs.Stage(this.canvas);
-        this.stage.autoClear = true;
+        // this.canvas = document.getElementById("stage");
+        // this.canvas.setAttribute("width", this.stageWidth + "");
+        // this.canvas.setAttribute("height", this.stageHeight + "");
+        // this.stage = new createjs.Stage(this.canvas);
+        // this.stage.autoClear = true;
         //stage bg
         //var bgRed = new createjs.Shape();
         //bgRed.graphics.beginFill("#ff0000");
@@ -543,7 +544,7 @@ var StageView = (function () {
         //bgRed.graphics.endFill();
         //this.stage.addChild(bgRed);
         //add mod
-        this.panelView = new TopPanelView(this.stage, false, true);
+        // this.panelView = new StagePanelView(this.stage, false, true);
         // this.trackerView = new TrackerView(this.stage, false,true);
         ////avatar panel
         //var bgAvatar = new createjs.Shape();
@@ -569,14 +570,14 @@ var StageView = (function () {
         //this.stage.addChild(man);
         ////  }
         //this.stage.update();
-        createjs.Ticker.setFPS(60);
-        createjs.Ticker.addEventListener("tick", function () {
-            _this.stage.update(event);
-        });
+        // createjs.Ticker.setFPS(60);
+        // createjs.Ticker.addEventListener("tick", ()=> {
+        //     this.stage.update(event);
+        // });
     }
-    StageView.prototype.init = function () {
+    ServerView.prototype.init = function () {
     };
-    StageView.prototype.test = function () {
+    ServerView.prototype.test = function () {
         //var image = new Image();
         //image.onload = ()=> {
         //    //this.ctx.drawImage(image, 0, 60, 53, 53);
@@ -604,9 +605,9 @@ var StageView = (function () {
         //    }
         //}).play();
     };
-    StageView.prototype.addScore = function () {
+    ServerView.prototype.addScore = function () {
     };
-    return StageView;
+    return ServerView;
 }());
 var fs = require('fs');
 var Stream = require('stream');
@@ -673,12 +674,12 @@ var win = gui.Window.get();
 var WindowView = (function () {
     function WindowView() {
         this.isMaximize = false;
-        $("#btnClose").on(MouseEvt.CLICK, function () {
-            win.close();
-        });
-        $("#btnDbg").on(MouseEvt.CLICK, function () {
-            win.showDevTools('', true);
-        });
+        // $("#btnClose").on(MouseEvt.CLICK, function () {
+        //     win.close();
+        // });
+        // $("#btnDbg").on(MouseEvt.CLICK, function () {
+        //     win.showDevTools('', true);
+        // });
         ///dashboard
         //var win = gui.Window.open ('panel.html', {
         //    position: 'center',
@@ -687,6 +688,13 @@ var WindowView = (function () {
         //    height: 523
         //});
         //
+        //default op
+        var op = gui.Window.open('http://localhost/panel/stage/op', {
+            position: 'center',
+            toolbar: false,
+            width: 1280,
+            height: 523
+        });
         //win.on ('loaded', function () {
         //    // the native onload event has just occurred
         //    var doc = win.window.document;
@@ -772,7 +780,7 @@ var KeyInput = (function () {
  */
 /// <reference path="ServerView.ts"/>
 /// <reference path="WinView.ts"/>
-/// <reference path="StagePanelView.ts"/>
+/// <reference path="../server/views/StagePanelView.ts"/>
 /// <reference path="KeyInput.ts"/>
 /// <reference path="../JQuery.ts"/>
 var Keys = {
@@ -803,25 +811,27 @@ var YuanqiTvView = (function () {
             _this.appInfo.emit(MouseEvt.UP);
         };
         document.onkeydown = KeyInput.onKeyDown;
-        function initCamera() {
-            if (navigator.webkitGetUserMedia) {
-                navigator.webkitGetUserMedia({ video: true }, onSuccess, onFail);
-            }
-            else {
-                alert('webRTC not available');
-            }
-        }
-        function onSuccess(stream) {
-            document.getElementById('camFeed').src = webkitURL.createObjectURL(stream);
-        }
-        function onFail() {
-            alert('could not connect stream');
-        }
+        // function initCamera() {
+        //     if (navigator.webkitGetUserMedia) {
+        //         navigator.webkitGetUserMedia({video: true}, onSuccess, onFail);
+        //     }
+        //     else {
+        //         alert('webRTC not available');
+        //     }
+        // }
+        //
+        // function onSuccess(stream) {
+        //     document.getElementById('camFeed').src = webkitURL.createObjectURL(stream);
+        // }
+        //
+        // function onFail() {
+        //     alert('could not connect stream');
+        // }
         // initCamera();
     }
     YuanqiTvView.prototype.run = function () {
         this.winView = new WindowView();
-        this.stageView = new StageView();
+        // this.serverView = new ServerView();
         console.log("run");
     };
     return YuanqiTvView;

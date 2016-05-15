@@ -3,7 +3,7 @@
  */
 /// <reference path="ServerView.ts"/>
 /// <reference path="WinView.ts"/>
-/// <reference path="StagePanelView.ts"/>
+/// <reference path="../server/views/StagePanelView.ts"/>
 /// <reference path="KeyInput.ts"/>
 /// <reference path="../JQuery.ts"/>
 var Keys = {
@@ -22,9 +22,8 @@ var Keys = {
 };
 class YuanqiTvView {
     appInfo:any;
-    stageView:StageView;
+    serverView:ServerView;
     winView:WindowView;
-    panelView:TopPanelView;
 
     constructor(appModel) {
         this.appInfo = appModel;
@@ -43,29 +42,29 @@ class YuanqiTvView {
         document.onkeydown = KeyInput.onKeyDown;
 
 
-        function initCamera() {
-            if (navigator.webkitGetUserMedia) {
-                navigator.webkitGetUserMedia({video: true}, onSuccess, onFail);
-            }
-            else {
-                alert('webRTC not available');
-            }
-        }
-
-        function onSuccess(stream) {
-            document.getElementById('camFeed').src = webkitURL.createObjectURL(stream);
-        }
-
-        function onFail() {
-            alert('could not connect stream');
-        }
+        // function initCamera() {
+        //     if (navigator.webkitGetUserMedia) {
+        //         navigator.webkitGetUserMedia({video: true}, onSuccess, onFail);
+        //     }
+        //     else {
+        //         alert('webRTC not available');
+        //     }
+        // }
+        //
+        // function onSuccess(stream) {
+        //     document.getElementById('camFeed').src = webkitURL.createObjectURL(stream);
+        // }
+        //
+        // function onFail() {
+        //     alert('could not connect stream');
+        // }
 
         // initCamera();
     }
 
     run() {
         this.winView = new WindowView();
-        this.stageView = new StageView();
+        // this.serverView = new ServerView();
         console.log("run");
     }
 }

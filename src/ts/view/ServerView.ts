@@ -2,18 +2,18 @@
  * Created by toramisu on 2016/5/9.
  */
 /// <reference path="../lib.ts"/>
-/// <reference path="StagePanelView.ts"/>
+/// <reference path="../server/views/StagePanelView.ts"/>
 /// <reference path="TrackerView.ts"/>
 import Stage = createjs.Stage;
 
-class StageView {
+class ServerView {
     canvasEl:HTMLElement;
     canvas:HTMLElement;
     stage:Stage;
     ctx:any;
     stageWidth:number = 1200;
     stageHeight:number = 800;
-    panelView:TopPanelView;
+    panelView:StagePanelView;
     trackerView:TrackerView;
 
     constructor() {
@@ -27,11 +27,11 @@ class StageView {
 
 
         ////createjs
-        this.canvas = document.getElementById("stage");
-        this.canvas.setAttribute("width", this.stageWidth + "");
-        this.canvas.setAttribute("height", this.stageHeight + "");
-        this.stage = new createjs.Stage(this.canvas);
-        this.stage.autoClear = true;
+        // this.canvas = document.getElementById("stage");
+        // this.canvas.setAttribute("width", this.stageWidth + "");
+        // this.canvas.setAttribute("height", this.stageHeight + "");
+        // this.stage = new createjs.Stage(this.canvas);
+        // this.stage.autoClear = true;
 
 
         //stage bg
@@ -42,7 +42,7 @@ class StageView {
         //bgRed.graphics.endFill();
         //this.stage.addChild(bgRed);
         //add mod
-        this.panelView = new TopPanelView(this.stage, false, true);
+        // this.panelView = new StagePanelView(this.stage, false, true);
         // this.trackerView = new TrackerView(this.stage, false,true);
 
 
@@ -74,10 +74,10 @@ class StageView {
         //this.stage.update();
 
 
-        createjs.Ticker.setFPS(60);
-        createjs.Ticker.addEventListener("tick", ()=> {
-            this.stage.update(event);
-        });
+        // createjs.Ticker.setFPS(60);
+        // createjs.Ticker.addEventListener("tick", ()=> {
+        //     this.stage.update(event);
+        // });
     }
 
 

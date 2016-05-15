@@ -7,12 +7,12 @@ class WindowView {
     isMaximize:boolean = false;
 
     constructor() {
-        $("#btnClose").on(MouseEvt.CLICK, function () {
-            win.close();
-        });
-        $("#btnDbg").on(MouseEvt.CLICK, function () {
-            win.showDevTools('', true);
-        });
+        // $("#btnClose").on(MouseEvt.CLICK, function () {
+        //     win.close();
+        // });
+        // $("#btnDbg").on(MouseEvt.CLICK, function () {
+        //     win.showDevTools('', true);
+        // });
         ///dashboard
         //var win = gui.Window.open ('panel.html', {
         //    position: 'center',
@@ -21,6 +21,14 @@ class WindowView {
         //    height: 523
         //});
         //
+        //default op
+        var op = gui.Window.open ('http://localhost/panel/stage/op', {
+           position: 'center',
+           toolbar: false,
+           width: 1280,
+           height: 523
+        });
+
         //win.on ('loaded', function () {
         //    // the native onload event has just occurred
         //    var doc = win.window.document;

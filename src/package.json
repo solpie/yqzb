@@ -5,8 +5,8 @@
   "version": "0.1.0",
   "window": {
     "frame": true,
-    "width": 1250,
-    "height": 850,
+    "width": 250,
+    "height": 250,
     "show": true,
     "transparent": false,
     "title": "YuanQiTV",

@@ -35,9 +35,9 @@ var EventDispatcher = (function () {
                 if (f)
                     f.func(param);
             }
-            if (this.broadCast)
-                this.broadCast(type, param);
         }
+        if (this.broadCast)
+            this.broadCast(type, param);
     };
     EventDispatcher.prototype.del = function (type, funcId) {
         if (funcId === void 0) { funcId = -1; }
@@ -256,18 +256,20 @@ var BaseView = (function () {
     };
     return BaseView;
 }());
-/// <reference path="BaseView.ts"/>
-var TopPanelView = (function (_super) {
-    __extends(TopPanelView, _super);
-    function TopPanelView(stage, isClient, isOp) {
+/// <reference path="../../view/BaseView.ts"/>
+var StagePanelView = (function (_super) {
+    __extends(StagePanelView, _super);
+    function StagePanelView(stage, isClient, isOp) {
         _super.call(this, stage, isClient, isOp);
         if (!this.isClient)
             this.init(null);
         this.handle();
     }
-    TopPanelView.prototype.handle = function () {
+    StagePanelView.prototype.handle = function () {
         var _this = this;
+        console.log("handle()");
         cmd.on(CommandId.addLeftScore, function (leftScore) {
+            console.log("handle left score");
             _this.setLeftScore(leftScore);
         });
         cmd.on(CommandId.addRightScore, function (rightScore) {
@@ -293,7 +295,7 @@ var TopPanelView = (function (_super) {
             _this.timeLabel.text = _this.formatSecond(appInfo.panel.stage.time);
         });
     };
-    TopPanelView.prototype.setLeftScore = function (leftScore) {
+    StagePanelView.prototype.setLeftScore = function (leftScore) {
         this.leftScoreLabel.text = leftScore + "";
         for (var i = 0; i < 5; i++) {
             if (i < leftScore) {
@@ -305,7 +307,7 @@ var TopPanelView = (function (_super) {
         }
         console.log(leftScore);
     };
-    TopPanelView.prototype.setRightScore = function (rightScore) {
+    StagePanelView.prototype.setRightScore = function (rightScore) {
         this.rightScoreLabel.text = rightScore + "";
         for (var i = 0; i < 5; i++) {
             if (i < rightScore) {
@@ -316,14 +318,14 @@ var TopPanelView = (function (_super) {
             }
         }
     };
-    TopPanelView.prototype.setTime = function (time, state) {
+    StagePanelView.prototype.setTime = function (time, state) {
         this.timeLabel.text = this.formatSecond(time);
         appInfo.panel.stage.time = time;
         if (state) {
             cmd.emit(CommandId.toggleTimer);
         }
     };
-    TopPanelView.prototype.init = function (param) {
+    StagePanelView.prototype.init = function (param) {
         console.log("init");
         var ctn = new createjs.Container();
         this.stage.addChild(ctn);
@@ -417,7 +419,7 @@ var TopPanelView = (function (_super) {
             this.setTime(param.time, param.state);
         }
     };
-    TopPanelView.prototype.formatSecond = function (sec) {
+    StagePanelView.prototype.formatSecond = function (sec) {
         var min = Math.floor(sec / 60);
         var s = sec % 60;
         var strMin = min + "";
@@ -428,11 +430,11 @@ var TopPanelView = (function (_super) {
             strSec = "0" + strSec;
         return strMin + ":" + strSec;
     };
-    return TopPanelView;
+    return StagePanelView;
 }(BaseView));
 /// <reference path="../lib.ts"/>
 /// <reference path="../model/Command.ts"/>
-/// <reference path="../view/StagePanelView.ts"/>
+/// <reference path="./views/StagePanelView.ts"/>
 var cmd = new Command();
 var appInfo = new AppInfo();
 appInfo.isServer = false;
@@ -455,7 +457,7 @@ var Client = (function () {
                 cmd.emit(info.cmd, info.param);
             else if (info.res == "init") {
                 if (pid == PanelId.stagePanel) {
-                    _this.panel = new TopPanelView(_this.initCanvas(), true, _this.isOB);
+                    _this.panel = new StagePanelView(_this.initCanvas(), true, _this.isOB);
                     _this.panel.init(info.param);
                     console.log("new panel");
                 }

@@ -1,6 +1,6 @@
-/// <reference path="BaseView.ts"/>
+/// <reference path="../../view/BaseView.ts"/>
 
-class TopPanelView extends BaseView {
+class StagePanelView extends BaseView {
     // time:number = 0;
     timerId:number;
     leftCircleArr:any;
@@ -20,7 +20,9 @@ class TopPanelView extends BaseView {
     }
 
     handle() {
+        console.log("handle()");
         cmd.on(CommandId.addLeftScore, (leftScore)=> {
+            console.log("handle left score");
             this.setLeftScore(leftScore)
         });
 

@@ -22,9 +22,9 @@ class EventDispatcher {
                 if (f)
                     f.func(param);
             }
-            if (this.broadCast)
-                this.broadCast(type, param);
         }
+        if (this.broadCast)
+            this.broadCast(type, param);
     }
 
     proxy:any;

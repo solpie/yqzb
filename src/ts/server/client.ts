@@ -1,6 +1,6 @@
 /// <reference path="../lib.ts"/>
 /// <reference path="../model/Command.ts"/>
-/// <reference path="../view/StagePanelView.ts"/>
+/// <reference path="./views/StagePanelView.ts"/>
 var cmd:Command = new Command();
 var appInfo = new AppInfo();
 appInfo.isServer = false;
@@ -27,7 +27,7 @@ class Client {
                 cmd.emit(info.cmd, info.param);
             else if (info.res == "init") {
                 if (pid == PanelId.stagePanel) {
-                    this.panel = new TopPanelView(this.initCanvas(), true, this.isOB);
+                    this.panel = new StagePanelView(this.initCanvas(), true, this.isOB);
                     this.panel.init(info.param);
                     console.log("new panel");
                 }
