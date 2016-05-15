@@ -31,4 +31,16 @@ class StagePanelInfo extends EventDispatcher {
     resetTimer() {
         cmd.emit(CommandId.resetTimer);
     }
+
+    fadeOut() {
+        cmd.emit(CommandId.stageFadeOut);
+    }
+
+    fadeIn() {
+        cmd.emit(CommandId.stageFadeIn);
+    }
+
+    playerScore() {
+        cmd.emit(CommandId.playerScore);
+    }
 }

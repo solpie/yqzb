@@ -10,6 +10,8 @@ class StagePanelView extends BaseView {
     // time = 0;
 
     timeLabel:any;
+    ctn:any;
+    scoreCtn:any;
 
     constructor(stage, isClient, isOp) {
         super(stage, isClient, isOp);
@@ -48,6 +50,28 @@ class StagePanelView extends BaseView {
             //$("#btnResetTime").on(MouseEvt.CLICK, ()=> {
             appInfo.panel.stage.time = 0;
             this.timeLabel.text = this.formatSecond(appInfo.panel.stage.time);
+        });
+
+        cmd.on(CommandId.stageFadeOut, ()=> {
+            createjs.Tween.get(this.ctn).to({y: -100, alpha: .2}, 200);
+        });
+
+        cmd.on(CommandId.stageFadeIn, ()=> {
+            createjs.Tween.get(this.ctn).to({y: 0, alpha: 1}, 200);
+        });
+        var isBusy = false;
+        cmd.on(CommandId.playerScore, ()=> {
+            if (!isBusy) {
+                isBusy = true;
+                createjs.Tween.get(this.scoreCtn)
+                    .to({y: 200, alpha: 1}, 100)
+                    .wait(3000)
+                    .to({y: 150, alpha: 0}, 200)
+                    .call(()=> {
+                        this.scoreCtn.y = 300;
+                        isBusy = false;
+                    });
+            }
         });
     }
 
@@ -89,7 +113,7 @@ class StagePanelView extends BaseView {
     init(param) {
         console.log("init");
         var ctn = new createjs.Container();
-
+        this.ctn = ctn;
         this.stage.addChild(ctn);
 
         var bg = new createjs.Bitmap(this.path("img/panelTop.png"));
@@ -150,6 +174,28 @@ class StagePanelView extends BaseView {
 
         this.timeLabel = timeLabel;
         ctn.addChild(timeLabel);
+        /// score panel------------------------------------------------------
+        this.scoreCtn = new createjs.Container();
+        var bg1 = new createjs.Shape();
+        bg1.graphics.beginFill("#105386");
+        bg1.graphics.drawRect(0, 0, 200, 70);
+        bg1.graphics.beginFill("#ffff00");
+        bg1.graphics.drawRect(128, 3, 64, 64);
+        bg1.alpha = .7;
+        this.scoreCtn.addChild(bg1);
+
+        var avatar = new createjs.Bitmap("/img/player/p1.png");
+        avatar.x = 130;
+        avatar.y = 5;
+        this.scoreCtn.addChild(avatar);
+        this.scoreCtn.x = 1280 - 200;
+        this.scoreCtn.alpha = 0;
+        this.scoreCtn.y = 300;
+        avatar.addEventListener('click', ()=> {
+            console.log("click score");
+        });
+        ctn.addChild(this.scoreCtn);
+        //op panel-------------------------------------------------------
         if (this.isOp) {
             var btnLeft = this.newBtn(()=> {
                 cmd.proxy(CommandId.cs_addLeftScore);
@@ -180,6 +226,30 @@ class StagePanelView extends BaseView {
             btn.x = 590;
             btn.y = 100;
             btn.alpha = .5;
+            ctn.addChild(btn);
+
+            var btn = this.newBtn(()=> {
+                cmd.proxy(CommandId.cs_fadeOut);
+            }, "fadeOut");
+            btn.x = 520;
+            btn.y = 200;
+            // btn.alpha = .5;
+            ctn.addChild(btn);
+
+            var btn = this.newBtn(()=> {
+                cmd.proxy(CommandId.cs_stageFadeIn);
+            }, "fadeIn");
+            btn.x = 520;
+            btn.y = 150;
+            // btn.alpha = .5;
+            ctn.addChild(btn);
+
+            var btn = this.newBtn(()=> {
+                cmd.proxy(CommandId.cs_playerScore);
+            }, "score");
+            btn.x = 820;
+            btn.y = 150;
+            // btn.alpha = .5;
             ctn.addChild(btn);
         }
         if (param) {

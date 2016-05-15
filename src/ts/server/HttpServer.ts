@@ -61,6 +61,15 @@ class HttpServer {
         cmd.on(CommandId.cs_resetTimer, ()=> {
             appInfo.panel.stage.resetTimer();
         });
+        cmd.on(CommandId.cs_fadeOut, ()=> {
+            appInfo.panel.stage.fadeOut();
+        });
+        cmd.on(CommandId.cs_stageFadeIn, ()=> {
+            appInfo.panel.stage.fadeIn();
+        });
+        cmd.on(CommandId.cs_playerScore, ()=> {
+            appInfo.panel.stage.playerScore();
+        });
     }
 
     serverSend() {

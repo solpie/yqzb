@@ -81,8 +81,14 @@ var CommandId;
     CommandId[CommandId["cs_addLeftScore"] = 100010] = "cs_addLeftScore";
     CommandId[CommandId["addRightScore"] = 100011] = "addRightScore";
     CommandId[CommandId["cs_addRightScore"] = 100012] = "cs_addRightScore";
-    CommandId[CommandId["updateLeftTeam"] = 100013] = "updateLeftTeam";
-    CommandId[CommandId["updateRightTeam"] = 100014] = "updateRightTeam";
+    CommandId[CommandId["stageFadeOut"] = 100013] = "stageFadeOut";
+    CommandId[CommandId["cs_fadeOut"] = 100014] = "cs_fadeOut";
+    CommandId[CommandId["playerScore"] = 100015] = "playerScore";
+    CommandId[CommandId["cs_playerScore"] = 100016] = "cs_playerScore";
+    CommandId[CommandId["stageFadeIn"] = 100017] = "stageFadeIn";
+    CommandId[CommandId["cs_stageFadeIn"] = 100018] = "cs_stageFadeIn";
+    CommandId[CommandId["updateLeftTeam"] = 100019] = "updateLeftTeam";
+    CommandId[CommandId["updateRightTeam"] = 100020] = "updateRightTeam";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {
@@ -184,6 +190,15 @@ var StagePanelInfo = (function (_super) {
     };
     StagePanelInfo.prototype.resetTimer = function () {
         cmd.emit(CommandId.resetTimer);
+    };
+    StagePanelInfo.prototype.fadeOut = function () {
+        cmd.emit(CommandId.stageFadeOut);
+    };
+    StagePanelInfo.prototype.fadeIn = function () {
+        cmd.emit(CommandId.stageFadeIn);
+    };
+    StagePanelInfo.prototype.playerScore = function () {
+        cmd.emit(CommandId.playerScore);
     };
     return StagePanelInfo;
 }(EventDispatcher));
@@ -294,6 +309,26 @@ var StagePanelView = (function (_super) {
             appInfo.panel.stage.time = 0;
             _this.timeLabel.text = _this.formatSecond(appInfo.panel.stage.time);
         });
+        cmd.on(CommandId.stageFadeOut, function () {
+            createjs.Tween.get(_this.ctn).to({ y: -100, alpha: .2 }, 200);
+        });
+        cmd.on(CommandId.stageFadeIn, function () {
+            createjs.Tween.get(_this.ctn).to({ y: 0, alpha: 1 }, 200);
+        });
+        var isBusy = false;
+        cmd.on(CommandId.playerScore, function () {
+            if (!isBusy) {
+                isBusy = true;
+                createjs.Tween.get(_this.scoreCtn)
+                    .to({ y: 200, alpha: 1 }, 100)
+                    .wait(3000)
+                    .to({ y: 150, alpha: 0 }, 200)
+                    .call(function () {
+                    _this.scoreCtn.y = 300;
+                    isBusy = false;
+                });
+            }
+        });
     };
     StagePanelView.prototype.setLeftScore = function (leftScore) {
         this.leftScoreLabel.text = leftScore + "";
@@ -328,6 +363,7 @@ var StagePanelView = (function (_super) {
     StagePanelView.prototype.init = function (param) {
         console.log("init");
         var ctn = new createjs.Container();
+        this.ctn = ctn;
         this.stage.addChild(ctn);
         var bg = new createjs.Bitmap(this.path("img/panelTop.png"));
         bg.x = 150;
@@ -383,6 +419,27 @@ var StagePanelView = (function (_super) {
         timeLabel.y = 90;
         this.timeLabel = timeLabel;
         ctn.addChild(timeLabel);
+        /// score panel------------------------------------------------------
+        this.scoreCtn = new createjs.Container();
+        var bg1 = new createjs.Shape();
+        bg1.graphics.beginFill("#105386");
+        bg1.graphics.drawRect(0, 0, 200, 70);
+        bg1.graphics.beginFill("#ffff00");
+        bg1.graphics.drawRect(128, 3, 64, 64);
+        bg1.alpha = .7;
+        this.scoreCtn.addChild(bg1);
+        var avatar = new createjs.Bitmap("/img/player/p1.png");
+        avatar.x = 130;
+        avatar.y = 5;
+        this.scoreCtn.addChild(avatar);
+        this.scoreCtn.x = 1280 - 200;
+        this.scoreCtn.alpha = 0;
+        this.scoreCtn.y = 300;
+        avatar.addEventListener('click', function () {
+            console.log("click score");
+        });
+        ctn.addChild(this.scoreCtn);
+        //op panel-------------------------------------------------------
         if (this.isOp) {
             var btnLeft = this.newBtn(function () {
                 cmd.proxy(CommandId.cs_addLeftScore);
@@ -411,6 +468,27 @@ var StagePanelView = (function (_super) {
             btn.x = 590;
             btn.y = 100;
             btn.alpha = .5;
+            ctn.addChild(btn);
+            var btn = this.newBtn(function () {
+                cmd.proxy(CommandId.cs_fadeOut);
+            }, "fadeOut");
+            btn.x = 520;
+            btn.y = 200;
+            // btn.alpha = .5;
+            ctn.addChild(btn);
+            var btn = this.newBtn(function () {
+                cmd.proxy(CommandId.cs_stageFadeIn);
+            }, "fadeIn");
+            btn.x = 520;
+            btn.y = 150;
+            // btn.alpha = .5;
+            ctn.addChild(btn);
+            var btn = this.newBtn(function () {
+                cmd.proxy(CommandId.cs_playerScore);
+            }, "score");
+            btn.x = 820;
+            btn.y = 150;
+            // btn.alpha = .5;
             ctn.addChild(btn);
         }
         if (param) {

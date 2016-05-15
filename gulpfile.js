@@ -39,6 +39,7 @@ gulp.task("nwjs", function () {
     var nw = new NwBuilder({
         files: [
             './src/**/*.png',
+            './src/**/*.gif',
             './src/**/*.json',
             './src/**/*.ejs',
             './src/**/*.js',
