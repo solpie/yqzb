@@ -16,8 +16,11 @@ class PlayerPanelView extends BaseView {
         var bg = new createjs.Shape();
         bg.graphics.beginFill("#ccc").drawRoundRect(0, 0, 520, 180, 10);
         ctn.addChild(bg);
-        if (this.isOp) {
 
+        var playerName =new createjs.Text("0", "30px Arial", "#a2a2a2");
+        playerName.text = param.playerInfo.name;
+        ctn.addChild(playerName);
+        if (this.isOp) {
         }
     }
 }

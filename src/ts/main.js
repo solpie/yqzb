@@ -25,7 +25,6 @@ var EventDispatcher = (function () {
     EventDispatcher.prototype.emit = function (type, param, panelid) {
         if (param === void 0) { param = null; }
         if (panelid === void 0) { panelid = null; }
-        console.log(this._func);
         if (this._func[type]) {
             for (var i = 0; i < this._func[type].length; ++i) {
                 var f = this._func[type][i];
@@ -102,10 +101,24 @@ var ViewEvent = (function () {
     ViewEvent.HIDED = "hided";
     return ViewEvent;
 }());
+/**
+ * Created by toramisu on 2016/5/12.
+ */
+var PlayerInfo = (function () {
+    function PlayerInfo() {
+    }
+    PlayerInfo.getPlayerInfo = function (pid) {
+        var playerInfo = new PlayerInfo();
+        return playerInfo;
+    };
+    return PlayerInfo;
+}());
 /// <reference path="../../event/ActEvent.ts"/>
+/// <reference path="../../model/PlayerInfo.ts"/>
 var PanelInfo = (function () {
     function PanelInfo() {
         this.stage = new StagePanelInfo(PanelId.stagePanel);
+        this.player = new PlayerPanelInfo(PanelId.playerPanel);
     }
     return PanelInfo;
 }());
@@ -117,6 +130,21 @@ var BasePanelInfo = (function (_super) {
     }
     return BasePanelInfo;
 }(EventDispatcher));
+var PlayerPanelInfo = (function (_super) {
+    __extends(PlayerPanelInfo, _super);
+    function PlayerPanelInfo() {
+        _super.apply(this, arguments);
+        this.playerInfo = new PlayerInfo();
+    }
+    // playerInfoArr:Array<PlayerInfo> = [];
+    PlayerPanelInfo.prototype.getInfo = function () {
+        this.playerInfo.name = "tmac";
+        return {
+            playerInfo: this.playerInfo
+        };
+    };
+    return PlayerPanelInfo;
+}(BasePanelInfo));
 var StagePanelInfo = (function (_super) {
     __extends(StagePanelInfo, _super);
     function StagePanelInfo() {
@@ -127,6 +155,14 @@ var StagePanelInfo = (function (_super) {
         this.time = 0;
         this.timerState = 0;
     }
+    StagePanelInfo.prototype.getInfo = function () {
+        return {
+            leftScore: this.leftScore,
+            rightScore: this.rightScore,
+            time: this.time,
+            state: this.timerState
+        };
+    };
     StagePanelInfo.prototype.addLeftScore = function () {
         this.leftScore = (this.leftScore + 1) % (this.winScore + 1);
         // this.broadcast(CommandId.addLeftScore, this.leftScore);
@@ -982,41 +1018,30 @@ var HttpServer = (function () {
             wsClient.on('message', function incoming(message) {
                 console.log('client: ', message);
                 var req = JSON.parse(message);
-                if (req.param == PanelId.stagePanel) {
-                    wsClient.pid = req.param;
-                    // console.log('received: %s', message);
+                if (req.req == "info") {
+                    var pid = req.pid;
+                    wsClient.pid = pid;
+                    var info;
+                    if (req.pid == PanelId.stagePanel)
+                        info = appInfo.panel.stage.getInfo();
+                    else if (pid == PanelId.playerPanel)
+                        info = appInfo.panel.player.getInfo();
                     wsClient.send(JSON.stringify({
                         res: "init",
-                        param: {
-                            leftScore: appInfo.panel.stage.leftScore,
-                            rightScore: appInfo.panel.stage.rightScore,
-                            time: appInfo.panel.stage.time,
-                            state: appInfo.panel.stage.timerState
-                        }
+                        param: info
                     }));
                 }
                 else if (req.req == "op") {
-                    // wss.broadcast(req.pid, req.param.type, req.param.param);
                     cmd.emit(req.param.type, req.param.param);
                 }
             });
-            // wss.broadcast = function broadcastCmd(pid, cmdId, param) {
-            //     var strData = JSON.stringify({res: "cmd",pid:pid, cmd: cmdId, param: param});
-            //     console.log("server:", strData);
-            //     wss.clients.forEach(function each(client) {
-            //         console.log("client.pid:", client.pid);
-            //         if (client.pid == pid)
-            //             client.send(strData);
-            //     });
-            // };
             wsClient.send(JSON.stringify({ res: "keep" }));
         });
         cmd.broadcast = function broadcastCmd(pid, cmdId, param) {
             var strData = JSON.stringify({ res: "cmd", pid: pid, cmd: cmdId, param: param });
             console.log("server:", strData);
             wss.clients.forEach(function each(client) {
-                console.log("client.pid:", client.pid);
-                if (client.pid == pid)
+                if (client.pid === pid)
                     client.send(strData);
             });
         };

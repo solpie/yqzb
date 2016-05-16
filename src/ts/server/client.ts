@@ -20,7 +20,7 @@ class Client {
     initWsClient(pid) {
         var wsc = new WebSocket('ws://localhost:' + serverConf.port);
         wsc.onopen = function () {
-            wsc.send('{"req":"info","param":"' + pid + '"}');
+            wsc.send('{"req":"info","pid":"' + pid + '"}');
         };
         wsc.onmessage = (event)=> {
             console.log(event.data);

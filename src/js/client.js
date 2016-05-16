@@ -33,7 +33,6 @@ var EventDispatcher = (function () {
     EventDispatcher.prototype.emit = function (type, param, panelid) {
         if (param === void 0) { param = null; }
         if (panelid === void 0) { panelid = null; }
-        console.log(this._func);
         if (this._func[type]) {
             for (var i = 0; i < this._func[type].length; ++i) {
                 var f = this._func[type][i];
@@ -165,10 +164,24 @@ var ViewEvent = (function () {
     ViewEvent.HIDED = "hided";
     return ViewEvent;
 }());
+/**
+ * Created by toramisu on 2016/5/12.
+ */
+var PlayerInfo = (function () {
+    function PlayerInfo() {
+    }
+    PlayerInfo.getPlayerInfo = function (pid) {
+        var playerInfo = new PlayerInfo();
+        return playerInfo;
+    };
+    return PlayerInfo;
+}());
 /// <reference path="../../event/ActEvent.ts"/>
+/// <reference path="../../model/PlayerInfo.ts"/>
 var PanelInfo = (function () {
     function PanelInfo() {
         this.stage = new StagePanelInfo(PanelId.stagePanel);
+        this.player = new PlayerPanelInfo(PanelId.playerPanel);
     }
     return PanelInfo;
 }());
@@ -180,6 +193,21 @@ var BasePanelInfo = (function (_super) {
     }
     return BasePanelInfo;
 }(EventDispatcher));
+var PlayerPanelInfo = (function (_super) {
+    __extends(PlayerPanelInfo, _super);
+    function PlayerPanelInfo() {
+        _super.apply(this, arguments);
+        this.playerInfo = new PlayerInfo();
+    }
+    // playerInfoArr:Array<PlayerInfo> = [];
+    PlayerPanelInfo.prototype.getInfo = function () {
+        this.playerInfo.name = "tmac";
+        return {
+            playerInfo: this.playerInfo
+        };
+    };
+    return PlayerPanelInfo;
+}(BasePanelInfo));
 var StagePanelInfo = (function (_super) {
     __extends(StagePanelInfo, _super);
     function StagePanelInfo() {
@@ -190,6 +218,14 @@ var StagePanelInfo = (function (_super) {
         this.time = 0;
         this.timerState = 0;
     }
+    StagePanelInfo.prototype.getInfo = function () {
+        return {
+            leftScore: this.leftScore,
+            rightScore: this.rightScore,
+            time: this.time,
+            state: this.timerState
+        };
+    };
     StagePanelInfo.prototype.addLeftScore = function () {
         this.leftScore = (this.leftScore + 1) % (this.winScore + 1);
         // this.broadcast(CommandId.addLeftScore, this.leftScore);
@@ -542,6 +578,9 @@ var PlayerPanelView = (function (_super) {
         var bg = new createjs.Shape();
         bg.graphics.beginFill("#ccc").drawRoundRect(0, 0, 520, 180, 10);
         ctn.addChild(bg);
+        var playerName = new createjs.Text("0", "30px Arial", "#a2a2a2");
+        playerName.text = param.playerInfo.name;
+        ctn.addChild(playerName);
         if (this.isOp) {
         }
     };
@@ -565,7 +604,7 @@ var Client = (function () {
         var _this = this;
         var wsc = new WebSocket('ws://localhost:' + serverConf.port);
         wsc.onopen = function () {
-            wsc.send('{"req":"info","param":"' + pid + '"}');
+            wsc.send('{"req":"info","pid":"' + pid + '"}');
         };
         wsc.onmessage = function (event) {
             console.log(event.data);

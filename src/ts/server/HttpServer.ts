@@ -86,7 +86,6 @@ class HttpServer {
         var WebSocketServer = require('ws').Server
             , wss = new WebSocketServer({port: serverConf.port});
 
-
         wss.on('connection', function connection(wsClient) {
             var location = url.parse(wsClient.upgradeReq.url, true);
             // you might use location.query.access_token to authenticate or share sessions
@@ -95,44 +94,32 @@ class HttpServer {
             wsClient.on('message', function incoming(message) {
                 console.log('client: ', message);
                 var req = JSON.parse(message);
-                if (req.param == PanelId.stagePanel) {
-                    wsClient.pid = req.param;
-                    // console.log('received: %s', message);
+                if (req.req == "info") {
+                    var pid = req.pid;
+                    wsClient.pid = pid;
+                    var info;
+                    if(req.pid ==PanelId.stagePanel)
+                        info = appInfo.panel.stage.getInfo();
+                    else if(pid ==PanelId.playerPanel)
+                        info = appInfo.panel.player.getInfo();
                     wsClient.send(JSON.stringify({
                         res: "init",
-                        param: {
-                            leftScore: appInfo.panel.stage.leftScore,
-                            rightScore: appInfo.panel.stage.rightScore,
-                            time: appInfo.panel.stage.time,
-                            state: appInfo.panel.stage.timerState,
-                        }
+                        param: info
                     }));
                 }
                 else if (req.req == "op") {
-                    // wss.broadcast(req.pid, req.param.type, req.param.param);
                     cmd.emit(req.param.type, req.param.param);
-
                 }
             });
-            // wss.broadcast = function broadcastCmd(pid, cmdId, param) {
-            //     var strData = JSON.stringify({res: "cmd",pid:pid, cmd: cmdId, param: param});
-            //     console.log("server:", strData);
-            //     wss.clients.forEach(function each(client) {
-            //         console.log("client.pid:", client.pid);
-            //         if (client.pid == pid)
-            //             client.send(strData);
-            //     });
-            // };
             wsClient.send(JSON.stringify({res: "keep"}));
         });
 
 
         cmd.broadcast = function broadcastCmd(pid, cmdId, param) {
-            var strData = JSON.stringify({res: "cmd",pid:pid, cmd: cmdId, param: param});
+            var strData = JSON.stringify({res: "cmd", pid: pid, cmd: cmdId, param: param});
             console.log("server:", strData);
             wss.clients.forEach(function each(client) {
-                console.log("client.pid:", client.pid);
-                if (client.pid == pid)
+                if (client.pid === pid)
                     client.send(strData);
             });
         };
