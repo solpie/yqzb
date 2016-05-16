@@ -19,8 +19,10 @@
 <script>
     var client;
     var isOp = "<%= op %>";
+    var host = "<%= host %>";
+    var port = "<%= port %>";
     $(function () {
-        client = new Client("<%= pid %>", isOp === "op");
+        client = new Client("<%= pid %>", isOp === "op", host, port);
     });
 </script>
 <div>

@@ -25,7 +25,7 @@ class HttpServer {
         app.get('/panel/:id/:op', function (req, res) {
             var pid = req.params.id;
             var op = req.params.op;
-            res.render('panel', {pid: pid, op: op});
+            res.render('panel', {pid: pid, op: op,host:serverConf.host,port:serverConf.port});
         });
 
         app.post('/getPlayerInfo/:playerId', function (req, res) {

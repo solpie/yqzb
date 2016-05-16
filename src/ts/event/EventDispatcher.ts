@@ -14,7 +14,7 @@ class EventDispatcher {
         this._func[type].push({func: func, id: this._funcId});
     }
 
-    emit(type:any, param = null, panelid = null) {
+    emit(type:any, param = null, broadcastId = null) {
         if (this._func[type]) {
             for (var i = 0; i < this._func[type].length; ++i) {
                 var f = this._func[type][i];
@@ -22,8 +22,8 @@ class EventDispatcher {
                     f.func(param);
             }
         }
-        if (this.broadcast)
-            this.broadcast(panelid, type, param);
+        if (this.broadcast&&broadcastId)
+            this.broadcast(broadcastId, type, param);
     }
 
     proxy(...param){

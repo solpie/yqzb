@@ -17,7 +17,7 @@ function chooseFile(name) {
 /// <reference path="libs/createjs/createjs-lib.d.ts"/>
 /// <reference path="libs/createjs/tweenjs.d.ts"/>
 var serverConf = {
-    host: "10.10.11.177",
+    host: "localhost",
     port: 8086
 };
 var EventDispatcher = (function () {
@@ -31,9 +31,9 @@ var EventDispatcher = (function () {
         this._funcId++;
         this._func[type].push({ func: func, id: this._funcId });
     };
-    EventDispatcher.prototype.emit = function (type, param, panelid) {
+    EventDispatcher.prototype.emit = function (type, param, broadcastId) {
         if (param === void 0) { param = null; }
-        if (panelid === void 0) { panelid = null; }
+        if (broadcastId === void 0) { broadcastId = null; }
         if (this._func[type]) {
             for (var i = 0; i < this._func[type].length; ++i) {
                 var f = this._func[type][i];
@@ -41,8 +41,8 @@ var EventDispatcher = (function () {
                     f.func(param);
             }
         }
-        if (this.broadcast)
-            this.broadcast(panelid, type, param);
+        if (this.broadcast && broadcastId)
+            this.broadcast(broadcastId, type, param);
     };
     EventDispatcher.prototype.proxy = function () {
         var param = [];
@@ -612,14 +612,14 @@ var cmd = new Command();
 var appInfo = new AppInfo();
 appInfo.isServer = false;
 var Client = (function () {
-    function Client(pid, isOB) {
+    function Client(pid, isOB, host, port) {
         this.pid = pid;
-        this.initWsClient(pid);
+        this.initWsClient(pid, host, port);
         this.isOB = isOB;
     }
-    Client.prototype.initWsClient = function (pid) {
+    Client.prototype.initWsClient = function (pid, host, port) {
         var _this = this;
-        var wsc = new WebSocket('ws://' + serverConf.host + ':' + serverConf.port);
+        var wsc = new WebSocket('ws://' + host + ':' + port);
         wsc.onopen = function () {
             wsc.send('{"req":"info","pid":"' + pid + '"}');
         };

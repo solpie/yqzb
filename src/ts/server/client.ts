@@ -11,13 +11,14 @@ class Client {
     pid:number;
     isOB:boolean;
 
-    constructor(pid, isOB) {
+    constructor(pid, isOB,host,port) {
         this.pid = pid;
-        this.initWsClient(pid);
+        this.initWsClient(pid,host,port);
         this.isOB = isOB;
     }
-    initWsClient(pid) {
-        var wsc = new WebSocket('ws://' + serverConf.host + ':' + serverConf.port);
+
+    initWsClient(pid,host,port) {
+        var wsc = new WebSocket('ws://' + host + ':' + port);
         wsc.onopen = function () {
             wsc.send('{"req":"info","pid":"' + pid + '"}');
         };

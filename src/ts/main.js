@@ -11,6 +11,80 @@ function chooseFile(name) {
     chooser.trigger('click');
     return chooser;
 }
+var fs = require('fs');
+function readFile(file, options, callback) {
+    if (callback == null) {
+        callback = options;
+        options = {};
+    }
+    fs.readFile(file, options, function (err, data) {
+        if (err)
+            return callback(err);
+        var obj;
+        try {
+            obj = JSON.parse(data, options ? options.reviver : null);
+        }
+        catch (err2) {
+            return callback(err2);
+        }
+        callback(null, obj);
+    });
+}
+function readFileSync(file, options) {
+    options = options || {};
+    if (typeof options === 'string') {
+        options = { encoding: options };
+    }
+    var shouldThrow = 'throws' in options ? options.throw : true;
+    if (shouldThrow) {
+        return JSON.parse(fs.readFileSync(file, options), options.reviver);
+    }
+    else {
+        try {
+            return JSON.parse(fs.readFileSync(file, options), options.reviver);
+        }
+        catch (err) {
+            return null;
+        }
+    }
+}
+function writeFile(file, obj, options, callback) {
+    if (callback == null) {
+        callback = options;
+        options = {};
+    }
+    var spaces = typeof options === 'object' && options !== null
+        ? 'spaces' in options
+            ? options.spaces : this.spaces
+        : this.spaces;
+    var str = '';
+    try {
+        str = JSON.stringify(obj, options ? options.replacer : null, spaces) + '\n';
+    }
+    catch (err) {
+        if (callback)
+            return callback(err, null);
+    }
+    fs.writeFile(file, str, options, callback);
+}
+function writeFileSync(file, obj, options) {
+    options = options || {};
+    var spaces = typeof options === 'object' && options !== null
+        ? 'spaces' in options
+            ? options.spaces : this.spaces
+        : this.spaces;
+    var str = JSON.stringify(obj, options.replacer, spaces) + '\n';
+    // not sure if fs.writeFileSync returns anything, but just in case
+    return fs.writeFileSync(file, str, options);
+}
+var jsonfile = {
+    spaces: null,
+    readFile: readFile,
+    readFileSync: readFileSync,
+    writeFile: writeFile,
+    writeFileSync: writeFileSync
+};
+//module.exports = jsonfile; 
 var EventDispatcher = (function () {
     function EventDispatcher() {
         this._func = {};
@@ -22,9 +96,9 @@ var EventDispatcher = (function () {
         this._funcId++;
         this._func[type].push({ func: func, id: this._funcId });
     };
-    EventDispatcher.prototype.emit = function (type, param, panelid) {
+    EventDispatcher.prototype.emit = function (type, param, broadcastId) {
         if (param === void 0) { param = null; }
-        if (panelid === void 0) { panelid = null; }
+        if (broadcastId === void 0) { broadcastId = null; }
         if (this._func[type]) {
             for (var i = 0; i < this._func[type].length; ++i) {
                 var f = this._func[type][i];
@@ -32,8 +106,8 @@ var EventDispatcher = (function () {
                     f.func(param);
             }
         }
-        if (this.broadcast)
-            this.broadcast(panelid, type, param);
+        if (this.broadcast && broadcastId)
+            this.broadcast(broadcastId, type, param);
     };
     EventDispatcher.prototype.proxy = function () {
         var param = [];
@@ -949,7 +1023,7 @@ var YuanqiTvView = (function () {
     return YuanqiTvView;
 }());
 var serverConf = {
-    host: "10.10.11.177",
+    host: "localhost",
     port: 8086
 };
 /**
@@ -974,7 +1048,7 @@ var HttpServer = (function () {
         app.get('/panel/:id/:op', function (req, res) {
             var pid = req.params.id;
             var op = req.params.op;
-            res.render('panel', { pid: pid, op: op });
+            res.render('panel', { pid: pid, op: op, host: serverConf.host, port: serverConf.port });
         });
         app.post('/getPlayerInfo/:playerId', function (req, res) {
             var playerId = req.params.playerId;
@@ -1061,6 +1135,7 @@ var HttpServer = (function () {
     return HttpServer;
 }());
 /// <reference path="JQuery.ts"/>
+/// <reference path="utils/JSONFile.ts"/>
 /// <reference path="model/AppInfo.ts"/>
 /// <reference path="model/Command.ts"/>
 /// <reference path="view/AppView.ts"/>
@@ -1068,7 +1143,13 @@ var HttpServer = (function () {
 var cmd = new Command();
 var appInfo = new AppInfo();
 var app;
-var server = new HttpServer();
+var server;
+jsonfile.readFile("config.json", null, function (err, confData) {
+    serverConf.host = confData.server.host;
+    serverConf.port = confData.server.wsPort;
+    console.log("host:", serverConf.host, "ws port:", serverConf.port);
+    server = new HttpServer();
+});
 appInfo.isServer = true;
 $(function () {
     app = new YuanqiTvView(appInfo);

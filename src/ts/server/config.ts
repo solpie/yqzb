@@ -1,4 +1,4 @@
 var serverConf = {
-    host:"10.10.11.177",
+    host:"localhost",
     port: 8086,
 };
