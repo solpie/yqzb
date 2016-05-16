@@ -74,6 +74,9 @@ class HttpServer {
         cmd.on(CommandId.cs_playerScore, ()=> {
             appInfo.panel.stage.playerScore();
         });
+        cmd.on(CommandId.cs_moveStagePanel, (param)=> {
+            appInfo.panel.stage.movePanel(param);
+        });
     }
 
     serverSend() {

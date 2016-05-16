@@ -42,6 +42,7 @@ class WinPanelInfo extends BasePanelInfo {
             playerInfoArr: this.playerInfoArr
         }
     }
+
     // setPlayerInfo(pos, playerInfo) {
     //     this.playerInfoArr.splice(pos, 1, playerInfo);
     // }
@@ -53,6 +54,7 @@ class StagePanelInfo extends BasePanelInfo {
     rightScore:number = 0;
     time:number = 0;
     timerState:number = 0;
+    ctnXY:any;
 
     getInfo() {
         return {
@@ -60,6 +62,7 @@ class StagePanelInfo extends BasePanelInfo {
             rightScore: this.rightScore,
             time: this.time,
             state: this.timerState,
+            ctnXY:this.ctnXY,
         }
     }
 
@@ -92,5 +95,10 @@ class StagePanelInfo extends BasePanelInfo {
 
     playerScore() {
         cmd.emit(CommandId.playerScore, null, this.pid);
+    }
+
+    movePanel(param) {
+        this.ctnXY = param;
+        cmd.emit(CommandId.moveStagePanel, param, this.pid);
     }
 }

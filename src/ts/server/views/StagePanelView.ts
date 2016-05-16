@@ -11,8 +11,9 @@ class StagePanelView extends BaseView {
     // time = 0;
     timeLabel:any;
     ctn:any;
-    scoreCtn:any;
-    scoreMoveCtn:any;
+    ctnMove:any;
+    eventCtn:any;
+    eventMoveCtn:any;
 
     constructor(stage, isOp) {
         super(stage, isOp);
@@ -25,26 +26,28 @@ class StagePanelView extends BaseView {
     initOp() {
         super.initOp();
         var ctn = this.ctn;
+        var ctnMove = this.ctnMove;
 
         var btnMove = this.newBtn(()=> {
             this.moveCtn = ctn;
+            // this.moveCtnIdx = 0;
         }, "moveStage");
-        ctn.addChild(btnMove);
+        ctnMove.addChild(btnMove);
 
         var btnMove = this.newBtn(()=> {
-            this.moveCtn = this.scoreCtn;
+            this.moveCtn = this.eventCtn;
+            // this.moveCtnIdx = 1;
         }, "moveEvent");
-        btnMove.y = 50
-        ctn.addChild(btnMove);
+        btnMove.y = 50;
+        ctnMove.addChild(btnMove);
 
         var btnLeft = this.newBtn(()=> {
             cmd.proxy(CommandId.cs_addLeftScore);
-
         });
         btnLeft.x = 450;
         btnLeft.y = 5;
         btnLeft.alpha = .5;
-        ctn.addChild(btnLeft);
+        ctnMove.addChild(btnLeft);
 
         var btnRight = this.newBtn(()=> {
             cmd.proxy(CommandId.cs_addRightScore);
@@ -52,21 +55,21 @@ class StagePanelView extends BaseView {
         btnRight.x = 590;
         btnRight.y = 5;
         btnRight.alpha = .5;
-        ctn.addChild(btnRight);
+        ctnMove.addChild(btnRight);
         var btn = this.newBtn(()=> {
             cmd.proxy(CommandId.cs_toggleTimer);
         }, "toggle");
         btn.x = 450;
         btn.y = 100;
         btn.alpha = .5;
-        ctn.addChild(btn);
+        ctnMove.addChild(btn);
         var btn = this.newBtn(()=> {
             cmd.proxy(CommandId.cs_resetTimer);
         }, "reset");
         btn.x = 590;
         btn.y = 100;
         btn.alpha = .5;
-        ctn.addChild(btn);
+        ctnMove.addChild(btn);
 
         var btn = this.newBtn(()=> {
             cmd.proxy(CommandId.cs_fadeOut);
@@ -74,7 +77,7 @@ class StagePanelView extends BaseView {
         btn.x = 520;
         btn.y = 200;
         // btn.alpha = .5;
-        ctn.addChild(btn);
+        ctnMove.addChild(btn);
 
         var btn = this.newBtn(()=> {
             cmd.proxy(CommandId.cs_stageFadeIn);
@@ -82,7 +85,7 @@ class StagePanelView extends BaseView {
         btn.x = 520;
         btn.y = 150;
         // btn.alpha = .5;
-        ctn.addChild(btn);
+        ctnMove.addChild(btn);
 
         var btn = this.newBtn(()=> {
             cmd.proxy(CommandId.cs_playerScore);
@@ -90,7 +93,7 @@ class StagePanelView extends BaseView {
         btn.x = 820;
         btn.y = 150;
         // btn.alpha = .5;
-        ctn.addChild(btn);
+        ctnMove.addChild(btn);
 
         //key
         document.onkeydown = (e)=> {
@@ -99,6 +102,7 @@ class StagePanelView extends BaseView {
             var isShift = e.shiftKey;
             var isAlt = e.altKey;
             console.log("key:", key);
+
             if (key == 38)//up
             {
                 this.moveCtn.y -= 1;
@@ -116,8 +120,14 @@ class StagePanelView extends BaseView {
             else if (key == 39)//right
             {
                 this.moveCtn.x += 1;
-
             }
+            cmd.proxy(CommandId.cs_moveStagePanel,
+                {
+                    ctnX: this.ctn.x,
+                    ctnY: this.ctn.y,
+                    eventX: this.eventCtn.x,
+                    eventY: this.eventCtn.y,
+                });
         };
     }
 
@@ -153,23 +163,28 @@ class StagePanelView extends BaseView {
         });
 
         cmd.on(CommandId.stageFadeOut, ()=> {
-            createjs.Tween.get(this.ctn).to({y: -100, alpha: .2}, 200);
+            createjs.Tween.get(this.ctnMove).to({y: -100, alpha: .2}, 200);
         });
 
         cmd.on(CommandId.stageFadeIn, ()=> {
-            createjs.Tween.get(this.ctn).to({y: 0, alpha: 1}, 200);
+            createjs.Tween.get(this.ctnMove).to({y: 0, alpha: 1}, 200);
         });
+
+        cmd.on(CommandId.moveStagePanel, (param)=> {
+            this.setCtnXY(param);
+        });
+
         var isBusy = false;
         cmd.on(CommandId.playerScore, ()=> {
             if (!isBusy) {
                 isBusy = true;
-                createjs.Tween.get(this.scoreMoveCtn)
+                createjs.Tween.get(this.eventMoveCtn)
                     .to({x: 1080, alpha: 1}, 100)
                     .wait(3000)
                     .to({y: 150, alpha: 0}, 200)
                     .call(()=> {
-                        this.scoreMoveCtn.x = 800;
-                        this.scoreMoveCtn.y = 200;
+                        this.eventMoveCtn.x = 800;
+                        this.eventMoveCtn.y = 200;
                         isBusy = false;
                     });
             }
@@ -203,6 +218,13 @@ class StagePanelView extends BaseView {
         }
     }
 
+    setCtnXY(param){
+        this.ctn.x = param.ctnX;
+        this.ctn.y = param.ctnY;
+        this.eventCtn.x = param.eventX;
+        this.eventCtn.y = param.eventY;
+    }
+
     setTime(time, state) {
         this.timeLabel.text = this.formatSecond(time);
         appInfo.panel.stage.time = time;
@@ -214,11 +236,16 @@ class StagePanelView extends BaseView {
     init(param) {
         super.init(param);
         var ctn = this.ctn;
+        this.ctnMove = new createjs.Container();
+
+        var ctnMove = this.ctnMove;
         this.stage.addChild(ctn);
+
+        this.ctn.addChild(ctnMove);
 
         var bg = new createjs.Bitmap("/img/panelTop.png");
         bg.x = 150;
-        ctn.addChild(bg);
+        ctnMove.addChild(bg);
         //left
         this.leftCircleArr = [];
         this.rightCircleArr = [];
@@ -230,11 +257,11 @@ class StagePanelView extends BaseView {
             spCircle.graphics.drawCircle(px + i * 50, py, 15);
             spCircle.graphics.beginFill("#4b4b4b");
             spCircle.graphics.drawCircle(px + i * 50, py, 12);
-            ctn.addChild(spCircle);
+            ctnMove.addChild(spCircle);
             var circleHide = new createjs.Shape();
             circleHide.graphics.beginFill("#ffff00");
             circleHide.graphics.drawCircle(px + i * 50, py, 12);
-            ctn.addChild(circleHide);
+            ctnMove.addChild(circleHide);
             circleHide.alpha = 0;
             this.leftCircleArr.push(circleHide)
         }
@@ -246,11 +273,11 @@ class StagePanelView extends BaseView {
             spCircle.graphics.drawCircle(px + i * 50, py, 15);
             spCircle.graphics.beginFill("#4b4b4b");
             spCircle.graphics.drawCircle(px + i * 50, py, 12);
-            ctn.addChild(spCircle);
+            ctnMove.addChild(spCircle);
             var circleHide = new createjs.Shape();
             circleHide.graphics.beginFill("#0c83fc");
             circleHide.graphics.drawCircle(px + i * 50, py, 12);
-            ctn.addChild(circleHide);
+            ctnMove.addChild(circleHide);
             circleHide.alpha = 0;
             this.rightCircleArr.push(circleHide)
         }
@@ -263,8 +290,8 @@ class StagePanelView extends BaseView {
         rightScoreLabel.x = 600;
         rightScoreLabel.y = 30;
         this.rightScoreLabel = rightScoreLabel;
-        ctn.addChild(leftScoreLabel);
-        ctn.addChild(rightScoreLabel);
+        ctnMove.addChild(leftScoreLabel);
+        ctnMove.addChild(rightScoreLabel);
 
 
         ///time label---------------------------------------------------
@@ -273,10 +300,10 @@ class StagePanelView extends BaseView {
         timeLabel.y = 90;
 
         this.timeLabel = timeLabel;
-        ctn.addChild(timeLabel);
+        ctnMove.addChild(timeLabel);
         /// score panel------------------------------------------------------
-        this.scoreMoveCtn = new createjs.Container();
-        this.scoreCtn = new createjs.Container();
+        this.eventMoveCtn = new createjs.Container();
+        this.eventCtn = new createjs.Container();
         // var bg1 = new createjs.Shape();
         // bg1.graphics.beginFill("#105386");
         // bg1.graphics.drawRect(0, 0, 200, 70);
@@ -294,21 +321,22 @@ class StagePanelView extends BaseView {
         box.graphics.drawRect(128, 3, 64, 64);
         box.cache(0, 0, 200, 70);
         box.alpha = .8;
-        this.scoreMoveCtn.addChild(box);
-        // this.scoreMoveCtn.addChild(bg1);
+        this.eventMoveCtn.addChild(box);
+        // this.eventMoveCtn.addChild(bg1);
 
         var avatar = new createjs.Bitmap("/img/player/p1.png");
         avatar.x = 130;
         avatar.y = 5;
-        this.scoreMoveCtn.addChild(avatar);
-        this.scoreMoveCtn.alpha = 0;
-        this.scoreMoveCtn.x = 800;
-        this.scoreMoveCtn.y = 200;
+        this.eventMoveCtn.addChild(avatar);
+        this.eventMoveCtn.alpha = 0;
+        this.eventMoveCtn.x = 800;
+        this.eventMoveCtn.y = 200;
         avatar.addEventListener('click', ()=> {
             console.log("click score");
         });
-        this.scoreCtn.addChild(this.scoreMoveCtn);
-        ctn.addChild(this.scoreCtn);
+        this.eventCtn.addChild(this.eventMoveCtn);
+        ctnMove.addChild(this.eventCtn);
+
         //op panel-------------------------------------------------------
         if (this.isOp) {
             this.initOp();
@@ -317,6 +345,8 @@ class StagePanelView extends BaseView {
             this.setLeftScore(param.leftScore);
             this.setRightScore(param.rightScore);
             this.setTime(param.time, param.state);
+            if(param.ctnXY)
+                this.setCtnXY(param.ctnXY);
         }
     }
 

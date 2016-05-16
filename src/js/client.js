@@ -107,10 +107,11 @@ var CommandId;
     CommandId[CommandId["cs_playerScore"] = 100015] = "cs_playerScore";
     CommandId[CommandId["stageFadeIn"] = 100016] = "stageFadeIn";
     CommandId[CommandId["cs_stageFadeIn"] = 100017] = "cs_stageFadeIn";
-    CommandId[CommandId["cs_moveStagePanelTop"] = 100018] = "cs_moveStagePanelTop";
+    CommandId[CommandId["moveStagePanel"] = 100018] = "moveStagePanel";
+    CommandId[CommandId["cs_moveStagePanel"] = 100019] = "cs_moveStagePanel";
     //
-    CommandId[CommandId["updateLeftTeam"] = 100019] = "updateLeftTeam";
-    CommandId[CommandId["updateRightTeam"] = 100020] = "updateRightTeam";
+    CommandId[CommandId["updateLeftTeam"] = 100020] = "updateLeftTeam";
+    CommandId[CommandId["updateRightTeam"] = 100021] = "updateRightTeam";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {
@@ -274,7 +275,8 @@ var StagePanelInfo = (function (_super) {
             leftScore: this.leftScore,
             rightScore: this.rightScore,
             time: this.time,
-            state: this.timerState
+            state: this.timerState,
+            ctnXY: this.ctnXY
         };
     };
     StagePanelInfo.prototype.addLeftScore = function () {
@@ -300,6 +302,10 @@ var StagePanelInfo = (function (_super) {
     };
     StagePanelInfo.prototype.playerScore = function () {
         cmd.emit(CommandId.playerScore, null, this.pid);
+    };
+    StagePanelInfo.prototype.movePanel = function (param) {
+        this.ctnXY = param;
+        cmd.emit(CommandId.moveStagePanel, param, this.pid);
     };
     return StagePanelInfo;
 }(BasePanelInfo));
@@ -378,64 +384,67 @@ var StagePanelView = (function (_super) {
         var _this = this;
         _super.prototype.initOp.call(this);
         var ctn = this.ctn;
+        var ctnMove = this.ctnMove;
         var btnMove = this.newBtn(function () {
             _this.moveCtn = ctn;
+            // this.moveCtnIdx = 0;
         }, "moveStage");
-        ctn.addChild(btnMove);
+        ctnMove.addChild(btnMove);
         var btnMove = this.newBtn(function () {
-            _this.moveCtn = _this.scoreCtn;
+            _this.moveCtn = _this.eventCtn;
+            // this.moveCtnIdx = 1;
         }, "moveEvent");
         btnMove.y = 50;
-        ctn.addChild(btnMove);
+        ctnMove.addChild(btnMove);
         var btnLeft = this.newBtn(function () {
             cmd.proxy(CommandId.cs_addLeftScore);
         });
         btnLeft.x = 450;
         btnLeft.y = 5;
         btnLeft.alpha = .5;
-        ctn.addChild(btnLeft);
+        ctnMove.addChild(btnLeft);
         var btnRight = this.newBtn(function () {
             cmd.proxy(CommandId.cs_addRightScore);
         });
         btnRight.x = 590;
         btnRight.y = 5;
         btnRight.alpha = .5;
-        ctn.addChild(btnRight);
+        ctnMove.addChild(btnRight);
         var btn = this.newBtn(function () {
             cmd.proxy(CommandId.cs_toggleTimer);
         }, "toggle");
         btn.x = 450;
         btn.y = 100;
         btn.alpha = .5;
-        ctn.addChild(btn);
+        ctnMove.addChild(btn);
         var btn = this.newBtn(function () {
             cmd.proxy(CommandId.cs_resetTimer);
         }, "reset");
         btn.x = 590;
         btn.y = 100;
         btn.alpha = .5;
-        ctn.addChild(btn);
+        ctnMove.addChild(btn);
         var btn = this.newBtn(function () {
             cmd.proxy(CommandId.cs_fadeOut);
         }, "fadeOut");
         btn.x = 520;
         btn.y = 200;
         // btn.alpha = .5;
-        ctn.addChild(btn);
+        ctnMove.addChild(btn);
         var btn = this.newBtn(function () {
             cmd.proxy(CommandId.cs_stageFadeIn);
         }, "fadeIn");
         btn.x = 520;
         btn.y = 150;
         // btn.alpha = .5;
-        ctn.addChild(btn);
+        ctnMove.addChild(btn);
         var btn = this.newBtn(function () {
             cmd.proxy(CommandId.cs_playerScore);
         }, "score");
         btn.x = 820;
         btn.y = 150;
         // btn.alpha = .5;
-        ctn.addChild(btn);
+        ctnMove.addChild(btn);
         //key
         document.onkeydown = function (e) {
             var key = e.keyCode;
@@ -455,6 +464,12 @@ var StagePanelView = (function (_super) {
             else if (key == 39) {
                 _this.moveCtn.x += 1;
             }
+            cmd.proxy(CommandId.cs_moveStagePanel, {
+                ctnX: _this.ctn.x,
+                ctnY: _this.ctn.y,
+                eventX: _this.eventCtn.x,
+                eventY: _this.eventCtn.y
+            });
         };
     };
     StagePanelView.prototype.handle = function () {
@@ -487,22 +502,25 @@ var StagePanelView = (function (_super) {
             _this.timeLabel.text = _this.formatSecond(appInfo.panel.stage.time);
         });
         cmd.on(CommandId.stageFadeOut, function () {
-            createjs.Tween.get(_this.ctn).to({ y: -100, alpha: .2 }, 200);
+            createjs.Tween.get(_this.ctnMove).to({ y: -100, alpha: .2 }, 200);
         });
         cmd.on(CommandId.stageFadeIn, function () {
-            createjs.Tween.get(_this.ctn).to({ y: 0, alpha: 1 }, 200);
+            createjs.Tween.get(_this.ctnMove).to({ y: 0, alpha: 1 }, 200);
+        });
+        cmd.on(CommandId.moveStagePanel, function (param) {
+            _this.setCtnXY(param);
         });
         var isBusy = false;
         cmd.on(CommandId.playerScore, function () {
             if (!isBusy) {
                 isBusy = true;
-                createjs.Tween.get(_this.scoreMoveCtn)
+                createjs.Tween.get(_this.eventMoveCtn)
                     .to({ x: 1080, alpha: 1 }, 100)
                     .wait(3000)
                     .to({ y: 150, alpha: 0 }, 200)
                     .call(function () {
-                    _this.scoreMoveCtn.x = 800;
-                    _this.scoreMoveCtn.y = 200;
+                    _this.eventMoveCtn.x = 800;
+                    _this.eventMoveCtn.y = 200;
                     isBusy = false;
                 });
             }
@@ -531,6 +549,12 @@ var StagePanelView = (function (_super) {
             }
         }
     };
+    StagePanelView.prototype.setCtnXY = function (param) {
+        this.ctn.x = param.ctnX;
+        this.ctn.y = param.ctnY;
+        this.eventCtn.x = param.eventX;
+        this.eventCtn.y = param.eventY;
+    };
     StagePanelView.prototype.setTime = function (time, state) {
         this.timeLabel.text = this.formatSecond(time);
         appInfo.panel.stage.time = time;
@@ -541,10 +565,13 @@ var StagePanelView = (function (_super) {
     StagePanelView.prototype.init = function (param) {
         _super.prototype.init.call(this, param);
         var ctn = this.ctn;
+        this.ctnMove = new createjs.Container();
+        var ctnMove = this.ctnMove;
         this.stage.addChild(ctn);
+        this.ctn.addChild(ctnMove);
         var bg = new createjs.Bitmap("/img/panelTop.png");
         bg.x = 150;
-        ctn.addChild(bg);
+        ctnMove.addChild(bg);
         //left
         this.leftCircleArr = [];
         this.rightCircleArr = [];
@@ -556,11 +583,11 @@ var StagePanelView = (function (_super) {
             spCircle.graphics.drawCircle(px + i * 50, py, 15);
             spCircle.graphics.beginFill("#4b4b4b");
             spCircle.graphics.drawCircle(px + i * 50, py, 12);
-            ctn.addChild(spCircle);
+            ctnMove.addChild(spCircle);
             var circleHide = new createjs.Shape();
             circleHide.graphics.beginFill("#ffff00");
             circleHide.graphics.drawCircle(px + i * 50, py, 12);
-            ctn.addChild(circleHide);
+            ctnMove.addChild(circleHide);
             circleHide.alpha = 0;
             this.leftCircleArr.push(circleHide);
         }
@@ -572,11 +599,11 @@ var StagePanelView = (function (_super) {
             spCircle.graphics.drawCircle(px + i * 50, py, 15);
             spCircle.graphics.beginFill("#4b4b4b");
             spCircle.graphics.drawCircle(px + i * 50, py, 12);
-            ctn.addChild(spCircle);
+            ctnMove.addChild(spCircle);
             var circleHide = new createjs.Shape();
             circleHide.graphics.beginFill("#0c83fc");
             circleHide.graphics.drawCircle(px + i * 50, py, 12);
-            ctn.addChild(circleHide);
+            ctnMove.addChild(circleHide);
             circleHide.alpha = 0;
             this.rightCircleArr.push(circleHide);
         }
@@ -588,17 +615,17 @@ var StagePanelView = (function (_super) {
         rightScoreLabel.x = 600;
         rightScoreLabel.y = 30;
         this.rightScoreLabel = rightScoreLabel;
-        ctn.addChild(leftScoreLabel);
-        ctn.addChild(rightScoreLabel);
+        ctnMove.addChild(leftScoreLabel);
+        ctnMove.addChild(rightScoreLabel);
         ///time label---------------------------------------------------
         var timeLabel = new createjs.Text("99:99", "30px Arial", "#a2a2a2");
         timeLabel.x = 520;
         timeLabel.y = 90;
         this.timeLabel = timeLabel;
-        ctn.addChild(timeLabel);
+        ctnMove.addChild(timeLabel);
         /// score panel------------------------------------------------------
-        this.scoreMoveCtn = new createjs.Container();
-        this.scoreCtn = new createjs.Container();
+        this.eventMoveCtn = new createjs.Container();
+        this.eventCtn = new createjs.Container();
         // var bg1 = new createjs.Shape();
         // bg1.graphics.beginFill("#105386");
         // bg1.graphics.drawRect(0, 0, 200, 70);
@@ -615,20 +642,20 @@ var StagePanelView = (function (_super) {
         box.graphics.drawRect(128, 3, 64, 64);
         box.cache(0, 0, 200, 70);
         box.alpha = .8;
-        this.scoreMoveCtn.addChild(box);
-        // this.scoreMoveCtn.addChild(bg1);
+        this.eventMoveCtn.addChild(box);
+        // this.eventMoveCtn.addChild(bg1);
         var avatar = new createjs.Bitmap("/img/player/p1.png");
         avatar.x = 130;
         avatar.y = 5;
-        this.scoreMoveCtn.addChild(avatar);
-        this.scoreMoveCtn.alpha = 0;
-        this.scoreMoveCtn.x = 800;
-        this.scoreMoveCtn.y = 200;
+        this.eventMoveCtn.addChild(avatar);
+        this.eventMoveCtn.alpha = 0;
+        this.eventMoveCtn.x = 800;
+        this.eventMoveCtn.y = 200;
         avatar.addEventListener('click', function () {
             console.log("click score");
         });
-        this.scoreCtn.addChild(this.scoreMoveCtn);
-        ctn.addChild(this.scoreCtn);
+        this.eventCtn.addChild(this.eventMoveCtn);
+        ctnMove.addChild(this.eventCtn);
         //op panel-------------------------------------------------------
         if (this.isOp) {
             this.initOp();
@@ -637,6 +664,8 @@ var StagePanelView = (function (_super) {
             this.setLeftScore(param.leftScore);
             this.setRightScore(param.rightScore);
             this.setTime(param.time, param.state);
+            if (param.ctnXY)
+                this.setCtnXY(param.ctnXY);
         }
     };
     StagePanelView.prototype.formatSecond = function (sec) {

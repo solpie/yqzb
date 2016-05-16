@@ -20,7 +20,8 @@ enum CommandId{
     cs_playerScore,
     stageFadeIn,
     cs_stageFadeIn,
-    cs_moveStagePanelTop,
+    moveStagePanel,
+    cs_moveStagePanel,
         //
     updateLeftTeam,
     updateRightTeam,
