@@ -8,7 +8,6 @@ class WinPanelView extends BaseView {
         super.init(param);
         var ctn = this.ctn;
 
-
         var bg = new createjs.Shape();
         bg.graphics.beginFill("#ccc").drawRoundRect(0, 0, 600, 350, 10);
         ctn.addChild(bg);

@@ -16,15 +16,10 @@ class BaseView {
     init(param) {
         console.log("init panel");
         this.ctn = new createjs.Container();
-        
     }
-
-    show() {
-
-    }
-
-    hide() {
-
+    
+    initOp(){
+        console.log("init op");
     }
 
     newBtn(func, text?) {

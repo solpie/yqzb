@@ -407,6 +407,9 @@ var BaseView = (function () {
         console.log("init panel");
         this.ctn = new createjs.Container();
     };
+    BaseView.prototype.initOp = function () {
+        console.log("init op");
+    };
     BaseView.prototype.show = function () {
     };
     BaseView.prototype.hide = function () {
@@ -441,6 +444,59 @@ var StagePanelView = (function (_super) {
         //     this.init(null);
         this.handle();
     }
+    StagePanelView.prototype.initOp = function () {
+        _super.prototype.initOp.call(this);
+        var ctn = this.ctn;
+        var btnLeft = this.newBtn(function () {
+            cmd.proxy(CommandId.cs_addLeftScore);
+        });
+        btnLeft.x = 450;
+        btnLeft.y = 5;
+        btnLeft.alpha = .5;
+        ctn.addChild(btnLeft);
+        var btnRight = this.newBtn(function () {
+            cmd.proxy(CommandId.cs_addRightScore);
+        });
+        btnRight.x = 590;
+        btnRight.y = 5;
+        btnRight.alpha = .5;
+        ctn.addChild(btnRight);
+        var btn = this.newBtn(function () {
+            cmd.proxy(CommandId.cs_toggleTimer);
+        }, "toggle");
+        btn.x = 450;
+        btn.y = 100;
+        btn.alpha = .5;
+        ctn.addChild(btn);
+        var btn = this.newBtn(function () {
+            cmd.proxy(CommandId.cs_resetTimer);
+        }, "reset");
+        btn.x = 590;
+        btn.y = 100;
+        btn.alpha = .5;
+        ctn.addChild(btn);
+        var btn = this.newBtn(function () {
+            cmd.proxy(CommandId.cs_fadeOut);
+        }, "fadeOut");
+        btn.x = 520;
+        btn.y = 200;
+        // btn.alpha = .5;
+        ctn.addChild(btn);
+        var btn = this.newBtn(function () {
+            cmd.proxy(CommandId.cs_stageFadeIn);
+        }, "fadeIn");
+        btn.x = 520;
+        btn.y = 150;
+        // btn.alpha = .5;
+        ctn.addChild(btn);
+        var btn = this.newBtn(function () {
+            cmd.proxy(CommandId.cs_playerScore);
+        }, "score");
+        btn.x = 820;
+        btn.y = 150;
+        // btn.alpha = .5;
+        ctn.addChild(btn);
+    };
     StagePanelView.prototype.handle = function () {
         var _this = this;
         console.log("handle()");
@@ -613,55 +669,7 @@ var StagePanelView = (function (_super) {
         ctn.addChild(this.scoreCtn);
         //op panel-------------------------------------------------------
         if (this.isOp) {
-            var btnLeft = this.newBtn(function () {
-                cmd.proxy(CommandId.cs_addLeftScore);
-            });
-            btnLeft.x = 450;
-            btnLeft.y = 5;
-            btnLeft.alpha = .5;
-            ctn.addChild(btnLeft);
-            var btnRight = this.newBtn(function () {
-                cmd.proxy(CommandId.cs_addRightScore);
-            });
-            btnRight.x = 590;
-            btnRight.y = 5;
-            btnRight.alpha = .5;
-            ctn.addChild(btnRight);
-            var btn = this.newBtn(function () {
-                cmd.proxy(CommandId.cs_toggleTimer);
-            }, "toggle");
-            btn.x = 450;
-            btn.y = 100;
-            btn.alpha = .5;
-            ctn.addChild(btn);
-            var btn = this.newBtn(function () {
-                cmd.proxy(CommandId.cs_resetTimer);
-            }, "reset");
-            btn.x = 590;
-            btn.y = 100;
-            btn.alpha = .5;
-            ctn.addChild(btn);
-            var btn = this.newBtn(function () {
-                cmd.proxy(CommandId.cs_fadeOut);
-            }, "fadeOut");
-            btn.x = 520;
-            btn.y = 200;
-            // btn.alpha = .5;
-            ctn.addChild(btn);
-            var btn = this.newBtn(function () {
-                cmd.proxy(CommandId.cs_stageFadeIn);
-            }, "fadeIn");
-            btn.x = 520;
-            btn.y = 150;
-            // btn.alpha = .5;
-            ctn.addChild(btn);
-            var btn = this.newBtn(function () {
-                cmd.proxy(CommandId.cs_playerScore);
-            }, "score");
-            btn.x = 820;
-            btn.y = 150;
-            // btn.alpha = .5;
-            ctn.addChild(btn);
+            this.initOp();
         }
         if (param) {
             this.setLeftScore(param.leftScore);
