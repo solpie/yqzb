@@ -12,7 +12,7 @@ class HttpServer {
         var express = require('express');
         var app = express();
         // view engine setup
-        app.set('views', "./views");
+        app.set('views', "./ts/server/views/tpl");
         app.set('view engine', 'ejs');
 
         app.use(express.static("."));
@@ -25,7 +25,7 @@ class HttpServer {
         app.get('/panel/:id/:op', function (req, res) {
             var pid = req.params.id;
             var op = req.params.op;
-            res.render('panel', {pid: pid, op: op,host:serverConf.host,port:serverConf.port});
+            res.render('panel', {pid: pid, op: op, host: serverConf.host, port: serverConf.port});
         });
 
         app.post('/getPlayerInfo/:playerId', function (req, res) {
@@ -93,10 +93,13 @@ class HttpServer {
                     var pid = req.pid;
                     wsClient.pid = pid;
                     var info;
-                    if(req.pid ==PanelId.stagePanel)
+                    if (req.pid == PanelId.stagePanel)
                         info = appInfo.panel.stage.getInfo();
-                    else if(pid ==PanelId.playerPanel)
+                    else if (pid == PanelId.playerPanel)
                         info = appInfo.panel.player.getInfo();
+                    else if (pid == PanelId.winPanel)
+                        info = appInfo.panel.win.getInfo();
+
                     wsClient.send(JSON.stringify({
                         res: "init",
                         param: info

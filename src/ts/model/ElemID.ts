@@ -5,5 +5,6 @@ var ElmId$ = {
 
 var PanelId = {
     stagePanel: 'stage',
+    winPanel: 'win',
     playerPanel: 'player'
 };

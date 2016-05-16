@@ -191,6 +191,22 @@ var PlayerInfo = (function () {
         var playerInfo = new PlayerInfo();
         return playerInfo;
     };
+    PlayerInfo.prototype.getStyleIcon = function () {
+        var path = '/img/icon/';
+        if (this.style == 1) {
+            path += 'feng.png';
+        }
+        else if (this.style == 2) {
+            path += 'huo.png';
+        }
+        else if (this.style == 3) {
+            path += 'shan.png';
+        }
+        else if (this.style == 4) {
+            path += 'lin.png';
+        }
+        return path;
+    };
     return PlayerInfo;
 }());
 /// <reference path="../../event/ActEvent.ts"/>
@@ -199,6 +215,7 @@ var PanelInfo = (function () {
     function PanelInfo() {
         this.stage = new StagePanelInfo(PanelId.stagePanel);
         this.player = new PlayerPanelInfo(PanelId.playerPanel);
+        this.win = new WinPanelInfo(PanelId.winPanel);
     }
     return PanelInfo;
 }());
@@ -224,6 +241,19 @@ var PlayerPanelInfo = (function (_super) {
         };
     };
     return PlayerPanelInfo;
+}(BasePanelInfo));
+var WinPanelInfo = (function (_super) {
+    __extends(WinPanelInfo, _super);
+    function WinPanelInfo() {
+        _super.apply(this, arguments);
+        this.playerInfoArr = [];
+    }
+    WinPanelInfo.prototype.getInfo = function () {
+        return {
+            playerInfoArr: this.playerInfoArr
+        };
+    };
+    return WinPanelInfo;
 }(BasePanelInfo));
 var StagePanelInfo = (function (_super) {
     __extends(StagePanelInfo, _super);
@@ -289,6 +319,7 @@ var ElmId$ = {
 };
 var PanelId = {
     stagePanel: 'stage',
+    winPanel: 'win',
     playerPanel: 'player'
 };
 /// <reference path="../Model/appInfo.ts"/>
@@ -304,6 +335,7 @@ var BaseView = (function () {
     }
     BaseView.prototype.init = function (param) {
         console.log("init panel");
+        this.ctn = new createjs.Container();
     };
     BaseView.prototype.show = function () {
     };
@@ -312,16 +344,17 @@ var BaseView = (function () {
     BaseView.prototype.newBtn = function (func, text) {
         var ctn = new createjs.Container();
         var btn = new createjs.Shape();
+        var btnWidth = 75 * 1.5, btnHeight = 30 * 1.5;
         btn.graphics
             .beginFill("#3c3c3c")
-            .drawRect(0, 0, 75, 30);
+            .drawRect(0, 0, btnWidth, btnHeight);
         btn.addEventListener("click", func);
         // btn.addEventListener("mousedown", func);
         ctn.addChild(btn);
         if (text) {
-            var txt = new createjs.Text(text, "15px Arial", "#e2e2e2");
-            txt.x = (75 - txt.getMeasuredWidth()) * .5;
-            txt.y = 5;
+            var txt = new createjs.Text(text, "24px Arial", "#e2e2e2");
+            txt.x = (btnWidth - txt.getMeasuredWidth()) * .5;
+            txt.y = (btnHeight - txt.getMeasuredHeight()) * .5 - 5;
             txt.mouseEnabled = false;
             ctn.addChild(txt);
         }
@@ -421,8 +454,7 @@ var StagePanelView = (function (_super) {
     };
     StagePanelView.prototype.init = function (param) {
         _super.prototype.init.call(this, param);
-        var ctn = new createjs.Container();
-        this.ctn = ctn;
+        var ctn = this.ctn;
         this.stage.addChild(ctn);
         var bg = new createjs.Bitmap("/img/panelTop.png");
         bg.x = 150;
@@ -580,11 +612,43 @@ var StagePanelView = (function (_super) {
     };
     return StagePanelView;
 }(BaseView));
+var PlayerView = (function () {
+    function PlayerView() {
+    }
+    PlayerView.getPlayerCard = function (p) {
+        var ctn = new createjs.Container();
+        var bg = new createjs.Shape();
+        bg.graphics.beginBitmapFill('#cccc').drawRect(0, 0, 90, 90);
+        ctn.addChild(bg);
+        var img = new createjs.Bitmap(p.avatar);
+        ctn.addChild(img);
+        var style = new createjs.Bitmap(p.getStyleIcon());
+        style.scaleX = 1 / 16;
+        style.scaleY = 1 / 16;
+        style.x = 50;
+        style.y = -16;
+        ctn.addChild(style);
+        var name = new createjs.Text(p.name + '', "30px Arial", "#a2a2a2");
+        name.x = 5;
+        name.y = 60;
+        ctn.addChild(name);
+        var eloScore = new createjs.Text(p.eloScore + '', "30px Arial", "#a2a2a2");
+        eloScore.x = 5;
+        eloScore.y = 85;
+        ctn.addChild(eloScore);
+        return ctn;
+    };
+    return PlayerView;
+}());
+/// <reference path="PlayerView.ts"/>
 var PlayerPanelView = (function (_super) {
     __extends(PlayerPanelView, _super);
-    function PlayerPanelView(stage, isOp) {
-        _super.call(this, stage, isOp);
+    function PlayerPanelView() {
+        _super.apply(this, arguments);
     }
+    // constructor(stage, isOp) {
+    //     super(stage, isOp);
+    // }
     PlayerPanelView.prototype.handle = function () {
     };
     PlayerPanelView.prototype.init = function (param) {
@@ -595,19 +659,68 @@ var PlayerPanelView = (function (_super) {
         var bg = new createjs.Shape();
         bg.graphics.beginFill("#ccc").drawRoundRect(0, 0, 520, 180, 10);
         ctn.addChild(bg);
-        var playerName = new createjs.Text("0", "30px Arial", "#a2a2a2");
-        playerName.text = param.playerInfo.name;
-        ctn.addChild(playerName);
+        // var playerName =new createjs.Text("0", "30px Arial", "#a2a2a2");
+        // playerName.text = param.playerInfo.name;
+        // ctn.addChild(playerName);
+        var playerInfo = new PlayerInfo();
+        playerInfo.name = "tmac";
+        playerInfo.avatar = "/img/player/p1.png";
+        playerInfo.eloScore = 2431;
+        playerInfo.style = 1;
+        var playerView = PlayerView.getPlayerCard(playerInfo);
+        playerView.x = 15;
+        playerView.y = 30;
+        ctn.addChild(playerView);
         if (this.isOp) {
         }
     };
     return PlayerPanelView;
+}(BaseView));
+/// <reference path="../../view/BaseView.ts"/>
+var WinPanelView = (function (_super) {
+    __extends(WinPanelView, _super);
+    function WinPanelView() {
+        _super.apply(this, arguments);
+    }
+    // constructor(){
+    //     super()
+    // }
+    WinPanelView.prototype.init = function (param) {
+        _super.prototype.init.call(this, param);
+        var ctn = this.ctn;
+        var bg = new createjs.Shape();
+        bg.graphics.beginFill("#ccc").drawRoundRect(0, 0, 600, 350, 10);
+        ctn.addChild(bg);
+        var playerInfo = new PlayerInfo();
+        playerInfo.name = "tmac";
+        playerInfo.avatar = "/img/player/p1.png";
+        playerInfo.eloScore = 2431;
+        playerInfo.style = 1;
+        var playerView = PlayerView.getPlayerCard(playerInfo);
+        playerView.x = 15;
+        playerView.y = 30;
+        ctn.addChild(playerView);
+        var playerInfo = new PlayerInfo();
+        playerInfo.name = "curry";
+        playerInfo.avatar = "/img/player/p2.png";
+        playerInfo.eloScore = 2143;
+        playerInfo.style = 1;
+        var playerView = PlayerView.getPlayerCard(playerInfo);
+        playerView.x = 115;
+        playerView.y = 30;
+        ctn.addChild(playerView);
+        this.stage.addChild(ctn);
+    };
+    WinPanelView.prototype.renderChangeData = function () {
+    };
+    return WinPanelView;
 }(BaseView));
 /// <reference path="../lib.ts"/>
 /// <reference path="Config.ts"/>
 /// <reference path="../model/Command.ts"/>
 /// <reference path="./views/StagePanelView.ts"/>
 /// <reference path="./views/PlayerPanelView.ts"/>
+/// <reference path="./views/WinPanelView.ts"/>
 var cmd = new Command();
 var appInfo = new AppInfo();
 appInfo.isServer = false;
@@ -639,14 +752,18 @@ var Client = (function () {
     };
     Client.prototype.initPanel = function (pid, param) {
         var stage = this.initCanvas();
-        var view;
-        if (pid == PanelId.stagePanel) {
-            view = StagePanelView;
-        }
-        else if (pid == PanelId.playerPanel) {
-            view = PlayerPanelView;
-        }
-        this.panel = new view(stage, this.isOB);
+        var viewMap = {};
+        viewMap[PanelId.stagePanel] = StagePanelView;
+        viewMap[PanelId.playerPanel] = PlayerPanelView;
+        viewMap[PanelId.winPanel] = WinPanelView;
+        var view = viewMap[pid];
+        // if (pid == PanelId.stagePanel) {
+        //     view = StagePanelView;
+        // }
+        // else if (pid == PanelId.playerPanel) {
+        //     view = PlayerPanelView;
+        // }
+        this.panel = new viewMap[pid](stage, this.isOB);
         this.panel.init(param);
     };
     Client.prototype.initCanvas = function () {

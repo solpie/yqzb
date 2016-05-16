@@ -3,6 +3,7 @@
 /// <reference path="../model/Command.ts"/>
 /// <reference path="./views/StagePanelView.ts"/>
 /// <reference path="./views/PlayerPanelView.ts"/>
+/// <reference path="./views/WinPanelView.ts"/>
 var cmd:Command = new Command();
 var appInfo = new AppInfo();
 appInfo.isServer = false;
@@ -39,14 +40,18 @@ class Client {
 
     initPanel(pid, param) {
         var stage = this.initCanvas();
-        var view;
-        if (pid == PanelId.stagePanel) {
-            view = StagePanelView;
-        }
-        else if (pid == PanelId.playerPanel) {
-            view = PlayerPanelView;
-        }
-        this.panel = new view(stage, this.isOB);
+        var viewMap = {};
+        viewMap[PanelId.stagePanel] = StagePanelView;
+        viewMap[PanelId.playerPanel] = PlayerPanelView;
+        viewMap[PanelId.winPanel] = WinPanelView;
+        var view = viewMap[pid];
+        // if (pid == PanelId.stagePanel) {
+        //     view = StagePanelView;
+        // }
+        // else if (pid == PanelId.playerPanel) {
+        //     view = PlayerPanelView;
+        // }
+        this.panel = new viewMap[pid](stage, this.isOB);
         this.panel.init(param);
     }
 

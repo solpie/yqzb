@@ -113,8 +113,7 @@ class StagePanelView extends BaseView {
 
     init(param) {
         super.init(param);
-        var ctn = new createjs.Container();
-        this.ctn = ctn;
+        var ctn = this.ctn;
         this.stage.addChild(ctn);
 
         var bg = new createjs.Bitmap("/img/panelTop.png");

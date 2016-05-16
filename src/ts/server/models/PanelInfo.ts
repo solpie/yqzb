@@ -4,10 +4,12 @@ class PanelInfo {
     //for localhost/panel/pid/
     stage:StagePanelInfo;
     player:PlayerPanelInfo;
+    win:WinPanelInfo;
 
     constructor() {
         this.stage = new StagePanelInfo(PanelId.stagePanel);
         this.player = new PlayerPanelInfo(PanelId.playerPanel);
+        this.win = new WinPanelInfo(PanelId.winPanel);
     }
 }
 class BasePanelInfo extends EventDispatcher {
@@ -30,6 +32,16 @@ class PlayerPanelInfo extends BasePanelInfo {
         }
     }
 
+
+}
+class WinPanelInfo extends BasePanelInfo {
+    playerInfoArr:Array<PlayerInfo> = [];
+
+    getInfo() {
+        return {
+            playerInfoArr: this.playerInfoArr
+        }
+    }
     // setPlayerInfo(pos, playerInfo) {
     //     this.playerInfoArr.splice(pos, 1, playerInfo);
     // }
