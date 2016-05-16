@@ -1,0 +1,3 @@
+class SchedulePanelView extends BaseView{
+    
+}

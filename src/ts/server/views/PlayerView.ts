@@ -23,9 +23,9 @@ class PlayerView {
         name.y = 60;
         ctn.addChild(name);
 
-        var eloScore = new createjs.Text(p.eloScore + '', "30px Arial", "#a2a2a2");
+        var eloScore = new createjs.Text(p.eloScore + '', "30px Arial", "#202020");
         eloScore.x = 5;
-        eloScore.y = 85;
+        eloScore.y = 95;
         ctn.addChild(eloScore);
 
         return ctn;

@@ -8,11 +8,16 @@ class PlayerInfo {
     avatar:string;
     height:number;
     weight:number;
-
+    winpercent:number;//  胜率  100/100.0%
+    gameCount:number;//场数
+    dtScore:number;
+    
     constructor() {
 
     }
-
+    getWinPercent(){
+        return (this.winpercent * 100).toFixed(1)+"%";
+    }
     static getPlayerInfo(pid) {
         var playerInfo = new PlayerInfo();
 

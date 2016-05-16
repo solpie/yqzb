@@ -197,6 +197,9 @@ var ViewEvent = (function () {
 var PlayerInfo = (function () {
     function PlayerInfo() {
     }
+    PlayerInfo.prototype.getWinPercent = function () {
+        return (this.winpercent * 100).toFixed(1) + "%";
+    };
     PlayerInfo.getPlayerInfo = function (pid) {
         var playerInfo = new PlayerInfo();
         return playerInfo;
@@ -409,10 +412,6 @@ var BaseView = (function () {
     };
     BaseView.prototype.initOp = function () {
         console.log("init op");
-    };
-    BaseView.prototype.show = function () {
-    };
-    BaseView.prototype.hide = function () {
     };
     BaseView.prototype.newBtn = function (func, text) {
         var ctn = new createjs.Container();
