@@ -7,11 +7,12 @@ class StagePanelView extends BaseView {
     rightCircleArr:any;
     leftScoreLabel:any;
     rightScoreLabel:any;
+    moveCtn:any;
     // time = 0;
-
     timeLabel:any;
     ctn:any;
     scoreCtn:any;
+    scoreMoveCtn:any;
 
     constructor(stage, isOp) {
         super(stage, isOp);
@@ -21,9 +22,21 @@ class StagePanelView extends BaseView {
         this.handle();
     }
 
-    initOp(){
+    initOp() {
         super.initOp();
         var ctn = this.ctn;
+
+        var btnMove = this.newBtn(()=> {
+            this.moveCtn = ctn;
+        }, "moveStage");
+        ctn.addChild(btnMove);
+
+        var btnMove = this.newBtn(()=> {
+            this.moveCtn = this.scoreCtn;
+        }, "moveEvent");
+        btnMove.y = 50
+        ctn.addChild(btnMove);
+
         var btnLeft = this.newBtn(()=> {
             cmd.proxy(CommandId.cs_addLeftScore);
 
@@ -79,6 +92,33 @@ class StagePanelView extends BaseView {
         // btn.alpha = .5;
         ctn.addChild(btn);
 
+        //key
+        document.onkeydown = (e)=> {
+            var key = e.keyCode;
+            var isCtrl = e.ctrlKey;
+            var isShift = e.shiftKey;
+            var isAlt = e.altKey;
+            console.log("key:", key);
+            if (key == 38)//up
+            {
+                this.moveCtn.y -= 1;
+            }
+            else if (key == 40)//down
+            {
+                this.moveCtn.y += 1;
+
+            }
+            else if (key == 37)//left
+            {
+                this.moveCtn.x -= 1;
+
+            }
+            else if (key == 39)//right
+            {
+                this.moveCtn.x += 1;
+
+            }
+        };
     }
 
     handle() {
@@ -123,13 +163,13 @@ class StagePanelView extends BaseView {
         cmd.on(CommandId.playerScore, ()=> {
             if (!isBusy) {
                 isBusy = true;
-                createjs.Tween.get(this.scoreCtn)
+                createjs.Tween.get(this.scoreMoveCtn)
                     .to({x: 1080, alpha: 1}, 100)
                     .wait(3000)
                     .to({y: 150, alpha: 0}, 200)
                     .call(()=> {
-                        this.scoreCtn.x = 800;
-                        this.scoreCtn.y = 200;
+                        this.scoreMoveCtn.x = 800;
+                        this.scoreMoveCtn.y = 200;
                         isBusy = false;
                     });
             }
@@ -235,6 +275,7 @@ class StagePanelView extends BaseView {
         this.timeLabel = timeLabel;
         ctn.addChild(timeLabel);
         /// score panel------------------------------------------------------
+        this.scoreMoveCtn = new createjs.Container();
         this.scoreCtn = new createjs.Container();
         // var bg1 = new createjs.Shape();
         // bg1.graphics.beginFill("#105386");
@@ -245,7 +286,7 @@ class StagePanelView extends BaseView {
         // bg1.alpha = .7;
 
         var box = new createjs.Shape();
-        box.graphics.beginLinearGradientFill(["rgba(11, 80, 125, 0)","#105386" ], [0, .7], 0, 0, 200, 0);
+        box.graphics.beginLinearGradientFill(["rgba(11, 80, 125, 0)", "#105386"], [0, .7], 0, 0, 200, 0);
         // box.graphics.beginLinearGradientFill(["rgba(255, 0, 0, 0)","#105386" ], [0, .7], 0, 0, 200, 0);
         box.graphics.drawRect(0, 0, 200, 70);
         box.graphics.endFill();
@@ -253,19 +294,20 @@ class StagePanelView extends BaseView {
         box.graphics.drawRect(128, 3, 64, 64);
         box.cache(0, 0, 200, 70);
         box.alpha = .8;
-        this.scoreCtn.addChild(box);
-        // this.scoreCtn.addChild(bg1);
+        this.scoreMoveCtn.addChild(box);
+        // this.scoreMoveCtn.addChild(bg1);
 
         var avatar = new createjs.Bitmap("/img/player/p1.png");
         avatar.x = 130;
         avatar.y = 5;
-        this.scoreCtn.addChild(avatar);
-        this.scoreCtn.alpha = 0;
-        this.scoreCtn.x = 800;
-        this.scoreCtn.y = 200;
+        this.scoreMoveCtn.addChild(avatar);
+        this.scoreMoveCtn.alpha = 0;
+        this.scoreMoveCtn.x = 800;
+        this.scoreMoveCtn.y = 200;
         avatar.addEventListener('click', ()=> {
             console.log("click score");
         });
+        this.scoreCtn.addChild(this.scoreMoveCtn);
         ctn.addChild(this.scoreCtn);
         //op panel-------------------------------------------------------
         if (this.isOp) {

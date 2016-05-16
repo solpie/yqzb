@@ -1,11 +1,10 @@
 /// <reference path="../event/EventDispatcher.ts"/>
 enum CommandId{
     ShowConsoleWin = 100000,
-    //test cmd
-    testSwapTrack,
     //
     toggleTracker,
     toggleBallRolling,
+        //stage panel
     toggleTimer,
     cs_toggleTimer,
     resetTimer,
@@ -21,6 +20,8 @@ enum CommandId{
     cs_playerScore,
     stageFadeIn,
     cs_stageFadeIn,
+    cs_moveStagePanelTop,
+        //
     updateLeftTeam,
     updateRightTeam,
 }
@@ -47,7 +48,7 @@ class Command extends EventDispatcher {
         this.newCmd(CommandId.disableTracker, "disableTracker");
         ////test cmd
 
-        this.newCmd(CommandId.testSwapTrack, "test swap track");
+        // this.newCmd(CommandId.testSwapTrack, "test swap track");
     }
 
     newCmd(id:number, name:string, desc?:string) {

@@ -67,6 +67,10 @@ class Client {
         createjs.Ticker.addEventListener("tick", function () {
             stage.update();
         });
+
+
+      
+
         return stage;
     }
 }
