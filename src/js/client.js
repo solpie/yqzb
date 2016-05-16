@@ -17,6 +17,7 @@ function chooseFile(name) {
 /// <reference path="libs/createjs/createjs-lib.d.ts"/>
 /// <reference path="libs/createjs/tweenjs.d.ts"/>
 var serverConf = {
+    host: "10.10.11.177",
     port: 8086
 };
 var EventDispatcher = (function () {
@@ -43,6 +44,22 @@ var EventDispatcher = (function () {
         if (this.broadcast)
             this.broadcast(panelid, type, param);
     };
+    EventDispatcher.prototype.proxy = function () {
+        var param = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            param[_i - 0] = arguments[_i];
+        }
+        throw new Error("no proxy method!!!");
+    };
+    ;
+    EventDispatcher.prototype.broadcast = function () {
+        var param = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            param[_i - 0] = arguments[_i];
+        }
+        throw new Error("no broadcast method!!!");
+    };
+    ;
     EventDispatcher.prototype.del = function (type, funcId) {
         if (funcId === void 0) { funcId = -1; }
         if (this._func[type])
@@ -602,7 +619,7 @@ var Client = (function () {
     }
     Client.prototype.initWsClient = function (pid) {
         var _this = this;
-        var wsc = new WebSocket('ws://localhost:' + serverConf.port);
+        var wsc = new WebSocket('ws://' + serverConf.host + ':' + serverConf.port);
         wsc.onopen = function () {
             wsc.send('{"req":"info","pid":"' + pid + '"}');
         };

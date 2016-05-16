@@ -35,6 +35,22 @@ var EventDispatcher = (function () {
         if (this.broadcast)
             this.broadcast(panelid, type, param);
     };
+    EventDispatcher.prototype.proxy = function () {
+        var param = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            param[_i - 0] = arguments[_i];
+        }
+        throw new Error("no proxy method!!!");
+    };
+    ;
+    EventDispatcher.prototype.broadcast = function () {
+        var param = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            param[_i - 0] = arguments[_i];
+        }
+        throw new Error("no broadcast method!!!");
+    };
+    ;
     EventDispatcher.prototype.del = function (type, funcId) {
         if (funcId === void 0) { funcId = -1; }
         if (this._func[type])
@@ -933,6 +949,7 @@ var YuanqiTvView = (function () {
     return YuanqiTvView;
 }());
 var serverConf = {
+    host: "10.10.11.177",
     port: 8086
 };
 /**
@@ -957,12 +974,7 @@ var HttpServer = (function () {
         app.get('/panel/:id/:op', function (req, res) {
             var pid = req.params.id;
             var op = req.params.op;
-            // if (pid == "stage") {
             res.render('panel', { pid: pid, op: op });
-            // }
-            // else {
-            //     res.send(pid);
-            // }
         });
         app.post('/getPlayerInfo/:playerId', function (req, res) {
             var playerId = req.params.playerId;
@@ -970,10 +982,10 @@ var HttpServer = (function () {
             var playerInfo;
             res.send(JSON.stringify({ playerInfo: playerInfo }));
         });
-        app.post('/getPlayerInfo/:playerId', function (req, res) {
-            var playerId = req.params.playerId;
-            console.log("PlayerInfo ", playerId);
-        });
+        // app.post('/getPlayerInfo/:playerId', function (req, res) {
+        //     var playerId = req.params.playerId;
+        //     console.log("PlayerInfo ", playerId);
+        // });
         //setup the web server
         app.server = http.createServer(app);
         //listen up

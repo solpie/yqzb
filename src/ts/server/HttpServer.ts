@@ -25,12 +25,7 @@ class HttpServer {
         app.get('/panel/:id/:op', function (req, res) {
             var pid = req.params.id;
             var op = req.params.op;
-            // if (pid == "stage") {
             res.render('panel', {pid: pid, op: op});
-            // }
-            // else {
-            //     res.send(pid);
-            // }
         });
 
         app.post('/getPlayerInfo/:playerId', function (req, res) {
@@ -40,10 +35,10 @@ class HttpServer {
             res.send(JSON.stringify({playerInfo: playerInfo}));
         });
 
-        app.post('/getPlayerInfo/:playerId', function (req, res) {
-            var playerId = req.params.playerId;
-            console.log("PlayerInfo ", playerId);
-        });
+        // app.post('/getPlayerInfo/:playerId', function (req, res) {
+        //     var playerId = req.params.playerId;
+        //     console.log("PlayerInfo ", playerId);
+        // });
 
 
 //setup the web server

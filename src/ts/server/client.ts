@@ -16,9 +16,8 @@ class Client {
         this.initWsClient(pid);
         this.isOB = isOB;
     }
-
     initWsClient(pid) {
-        var wsc = new WebSocket('ws://localhost:' + serverConf.port);
+        var wsc = new WebSocket('ws://' + serverConf.host + ':' + serverConf.port);
         wsc.onopen = function () {
             wsc.send('{"req":"info","pid":"' + pid + '"}');
         };

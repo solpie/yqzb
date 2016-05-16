@@ -14,7 +14,7 @@ class EventDispatcher {
         this._func[type].push({func: func, id: this._funcId});
     }
 
-    emit(type:any, param = null,panelid=null) {
+    emit(type:any, param = null, panelid = null) {
         if (this._func[type]) {
             for (var i = 0; i < this._func[type].length; ++i) {
                 var f = this._func[type][i];
@@ -23,12 +23,16 @@ class EventDispatcher {
             }
         }
         if (this.broadcast)
-            this.broadcast(panelid,type, param);
+            this.broadcast(panelid, type, param);
     }
 
-    proxy:any;
+    proxy(...param){
+        throw new Error("no proxy method!!!");
+    };
 
-    broadcast:any;
+    broadcast(...param){
+        throw new Error("no broadcast method!!!");
+    };
 
     del(type:string, funcId:number = -1) {
         if (this._func[type])
