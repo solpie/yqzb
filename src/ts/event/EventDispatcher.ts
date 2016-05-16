@@ -1,7 +1,6 @@
 class EventDispatcher {
     _func:Object;
     _funcId:number;
-    broadCast:any;
 
     constructor() {
         this._func = {};
@@ -15,7 +14,8 @@ class EventDispatcher {
         this._func[type].push({func: func, id: this._funcId});
     }
 
-    emit(type:any, param = null) {
+    emit(type:any, param = null,panelid=null) {
+        console.log(this._func);
         if (this._func[type]) {
             for (var i = 0; i < this._func[type].length; ++i) {
                 var f = this._func[type][i];
@@ -23,11 +23,13 @@ class EventDispatcher {
                     f.func(param);
             }
         }
-        if (this.broadCast)
-            this.broadCast(type, param);
+        if (this.broadcast)
+            this.broadcast(panelid,type, param);
     }
 
     proxy:any;
+
+    broadcast:any;
 
     del(type:string, funcId:number = -1) {
         if (this._func[type])

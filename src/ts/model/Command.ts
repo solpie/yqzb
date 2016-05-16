@@ -12,7 +12,7 @@ enum CommandId{
     cs_resetTimer,
     disableTracker,
     addLeftScore,
-    cs_addLeftScore,
+    cs_addLeftScore,//1000010
     addRightScore,
     cs_addRightScore,
     stageFadeOut,

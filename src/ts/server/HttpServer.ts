@@ -1,6 +1,8 @@
 /**
  * Created by toramisu on 2016/5/13.
  */
+/// <reference path="Config.ts"/>
+
 class HttpServer {
     constructor() {
         ///server
@@ -23,21 +25,21 @@ class HttpServer {
         app.get('/panel/:id/:op', function (req, res) {
             var pid = req.params.id;
             var op = req.params.op;
-            if (pid == "stage") {
-                res.render('panel', {pid: PanelId.stagePanel, op: op});
-            }
-            else {
-                res.send(pid);
-            }
+            // if (pid == "stage") {
+            res.render('panel', {pid: pid, op: op});
+            // }
+            // else {
+            //     res.send(pid);
+            // }
         });
 
         app.post('/getPlayerInfo/:playerId', function (req, res) {
             var playerId = req.params.playerId;
             console.log("PlayerInfo ", playerId);
             var playerInfo;
-            res.send(JSON.stringify({playerInfo:playerInfo}));
+            res.send(JSON.stringify({playerInfo: playerInfo}));
         });
-        
+
         app.post('/getPlayerInfo/:playerId', function (req, res) {
             var playerId = req.params.playerId;
             console.log("PlayerInfo ", playerId);
@@ -82,18 +84,21 @@ class HttpServer {
     serverSend() {
         var url = require('url');
         var WebSocketServer = require('ws').Server
-            , wss = new WebSocketServer({port: 8080});
-        wss.on('connection', function connection(ws) {
-            var location = url.parse(ws.upgradeReq.url, true);
+            , wss = new WebSocketServer({port: serverConf.port});
+
+
+        wss.on('connection', function connection(wsClient) {
+            var location = url.parse(wsClient.upgradeReq.url, true);
             // you might use location.query.access_token to authenticate or share sessions
             // or ws.upgradeReq.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
             console.log(location);
-            ws.on('message', function incoming(message) {
+            wsClient.on('message', function incoming(message) {
                 console.log('client: ', message);
                 var req = JSON.parse(message);
                 if (req.param == PanelId.stagePanel) {
+                    wsClient.pid = req.param;
                     // console.log('received: %s', message);
-                    ws.send(JSON.stringify({
+                    wsClient.send(JSON.stringify({
                         res: "init",
                         param: {
                             leftScore: appInfo.panel.stage.leftScore,
@@ -104,25 +109,31 @@ class HttpServer {
                     }));
                 }
                 else if (req.req == "op") {
+                    // wss.broadcast(req.pid, req.param.type, req.param.param);
                     cmd.emit(req.param.type, req.param.param);
+
                 }
             });
-
-            ws.send(JSON.stringify({res: "keep"}));
+            // wss.broadcast = function broadcastCmd(pid, cmdId, param) {
+            //     var strData = JSON.stringify({res: "cmd",pid:pid, cmd: cmdId, param: param});
+            //     console.log("server:", strData);
+            //     wss.clients.forEach(function each(client) {
+            //         console.log("client.pid:", client.pid);
+            //         if (client.pid == pid)
+            //             client.send(strData);
+            //     });
+            // };
+            wsClient.send(JSON.stringify({res: "keep"}));
         });
-        wss.broadcast = function broadcast(data) {
-            var strData = JSON.stringify(data);
-            console.log("server:", strData);
-            wss.clients.forEach(function each(client) {
-                client.send(strData);
-            });
-        };
 
-        cmd.broadCast = function broadcastCmd(cmdId, param) {
-            var strData = JSON.stringify({res: "cmd", cmd: cmdId, param: param});
+
+        cmd.broadcast = function broadcastCmd(pid, cmdId, param) {
+            var strData = JSON.stringify({res: "cmd",pid:pid, cmd: cmdId, param: param});
             console.log("server:", strData);
             wss.clients.forEach(function each(client) {
-                client.send(strData);
+                console.log("client.pid:", client.pid);
+                if (client.pid == pid)
+                    client.send(strData);
             });
         };
     }

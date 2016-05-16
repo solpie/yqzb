@@ -13,10 +13,10 @@ class StagePanelView extends BaseView {
     ctn:any;
     scoreCtn:any;
 
-    constructor(stage, isClient, isOp) {
-        super(stage, isClient, isOp);
-        if (!this.isClient)
-            this.init(null);
+    constructor(stage, isOp) {
+        super(stage, isOp);
+        // if (!this.isClient)
+        //     this.init(null);
 
         this.handle();
     }
@@ -112,12 +112,12 @@ class StagePanelView extends BaseView {
     }
 
     init(param) {
-        console.log("init");
+        super.init(param);
         var ctn = new createjs.Container();
         this.ctn = ctn;
         this.stage.addChild(ctn);
 
-        var bg = new createjs.Bitmap(this.path("img/panelTop.png"));
+        var bg = new createjs.Bitmap("/img/panelTop.png");
         bg.x = 150;
         ctn.addChild(bg);
         //left

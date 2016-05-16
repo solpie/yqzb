@@ -2,7 +2,7 @@
  * Created by toramisu on 2016/5/9.
  */
 /// <reference path="../event/ActEvent.ts"/>
-/// <reference path="PanelInfo.ts"/>
+/// <reference path="../server/models/PanelInfo.ts"/>
 
 class AppInfo extends EventDispatcher {
     mouseX:number;

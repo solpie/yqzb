@@ -22,8 +22,10 @@ var EventDispatcher = (function () {
         this._funcId++;
         this._func[type].push({ func: func, id: this._funcId });
     };
-    EventDispatcher.prototype.emit = function (type, param) {
+    EventDispatcher.prototype.emit = function (type, param, panelid) {
         if (param === void 0) { param = null; }
+        if (panelid === void 0) { panelid = null; }
+        console.log(this._func);
         if (this._func[type]) {
             for (var i = 0; i < this._func[type].length; ++i) {
                 var f = this._func[type][i];
@@ -31,8 +33,8 @@ var EventDispatcher = (function () {
                     f.func(param);
             }
         }
-        if (this.broadCast)
-            this.broadCast(type, param);
+        if (this.broadcast)
+            this.broadcast(panelid, type, param);
     };
     EventDispatcher.prototype.del = function (type, funcId) {
         if (funcId === void 0) { funcId = -1; }
@@ -100,13 +102,21 @@ var ViewEvent = (function () {
     ViewEvent.HIDED = "hided";
     return ViewEvent;
 }());
-/// <reference path="../event/ActEvent.ts"/>
+/// <reference path="../../event/ActEvent.ts"/>
 var PanelInfo = (function () {
     function PanelInfo() {
-        this.stage = new StagePanelInfo();
+        this.stage = new StagePanelInfo(PanelId.stagePanel);
     }
     return PanelInfo;
 }());
+var BasePanelInfo = (function (_super) {
+    __extends(BasePanelInfo, _super);
+    function BasePanelInfo(pid) {
+        _super.call(this);
+        this.pid = pid;
+    }
+    return BasePanelInfo;
+}(EventDispatcher));
 var StagePanelInfo = (function (_super) {
     __extends(StagePanelInfo, _super);
     function StagePanelInfo() {
@@ -119,34 +129,35 @@ var StagePanelInfo = (function (_super) {
     }
     StagePanelInfo.prototype.addLeftScore = function () {
         this.leftScore = (this.leftScore + 1) % (this.winScore + 1);
-        cmd.emit(CommandId.addLeftScore, this.leftScore);
+        // this.broadcast(CommandId.addLeftScore, this.leftScore);
+        cmd.emit(CommandId.addLeftScore, this.leftScore, this.pid);
     };
     StagePanelInfo.prototype.addRightScore = function () {
         this.rightScore = (this.rightScore + 1) % (this.winScore + 1);
-        cmd.emit(CommandId.addRightScore, this.rightScore);
+        cmd.emit(CommandId.addRightScore, this.rightScore, this.pid);
     };
     StagePanelInfo.prototype.toggleTimer = function () {
-        cmd.emit(CommandId.toggleTimer);
+        cmd.emit(CommandId.toggleTimer, null, this.pid);
     };
     StagePanelInfo.prototype.resetTimer = function () {
-        cmd.emit(CommandId.resetTimer);
+        cmd.emit(CommandId.resetTimer, null, this.pid);
     };
     StagePanelInfo.prototype.fadeOut = function () {
-        cmd.emit(CommandId.stageFadeOut);
+        cmd.emit(CommandId.stageFadeOut, null, this.pid);
     };
     StagePanelInfo.prototype.fadeIn = function () {
-        cmd.emit(CommandId.stageFadeIn);
+        cmd.emit(CommandId.stageFadeIn, null, this.pid);
     };
     StagePanelInfo.prototype.playerScore = function () {
-        cmd.emit(CommandId.playerScore);
+        cmd.emit(CommandId.playerScore, null, this.pid);
     };
     return StagePanelInfo;
-}(EventDispatcher));
+}(BasePanelInfo));
 /**
  * Created by toramisu on 2016/5/9.
  */
 /// <reference path="../event/ActEvent.ts"/>
-/// <reference path="PanelInfo.ts"/>
+/// <reference path="../server/models/PanelInfo.ts"/>
 var AppInfo = (function (_super) {
     __extends(AppInfo, _super);
     function AppInfo() {
@@ -221,7 +232,8 @@ var ElmId$ = {
     buttonAddRightScore: "#btnAddRightScore"
 };
 var PanelId = {
-    stagePanel: 'StagePanel'
+    stagePanel: 'stage',
+    playerPanel: 'player'
 };
 /// <reference path="../Model/appInfo.ts"/>
 /// <reference path="../Model/Command.ts"/>
@@ -229,13 +241,14 @@ var PanelId = {
 /// <reference path="../JQuery.ts"/>
 /// <reference path="../lib.ts"/>
 var BaseView = (function () {
-    function BaseView(stage, isClient, isOp) {
-        this.isClient = false;
+    function BaseView(stage, isOp) {
         this.isOp = false;
         this.stage = stage;
-        this.isClient = isClient;
         this.isOp = isOp;
     }
+    BaseView.prototype.init = function (param) {
+        console.log("init panel");
+    };
     BaseView.prototype.show = function () {
     };
     BaseView.prototype.hide = function () {
@@ -246,7 +259,8 @@ var BaseView = (function () {
         btn.graphics
             .beginFill("#3c3c3c")
             .drawRect(0, 0, 75, 30);
-        btn.addEventListener("mousedown", func);
+        btn.addEventListener("click", func);
+        // btn.addEventListener("mousedown", func);
         ctn.addChild(btn);
         if (text) {
             var txt = new createjs.Text(text, "15px Arial", "#e2e2e2");
@@ -257,28 +271,15 @@ var BaseView = (function () {
         }
         return ctn;
     };
-    BaseView.prototype.emit = function (clientFunc, serverFunc) {
-        if (this.isClient) {
-            clientFunc();
-        }
-        else {
-            serverFunc();
-        }
-    };
-    BaseView.prototype.path = function (p) {
-        if (this.isClient)
-            return '/' + p;
-        return p;
-    };
     return BaseView;
 }());
 /// <reference path="../../view/BaseView.ts"/>
 var StagePanelView = (function (_super) {
     __extends(StagePanelView, _super);
-    function StagePanelView(stage, isClient, isOp) {
-        _super.call(this, stage, isClient, isOp);
-        if (!this.isClient)
-            this.init(null);
+    function StagePanelView(stage, isOp) {
+        _super.call(this, stage, isOp);
+        // if (!this.isClient)
+        //     this.init(null);
         this.handle();
     }
     StagePanelView.prototype.handle = function () {
@@ -363,11 +364,11 @@ var StagePanelView = (function (_super) {
         }
     };
     StagePanelView.prototype.init = function (param) {
-        console.log("init");
+        _super.prototype.init.call(this, param);
         var ctn = new createjs.Container();
         this.ctn = ctn;
         this.stage.addChild(ctn);
-        var bg = new createjs.Bitmap(this.path("img/panelTop.png"));
+        var bg = new createjs.Bitmap("/img/panelTop.png");
         bg.x = 150;
         ctn.addChild(bg);
         //left
@@ -528,7 +529,7 @@ var TrackerView = (function (_super) {
     __extends(TrackerView, _super);
     function TrackerView(stage, isClient) {
         var _this = this;
-        _super.call(this, stage, isClient, false);
+        _super.call(this, stage, false);
         this.init();
         cmd.on(CommandId.toggleTracker, function () {
             if (_this.tracker.parent)
@@ -895,9 +896,13 @@ var YuanqiTvView = (function () {
     };
     return YuanqiTvView;
 }());
+var serverConf = {
+    port: 8086
+};
 /**
  * Created by toramisu on 2016/5/13.
  */
+/// <reference path="Config.ts"/>
 var HttpServer = (function () {
     function HttpServer() {
         ///server
@@ -916,12 +921,12 @@ var HttpServer = (function () {
         app.get('/panel/:id/:op', function (req, res) {
             var pid = req.params.id;
             var op = req.params.op;
-            if (pid == "stage") {
-                res.render('panel', { pid: PanelId.stagePanel, op: op });
-            }
-            else {
-                res.send(pid);
-            }
+            // if (pid == "stage") {
+            res.render('panel', { pid: pid, op: op });
+            // }
+            // else {
+            //     res.send(pid);
+            // }
         });
         app.post('/getPlayerInfo/:playerId', function (req, res) {
             var playerId = req.params.playerId;
@@ -968,18 +973,19 @@ var HttpServer = (function () {
     };
     HttpServer.prototype.serverSend = function () {
         var url = require('url');
-        var WebSocketServer = require('ws').Server, wss = new WebSocketServer({ port: 8080 });
-        wss.on('connection', function connection(ws) {
-            var location = url.parse(ws.upgradeReq.url, true);
+        var WebSocketServer = require('ws').Server, wss = new WebSocketServer({ port: serverConf.port });
+        wss.on('connection', function connection(wsClient) {
+            var location = url.parse(wsClient.upgradeReq.url, true);
             // you might use location.query.access_token to authenticate or share sessions
             // or ws.upgradeReq.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
             console.log(location);
-            ws.on('message', function incoming(message) {
+            wsClient.on('message', function incoming(message) {
                 console.log('client: ', message);
                 var req = JSON.parse(message);
                 if (req.param == PanelId.stagePanel) {
+                    wsClient.pid = req.param;
                     // console.log('received: %s', message);
-                    ws.send(JSON.stringify({
+                    wsClient.send(JSON.stringify({
                         res: "init",
                         param: {
                             leftScore: appInfo.panel.stage.leftScore,
@@ -990,23 +996,28 @@ var HttpServer = (function () {
                     }));
                 }
                 else if (req.req == "op") {
+                    // wss.broadcast(req.pid, req.param.type, req.param.param);
                     cmd.emit(req.param.type, req.param.param);
                 }
             });
-            ws.send(JSON.stringify({ res: "keep" }));
+            // wss.broadcast = function broadcastCmd(pid, cmdId, param) {
+            //     var strData = JSON.stringify({res: "cmd",pid:pid, cmd: cmdId, param: param});
+            //     console.log("server:", strData);
+            //     wss.clients.forEach(function each(client) {
+            //         console.log("client.pid:", client.pid);
+            //         if (client.pid == pid)
+            //             client.send(strData);
+            //     });
+            // };
+            wsClient.send(JSON.stringify({ res: "keep" }));
         });
-        wss.broadcast = function broadcast(data) {
-            var strData = JSON.stringify(data);
+        cmd.broadcast = function broadcastCmd(pid, cmdId, param) {
+            var strData = JSON.stringify({ res: "cmd", pid: pid, cmd: cmdId, param: param });
             console.log("server:", strData);
             wss.clients.forEach(function each(client) {
-                client.send(strData);
-            });
-        };
-        cmd.broadCast = function broadcastCmd(cmdId, param) {
-            var strData = JSON.stringify({ res: "cmd", cmd: cmdId, param: param });
-            console.log("server:", strData);
-            wss.clients.forEach(function each(client) {
-                client.send(strData);
+                console.log("client.pid:", client.pid);
+                if (client.pid == pid)
+                    client.send(strData);
             });
         };
     };

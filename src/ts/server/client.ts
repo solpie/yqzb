@@ -1,11 +1,13 @@
 /// <reference path="../lib.ts"/>
+/// <reference path="Config.ts"/>
 /// <reference path="../model/Command.ts"/>
 /// <reference path="./views/StagePanelView.ts"/>
+/// <reference path="./views/PlayerPanelView.ts"/>
 var cmd:Command = new Command();
 var appInfo = new AppInfo();
 appInfo.isServer = false;
 class Client {
-    panel:any;
+    panel:BaseView;
     pid:number;
     isOB:boolean;
 
@@ -16,7 +18,7 @@ class Client {
     }
 
     initWsClient(pid) {
-        var wsc = new WebSocket('ws://localhost:8080');
+        var wsc = new WebSocket('ws://localhost:' + serverConf.port);
         wsc.onopen = function () {
             wsc.send('{"req":"info","param":"' + pid + '"}');
         };
@@ -26,17 +28,26 @@ class Client {
             if (info.res == "cmd")
                 cmd.emit(info.cmd, info.param);
             else if (info.res == "init") {
-                if (pid == PanelId.stagePanel) {
-                    this.panel = new StagePanelView(this.initCanvas(), true, this.isOB);
-                    this.panel.init(info.param);
-                    console.log("new panel");
-                }
+                this.initPanel(pid, info.param);
             }
         };
         cmd.proxy = (type:any, param?)=> {
-            wsc.send(JSON.stringify({req: "op", param: {type: type, param: param}}))
+            wsc.send(JSON.stringify({req: "op", pid: pid, param: {type: type, param: param}}))
         };
         appInfo.wsc = wsc;
+    }
+
+    initPanel(pid, param) {
+        var stage = this.initCanvas();
+        var view;
+        if (pid == PanelId.stagePanel) {
+            view = StagePanelView;
+        }
+        else if (pid == PanelId.playerPanel) {
+            view = PlayerPanelView;
+        }
+        this.panel = new view(stage, this.isOB);
+        this.panel.init(param);
     }
 
     initCanvas() {
@@ -47,7 +58,7 @@ class Client {
         canvas.setAttribute("height", stageHeight + "");
         var stage = new createjs.Stage(canvas);
         stage.autoClear = true;
-        createjs.Ticker.setFPS(60);
+        createjs.Ticker.framerate = 60;
         createjs.Ticker.addEventListener("tick", function () {
             stage.update();
         });

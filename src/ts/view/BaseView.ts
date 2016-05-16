@@ -5,13 +5,17 @@
 /// <reference path="../lib.ts"/>
 class BaseView {
     stage:any;
-    isClient:Boolean = false;
     isOp:Boolean = false;
+    ctn:any;
 
-    constructor(stage, isClient, isOp) {
+    constructor(stage, isOp) {
         this.stage = stage;
-        this.isClient = isClient;
         this.isOp = isOp;
+    }
+
+    init(param) {
+        console.log("init panel");
+
     }
 
     show() {
@@ -41,18 +45,18 @@ class BaseView {
         return ctn;
     }
 
-    emit(clientFunc, serverFunc) {
-        if (this.isClient) {
-            clientFunc();
-        }
-        else {
-            serverFunc();
-        }
-    }
-
-    path(p) {
-        if (this.isClient)
-            return '/' + p;
-        return p;
-    }
+    // emit(clientFunc, serverFunc) {
+    //     if (this.isClient) {
+    //         clientFunc();
+    //     }
+    //     else {
+    //         serverFunc();
+    //     }
+    // }
+    //
+    // path(p) {
+    //     if (this.isClient)
+    //         return '/' + p;
+    //     return p;
+    // }
 }
