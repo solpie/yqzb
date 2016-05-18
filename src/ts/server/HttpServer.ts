@@ -50,7 +50,7 @@ class HttpServer {
             jsonfile.readFile("data/" + playerId + '.player', null, (err, confData)=> {
                 if (err) {
                     console.log(err, "no player");
-                    res.send("no found");
+                    res.send(JSON.stringify({playerInfo: ""}));
 
                 }
                 else {

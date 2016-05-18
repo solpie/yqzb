@@ -1310,7 +1310,7 @@ var HttpServer = (function () {
             jsonfile.readFile("data/" + playerId + '.player', null, function (err, confData) {
                 if (err) {
                     console.log(err, "no player");
-                    res.send("no found");
+                    res.send(JSON.stringify({ playerInfo: "" }));
                 }
                 else {
                     console.log("find player");
