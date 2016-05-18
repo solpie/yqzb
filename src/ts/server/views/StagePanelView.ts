@@ -197,9 +197,16 @@ class StagePanelView extends BaseView {
 
     setLeftScore(leftScore) {
         this.leftScoreLabel.text = leftScore + "";
+        var blink = 80;
         for (var i = 0; i < this.leftCircleArr.length; i++) {
             if (i < leftScore) {
-                createjs.Tween.get(this.leftCircleArr[i]).to({alpha: 1}, 200);
+                if (this.leftCircleArr[i].alpha == 0)
+                    createjs.Tween.get(this.leftCircleArr[i])
+                        .to({alpha: 1}, blink)
+                        .to({alpha: 0}, blink)
+                        .to({alpha: 1}, blink)
+                        .to({alpha: 0}, blink)
+                        .to({alpha: 1}, blink);
                 //circleArr[i].alpha = 1;
             }
             else {
@@ -211,11 +218,20 @@ class StagePanelView extends BaseView {
     }
 
     setRightScore(rightScore) {
+        var blink = 80;
+
         this.rightScoreLabel.text = rightScore + "";
         var len = this.rightCircleArr.length;
         for (var i = 0; i < len; i++) {
             if (i < rightScore) {
-                createjs.Tween.get(this.rightCircleArr[len - 1 - i]).to({alpha: 1}, 200);
+                if (this.rightCircleArr[len - 1 - i].alpha == 0)
+                    createjs.Tween.get(this.rightCircleArr[len - 1 - i])
+                        .to({alpha: 1}, blink)
+                        .to({alpha: 0}, blink)
+                        .to({alpha: 1}, blink)
+                        .to({alpha: 0}, blink)
+                        .to({alpha: 1}, blink);
+                // createjs.Tween.get(this.rightCircleArr[len - 1 - i]).to({alpha: 1}, 200);
             }
             else {
                 createjs.Tween.get(this.rightCircleArr[len - 1 - i]).to({alpha: 0}, 200);
@@ -290,16 +306,45 @@ class StagePanelView extends BaseView {
                 this.rightCircleArr.push(rightScore);
             }
 
-            var leftScoreLabel = new createjs.Text("0", "30px Arial", "#a2a2a2");
-            leftScoreLabel.x = 490;
-            leftScoreLabel.y = 30;
-            this.leftScoreLabel = leftScoreLabel;
-            var rightScoreLabel = new createjs.Text("0", "30px Arial", "#a2a2a2");
-            rightScoreLabel.x = 600;
-            rightScoreLabel.y = 30;
-            this.rightScoreLabel = rightScoreLabel;
-            ctnMove.addChild(leftScoreLabel);
-            ctnMove.addChild(rightScoreLabel);
+
+            var sheet = new createjs.SpriteSheet({
+                animations: {
+                    "0": 1,
+                    "1": 2,
+                    "2": 3,
+                    "3": 4,
+                    "4": 5,
+                    "5": 6,
+                    "6": 7,
+                    "7": 8,
+                    "8": 9,
+                    "9": 0
+                },
+                images: ["/img/panel/scoreNum.png"],
+                frames: [[0, 0, 40, 54],
+                    [41, 0, 40, 54],
+                    [0, 55, 40, 54],
+                    [41, 55, 40, 54],
+                    [82, 0, 40, 54],
+                    [82, 55, 40, 54],
+                    [123, 0, 40, 54],
+                    [123, 55, 40, 54],
+                    [0, 110, 40, 54],
+                    [41, 110, 40, 54]]
+            });
+            var leftScoreNum = new createjs.BitmapText("0", sheet);
+            leftScoreNum.letterSpacing = -2;
+            leftScoreNum.x = bg.x + 230;
+            leftScoreNum.y = bg.y + 37;
+            this.leftScoreLabel = leftScoreNum;
+            ctnMove.addChild(leftScoreNum);
+
+            var rightScoreNum = new createjs.BitmapText("0", sheet);
+            rightScoreNum.letterSpacing = -2;
+            rightScoreNum.x = bg.x + 390;
+            rightScoreNum.y = leftScoreNum.y;
+            this.rightScoreLabel = rightScoreNum;
+            ctnMove.addChild(rightScoreNum);
         }
 
         {///time label---------------------------------------------------
@@ -310,6 +355,7 @@ class StagePanelView extends BaseView {
             this.timeLabel = timeLabel;
             ctnMove.addChild(timeLabel);
         }
+
         {//left right player
             var leftOfs = 5;
             var bgLeft = new createjs.Bitmap("/img/panel/stageleft.png");//694x132
@@ -417,7 +463,6 @@ class StagePanelView extends BaseView {
             this.eventCtn.addChild(this.fxEventCtn);
             ctnMove.addChild(this.eventCtn);
         }
-
 
         //op panel-------------------------------------------------------
         if (this.isOp) {
