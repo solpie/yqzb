@@ -571,16 +571,16 @@ var StagePanelView = (function (_super) {
     };
     StagePanelView.prototype.setLeftScore = function (leftScore) {
         this.leftScoreLabel.text = leftScore + "";
-        var shan = 80;
+        var blink = 80;
         for (var i = 0; i < this.leftCircleArr.length; i++) {
             if (i < leftScore) {
                 if (this.leftCircleArr[i].alpha == 0)
                     createjs.Tween.get(this.leftCircleArr[i])
-                        .to({ alpha: 1 }, shan)
-                        .to({ alpha: 0 }, shan)
-                        .to({ alpha: 1 }, shan)
-                        .to({ alpha: 0 }, shan)
-                        .to({ alpha: 1 }, shan);
+                        .to({ alpha: 1 }, blink)
+                        .to({ alpha: 0 }, blink)
+                        .to({ alpha: 1 }, blink)
+                        .to({ alpha: 0 }, blink)
+                        .to({ alpha: 1 }, blink);
             }
             else {
                 createjs.Tween.get(this.leftCircleArr[i]).to({ alpha: 0 }, 200);
@@ -589,18 +589,18 @@ var StagePanelView = (function (_super) {
         console.log(leftScore);
     };
     StagePanelView.prototype.setRightScore = function (rightScore) {
-        var shan = 80;
+        var blink = 80;
         this.rightScoreLabel.text = rightScore + "";
         var len = this.rightCircleArr.length;
         for (var i = 0; i < len; i++) {
             if (i < rightScore) {
                 if (this.rightCircleArr[len - 1 - i].alpha == 0)
                     createjs.Tween.get(this.rightCircleArr[len - 1 - i])
-                        .to({ alpha: 1 }, shan)
-                        .to({ alpha: 0 }, shan)
-                        .to({ alpha: 1 }, shan)
-                        .to({ alpha: 0 }, shan)
-                        .to({ alpha: 1 }, shan);
+                        .to({ alpha: 1 }, blink)
+                        .to({ alpha: 0 }, blink)
+                        .to({ alpha: 1 }, blink)
+                        .to({ alpha: 0 }, blink)
+                        .to({ alpha: 1 }, blink);
             }
             else {
                 createjs.Tween.get(this.rightCircleArr[len - 1 - i]).to({ alpha: 0 }, 200);
@@ -723,6 +723,19 @@ var StagePanelView = (function (_super) {
                 leftAvatarBg.x = bgLeft.x + 15 + i * 150;
                 leftAvatarBg.y = bgLeft.y + 6;
                 ctnMove.addChild(leftAvatarBg);
+                // var leftAvatarMask = new createjs.Shape();
+                // // var leftMask =  new createjs.Bitmap("/img/panel/leftAvatarMask.png");//694x132
+                //
+                // leftAvatarMask.graphics.beginBitmapFill(img)
+                //     .drawRect(0, 0, 217, 124);
+                // leftAvatarMask.graphics.beginFill("#ccc")
+                //     .drawRect(0,0,100,100);
+                //
+                // leftAvatarMask.x = bgLeft.x + 15 + i * 150;
+                // leftAvatarMask.y = bgLeft.y + 6;
+                // leftAvatarBg.mask = leftAvatarMask;
+                // ctnMove.addChild(leftAvatarMask);
+                // ctnMove.addChild(leftMask);
                 var leftEloBg = new createjs.Bitmap("/img/panel/leftEloBg.png"); //694x132
                 leftEloBg.x = leftAvatarBg.x + 25;
                 leftEloBg.y = bgLeft.y + 70;
@@ -742,6 +755,7 @@ var StagePanelView = (function (_super) {
                 leftNameLabel.y = leftAvatarBg.y + 90;
                 ctnMove.addChild(leftNameLabel);
             }
+            // };
             var bgRight = new createjs.Bitmap("/img/panel/stageright.png"); //694x132
             bgRight.x = stageWidth - 694 - leftOfs;
             bgRight.y = bgLeft.y;

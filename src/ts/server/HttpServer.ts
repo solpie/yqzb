@@ -18,7 +18,7 @@ class HttpServer {
     }
 
     constructor() {
-        if (serverConf.host=='localhost')
+        if (serverConf.host == 'localhost')
             serverConf.host = this.getIPAddress();
         ///server
         var http = require('http');
@@ -46,8 +46,18 @@ class HttpServer {
         app.post('/getPlayerInfo/:playerId', function (req, res) {
             var playerId = req.params.playerId;
             console.log("PlayerInfo ", playerId);
-            var playerInfo;
-            res.send(JSON.stringify({playerInfo: playerInfo}));
+            // var playerInfo = new PlayerInfo();
+            jsonfile.readFile("data/" + playerId + '.player', null, (err, confData)=> {
+                if (err) {
+                    console.log(err, "no player");
+                    res.send("no found");
+
+                }
+                else {
+                    console.log("find player");
+                    res.send(JSON.stringify({playerInfo: confData}));
+                }
+            });
         });
 
         // app.post('/getPlayerInfo/:playerId', function (req, res) {

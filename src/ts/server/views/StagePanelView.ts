@@ -276,6 +276,7 @@ class StagePanelView extends BaseView {
         ctnMove.addChild(bg);
 
         {//score point
+
             //left score---------------------
             this.leftCircleArr = [];
             this.rightCircleArr = [];
@@ -362,11 +363,28 @@ class StagePanelView extends BaseView {
             bgLeft.x = leftOfs;
             bgLeft.y = stageHeight - 132;
             ctnMove.addChild(bgLeft);
+
             for (var i = 0; i < 4; i++) {
                 var leftAvatarBg = new createjs.Bitmap("/img/panel/leftAvatarBg.png");//694x132
                 leftAvatarBg.x = bgLeft.x + 15 + i * 150;
                 leftAvatarBg.y = bgLeft.y + 6;
                 ctnMove.addChild(leftAvatarBg);
+
+                // var leftAvatarMask = new createjs.Shape();
+                // // var leftMask =  new createjs.Bitmap("/img/panel/leftAvatarMask.png");//694x132
+                //
+                // leftAvatarMask.graphics.beginBitmapFill(img)
+                //     .drawRect(0, 0, 217, 124);
+                // leftAvatarMask.graphics.beginFill("#ccc")
+                //     .drawRect(0,0,100,100);
+                //
+                // leftAvatarMask.x = bgLeft.x + 15 + i * 150;
+                // leftAvatarMask.y = bgLeft.y + 6;
+                // leftAvatarBg.mask = leftAvatarMask;
+                // ctnMove.addChild(leftAvatarMask);
+
+
+                // ctnMove.addChild(leftMask);
 
                 var leftEloBg = new createjs.Bitmap("/img/panel/leftEloBg.png");//694x132
                 leftEloBg.x = leftAvatarBg.x + 25;
@@ -391,6 +409,7 @@ class StagePanelView extends BaseView {
                 ctnMove.addChild(leftNameLabel);
 
             }
+            // };
 
             var bgRight = new createjs.Bitmap("/img/panel/stageright.png");//694x132
             bgRight.x = stageWidth - 694 - leftOfs;
