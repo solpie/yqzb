@@ -25,10 +25,10 @@ class PlayerPanelView extends BaseView {
         // ctn.addChild(playerName);
 
         var playerInfo = new PlayerInfo();
-        playerInfo.name = "tmac";
-        playerInfo.avatar = "/img/player/p1.png";
-        playerInfo.eloScore = 2431;
-        playerInfo.style = 1;
+        playerInfo.name("tmac");
+        playerInfo.avatar("/img/player/p1.png");
+        playerInfo.eloScore(2431);
+        playerInfo.style(1);
 
         var playerView = PlayerView.getPlayerCard(playerInfo);
         playerView.x = 15;

@@ -9,10 +9,11 @@ class AppInfo extends EventDispatcher {
     mouseY:number;
     panel:PanelInfo;
     isServer:boolean;
+    savePlayerInfo:(playerInfo)=>any;
     wsc:any;
+
     constructor() {
         super();
-        console.log("");
         this.panel = new PanelInfo();
     }
 }

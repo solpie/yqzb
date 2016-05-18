@@ -27,7 +27,6 @@ class YuanqiTvView {
 
     constructor(appModel) {
         this.appInfo = appModel;
-        console.log("dd");
 
 
         document.onmousemove = (e)=> {
@@ -65,6 +64,5 @@ class YuanqiTvView {
     run() {
         this.winView = new WindowView();
         // this.serverView = new ServerView();
-        console.log("run");
     }
 }

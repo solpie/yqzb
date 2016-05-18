@@ -60,18 +60,6 @@ var M_path = require("path");
 
 
 ////////////// macro
-var isdef = function (val) {
-    return val != undefined
-};
-var prop = function (obj, paramName, v, callback?) {
-    if (isdef(v)) {
-        obj[paramName] = v;
-        if (callback)
-            callback();
-    }
-    else
-        return obj[paramName]
-};
 
 var writeBuffer = function (path, buffer, callback) {
     fs.open(path, 'w', null, function (err, fd) {

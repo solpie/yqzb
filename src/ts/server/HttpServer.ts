@@ -4,7 +4,22 @@
 /// <reference path="Config.ts"/>
 
 class HttpServer {
+    getIPAddress() {
+        var interfaces = require('os').networkInterfaces();
+        for (var devName in interfaces) {
+            var iface = interfaces[devName];
+            for (var i = 0; i < iface.length; i++) {
+                var alias = iface[i];
+                if (alias.family === 'IPv4' && alias.address !== '127.0.0.1' && !alias.internal) {
+                    return alias.address;
+                }
+            }
+        }
+    }
+
     constructor() {
+        if (serverConf.host=='localhost')
+            serverConf.host = this.getIPAddress();
         ///server
         var http = require('http');
         var path = require('path');
@@ -44,10 +59,14 @@ class HttpServer {
 //setup the web server
         app.server = http.createServer(app);
         //listen up
-        app.server.listen(80, function () {
+
+
+        app.server.listen(80, ()=> {
             //and... we're live
-            console.log('Server is running');
+            console.log("host:", this.getIPAddress(), "ws port:", serverConf.port);
         });
+
+
         this.serverSend();
         this.handleOp();
     }
@@ -85,10 +104,9 @@ class HttpServer {
             , wss = new WebSocketServer({port: serverConf.port});
 
         wss.on('connection', function connection(wsClient) {
-            var location = url.parse(wsClient.upgradeReq.url, true);
+            // var location = url.parse(wsClient.upgradeReq.url, true);
             // you might use location.query.access_token to authenticate or share sessions
             // or ws.upgradeReq.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
-            console.log(location);
             wsClient.on('message', function incoming(message) {
                 console.log('client: ', message);
                 var req = JSON.parse(message);

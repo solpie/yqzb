@@ -6,20 +6,36 @@
 /// <reference path="server/HttpServer.ts"/>
 var cmd:Command = new Command();
 var appInfo = new AppInfo();
-var app:YuanqiTvView;
+
 
 var server;
 jsonfile.readFile("config.json", null, (err, confData)=> {
-
-    serverConf.host = confData.server.host;
-    serverConf.port = confData.server.wsPort;
-    console.log("host:", serverConf.host,"ws port:",serverConf.port);
+    if (confData.server['host'])
+        serverConf.host = confData.server['host'];
+    if (confData.server['wsPort'])
+        serverConf.port = confData.server['wsPort'];
     server = new HttpServer();
 });
+var app:YuanqiTvView;
 appInfo.isServer = true;
-
+appInfo.savePlayerInfo = function (playerInfo) {
+    if (playerInfo.id())
+        jsonfile.writeFile("data/" + playerInfo.id() + '.player', playerInfo.playerData, null, (err, confData)=> {
+        });
+    else
+        throw Error("no player id!!!");
+};
 $(() => {
     app = new YuanqiTvView(appInfo);
     app.run();
+
+    var playerInfo = new PlayerInfo();
+    playerInfo.id(111);
+    playerInfo.name("tmac");
+    playerInfo.avatar("/img/player/p1.png");
+    playerInfo.eloScore(2431);
+    playerInfo.style(2);
+    playerInfo.winpercent(.9501);
+    appInfo.savePlayerInfo(playerInfo);
     //new Test(cmd,appInfo);
 });

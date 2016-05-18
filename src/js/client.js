@@ -183,37 +183,81 @@ var ViewEvent = (function () {
     ViewEvent.HIDED = "hided";
     return ViewEvent;
 }());
-/**
- * Created by toramisu on 2016/5/12.
- */
-var PlayerInfo = (function () {
-    function PlayerInfo() {
+var isdef = function (val) {
+    return val != undefined;
+};
+var prop = function (obj, paramName, v, callback) {
+    if (isdef(v)) {
+        obj[paramName] = v;
+        if (callback)
+            callback();
     }
+    else
+        return obj[paramName];
+};
+var BaseInfo = (function () {
+    function BaseInfo() {
+    }
+    return BaseInfo;
+}());
+/// <reference path="BaseInfo.ts"/>
+var PlayerData = (function () {
+    function PlayerData() {
+    }
+    return PlayerData;
+}());
+var PlayerInfo = (function (_super) {
+    __extends(PlayerInfo, _super);
+    function PlayerInfo() {
+        _super.apply(this, arguments);
+        this.playerData = new PlayerData();
+    }
+    PlayerInfo.prototype.id = function (val) {
+        return prop(this.playerData, "id", val);
+    };
+    PlayerInfo.prototype.name = function (val) {
+        return prop(this.playerData, "name", val);
+    };
+    PlayerInfo.prototype.eloScore = function (val) {
+        return prop(this.playerData, "eloScore", val);
+    };
+    PlayerInfo.prototype.style = function (val) {
+        return prop(this.playerData, "style", val);
+    };
+    PlayerInfo.prototype.avatar = function (val) {
+        return prop(this.playerData, "avatar", val);
+    };
+    PlayerInfo.prototype.winpercent = function (val) {
+        return prop(this.playerData, "winpercent", val);
+    };
     PlayerInfo.prototype.getWinPercent = function () {
-        return (this.winpercent * 100).toFixed(1) + "%";
+        return (this.winpercent() * 100).toFixed(1) + "%";
     };
-    PlayerInfo.getPlayerInfo = function (pid) {
-        var playerInfo = new PlayerInfo();
-        return playerInfo;
-    };
+    // static getPlayerInfo(pid) {
+    //     jsonfile.readFile("data/" + pid + '.player', null, (err, data)=> {
+    //         var playerInfo = new PlayerInfo();
+    //         playerInfo = data;
+    //         return playerInfo
+    //     });
+    // }
     PlayerInfo.prototype.getStyleIcon = function () {
         var path = '/img/icon/';
-        if (this.style == 1) {
+        if (this.style() == 1) {
             path += 'feng.png';
         }
-        else if (this.style == 2) {
+        else if (this.style() == 2) {
             path += 'huo.png';
         }
-        else if (this.style == 3) {
+        else if (this.style() == 3) {
             path += 'shan.png';
         }
-        else if (this.style == 4) {
+        else if (this.style() == 4) {
             path += 'lin.png';
         }
         return path;
     };
     return PlayerInfo;
-}());
+}(BaseInfo));
 /// <reference path="../../event/ActEvent.ts"/>
 /// <reference path="../../model/PlayerInfo.ts"/>
 var PanelInfo = (function () {
@@ -240,7 +284,7 @@ var PlayerPanelInfo = (function (_super) {
     }
     // playerInfoArr:Array<PlayerInfo> = [];
     PlayerPanelInfo.prototype.getInfo = function () {
-        this.playerInfo.name = "tmac";
+        this.playerInfo.name("tmac");
         return {
             playerInfo: this.playerInfo
         };
@@ -318,7 +362,6 @@ var AppInfo = (function (_super) {
     __extends(AppInfo, _super);
     function AppInfo() {
         _super.call(this);
-        console.log("");
         this.panel = new PanelInfo();
     }
     return AppInfo;
@@ -384,67 +427,67 @@ var StagePanelView = (function (_super) {
         var _this = this;
         _super.prototype.initOp.call(this);
         var ctn = this.ctn;
-        var ctnMove = this.ctnMove;
+        var fxCtn = this.fxCtn;
         var btnMove = this.newBtn(function () {
-            _this.moveCtn = ctn;
+            _this.curSelectCtn = ctn;
             // this.moveCtnIdx = 0;
         }, "moveStage");
-        ctnMove.addChild(btnMove);
+        fxCtn.addChild(btnMove);
         var btnMove = this.newBtn(function () {
-            _this.moveCtn = _this.eventCtn;
+            _this.curSelectCtn = _this.eventCtn;
             // this.moveCtnIdx = 1;
         }, "moveEvent");
         btnMove.y = 50;
-        ctnMove.addChild(btnMove);
+        fxCtn.addChild(btnMove);
         var btnLeft = this.newBtn(function () {
             cmd.proxy(CommandId.cs_addLeftScore);
         });
         btnLeft.x = 450;
         btnLeft.y = 5;
         btnLeft.alpha = .5;
-        ctnMove.addChild(btnLeft);
+        fxCtn.addChild(btnLeft);
         var btnRight = this.newBtn(function () {
             cmd.proxy(CommandId.cs_addRightScore);
         });
         btnRight.x = 590;
         btnRight.y = 5;
         btnRight.alpha = .5;
-        ctnMove.addChild(btnRight);
+        fxCtn.addChild(btnRight);
         var btn = this.newBtn(function () {
             cmd.proxy(CommandId.cs_toggleTimer);
         }, "toggle");
         btn.x = 450;
         btn.y = 100;
         btn.alpha = .5;
-        ctnMove.addChild(btn);
+        fxCtn.addChild(btn);
         var btn = this.newBtn(function () {
             cmd.proxy(CommandId.cs_resetTimer);
         }, "reset");
         btn.x = 590;
         btn.y = 100;
         btn.alpha = .5;
-        ctnMove.addChild(btn);
+        fxCtn.addChild(btn);
         var btn = this.newBtn(function () {
             cmd.proxy(CommandId.cs_fadeOut);
         }, "fadeOut");
         btn.x = 520;
         btn.y = 200;
         // btn.alpha = .5;
-        ctnMove.addChild(btn);
+        fxCtn.addChild(btn);
         var btn = this.newBtn(function () {
             cmd.proxy(CommandId.cs_stageFadeIn);
         }, "fadeIn");
         btn.x = 520;
         btn.y = 150;
         // btn.alpha = .5;
-        ctnMove.addChild(btn);
+        fxCtn.addChild(btn);
         var btn = this.newBtn(function () {
             cmd.proxy(CommandId.cs_playerScore);
         }, "score");
         btn.x = 820;
         btn.y = 150;
         // btn.alpha = .5;
-        ctnMove.addChild(btn);
+        fxCtn.addChild(btn);
         //key
         document.onkeydown = function (e) {
             var key = e.keyCode;
@@ -453,16 +496,16 @@ var StagePanelView = (function (_super) {
             var isAlt = e.altKey;
             console.log("key:", key);
             if (key == 38) {
-                _this.moveCtn.y -= 1;
+                _this.curSelectCtn.y -= 1;
             }
             else if (key == 40) {
-                _this.moveCtn.y += 1;
+                _this.curSelectCtn.y += 1;
             }
             else if (key == 37) {
-                _this.moveCtn.x -= 1;
+                _this.curSelectCtn.x -= 1;
             }
             else if (key == 39) {
-                _this.moveCtn.x += 1;
+                _this.curSelectCtn.x += 1;
             }
             cmd.proxy(CommandId.cs_moveStagePanel, {
                 ctnX: _this.ctn.x,
@@ -502,10 +545,10 @@ var StagePanelView = (function (_super) {
             _this.timeLabel.text = _this.formatSecond(appInfo.panel.stage.time);
         });
         cmd.on(CommandId.stageFadeOut, function () {
-            createjs.Tween.get(_this.ctnMove).to({ y: -100, alpha: .2 }, 200);
+            createjs.Tween.get(_this.fxCtn).to({ y: -100, alpha: .2 }, 200);
         });
         cmd.on(CommandId.stageFadeIn, function () {
-            createjs.Tween.get(_this.ctnMove).to({ y: 0, alpha: 1 }, 200);
+            createjs.Tween.get(_this.fxCtn).to({ y: 0, alpha: 1 }, 200);
         });
         cmd.on(CommandId.moveStagePanel, function (param) {
             _this.setCtnXY(param);
@@ -514,13 +557,13 @@ var StagePanelView = (function (_super) {
         cmd.on(CommandId.playerScore, function () {
             if (!isBusy) {
                 isBusy = true;
-                createjs.Tween.get(_this.eventMoveCtn)
+                createjs.Tween.get(_this.fxEventCtn)
                     .to({ x: 1080, alpha: 1 }, 100)
                     .wait(3000)
                     .to({ y: 150, alpha: 0 }, 200)
                     .call(function () {
-                    _this.eventMoveCtn.x = 800;
-                    _this.eventMoveCtn.y = 200;
+                    _this.fxEventCtn.x = 800;
+                    _this.fxEventCtn.y = 200;
                     isBusy = false;
                 });
             }
@@ -565,8 +608,8 @@ var StagePanelView = (function (_super) {
     StagePanelView.prototype.init = function (param) {
         _super.prototype.init.call(this, param);
         var ctn = this.ctn;
-        this.ctnMove = new createjs.Container();
-        var ctnMove = this.ctnMove;
+        this.fxCtn = new createjs.Container();
+        var ctnMove = this.fxCtn;
         this.stage.addChild(ctn);
         this.ctn.addChild(ctnMove);
         var bg = new createjs.Bitmap("/img/panelTop.png");
@@ -624,7 +667,7 @@ var StagePanelView = (function (_super) {
         this.timeLabel = timeLabel;
         ctnMove.addChild(timeLabel);
         /// score panel------------------------------------------------------
-        this.eventMoveCtn = new createjs.Container();
+        this.fxEventCtn = new createjs.Container();
         this.eventCtn = new createjs.Container();
         // var bg1 = new createjs.Shape();
         // bg1.graphics.beginFill("#105386");
@@ -642,19 +685,19 @@ var StagePanelView = (function (_super) {
         box.graphics.drawRect(128, 3, 64, 64);
         box.cache(0, 0, 200, 70);
         box.alpha = .8;
-        this.eventMoveCtn.addChild(box);
-        // this.eventMoveCtn.addChild(bg1);
+        this.fxEventCtn.addChild(box);
+        // this.fxEventCtn.addChild(bg1);
         var avatar = new createjs.Bitmap("/img/player/p1.png");
         avatar.x = 130;
         avatar.y = 5;
-        this.eventMoveCtn.addChild(avatar);
-        this.eventMoveCtn.alpha = 0;
-        this.eventMoveCtn.x = 800;
-        this.eventMoveCtn.y = 200;
+        this.fxEventCtn.addChild(avatar);
+        this.fxEventCtn.alpha = 0;
+        this.fxEventCtn.x = 800;
+        this.fxEventCtn.y = 200;
         avatar.addEventListener('click', function () {
             console.log("click score");
         });
-        this.eventCtn.addChild(this.eventMoveCtn);
+        this.eventCtn.addChild(this.fxEventCtn);
         ctnMove.addChild(this.eventCtn);
         //op panel-------------------------------------------------------
         if (this.isOp) {
@@ -689,7 +732,7 @@ var PlayerView = (function () {
         var bg = new createjs.Shape();
         bg.graphics.beginBitmapFill('#cccc').drawRect(0, 0, 90, 90);
         ctn.addChild(bg);
-        var img = new createjs.Bitmap(p.avatar);
+        var img = new createjs.Bitmap(p.avatar());
         ctn.addChild(img);
         var style = new createjs.Bitmap(p.getStyleIcon());
         style.scaleX = 1 / 16;
@@ -732,10 +775,10 @@ var PlayerPanelView = (function (_super) {
         // playerName.text = param.playerInfo.name;
         // ctn.addChild(playerName);
         var playerInfo = new PlayerInfo();
-        playerInfo.name = "tmac";
-        playerInfo.avatar = "/img/player/p1.png";
-        playerInfo.eloScore = 2431;
-        playerInfo.style = 1;
+        playerInfo.name("tmac");
+        playerInfo.avatar("/img/player/p1.png");
+        playerInfo.eloScore(2431);
+        playerInfo.style(1);
         var playerView = PlayerView.getPlayerCard(playerInfo);
         playerView.x = 15;
         playerView.y = 30;
@@ -762,33 +805,33 @@ var WinPanelView = (function (_super) {
         ctn.addChild(bg);
         var playerArr = [];
         var playerInfo = new PlayerInfo();
-        playerInfo.name = "tmac";
-        playerInfo.avatar = "/img/player/p1.png";
-        playerInfo.eloScore = 2431;
-        playerInfo.style = 2;
-        playerInfo.winpercent = .9501;
+        playerInfo.name("tmac");
+        playerInfo.avatar("/img/player/p1.png");
+        playerInfo.eloScore(2431);
+        playerInfo.style(2);
+        playerInfo.winpercent(.9501);
         playerArr.push(playerInfo);
-        var playerInfo = new PlayerInfo();
-        playerInfo.name = "curry";
-        playerInfo.avatar = "/img/player/p2.png";
-        playerInfo.eloScore = 2143;
-        playerInfo.style = 1;
-        playerInfo.winpercent = 15 / 42;
-        playerArr.push(playerInfo);
-        var playerInfo = new PlayerInfo();
-        playerInfo.name = "harden";
-        playerInfo.avatar = "/img/player/p3.png";
-        playerInfo.eloScore = 2431;
-        playerInfo.style = 4;
-        playerInfo.winpercent = .9501;
-        playerArr.push(playerInfo);
-        var playerInfo = new PlayerInfo();
-        playerInfo.name = "westbrook";
-        playerInfo.avatar = "/img/player/p4.png";
-        playerInfo.eloScore = 2143;
-        playerInfo.style = 3;
-        playerInfo.winpercent = 15 / 42;
-        playerArr.push(playerInfo);
+        // var playerInfo = new PlayerInfo();
+        // playerInfo.name = "curry";
+        // playerInfo.avatar = "/img/player/p2.png";
+        // playerInfo.eloScore = 2143;
+        // playerInfo.style = 1;
+        // playerInfo.winpercent = 15/42;
+        // playerArr.push(playerInfo);
+        // var playerInfo = new PlayerInfo();
+        // playerInfo.name = "harden";
+        // playerInfo.avatar = "/img/player/p3.png";
+        // playerInfo.eloScore = 2431;
+        // playerInfo.style = 4;
+        // playerInfo.winpercent = .9501;
+        // playerArr.push(playerInfo);
+        // var playerInfo = new PlayerInfo();
+        // playerInfo.name = "westbrook";
+        // playerInfo.avatar = "/img/player/p4.png";
+        // playerInfo.eloScore = 2143;
+        // playerInfo.style = 3;
+        // playerInfo.winpercent = 15/42;
+        // playerArr.push(playerInfo);
         var px = 60;
         var py = 30;
         for (var i = 0; i < playerArr.length; i++) {

@@ -26,7 +26,7 @@ class PlayerPanelInfo extends BasePanelInfo {
     // playerInfoArr:Array<PlayerInfo> = [];
 
     getInfo() {
-        this.playerInfo.name = "tmac";
+        this.playerInfo.name ("tmac");
         return {
             playerInfo: this.playerInfo
         }

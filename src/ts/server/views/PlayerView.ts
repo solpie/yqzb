@@ -6,7 +6,7 @@ class PlayerView {
         bg.graphics.beginBitmapFill('#cccc').drawRect(0, 0, 90, 90);
         ctn.addChild(bg);
 
-        var img = new createjs.Bitmap(p.avatar);
+        var img = new createjs.Bitmap(p.avatar());
         ctn.addChild(img);
 
 
