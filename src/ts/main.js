@@ -677,14 +677,30 @@ var StagePanelView = (function (_super) {
     };
     StagePanelView.prototype.init = function (param) {
         _super.prototype.init.call(this, param);
+        var stageWidth = 1920;
+        var stageHeight = 1080;
         var ctn = this.ctn;
         this.fxCtn = new createjs.Container();
+        // this.stage.scaleX = 0.5;
+        // this.stage.scaleY = 0.5;
+        // this.ctn.scaleX = 0.5;
+        // this.ctn.scaleY = 0.5;
         var ctnMove = this.fxCtn;
         this.stage.addChild(ctn);
         this.ctn.addChild(ctnMove);
-        var bg = new createjs.Bitmap("/img/panelTop.png");
-        bg.x = 150;
+        var bg = new createjs.Bitmap("/img/panel/stagescore.png");
+        bg.x = (stageWidth - 658) * .5;
+        bg.y = stageHeight - 107;
         ctnMove.addChild(bg);
+        var leftOfs = -20;
+        var bgLeft = new createjs.Bitmap("/img/panel/stageleft.png"); //694x132
+        bgLeft.x = leftOfs;
+        bgLeft.y = bg.y;
+        ctnMove.addChild(bgLeft);
+        var bgRight = new createjs.Bitmap("/img/panel/stageright.png"); //694x132
+        bgRight.x = stageWidth - 694 - leftOfs;
+        bgRight.y = bg.y;
+        ctnMove.addChild(bgRight);
         //left
         this.leftCircleArr = [];
         this.rightCircleArr = [];
@@ -969,18 +985,6 @@ function walk(path) {
 ////////////// path
 var M_path = require("path");
 ////////////// macro
-// var isdef = function (val) {
-//     return val != undefined
-// };
-// var prop = function (obj, paramName, v, callback?) {
-//     if (isdef(v)) {
-//         obj[paramName] = v;
-//         if (callback)
-//             callback();
-//     }
-//     else
-//         return obj[paramName]
-// };
 var writeBuffer = function (path, buffer, callback) {
     fs.open(path, 'w', null, function (err, fd) {
         if (err) {
@@ -1022,8 +1026,8 @@ var WindowView = (function () {
         var op = gui.Window.open('http://localhost/panel/stage/op', {
             position: 'center',
             toolbar: false,
-            width: 1280,
-            height: 523
+            width: 1920,
+            height: 1080
         });
         //win.on ('loaded', function () {
         //    // the native onload event has just occurred

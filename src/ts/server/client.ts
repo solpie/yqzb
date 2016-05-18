@@ -56,8 +56,8 @@ class Client {
     }
 
     initCanvas() {
-        var stageWidth = 1280;
-        var stageHeight = 720;
+        var stageWidth = 1920;
+        var stageHeight = 1080;
         var canvas = document.getElementById("stage");
         canvas.setAttribute("width", stageWidth + "");
         canvas.setAttribute("height", stageHeight + "");

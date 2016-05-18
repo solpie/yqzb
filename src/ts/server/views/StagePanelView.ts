@@ -218,7 +218,7 @@ class StagePanelView extends BaseView {
         }
     }
 
-    setCtnXY(param){
+    setCtnXY(param) {
         this.ctn.x = param.ctnX;
         this.ctn.y = param.ctnY;
         this.eventCtn.x = param.eventX;
@@ -235,17 +235,36 @@ class StagePanelView extends BaseView {
 
     init(param) {
         super.init(param);
+        var stageWidth = 1920;
+        var stageHeight = 1080;
         var ctn = this.ctn;
-        this.fxCtn = new createjs.Container();
 
+        this.fxCtn = new createjs.Container();
+        // this.stage.scaleX = 0.5;
+        // this.stage.scaleY = 0.5;
+        // this.ctn.scaleX = 0.5;
+        // this.ctn.scaleY = 0.5;
         var ctnMove = this.fxCtn;
         this.stage.addChild(ctn);
 
         this.ctn.addChild(ctnMove);
 
-        var bg = new createjs.Bitmap("/img/panelTop.png");
-        bg.x = 150;
+        var bg = new createjs.Bitmap("/img/panel/stagescore.png");
+        bg.x = (stageWidth - 658) * .5;
+        bg.y = stageHeight - 107;
         ctnMove.addChild(bg);
+
+        var leftOfs = -20;
+        var bgLeft = new createjs.Bitmap("/img/panel/stageleft.png");//694x132
+        bgLeft.x = leftOfs;
+        bgLeft.y = bg.y;
+        ctnMove.addChild(bgLeft);
+
+        var bgRight = new createjs.Bitmap("/img/panel/stageright.png");//694x132
+        bgRight.x = stageWidth-694-leftOfs;
+        bgRight.y = bg.y;
+        ctnMove.addChild(bgRight);
+
         //left
         this.leftCircleArr = [];
         this.rightCircleArr = [];
@@ -345,7 +364,7 @@ class StagePanelView extends BaseView {
             this.setLeftScore(param.leftScore);
             this.setRightScore(param.rightScore);
             this.setTime(param.time, param.state);
-            if(param.ctnXY)
+            if (param.ctnXY)
                 this.setCtnXY(param.ctnXY);
         }
     }

@@ -25,8 +25,8 @@ class WindowView {
         var op = gui.Window.open ('http://localhost/panel/stage/op', {
            position: 'center',
            toolbar: false,
-           width: 1280,
-           height: 523
+           width: 1920,
+           height: 1080
         });
 
         //win.on ('loaded', function () {
