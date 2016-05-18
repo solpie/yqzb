@@ -49,7 +49,7 @@ class WinPanelInfo extends BasePanelInfo {
 }
 
 class StagePanelInfo extends BasePanelInfo {
-    winScore:number = 5;
+    winScore:number = 7;
     leftScore:number = 0;
     rightScore:number = 0;
     time:number = 0;

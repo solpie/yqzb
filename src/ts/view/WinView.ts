@@ -26,7 +26,7 @@ class WindowView {
            position: 'center',
            toolbar: false,
            width: 1920,
-           height: 1080
+           height: 1200
         });
 
         //win.on ('loaded', function () {

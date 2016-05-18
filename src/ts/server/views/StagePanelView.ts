@@ -15,6 +15,10 @@ class StagePanelView extends BaseView {
     eventCtn:any;
     fxEventCtn:any;
 
+    //left
+    leftAvatarCtn:any;
+    rightAvatarCtn:any;
+
     constructor(stage, isOp) {
         super(stage, isOp);
         // if (!this.isClient)
@@ -193,7 +197,7 @@ class StagePanelView extends BaseView {
 
     setLeftScore(leftScore) {
         this.leftScoreLabel.text = leftScore + "";
-        for (var i = 0; i < 5; i++) {
+        for (var i = 0; i < this.leftCircleArr.length; i++) {
             if (i < leftScore) {
                 createjs.Tween.get(this.leftCircleArr[i]).to({alpha: 1}, 200);
                 //circleArr[i].alpha = 1;
@@ -208,12 +212,13 @@ class StagePanelView extends BaseView {
 
     setRightScore(rightScore) {
         this.rightScoreLabel.text = rightScore + "";
-        for (var i = 0; i < 5; i++) {
+        var len = this.rightCircleArr.length;
+        for (var i = 0; i < len; i++) {
             if (i < rightScore) {
-                createjs.Tween.get(this.rightCircleArr[5 - 1 - i]).to({alpha: 1}, 200);
+                createjs.Tween.get(this.rightCircleArr[len - 1 - i]).to({alpha: 1}, 200);
             }
             else {
-                createjs.Tween.get(this.rightCircleArr[5 - 1 - i]).to({alpha: 0}, 200);
+                createjs.Tween.get(this.rightCircleArr[len - 1 - i]).to({alpha: 0}, 200);
             }
         }
     }
@@ -246,115 +251,173 @@ class StagePanelView extends BaseView {
         // this.ctn.scaleY = 0.5;
         var ctnMove = this.fxCtn;
         this.stage.addChild(ctn);
-
         this.ctn.addChild(ctnMove);
+
 
         var bg = new createjs.Bitmap("/img/panel/stagescore.png");
         bg.x = (stageWidth - 658) * .5;
         bg.y = stageHeight - 107;
         ctnMove.addChild(bg);
 
-        var leftOfs = -20;
-        var bgLeft = new createjs.Bitmap("/img/panel/stageleft.png");//694x132
-        bgLeft.x = leftOfs;
-        bgLeft.y = bg.y;
-        ctnMove.addChild(bgLeft);
+        {//score point
+            //left score---------------------
+            this.leftCircleArr = [];
+            this.rightCircleArr = [];
+            var px = 205 + 470;
+            var py = stageHeight - 43;
+            for (var i = 0; i < 7; i++) {
+                var leftScoreBg = new createjs.Bitmap("/img/panel/leftScoreBg.png");//694x132
+                leftScoreBg.x = px + i * 20;
+                leftScoreBg.y = py;
+                ctnMove.addChild(leftScoreBg);
+                var leftScore = new createjs.Bitmap("/img/panel/leftScore.png");//694x132
+                leftScore.x = leftScoreBg.x;
+                leftScore.y = leftScoreBg.y;
+                ctnMove.addChild(leftScore);
+                this.leftCircleArr.push(leftScore);
+            }
+            //right score
+            px = 1090;
+            for (var i = 0; i < 7; i++) {
+                var rightScoreBg = new createjs.Bitmap("/img/panel/rightScoreBg.png");//694x132
+                rightScoreBg.x = px + i * 20;
+                rightScoreBg.y = py;
+                ctnMove.addChild(rightScoreBg);
+                var rightScore = new createjs.Bitmap("/img/panel/rightScore.png");//694x132
+                rightScore.x = rightScoreBg.x;
+                rightScore.y = rightScoreBg.y;
+                ctnMove.addChild(rightScore);
+                this.rightCircleArr.push(rightScore);
+            }
 
-        var bgRight = new createjs.Bitmap("/img/panel/stageright.png");//694x132
-        bgRight.x = stageWidth-694-leftOfs;
-        bgRight.y = bg.y;
-        ctnMove.addChild(bgRight);
-
-        //left
-        this.leftCircleArr = [];
-        this.rightCircleArr = [];
-        var px = 205;
-        var py = 40;
-        for (var i = 0; i < 5; i++) {
-            var spCircle = new createjs.Shape();
-            spCircle.graphics.beginFill("#7f745b");
-            spCircle.graphics.drawCircle(px + i * 50, py, 15);
-            spCircle.graphics.beginFill("#4b4b4b");
-            spCircle.graphics.drawCircle(px + i * 50, py, 12);
-            ctnMove.addChild(spCircle);
-            var circleHide = new createjs.Shape();
-            circleHide.graphics.beginFill("#ffff00");
-            circleHide.graphics.drawCircle(px + i * 50, py, 12);
-            ctnMove.addChild(circleHide);
-            circleHide.alpha = 0;
-            this.leftCircleArr.push(circleHide)
-        }
-        //right
-        px = 700;
-        for (var i = 0; i < 5; i++) {
-            var spCircle = new createjs.Shape();
-            spCircle.graphics.beginFill("#7f745b");
-            spCircle.graphics.drawCircle(px + i * 50, py, 15);
-            spCircle.graphics.beginFill("#4b4b4b");
-            spCircle.graphics.drawCircle(px + i * 50, py, 12);
-            ctnMove.addChild(spCircle);
-            var circleHide = new createjs.Shape();
-            circleHide.graphics.beginFill("#0c83fc");
-            circleHide.graphics.drawCircle(px + i * 50, py, 12);
-            ctnMove.addChild(circleHide);
-            circleHide.alpha = 0;
-            this.rightCircleArr.push(circleHide)
+            var leftScoreLabel = new createjs.Text("0", "30px Arial", "#a2a2a2");
+            leftScoreLabel.x = 490;
+            leftScoreLabel.y = 30;
+            this.leftScoreLabel = leftScoreLabel;
+            var rightScoreLabel = new createjs.Text("0", "30px Arial", "#a2a2a2");
+            rightScoreLabel.x = 600;
+            rightScoreLabel.y = 30;
+            this.rightScoreLabel = rightScoreLabel;
+            ctnMove.addChild(leftScoreLabel);
+            ctnMove.addChild(rightScoreLabel);
         }
 
-        var leftScoreLabel = new createjs.Text("0", "30px Arial", "#a2a2a2");
-        leftScoreLabel.x = 490;
-        leftScoreLabel.y = 30;
-        this.leftScoreLabel = leftScoreLabel;
-        var rightScoreLabel = new createjs.Text("0", "30px Arial", "#a2a2a2");
-        rightScoreLabel.x = 600;
-        rightScoreLabel.y = 30;
-        this.rightScoreLabel = rightScoreLabel;
-        ctnMove.addChild(leftScoreLabel);
-        ctnMove.addChild(rightScoreLabel);
+        {///time label---------------------------------------------------
+            var timeLabel = new createjs.Text("99:99", "28px Arial", "#e2e2e2");
+            timeLabel.x = stageWidth * .5 - 32;
+            timeLabel.y = stageHeight - 30;
+
+            this.timeLabel = timeLabel;
+            ctnMove.addChild(timeLabel);
+        }
+        {//left right player
+            var leftOfs = 5;
+            var bgLeft = new createjs.Bitmap("/img/panel/stageleft.png");//694x132
+            bgLeft.x = leftOfs;
+            bgLeft.y = stageHeight - 132;
+            ctnMove.addChild(bgLeft);
+            for (var i = 0; i < 4; i++) {
+                var leftAvatarBg = new createjs.Bitmap("/img/panel/leftAvatarBg.png");//694x132
+                leftAvatarBg.x = bgLeft.x + 15 + i * 150;
+                leftAvatarBg.y = bgLeft.y + 6;
+                ctnMove.addChild(leftAvatarBg);
+
+                var leftEloBg = new createjs.Bitmap("/img/panel/leftEloBg.png");//694x132
+                leftEloBg.x = leftAvatarBg.x + 25;
+                leftEloBg.y = bgLeft.y + 70;
+                ctnMove.addChild(leftEloBg);
+
+                var leftEloLabel = new createjs.Text("1984", "18px Arial", "#e2e2e2");
+                leftEloLabel.textAlign = "left";
+                leftEloLabel.x = leftEloBg.x + 12;
+                leftEloLabel.y = leftEloBg.y;
+                ctnMove.addChild(leftEloLabel);
+
+                var leftStyleIcon = new createjs.Bitmap("/img/panel/feng.png");//694x132
+                leftStyleIcon.x = leftAvatarBg.x + 120;
+                leftStyleIcon.y = leftAvatarBg.y + 80;
+                ctnMove.addChild(leftStyleIcon);
+
+                var leftNameLabel = new createjs.Text("斯蒂芬库里", "bold 18px Arial", "#e2e2e2");
+                leftNameLabel.textAlign = "left";
+                leftNameLabel.x = leftAvatarBg.x + 20;
+                leftNameLabel.y = leftAvatarBg.y + 90;
+                ctnMove.addChild(leftNameLabel);
+
+            }
+
+            var bgRight = new createjs.Bitmap("/img/panel/stageright.png");//694x132
+            bgRight.x = stageWidth - 694 - leftOfs;
+            bgRight.y = bgLeft.y;
+            ctnMove.addChild(bgRight);
+            for (var i = 0; i < 4; i++) {
+                var rightAvatarBg = new createjs.Bitmap("/img/panel/rightAvatarBg.png");//694x132
+                rightAvatarBg.x = bgRight.x + 14 + i * 150;
+                rightAvatarBg.y = bgRight.y + 6;
+                ctnMove.addChild(rightAvatarBg);
+
+                var rightEloBg = new createjs.Bitmap("/img/panel/rightEloBg.png");//694x132
+                rightEloBg.x = rightAvatarBg.x + 125;
+                rightEloBg.y = bgRight.y + 70;
+                ctnMove.addChild(rightEloBg);
+
+                var rightEloLabel = new createjs.Text("99999", "18px Arial", "#e2e2e2");
+                rightEloLabel.textAlign = "right";
+                rightEloLabel.x = rightEloBg.x + 53;
+                rightEloLabel.y = rightEloBg.y;
+                ctnMove.addChild(rightEloLabel);
 
 
-        ///time label---------------------------------------------------
-        var timeLabel = new createjs.Text("99:99", "30px Arial", "#a2a2a2");
-        timeLabel.x = 520;
-        timeLabel.y = 90;
+                var rightStyleIcon = new createjs.Bitmap("/img/panel/huo.png");//694x132
+                rightStyleIcon.x = rightAvatarBg.x + 60;
+                rightStyleIcon.y = rightAvatarBg.y + 80;
+                ctnMove.addChild(rightStyleIcon);
 
-        this.timeLabel = timeLabel;
-        ctnMove.addChild(timeLabel);
-        /// score panel------------------------------------------------------
-        this.fxEventCtn = new createjs.Container();
-        this.eventCtn = new createjs.Container();
-        // var bg1 = new createjs.Shape();
-        // bg1.graphics.beginFill("#105386");
-        // bg1.graphics.drawRect(0, 0, 200, 70);
-        // // bg1.graphics.beginLinearGradientFill(['#105386',''])
-        // bg1.graphics.beginFill("#ffff00");
-        // bg1.graphics.drawRect(128, 3, 64, 64);
-        // bg1.alpha = .7;
+                var rightNameLabel = new createjs.Text("斯蒂芬库里", "bold 18px Arial", "#e2e2e2");
+                rightNameLabel.textAlign = "right";
+                rightNameLabel.x = rightAvatarBg.x + 195;
+                rightNameLabel.y = rightAvatarBg.y + 90;
+                ctnMove.addChild(rightNameLabel);
+            }
+        }
 
-        var box = new createjs.Shape();
-        box.graphics.beginLinearGradientFill(["rgba(11, 80, 125, 0)", "#105386"], [0, .7], 0, 0, 200, 0);
-        // box.graphics.beginLinearGradientFill(["rgba(255, 0, 0, 0)","#105386" ], [0, .7], 0, 0, 200, 0);
-        box.graphics.drawRect(0, 0, 200, 70);
-        box.graphics.endFill();
-        box.graphics.beginFill("#ffff00");
-        box.graphics.drawRect(128, 3, 64, 64);
-        box.cache(0, 0, 200, 70);
-        box.alpha = .8;
-        this.fxEventCtn.addChild(box);
-        // this.fxEventCtn.addChild(bg1);
+        {/// event panel------------------------------------------------------
+            this.fxEventCtn = new createjs.Container();
+            this.eventCtn = new createjs.Container();
+            // var bg1 = new createjs.Shape();
+            // bg1.graphics.beginFill("#105386");
+            // bg1.graphics.drawRect(0, 0, 200, 70);
+            // // bg1.graphics.beginLinearGradientFill(['#105386',''])
+            // bg1.graphics.beginFill("#ffff00");
+            // bg1.graphics.drawRect(128, 3, 64, 64);
+            // bg1.alpha = .7;
 
-        var avatar = new createjs.Bitmap("/img/player/p1.png");
-        avatar.x = 130;
-        avatar.y = 5;
-        this.fxEventCtn.addChild(avatar);
-        this.fxEventCtn.alpha = 0;
-        this.fxEventCtn.x = 800;
-        this.fxEventCtn.y = 200;
-        avatar.addEventListener('click', ()=> {
-            console.log("click score");
-        });
-        this.eventCtn.addChild(this.fxEventCtn);
-        ctnMove.addChild(this.eventCtn);
+            var box = new createjs.Shape();
+            box.graphics.beginLinearGradientFill(["rgba(11, 80, 125, 0)", "#105386"], [0, .7], 0, 0, 200, 0);
+            // box.graphics.beginLinearGradientFill(["rgba(255, 0, 0, 0)","#105386" ], [0, .7], 0, 0, 200, 0);
+            box.graphics.drawRect(0, 0, 200, 70);
+            box.graphics.endFill();
+            box.graphics.beginFill("#ffff00");
+            box.graphics.drawRect(128, 3, 64, 64);
+            box.cache(0, 0, 200, 70);
+            box.alpha = .8;
+            this.fxEventCtn.addChild(box);
+            // this.fxEventCtn.addChild(bg1);
+
+            var avatar = new createjs.Bitmap("/img/player/p1.png");
+            avatar.x = 130;
+            avatar.y = 5;
+            this.fxEventCtn.addChild(avatar);
+            this.fxEventCtn.alpha = 0;
+            this.fxEventCtn.x = 800;
+            this.fxEventCtn.y = 200;
+            avatar.addEventListener('click', ()=> {
+                console.log("click score");
+            });
+            this.eventCtn.addChild(this.fxEventCtn);
+            ctnMove.addChild(this.eventCtn);
+        }
+
 
         //op panel-------------------------------------------------------
         if (this.isOp) {
