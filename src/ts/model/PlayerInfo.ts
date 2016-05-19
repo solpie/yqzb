@@ -60,7 +60,7 @@ class PlayerInfo extends BaseInfo {
 
 
     getStyleIcon() {
-        var path = '/img/icon/';
+        var path = '/img/panel/';
         if (this.style() == 1) {
             path += 'feng.png'
         }

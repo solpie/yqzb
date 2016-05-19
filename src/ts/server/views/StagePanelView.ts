@@ -15,17 +15,19 @@ class StagePanelView extends BaseView {
     eventCtn:any;
     fxEventCtn:any;
 
-    //left
-    leftAvatarCtn:any;
-    rightAvatarCtn:any;
+    //playerInfo array
     eloLabelArr:any;
+    nameLabelArr:any;
+    avatarArr:any;
+    styleArr:any;
+
 
     constructor(stage, isOp) {
         super(stage, isOp);
         // if (!this.isClient)
         //     this.init(null);
 
-        this.handle();
+        this.onServerBroadcast();
     }
 
     initOp() {
@@ -154,7 +156,7 @@ class StagePanelView extends BaseView {
         };
     }
 
-    handle() {
+    onServerBroadcast() {
         console.log("handle()");
         cmd.on(CommandId.updatePlayer, (param)=> {
             var pos = param.pos;
@@ -227,12 +229,13 @@ class StagePanelView extends BaseView {
         for (var i = 0; i < this.leftCircleArr.length; i++) {
             if (i < leftScore) {
                 if (this.leftCircleArr[i].alpha == 0)
-                    createjs.Tween.get(this.leftCircleArr[i])
-                        .to({alpha: 1}, blink)
-                        .to({alpha: 0}, blink)
-                        .to({alpha: 1}, blink)
-                        .to({alpha: 0}, blink)
-                        .to({alpha: 1}, blink);
+                    this.blink(this.leftCircleArr[i]);
+                // createjs.Tween.get(this.leftCircleArr[i])
+                //     .to({alpha: 1}, blink)
+                //     .to({alpha: 0}, blink)
+                //     .to({alpha: 1}, blink)
+                //     .to({alpha: 0}, blink)
+                //     .to({alpha: 1}, blink);
                 //circleArr[i].alpha = 1;
             }
             else {
@@ -243,6 +246,16 @@ class StagePanelView extends BaseView {
         console.log(leftScore);
     }
 
+    blink(target) {
+        var blink = 80;
+        createjs.Tween.get(target)
+            .to({alpha: 1}, blink)
+            .to({alpha: 0}, blink)
+            .to({alpha: 1}, blink)
+            .to({alpha: 0}, blink)
+            .to({alpha: 1}, blink);
+    }
+
     setRightScore(rightScore) {
         var blink = 80;
 
@@ -251,12 +264,13 @@ class StagePanelView extends BaseView {
         for (var i = 0; i < len; i++) {
             if (i < rightScore) {
                 if (this.rightCircleArr[len - 1 - i].alpha == 0)
-                    createjs.Tween.get(this.rightCircleArr[len - 1 - i])
-                        .to({alpha: 1}, blink)
-                        .to({alpha: 0}, blink)
-                        .to({alpha: 1}, blink)
-                        .to({alpha: 0}, blink)
-                        .to({alpha: 1}, blink);
+                    this.blink(this.rightCircleArr[len - 1 - i]);
+                // createjs.Tween.get(this.rightCircleArr[len - 1 - i])
+                //     .to({alpha: 1}, blink)
+                //     .to({alpha: 0}, blink)
+                //     .to({alpha: 1}, blink)
+                //     .to({alpha: 0}, blink)
+                //     .to({alpha: 1}, blink);
                 // createjs.Tween.get(this.rightCircleArr[len - 1 - i]).to({alpha: 1}, 200);
             }
             else {
@@ -269,6 +283,22 @@ class StagePanelView extends BaseView {
         var playerInfo = new PlayerInfo(playerData);
         console.log("updatePlayer", pos, playerInfo);
         this.eloLabelArr[pos].text = playerInfo.eloScore();
+        this.nameLabelArr[pos].text = playerInfo.name();
+
+        var styleCtn = this.styleArr[pos];
+        styleCtn.removeAllChildren();
+        var styleIcon = new createjs.Bitmap(playerInfo.getStyleIcon());
+        styleIcon.alpha = 0;
+        styleCtn.addChild(styleIcon);
+        this.blink(styleIcon);
+
+        var avatarCtn = this.avatarArr[pos];
+        avatarCtn.removeChildAt(1);
+        var mask = avatarCtn.getChildAt(0);
+        var avatar = new createjs.Bitmap(playerInfo.avatar());
+        avatarCtn.addChild(avatar);
+        avatar.mask = mask;
+
     }
 
     setCtnXY(param) {
@@ -291,6 +321,7 @@ class StagePanelView extends BaseView {
         var stageWidth = 1920;
         var stageHeight = 1080;
         var ctn = this.ctn;
+
 
         this.fxCtn = new createjs.Container();
         // this.stage.scaleX = 0.5;
@@ -391,6 +422,9 @@ class StagePanelView extends BaseView {
 
         {//left right player
             this.eloLabelArr = [];
+            this.nameLabelArr = [];
+            this.avatarArr = [];
+            this.styleArr = [];
             var leftOfs = 5;
             var bgLeft = new createjs.Bitmap("/img/panel/stageleft.png");//694x132
             bgLeft.x = leftOfs;
@@ -417,7 +451,23 @@ class StagePanelView extends BaseView {
                 // ctnMove.addChild(leftAvatarMask);
 
 
-                // ctnMove.addChild(leftMask);
+                var avatarCtn = new createjs.Container();
+                avatarCtn.x = leftAvatarBg.x + 25;
+                avatarCtn.y = leftAvatarBg.y + 9;
+                var leftMask = new createjs.Shape();
+                var sx = 44;
+                leftMask.graphics.beginFill("#000000")
+                    .moveTo(sx, 0)
+                    .lineTo(0, 76)
+                    .lineTo(180 - sx, 76)
+                    .lineTo(180, 0)
+                    .lineTo(sx, 0);
+                var avatarBmp = new createjs.Bitmap("/img/player/p1.png");
+                avatarBmp.mask = leftMask;
+                avatarCtn.addChild(leftMask);
+                avatarCtn.addChild(avatarBmp);
+                this.avatarArr.push(avatarCtn);
+                ctnMove.addChild(avatarCtn);
 
                 var leftEloBg = new createjs.Bitmap("/img/panel/leftEloBg.png");//694x132
                 leftEloBg.x = leftAvatarBg.x + 25;
@@ -431,15 +481,20 @@ class StagePanelView extends BaseView {
                 this.eloLabelArr.push(leftEloLabel);
                 ctnMove.addChild(leftEloLabel);
 
+
+                var styleCtn = new createjs.Container();
                 var leftStyleIcon = new createjs.Bitmap("/img/panel/feng.png");//694x132
-                leftStyleIcon.x = leftAvatarBg.x + 120;
-                leftStyleIcon.y = leftAvatarBg.y + 80;
-                ctnMove.addChild(leftStyleIcon);
+                styleCtn.x = leftAvatarBg.x + 120;
+                styleCtn.y = leftAvatarBg.y + 80;
+                styleCtn.addChild(leftStyleIcon);
+                this.styleArr.push(styleCtn);
+                ctnMove.addChild(styleCtn);
 
                 var leftNameLabel = new createjs.Text("斯蒂芬库里", "bold 18px Arial", "#e2e2e2");
                 leftNameLabel.textAlign = "left";
                 leftNameLabel.x = leftAvatarBg.x + 20;
                 leftNameLabel.y = leftAvatarBg.y + 90;
+                this.nameLabelArr.push(leftNameLabel);
                 ctnMove.addChild(leftNameLabel);
             }
             // };
@@ -453,6 +508,24 @@ class StagePanelView extends BaseView {
                 rightAvatarBg.x = bgRight.x + 14 + i * 150;
                 rightAvatarBg.y = bgRight.y + 6;
                 ctnMove.addChild(rightAvatarBg);
+
+                var avatarCtn = new createjs.Container();
+                avatarCtn.x = rightAvatarBg.x + 11;
+                avatarCtn.y = rightAvatarBg.y + 9;
+                var leftMask = new createjs.Shape();
+                var sx = 44;
+                leftMask.graphics.beginFill("#000000")
+                    .moveTo(0, 0)
+                    .lineTo(sx, 76)
+                    .lineTo(180, 76)
+                    .lineTo(180-sx, 0)
+                    .lineTo(0, 0);
+                var avatarBmp = new createjs.Bitmap("/img/player/p3.png");
+                avatarBmp.mask = leftMask;
+                avatarCtn.addChild(leftMask);
+                avatarCtn.addChild(avatarBmp);
+                this.avatarArr.push(avatarCtn);
+                ctnMove.addChild(avatarCtn);
 
                 var rightEloBg = new createjs.Bitmap("/img/panel/rightEloBg.png");//694x132
                 rightEloBg.x = rightAvatarBg.x + 125;
@@ -470,12 +543,14 @@ class StagePanelView extends BaseView {
                 var rightStyleIcon = new createjs.Bitmap("/img/panel/huo.png");//694x132
                 rightStyleIcon.x = rightAvatarBg.x + 60;
                 rightStyleIcon.y = rightAvatarBg.y + 80;
+                this.styleArr.push(rightStyleIcon);
                 ctnMove.addChild(rightStyleIcon);
 
                 var rightNameLabel = new createjs.Text("斯蒂芬库里", "bold 18px Arial", "#e2e2e2");
                 rightNameLabel.textAlign = "right";
                 rightNameLabel.x = rightAvatarBg.x + 195;
                 rightNameLabel.y = rightAvatarBg.y + 90;
+                this.nameLabelArr.push(rightNameLabel);
                 ctnMove.addChild(rightNameLabel);
             }
         }
@@ -534,6 +609,22 @@ class StagePanelView extends BaseView {
             if (param.ctnXY)
                 this.setCtnXY(param.ctnXY);
         }
+
+        var bmp = new createjs.Bitmap("/img/player/p1.png");
+        bmp.x = 0;
+        bmp.y = 0;
+        //创建遮罩
+        var leftMask = new createjs.Shape();
+        leftMask.graphics.beginFill("#000000")
+            .moveTo(48, 0)
+            .lineTo(0, 76)
+            .lineTo(180 - 48, 76)
+            .lineTo(180, 0)
+            .lineTo(48, 0);
+        leftMask.x = 0;
+        leftMask.y = 0;
+        this.stage.addChild(bmp);
+        bmp.mask = leftMask;
     }
 
 
