@@ -69,10 +69,9 @@ class HttpServer {
         app.server = http.createServer(app);
         //listen up
 
-
         app.server.listen(80, ()=> {
             //and... we're live
-            console.log("host:", this.getIPAddress(), "ws port:", serverConf.port);
+            console.log("wshost:", serverConf.host, "ws port:", serverConf.port);
         });
 
 

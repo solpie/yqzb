@@ -605,18 +605,22 @@ var StagePanelView = (function (_super) {
     };
     StagePanelView.prototype.onServerBroadcast = function () {
         var _this = this;
-        console.log("handle()");
         cmd.on(CommandId.updatePlayer, function (param) {
             var pos = param.pos;
             var playerData = param.playerInfo;
             _this.setPlayer(pos, playerData);
         });
         cmd.on(CommandId.updatePlayerAll, function (playerInfoArr) {
+            var tweenCall = function (dt, pos, playerData) {
+                createjs.Tween.get(_this).wait(dt).call(function () {
+                    _this.setPlayer(pos, playerData);
+                });
+            };
             for (var i = 0; i < playerInfoArr.length; i++) {
                 var playerInfo = playerInfoArr[i];
                 var pos = playerInfo.pos;
                 var playerData = playerInfo.playerInfo;
-                _this.setPlayer(pos, playerData);
+                tweenCall(i * 300, pos, playerData);
             }
         });
         cmd.on(CommandId.addLeftScore, function (leftScore) {
@@ -672,13 +676,14 @@ var StagePanelView = (function (_super) {
     };
     StagePanelView.prototype.setLeftScore = function (leftScore) {
         this.leftScoreLabel.text = leftScore + "";
+        var len = this.leftCircleArr.length;
         for (var i = 0; i < this.leftCircleArr.length; i++) {
             if (i < leftScore) {
-                if (this.leftCircleArr[i].alpha == 0)
-                    this.blink(this.leftCircleArr[i]);
+                if (this.leftCircleArr[len - 1 - i].alpha == 0)
+                    this.blink(this.leftCircleArr[len - 1 - i]);
             }
             else {
-                createjs.Tween.get(this.leftCircleArr[i]).to({ alpha: 0 }, 200);
+                createjs.Tween.get(this.leftCircleArr[len - 1 - i]).to({ alpha: 0 }, 200);
             }
         }
         console.log(leftScore);
@@ -697,11 +702,11 @@ var StagePanelView = (function (_super) {
         var len = this.rightCircleArr.length;
         for (var i = 0; i < len; i++) {
             if (i < rightScore) {
-                if (this.rightCircleArr[len - 1 - i].alpha == 0)
-                    this.blink(this.rightCircleArr[len - 1 - i]);
+                if (this.rightCircleArr[i].alpha == 0)
+                    this.blink(this.rightCircleArr[i]);
             }
             else {
-                createjs.Tween.get(this.rightCircleArr[len - 1 - i]).to({ alpha: 0 }, 200);
+                createjs.Tween.get(this.rightCircleArr[i]).to({ alpha: 0 }, 200);
             }
         }
     };
@@ -838,18 +843,6 @@ var StagePanelView = (function (_super) {
                 var leftAvatarBg = new createjs.Bitmap("/img/panel/leftAvatarBg.png"); //694x132
                 leftAvatarBg.x = bgLeft.x + 15 + i * 150;
                 leftAvatarBg.y = bgLeft.y + 6;
-                // var leftAvatarMask = new createjs.Shape();
-                // // var leftMask =  new createjs.Bitmap("/img/panel/leftAvatarMask.png");//694x132
-                //
-                // leftAvatarMask.graphics.beginBitmapFill(img)
-                //     .drawRect(0, 0, 217, 124);
-                // leftAvatarMask.graphics.beginFill("#ccc")
-                //     .drawRect(0,0,100,100);
-                //
-                // leftAvatarMask.x = bgLeft.x + 15 + i * 150;
-                // leftAvatarMask.y = bgLeft.y + 6;
-                // leftAvatarBg.mask = leftAvatarMask;
-                // ctnMove.addChild(leftAvatarMask);
                 var avatarCtn = new createjs.Container();
                 avatarCtn.x = leftAvatarBg.x + 25;
                 avatarCtn.y = leftAvatarBg.y + 9;
@@ -869,13 +862,13 @@ var StagePanelView = (function (_super) {
                 ctnMove.addChild(avatarCtn);
                 ctnMove.addChild(leftAvatarBg);
                 var leftEloBg = new createjs.Bitmap("/img/panel/leftEloBg.png"); //694x132
-                leftEloBg.x = leftAvatarBg.x + 25;
+                leftEloBg.x = leftAvatarBg.x + 27;
                 leftEloBg.y = bgLeft.y + 70;
                 ctnMove.addChild(leftEloBg);
                 var leftEloLabel = new createjs.Text("1984", "18px Arial", "#e2e2e2");
                 leftEloLabel.textAlign = "left";
                 leftEloLabel.x = leftEloBg.x + 12;
-                leftEloLabel.y = leftEloBg.y;
+                leftEloLabel.y = leftEloBg.y + 3;
                 this.eloLabelArr.push(leftEloLabel);
                 ctnMove.addChild(leftEloLabel);
                 var styleCtn = new createjs.Container();
@@ -901,23 +894,23 @@ var StagePanelView = (function (_super) {
                 var rightAvatarBg = new createjs.Bitmap("/img/panel/rightAvatarBg.png"); //694x132
                 rightAvatarBg.x = bgRight.x + 14 + i * 150;
                 rightAvatarBg.y = bgRight.y + 6;
-                var avatarCtn = new createjs.Container();
-                avatarCtn.x = rightAvatarBg.x + 11;
-                avatarCtn.y = rightAvatarBg.y + 9;
-                var leftMask = new createjs.Shape();
+                var rightAvatarCtn = new createjs.Container();
+                rightAvatarCtn.x = rightAvatarBg.x + 11;
+                rightAvatarCtn.y = rightAvatarBg.y + 9;
+                var rightMask = new createjs.Shape();
                 var sx = 44;
-                leftMask.graphics.beginFill("#000000")
+                rightMask.graphics.beginFill("#000000")
                     .moveTo(0, 0)
                     .lineTo(sx, 76)
                     .lineTo(180, 76)
                     .lineTo(180 - sx, 0)
                     .lineTo(0, 0);
-                var avatarBmp = new createjs.Bitmap("/img/player/p3.png");
-                avatarBmp.mask = leftMask;
-                avatarCtn.addChild(leftMask);
-                avatarCtn.addChild(avatarBmp);
-                this.avatarArr.push(avatarCtn);
-                ctnMove.addChild(avatarCtn);
+                var avatarBmp = new createjs.Bitmap("/img/player/p0.png");
+                avatarBmp.mask = rightMask;
+                rightAvatarCtn.addChild(rightMask);
+                rightAvatarCtn.addChild(avatarBmp);
+                this.avatarArr.push(rightAvatarCtn);
+                ctnMove.addChild(rightAvatarCtn);
                 ctnMove.addChild(rightAvatarBg);
                 var rightEloBg = new createjs.Bitmap("/img/panel/rightEloBg.png"); //694x132
                 rightEloBg.x = rightAvatarBg.x + 125;
@@ -926,14 +919,16 @@ var StagePanelView = (function (_super) {
                 var rightEloLabel = new createjs.Text("99999", "18px Arial", "#e2e2e2");
                 rightEloLabel.textAlign = "right";
                 rightEloLabel.x = rightEloBg.x + 53;
-                rightEloLabel.y = rightEloBg.y;
+                rightEloLabel.y = rightEloBg.y + 3;
                 this.eloLabelArr.push(rightEloLabel);
                 ctnMove.addChild(rightEloLabel);
+                var styleCtn = new createjs.Container();
                 var rightStyleIcon = new createjs.Bitmap("/img/panel/huo.png"); //694x132
-                rightStyleIcon.x = rightAvatarBg.x + 60;
-                rightStyleIcon.y = rightAvatarBg.y + 80;
-                this.styleArr.push(rightStyleIcon);
-                ctnMove.addChild(rightStyleIcon);
+                styleCtn.x = rightAvatarBg.x + 60;
+                styleCtn.y = rightAvatarBg.y + 80;
+                this.styleArr.push(styleCtn);
+                styleCtn.addChild(rightStyleIcon);
+                ctnMove.addChild(styleCtn);
                 var rightNameLabel = new createjs.Text("斯蒂芬库里", "bold 18px Arial", "#e2e2e2");
                 rightNameLabel.textAlign = "right";
                 rightNameLabel.x = rightAvatarBg.x + 195;
