@@ -69,9 +69,26 @@ function writeFileSync(file, obj, options) {
         ? options.spaces : this.spaces
         : this.spaces;
 
-    var str = JSON.stringify(obj, options.replacer, spaces) + '\n'
+    var str = JSON.stringify(obj, options.replacer, spaces) + '\n';
     // not sure if fs.writeFileSync returns anything, but just in case
     return fs.writeFileSync(file, str, options)
+}
+function queueFile(pathArr, callback) {
+    var len = pathArr.length;
+    var count = 0;
+    var loadOne = function (err, jobj) {
+        if (err)
+            callback(err, null);
+        else {
+            pathArr[count].data = jobj;
+            count++;
+            if (count == len)
+                callback(null, pathArr);
+            else
+                readFile(pathArr[count].src, null, loadOne)
+        }
+    };
+    readFile(pathArr[0].src, null, loadOne);
 }
 
 var jsonfile = {

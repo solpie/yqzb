@@ -108,7 +108,17 @@ class StagePanelInfo extends BasePanelInfo {
         var pos = param.pos;
         param.playerInfo.pos = pos;
         this.playerInfoArr[pos] = param.playerInfo;
-        console.log(this,"updatePlayer", JSON.stringify(param.playerInfo),param.playerInfo.pos);
+        console.log(this, "updatePlayer", JSON.stringify(param.playerInfo), param.playerInfo.pos);
         cmd.emit(CommandId.updatePlayer, param, this.pid);
+    }
+
+    updatePlayerAll(param:any) {
+        for (var i = 0; i < param.length; i++) {
+            var obj = param[i];
+            this.playerInfoArr[obj.pos] = obj.playerInfo;
+            obj.playerInfo.pos = obj.pos;
+            console.log(this, "updatePlayer", JSON.stringify(obj.playerInfo), obj.playerInfo.pos);
+        }
+        cmd.emit(CommandId.updatePlayerAll, param, this.pid);
     }
 }

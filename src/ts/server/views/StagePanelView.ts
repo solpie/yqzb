@@ -64,16 +64,16 @@ class StagePanelView extends BaseView {
             });
 
             $("#btnUpdateAll").click((e)=> {
+                var playerIdArr = [];
                 for (var i = 0; i < 8; i++) {
                     var pos = i;
                     var playerId = $($(".playerId")[pos]).val();
                     if (playerId) {
-                        $.post("/getPlayerInfo/" + playerId, null, function (res) {
-                            var data = JSON.parse(res);
-                            cmd.proxy(CommandId.cs_updatePlayer, {playerInfo: data.playerInfo, pos: pos});
-                        });
+                        playerIdArr.push({playerId: playerId, pos: pos})
                     }
                 }
+                if (playerIdArr.length)
+                    cmd.proxy(CommandId.cs_updatePlayerAll, playerIdArr);
             })
         }
 
@@ -192,6 +192,14 @@ class StagePanelView extends BaseView {
             var pos = param.pos;
             var playerData = param.playerInfo;
             this.setPlayer(pos, playerData);
+        });
+        cmd.on(CommandId.updatePlayerAll, (playerInfoArr)=> {
+            for (var i = 0; i < playerInfoArr.length; i++) {
+                var playerInfo = playerInfoArr[i];
+                var pos = playerInfo.pos;
+                var playerData = playerInfo.playerInfo;
+                this.setPlayer(pos, playerData);
+            }
         });
 
         cmd.on(CommandId.addLeftScore, (leftScore)=> {

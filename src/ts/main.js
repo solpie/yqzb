@@ -80,6 +80,23 @@ function writeFileSync(file, obj, options) {
     // not sure if fs.writeFileSync returns anything, but just in case
     return fs.writeFileSync(file, str, options);
 }
+function queueFile(pathArr, callback) {
+    var len = pathArr.length;
+    var count = 0;
+    var loadOne = function (err, jobj) {
+        if (err)
+            callback(err, null);
+        else {
+            pathArr[count].data = jobj;
+            count++;
+            if (count == len)
+                callback(null, pathArr);
+            else
+                readFile(pathArr[count].src, null, loadOne);
+        }
+    };
+    readFile(pathArr[0].src, null, loadOne);
+}
 var jsonfile = {
     spaces: null,
     readFile: readFile,
@@ -391,6 +408,15 @@ var StagePanelInfo = (function (_super) {
         console.log(this, "updatePlayer", JSON.stringify(param.playerInfo), param.playerInfo.pos);
         cmd.emit(CommandId.updatePlayer, param, this.pid);
     };
+    StagePanelInfo.prototype.updatePlayerAll = function (param) {
+        for (var i = 0; i < param.length; i++) {
+            var obj = param[i];
+            this.playerInfoArr[obj.pos] = obj.playerInfo;
+            obj.playerInfo.pos = obj.pos;
+            console.log(this, "updatePlayer", JSON.stringify(obj.playerInfo), obj.playerInfo.pos);
+        }
+        cmd.emit(CommandId.updatePlayerAll, param, this.pid);
+    };
     return StagePanelInfo;
 }(BasePanelInfo));
 /**
@@ -433,9 +459,11 @@ var CommandId;
     CommandId[CommandId["cs_moveStagePanel"] = 100019] = "cs_moveStagePanel";
     CommandId[CommandId["updatePlayer"] = 100020] = "updatePlayer";
     CommandId[CommandId["cs_updatePlayer"] = 100021] = "cs_updatePlayer";
+    CommandId[CommandId["updatePlayerAll"] = 100022] = "updatePlayerAll";
+    CommandId[CommandId["cs_updatePlayerAll"] = 100023] = "cs_updatePlayerAll";
     //
-    CommandId[CommandId["updateLeftTeam"] = 100022] = "updateLeftTeam";
-    CommandId[CommandId["updateRightTeam"] = 100023] = "updateRightTeam";
+    CommandId[CommandId["updateLeftTeam"] = 100024] = "updateLeftTeam";
+    CommandId[CommandId["updateRightTeam"] = 100025] = "updateRightTeam";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {
@@ -557,16 +585,16 @@ var StagePanelView = (function (_super) {
                 });
             });
             $("#btnUpdateAll").click(function (e) {
+                var playerIdArr = [];
                 for (var i = 0; i < 8; i++) {
                     var pos = i;
                     var playerId = $($(".playerId")[pos]).val();
                     if (playerId) {
-                        $.post("/getPlayerInfo/" + playerId, null, function (res) {
-                            var data = JSON.parse(res);
-                            cmd.proxy(CommandId.cs_updatePlayer, { playerInfo: data.playerInfo, pos: pos });
-                        });
+                        playerIdArr.push({ playerId: playerId, pos: pos });
                     }
                 }
+                if (playerIdArr.length)
+                    cmd.proxy(CommandId.cs_updatePlayerAll, playerIdArr);
             });
         }
         var btnMove = this.newBtn(function () {
@@ -670,6 +698,14 @@ var StagePanelView = (function (_super) {
             var playerData = param.playerInfo;
             _this.setPlayer(pos, playerData);
         });
+        cmd.on(CommandId.updatePlayerAll, function (playerInfoArr) {
+            for (var i = 0; i < playerInfoArr.length; i++) {
+                var playerInfo = playerInfoArr[i];
+                var pos = playerInfo.pos;
+                var playerData = playerInfo.playerInfo;
+                _this.setPlayer(pos, playerData);
+            }
+        });
         cmd.on(CommandId.addLeftScore, function (leftScore) {
             console.log("handle left score");
             _this.setLeftScore(leftScore);
@@ -723,7 +759,6 @@ var StagePanelView = (function (_super) {
     };
     StagePanelView.prototype.setLeftScore = function (leftScore) {
         this.leftScoreLabel.text = leftScore + "";
-        var blink = 80;
         for (var i = 0; i < this.leftCircleArr.length; i++) {
             if (i < leftScore) {
                 if (this.leftCircleArr[i].alpha == 0)
@@ -745,7 +780,6 @@ var StagePanelView = (function (_super) {
             .to({ alpha: 1 }, blink);
     };
     StagePanelView.prototype.setRightScore = function (rightScore) {
-        var blink = 80;
         this.rightScoreLabel.text = rightScore + "";
         var len = this.rightCircleArr.length;
         for (var i = 0; i < len; i++) {
@@ -795,10 +829,6 @@ var StagePanelView = (function (_super) {
         var stageHeight = 1080;
         var ctn = this.ctn;
         this.fxCtn = new createjs.Container();
-        // this.stage.scaleX = 0.5;
-        // this.stage.scaleY = 0.5;
-        // this.ctn.scaleX = 0.5;
-        // this.ctn.scaleY = 0.5;
         var ctnMove = this.fxCtn;
         this.stage.addChild(ctn);
         this.ctn.addChild(ctnMove);
@@ -1507,6 +1537,32 @@ var HttpServer = (function () {
         }
     };
     HttpServer.prototype.handleOp = function () {
+        cmd.on(CommandId.cs_updatePlayerAll, function (param) {
+            // var queue = new createjs.LoadQueue();
+            // queue.on("complete", handleComplete, this);
+            // var manifest = [];
+            // //[{playerId:1,pos:1}]
+            for (var i = 0; i < param.length; i++) {
+                var obj = param[i];
+                obj.src = 'data/' + obj.playerId + '.player';
+            }
+            queueFile(param, handleComplete);
+            // queue.loadManifest(manifest);
+            function handleComplete(err, param) {
+                if (err) {
+                }
+                else {
+                    console.log(this, "load all playerInfo");
+                    for (var i = 0; i < param.length; i++) {
+                        var obj = param[i];
+                        obj.playerInfo = obj.data;
+                        delete obj['data'];
+                        console.log(this, "load playerInfo id:", obj.playerId, obj.playerInfo);
+                    }
+                    appInfo.panel.stage.updatePlayerAll(param);
+                }
+            }
+        });
         cmd.on(CommandId.cs_updatePlayer, function (param) {
             appInfo.panel.stage.updatePlayer(param);
         });

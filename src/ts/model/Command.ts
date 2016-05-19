@@ -24,6 +24,8 @@ enum CommandId{
     cs_moveStagePanel,//1000020
     updatePlayer,
     cs_updatePlayer,
+    updatePlayerAll,
+    cs_updatePlayerAll,
         //
     updateLeftTeam,
     updateRightTeam,

@@ -81,6 +81,34 @@ class HttpServer {
     }
 
     handleOp() {
+        cmd.on(CommandId.cs_updatePlayerAll, (param)=> {
+            // var queue = new createjs.LoadQueue();
+            // queue.on("complete", handleComplete, this);
+            // var manifest = [];
+            // //[{playerId:1,pos:1}]
+            for (var i = 0; i < param.length; i++) {
+                var obj = param[i];
+                obj.src = 'data/' + obj.playerId + '.player';
+            }
+            queueFile(param, handleComplete);
+            // queue.loadManifest(manifest);
+            function handleComplete(err, param) {
+                if (err) {
+
+                }
+                else {
+                    console.log(this, "load all playerInfo");
+                    for (var i = 0; i < param.length; i++) {
+                        var obj = param[i];
+                        obj.playerInfo = obj.data;
+                        delete obj['data'];
+                        console.log(this, "load playerInfo id:", obj.playerId, obj.playerInfo);
+                    }
+                    appInfo.panel.stage.updatePlayerAll(param);
+                }
+
+            }
+        });
         cmd.on(CommandId.cs_updatePlayer, (param)=> {
             appInfo.panel.stage.updatePlayer(param);
         });
