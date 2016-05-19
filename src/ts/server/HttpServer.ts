@@ -64,14 +64,6 @@ class HttpServer {
                 }
             });
         });
-        // var ejs1 = require('ejs');
-        // new ejs1({url: "./ts/server/views/tpl/dashboard.ejs"}).render({})
-        // console.log(ejs1,);
-        // app.post('/getPlayerInfo/:playerId', function (req, res) {
-        //     var playerId = req.params.playerId;
-        //     console.log("PlayerInfo ", playerId);
-        // });
-
 
 //setup the web server
         app.server = http.createServer(app);

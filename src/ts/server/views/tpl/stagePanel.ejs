@@ -20,25 +20,15 @@
 <div class="inputPanel">
     <div class="playerPanel">
         player id:
+        <% for(var i = 0; i < 8; i++) { %>
         <div class="pickupPlayer">
             <img class="playerAvatar" src="">
             <input class="playerId" type="text" style="width: 75px"/>
-            <input class="btnUpdate" type="button" value="update" data-pos="0"/>
+            <input class="btnUpdate" type="button" value="update" data-pos="<%= i%>"/>
+            <input class="btnQuery" type="button" value="query" data-pos="<%= i%>"/>
         </div>
-        <div class="pickupPlayer">
-            <img class="playerAvatar" src="">
-            <input class="playerId" type="text" style="width: 75px"/>
-            <input class="btnUpdate" type="button" value="update" data-pos="1"/>
-        </div>
-        <div class="pickupPlayer">
-            <img class="playerAvatar" src="">
-            <input class="playerId" type="text" style="width: 75px"/>
-            <input class="btnUpdate" type="button" value="update" data-pos="2"/>
-        </div>
-        <div class="pickupPlayer">
-            <img class="playerAvatar" src="">
-            <input class="playerId" type="text" style="width: 75px"/>
-            <input class="btnUpdate" type="button" value="update" data-pos="3"/>
-        </div>
+        <% } %>
+        <input id="btnUpdateAll" type="button" value="updateAll"/>
+
     </div>
 </div>

@@ -382,7 +382,7 @@ var StagePanelInfo = (function (_super) {
         var pos = param.pos;
         param.playerInfo.pos = pos;
         this.playerInfoArr[pos] = param.playerInfo;
-        console.log(this, JSON.stringify(param.playerInfo));
+        console.log(this, "updatePlayer", JSON.stringify(param.playerInfo), param.playerInfo.pos);
         cmd.emit(CommandId.updatePlayer, param, this.pid);
     };
     return StagePanelInfo;
@@ -476,6 +476,28 @@ var StagePanelView = (function (_super) {
                     $($(".playerAvatar")[pos]).attr("src", data.playerInfo.avatar);
                 });
             });
+            $(".btnQuery").click(function (e) {
+                var s = $(e.target).data("pos").toString();
+                var pos = parseInt(s);
+                var playerId = $($(".playerId")[pos]).val();
+                console.log($(e.target).data("pos"), playerId);
+                $.post("/getPlayerInfo/" + playerId, null, function (res) {
+                    var data = JSON.parse(res);
+                    $($(".playerAvatar")[pos]).attr("src", data.playerInfo.avatar);
+                });
+            });
+            $("#btnUpdateAll").click(function (e) {
+                for (var i = 0; i < 8; i++) {
+                    var pos = i;
+                    var playerId = $($(".playerId")[pos]).val();
+                    if (playerId) {
+                        $.post("/getPlayerInfo/" + playerId, null, function (res) {
+                            var data = JSON.parse(res);
+                            cmd.proxy(CommandId.cs_updatePlayer, { playerInfo: data.playerInfo, pos: pos });
+                        });
+                    }
+                }
+            });
         }
         var btnMove = this.newBtn(function () {
             _this.curSelectCtn = ctn;
@@ -544,24 +566,30 @@ var StagePanelView = (function (_super) {
             var isShift = e.shiftKey;
             var isAlt = e.altKey;
             console.log("key:", key);
+            var isMove = false;
             if (key == 38) {
                 _this.curSelectCtn.y -= 1;
+                isMove = true;
             }
             else if (key == 40) {
                 _this.curSelectCtn.y += 1;
+                isMove = true;
             }
             else if (key == 37) {
                 _this.curSelectCtn.x -= 1;
+                isMove = true;
             }
             else if (key == 39) {
                 _this.curSelectCtn.x += 1;
+                isMove = true;
             }
-            cmd.proxy(CommandId.cs_moveStagePanel, {
-                ctnX: _this.ctn.x,
-                ctnY: _this.ctn.y,
-                eventX: _this.eventCtn.x,
-                eventY: _this.eventCtn.y
-            });
+            if (isMove)
+                cmd.proxy(CommandId.cs_moveStagePanel, {
+                    ctnX: _this.ctn.x,
+                    ctnY: _this.ctn.y,
+                    eventX: _this.eventCtn.x,
+                    eventY: _this.eventCtn.y
+                });
         };
     };
     StagePanelView.prototype.onServerBroadcast = function () {
@@ -797,7 +825,6 @@ var StagePanelView = (function (_super) {
                 var leftAvatarBg = new createjs.Bitmap("/img/panel/leftAvatarBg.png"); //694x132
                 leftAvatarBg.x = bgLeft.x + 15 + i * 150;
                 leftAvatarBg.y = bgLeft.y + 6;
-                ctnMove.addChild(leftAvatarBg);
                 // var leftAvatarMask = new createjs.Shape();
                 // // var leftMask =  new createjs.Bitmap("/img/panel/leftAvatarMask.png");//694x132
                 //
@@ -827,6 +854,7 @@ var StagePanelView = (function (_super) {
                 avatarCtn.addChild(avatarBmp);
                 this.avatarArr.push(avatarCtn);
                 ctnMove.addChild(avatarCtn);
+                ctnMove.addChild(leftAvatarBg);
                 var leftEloBg = new createjs.Bitmap("/img/panel/leftEloBg.png"); //694x132
                 leftEloBg.x = leftAvatarBg.x + 25;
                 leftEloBg.y = bgLeft.y + 70;
@@ -860,7 +888,6 @@ var StagePanelView = (function (_super) {
                 var rightAvatarBg = new createjs.Bitmap("/img/panel/rightAvatarBg.png"); //694x132
                 rightAvatarBg.x = bgRight.x + 14 + i * 150;
                 rightAvatarBg.y = bgRight.y + 6;
-                ctnMove.addChild(rightAvatarBg);
                 var avatarCtn = new createjs.Container();
                 avatarCtn.x = rightAvatarBg.x + 11;
                 avatarCtn.y = rightAvatarBg.y + 9;
@@ -878,6 +905,7 @@ var StagePanelView = (function (_super) {
                 avatarCtn.addChild(avatarBmp);
                 this.avatarArr.push(avatarCtn);
                 ctnMove.addChild(avatarCtn);
+                ctnMove.addChild(rightAvatarBg);
                 var rightEloBg = new createjs.Bitmap("/img/panel/rightEloBg.png"); //694x132
                 rightEloBg.x = rightAvatarBg.x + 125;
                 rightEloBg.y = bgRight.y + 70;
@@ -952,21 +980,21 @@ var StagePanelView = (function (_super) {
             if (param.ctnXY)
                 this.setCtnXY(param.ctnXY);
         }
-        var bmp = new createjs.Bitmap("/img/player/p1.png");
-        bmp.x = 0;
-        bmp.y = 0;
-        //创建遮罩
-        var leftMask = new createjs.Shape();
-        leftMask.graphics.beginFill("#000000")
-            .moveTo(48, 0)
-            .lineTo(0, 76)
-            .lineTo(180 - 48, 76)
-            .lineTo(180, 0)
-            .lineTo(48, 0);
-        leftMask.x = 0;
-        leftMask.y = 0;
-        this.stage.addChild(bmp);
-        bmp.mask = leftMask;
+        // var bmp = new createjs.Bitmap("/img/player/p1.png");
+        // bmp.x = 0;
+        // bmp.y = 0;
+        // //创建遮罩
+        // var leftMask = new createjs.Shape();
+        // leftMask.graphics.beginFill("#000000")
+        //     .moveTo(48, 0)
+        //     .lineTo(0, 76)
+        //     .lineTo(180 - 48, 76)
+        //     .lineTo(180, 0)
+        //     .lineTo(48, 0);
+        // leftMask.x = 0;
+        // leftMask.y = 0;
+        // this.stage.addChild(bmp);
+        // bmp.mask = leftMask;
     };
     StagePanelView.prototype.formatSecond = function (sec) {
         var min = Math.floor(sec / 60);
