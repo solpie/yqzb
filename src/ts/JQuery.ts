@@ -52,9 +52,9 @@ interface Navigator {
 declare var webkitURL:{
     createObjectURL(stream:any):any;
 };
-declare var Mustache:{
-    render(tpl:string, data?:Object);
-};
+// declare var Mustache:{
+//     render(tpl:string, data?:Object);
+// };
 
 function chooseFile(name):JQuery {
     var chooser = $(name);

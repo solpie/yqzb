@@ -11,5 +11,8 @@
     "transparent": false,
     "title": "YuanQiTV",
     "toolbar": false
+  },
+  "devDependencies": {
+    "express": "^4.13.4"
   }
 }

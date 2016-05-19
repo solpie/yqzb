@@ -1,0 +1,59 @@
+<style>
+    .inputPanel {
+        width: 100%;
+        left: 60px;
+        top: 700px;
+        position: absolute;
+        display: none;
+    }
+
+    .playerPanel {
+        display: inline-flex;
+        width: 750px;
+        background: #ccc;
+    }
+
+    .pickupPlayer {
+        width: 145px;
+    }
+</style>
+<div class="inputPanel">
+    <div class="playerPanel">
+        player id:
+        <div class="pickupPlayer">
+            <img class="playerAvatar" src="">
+            <input class="playerId" type="text" style="width: 75px"/>
+            <input class="btnUpdate" type="button" value="update" data-pos="0"/>
+        </div>
+        <div class="pickupPlayer">
+            <img class="playerAvatar" src="">
+            <input class="playerId" type="text" style="width: 75px"/>
+            <input class="btnUpdate" type="button" value="update" data-pos="1"/>
+        </div>
+        <div class="pickupPlayer">
+            <img class="playerAvatar" src="">
+            <input class="playerId" type="text" style="width: 75px"/>
+            <input class="btnUpdate" type="button" value="update" data-pos="2"/>
+        </div>
+        <div class="pickupPlayer">
+            <img class="playerAvatar" src="">
+            <input class="playerId" type="text" style="width: 75px"/>
+            <input class="btnUpdate" type="button" value="update" data-pos="3"/>
+        </div>
+    </div>
+</div>
+<script>
+    if (isOp) {
+        $(".inputPanel").show();
+        $(".btnUpdate").click(function () {
+            var pos = parseInt($(this).data("pos"));
+            var playerId = $($(".playerId")[pos]).val();
+            console.log($(this).data("pos"), playerId);
+            $.post("/getPlayerInfo/" + playerId, null, function (res) {
+                var data = JSON.parse(res);
+                console.log(res);
+                $($(".playerAvatar")[pos]).attr("src", data.playerInfo.avatar);
+            });
+        });
+    }
+</script>

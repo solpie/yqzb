@@ -40,7 +40,11 @@ class HttpServer {
         app.get('/panel/:id/:op', function (req, res) {
             var pid = req.params.id;
             var op = req.params.op;
-            res.render('panel', {pid: pid, op: op, host: serverConf.host, port: serverConf.port});
+            var data = {pid: pid, op: op, host: serverConf.host, port: serverConf.port};
+            var s1 = JSON.stringify(data);
+            var s2 = s1.substr(0, s1.length - 1) + ',"' + pid + '":1}';
+            data = JSON.parse(s2);
+            res.render('panel', data);
         });
 
         app.post('/getPlayerInfo/:playerId', function (req, res) {
@@ -59,7 +63,9 @@ class HttpServer {
                 }
             });
         });
-
+        // var ejs1 = require('ejs');
+        // new ejs1({url: "./ts/server/views/tpl/dashboard.ejs"}).render({})
+        // console.log(ejs1,);
         // app.post('/getPlayerInfo/:playerId', function (req, res) {
         //     var playerId = req.params.playerId;
         //     console.log("PlayerInfo ", playerId);

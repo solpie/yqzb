@@ -3,6 +3,9 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+// declare var Mustache:{
+//     render(tpl:string, data?:Object);
+// };
 function chooseFile(name) {
     var chooser = $(name);
     chooser.unbind('change');

@@ -3,6 +3,9 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+// declare var Mustache:{
+//     render(tpl:string, data?:Object);
+// };
 function chooseFile(name) {
     var chooser = $(name);
     chooser.unbind('change');
@@ -1111,7 +1114,6 @@ var gui = require('nw.gui');
 var win = gui.Window.get();
 var WindowView = (function () {
     function WindowView() {
-        this.isMaximize = false;
         // $("#btnClose").on(MouseEvt.CLICK, function () {
         //     win.close();
         // });
@@ -1127,12 +1129,13 @@ var WindowView = (function () {
         //});
         //
         //default op
-        var op = gui.Window.open('http://localhost/panel/stage/op', {
-            position: 'center',
-            toolbar: false,
-            width: 1920,
-            height: 1200
-        });
+        // var op = gui.Window.open ('http://localhost/panel/stage/op', {
+        //    position: 'center',
+        //    toolbar: false,
+        //    width: 1920,
+        //    height: 1200
+        // });
+        this.isMaximize = false;
         //win.on ('loaded', function () {
         //    // the native onload event has just occurred
         //    var doc = win.window.document;
@@ -1301,7 +1304,12 @@ var HttpServer = (function () {
         app.get('/panel/:id/:op', function (req, res) {
             var pid = req.params.id;
             var op = req.params.op;
-            res.render('panel', { pid: pid, op: op, host: serverConf.host, port: serverConf.port });
+            var data = { pid: pid, op: op, host: serverConf.host, port: serverConf.port };
+            var s1 = JSON.stringify(data);
+            var s2 = s1.substr(0, s1.length - 1) + ',"' + pid + '":1}';
+            data = JSON.parse(s2);
+            console.log(data, s2);
+            res.render('panel', data);
         });
         app.post('/getPlayerInfo/:playerId', function (req, res) {
             var playerId = req.params.playerId;
@@ -1318,6 +1326,9 @@ var HttpServer = (function () {
                 }
             });
         });
+        // var ejs1 = require('ejs');
+        // new ejs1({url: "./ts/server/views/tpl/dashboard.ejs"}).render({})
+        // console.log(ejs1,);
         // app.post('/getPlayerInfo/:playerId', function (req, res) {
         //     var playerId = req.params.playerId;
         //     console.log("PlayerInfo ", playerId);
