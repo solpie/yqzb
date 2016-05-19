@@ -1,20 +1,26 @@
 /// <reference path="BaseInfo.ts"/>
 
 class PlayerData {
-    id:number;
-    name:string;
-    eloScore:number;
-    style:number;//风林火山 1 2 3 4
-    avatar:string;
-    height:number;
-    weight:number;
-    winpercent:number;//  胜率  100/100.0%
-    gameCount:number;//场数
-    dtScore:number;
+    id:number = 0;
+    name:string = '';
+    eloScore:number = 0;
+    style:number = 0;//风林火山 1 2 3 4
+    avatar:string = "";
+    height:number = 0;
+    weight:number = 0;
+    winpercent:number = 0;//  胜率  100/100.0%
+    gameCount:number = 0;//场数
+    dtScore:number = 0;
 }
-class PlayerInfo extends BaseInfo{
+class PlayerInfo extends BaseInfo {
     playerData:PlayerData = new PlayerData();
 
+    constructor(playerData?) {
+        super();
+        if (playerData) {
+            this.playerData = obj2Class(playerData, PlayerData);
+        }
+    }
 
     id(val?) {
         return prop(this.playerData, "id", val);

@@ -206,6 +206,13 @@ var prop = function (obj, paramName, v, callback) {
     else
         return obj[paramName];
 };
+var obj2Class = function (obj, cls) {
+    var c = new cls;
+    for (var paramName in obj) {
+        c[paramName] = obj[paramName];
+    }
+    return c;
+};
 var BaseInfo = (function () {
     function BaseInfo() {
     }
@@ -214,14 +221,27 @@ var BaseInfo = (function () {
 /// <reference path="BaseInfo.ts"/>
 var PlayerData = (function () {
     function PlayerData() {
+        this.id = 0;
+        this.name = '';
+        this.eloScore = 0;
+        this.style = 0; //风林火山 1 2 3 4
+        this.avatar = "";
+        this.height = 0;
+        this.weight = 0;
+        this.winpercent = 0; //  胜率  100/100.0%
+        this.gameCount = 0; //场数
+        this.dtScore = 0;
     }
     return PlayerData;
 }());
 var PlayerInfo = (function (_super) {
     __extends(PlayerInfo, _super);
-    function PlayerInfo() {
-        _super.apply(this, arguments);
+    function PlayerInfo(playerData) {
+        _super.call(this);
         this.playerData = new PlayerData();
+        if (playerData) {
+            this.playerData = obj2Class(playerData, PlayerData);
+        }
     }
     PlayerInfo.prototype.id = function (val) {
         return prop(this.playerData, "id", val);
@@ -324,6 +344,7 @@ var StagePanelInfo = (function (_super) {
         this.rightScore = 0;
         this.time = 0;
         this.timerState = 0;
+        this.playerInfoArr = new Array(8);
     }
     StagePanelInfo.prototype.getInfo = function () {
         return {
@@ -331,7 +352,8 @@ var StagePanelInfo = (function (_super) {
             rightScore: this.rightScore,
             time: this.time,
             state: this.timerState,
-            ctnXY: this.ctnXY
+            ctnXY: this.ctnXY,
+            playerInfoArr: this.playerInfoArr
         };
     };
     StagePanelInfo.prototype.addLeftScore = function () {
@@ -361,6 +383,13 @@ var StagePanelInfo = (function (_super) {
     StagePanelInfo.prototype.movePanel = function (param) {
         this.ctnXY = param;
         cmd.emit(CommandId.moveStagePanel, param, this.pid);
+    };
+    StagePanelInfo.prototype.updatePlayer = function (param) {
+        var pos = param.pos;
+        param.playerInfo.pos = pos;
+        this.playerInfoArr[pos] = param.playerInfo;
+        console.log(this, JSON.stringify(param.playerInfo));
+        cmd.emit(CommandId.updatePlayer, param, this.pid);
     };
     return StagePanelInfo;
 }(BasePanelInfo));
@@ -402,9 +431,11 @@ var CommandId;
     CommandId[CommandId["cs_stageFadeIn"] = 100017] = "cs_stageFadeIn";
     CommandId[CommandId["moveStagePanel"] = 100018] = "moveStagePanel";
     CommandId[CommandId["cs_moveStagePanel"] = 100019] = "cs_moveStagePanel";
+    CommandId[CommandId["updatePlayer"] = 100020] = "updatePlayer";
+    CommandId[CommandId["cs_updatePlayer"] = 100021] = "cs_updatePlayer";
     //
-    CommandId[CommandId["updateLeftTeam"] = 100020] = "updateLeftTeam";
-    CommandId[CommandId["updateRightTeam"] = 100021] = "updateRightTeam";
+    CommandId[CommandId["updateLeftTeam"] = 100022] = "updateLeftTeam";
+    CommandId[CommandId["updateRightTeam"] = 100023] = "updateRightTeam";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {
@@ -501,6 +532,21 @@ var StagePanelView = (function (_super) {
         _super.prototype.initOp.call(this);
         var ctn = this.ctn;
         var fxCtn = this.fxCtn;
+        //update player
+        {
+            $(".inputPanel").show();
+            $(".btnUpdate").click(function (e) {
+                var s = $(e.target).data("pos").toString();
+                var pos = parseInt(s);
+                var playerId = $($(".playerId")[pos]).val();
+                console.log($(e.target).data("pos"), playerId);
+                $.post("/getPlayerInfo/" + playerId, null, function (res) {
+                    var data = JSON.parse(res);
+                    cmd.proxy(CommandId.cs_updatePlayer, { playerInfo: data.playerInfo, pos: pos });
+                    $($(".playerAvatar")[pos]).attr("src", data.playerInfo.avatar);
+                });
+            });
+        }
         var btnMove = this.newBtn(function () {
             _this.curSelectCtn = ctn;
             // this.moveCtnIdx = 0;
@@ -591,6 +637,11 @@ var StagePanelView = (function (_super) {
     StagePanelView.prototype.handle = function () {
         var _this = this;
         console.log("handle()");
+        cmd.on(CommandId.updatePlayer, function (param) {
+            var pos = param.pos;
+            var playerData = param.playerInfo;
+            _this.setPlayer(pos, playerData);
+        });
         cmd.on(CommandId.addLeftScore, function (leftScore) {
             console.log("handle left score");
             _this.setLeftScore(leftScore);
@@ -679,6 +730,11 @@ var StagePanelView = (function (_super) {
                 createjs.Tween.get(this.rightCircleArr[len - 1 - i]).to({ alpha: 0 }, 200);
             }
         }
+    };
+    StagePanelView.prototype.setPlayer = function (pos, playerData) {
+        var playerInfo = new PlayerInfo(playerData);
+        console.log("updatePlayer", pos, playerInfo);
+        this.eloLabelArr[pos].text = playerInfo.eloScore();
     };
     StagePanelView.prototype.setCtnXY = function (param) {
         this.ctn.x = param.ctnX;
@@ -786,6 +842,7 @@ var StagePanelView = (function (_super) {
             ctnMove.addChild(timeLabel);
         }
         {
+            this.eloLabelArr = [];
             var leftOfs = 5;
             var bgLeft = new createjs.Bitmap("/img/panel/stageleft.png"); //694x132
             bgLeft.x = leftOfs;
@@ -817,6 +874,7 @@ var StagePanelView = (function (_super) {
                 leftEloLabel.textAlign = "left";
                 leftEloLabel.x = leftEloBg.x + 12;
                 leftEloLabel.y = leftEloBg.y;
+                this.eloLabelArr.push(leftEloLabel);
                 ctnMove.addChild(leftEloLabel);
                 var leftStyleIcon = new createjs.Bitmap("/img/panel/feng.png"); //694x132
                 leftStyleIcon.x = leftAvatarBg.x + 120;
@@ -846,6 +904,7 @@ var StagePanelView = (function (_super) {
                 rightEloLabel.textAlign = "right";
                 rightEloLabel.x = rightEloBg.x + 53;
                 rightEloLabel.y = rightEloBg.y;
+                this.eloLabelArr.push(rightEloLabel);
                 ctnMove.addChild(rightEloLabel);
                 var rightStyleIcon = new createjs.Bitmap("/img/panel/huo.png"); //694x132
                 rightStyleIcon.x = rightAvatarBg.x + 60;
@@ -900,6 +959,13 @@ var StagePanelView = (function (_super) {
             this.setLeftScore(param.leftScore);
             this.setRightScore(param.rightScore);
             this.setTime(param.time, param.state);
+            for (var i = 0; i < param.playerInfoArr.length; i++) {
+                var obj = param.playerInfoArr[i];
+                if (obj) {
+                    console.log("init player", obj);
+                    this.setPlayer(obj.pos, obj);
+                }
+            }
             if (param.ctnXY)
                 this.setCtnXY(param.ctnXY);
         }
@@ -1055,10 +1121,6 @@ var ServerView = (function () {
         //this.stage.addChild(man);
         ////  }
         //this.stage.update();
-        // createjs.Ticker.setFPS(60);
-        // createjs.Ticker.addEventListener("tick", ()=> {
-        //     this.stage.update(event);
-        // });
     }
     return ServerView;
 }());
@@ -1308,11 +1370,11 @@ var HttpServer = (function () {
             var s1 = JSON.stringify(data);
             var s2 = s1.substr(0, s1.length - 1) + ',"' + pid + '":1}';
             data = JSON.parse(s2);
-            console.log(data, s2);
             res.render('panel', data);
         });
         app.post('/getPlayerInfo/:playerId', function (req, res) {
             var playerId = req.params.playerId;
+            // var pos = req.params.pos;
             console.log("PlayerInfo ", playerId);
             // var playerInfo = new PlayerInfo();
             jsonfile.readFile("data/" + playerId + '.player', null, function (err, confData) {
@@ -1356,6 +1418,9 @@ var HttpServer = (function () {
         }
     };
     HttpServer.prototype.handleOp = function () {
+        cmd.on(CommandId.cs_updatePlayer, function (param) {
+            appInfo.panel.stage.updatePlayer(param);
+        });
         cmd.on(CommandId.cs_addLeftScore, function () {
             appInfo.panel.stage.addLeftScore();
         });
@@ -1447,6 +1512,8 @@ appInfo.savePlayerInfo = function (playerInfo) {
         });
     else
         throw Error("no player id!!!");
+};
+appInfo.parsePlayerInfo = function () {
 };
 $(function () {
     app = new YuanqiTvView(appInfo);

@@ -10,6 +10,14 @@ var prop = function (obj, paramName, v, callback?) {
     else
         return obj[paramName]
 };
-class BaseInfo{
-    
+
+var obj2Class = function (obj, cls) {
+    var c = new cls;
+    for (var paramName in obj) {
+        c[paramName] = obj[paramName];
+    }
+    return c;
+};
+class BaseInfo {
+
 }

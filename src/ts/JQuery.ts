@@ -26,7 +26,7 @@ interface JQuery {
     unbind(value:string): JQuery;
     change(func:any): JQuery;
     trigger(type:any): JQuery;
-    attr(attrName:string): string;
+    attr(attrName:string,param?): string;
     position():any;
     (selector:string): any;
 }
@@ -36,6 +36,7 @@ declare var $:{
     get(val:string, func:any);
     (el:HTMLElement): JQuery;
     (selector:string): any;
+    post(url:string,option:any,callback:any): any;
     (readyCallback:() => void): JQuery;
 };
 

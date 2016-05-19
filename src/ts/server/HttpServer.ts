@@ -49,13 +49,14 @@ class HttpServer {
 
         app.post('/getPlayerInfo/:playerId', function (req, res) {
             var playerId = req.params.playerId;
+            // var pos = req.params.pos;
+
             console.log("PlayerInfo ", playerId);
             // var playerInfo = new PlayerInfo();
             jsonfile.readFile("data/" + playerId + '.player', null, (err, confData)=> {
                 if (err) {
                     console.log(err, "no player");
                     res.send(JSON.stringify({playerInfo: ""}));
-
                 }
                 else {
                     console.log("find player");
@@ -88,6 +89,9 @@ class HttpServer {
     }
 
     handleOp() {
+        cmd.on(CommandId.cs_updatePlayer, (param)=> {
+            appInfo.panel.stage.updatePlayer(param);
+        });
         cmd.on(CommandId.cs_addLeftScore, ()=> {
             appInfo.panel.stage.addLeftScore();
         });

@@ -18,6 +18,7 @@ class StagePanelView extends BaseView {
     //left
     leftAvatarCtn:any;
     rightAvatarCtn:any;
+    eloLabelArr:any;
 
     constructor(stage, isOp) {
         super(stage, isOp);
@@ -31,6 +32,24 @@ class StagePanelView extends BaseView {
         super.initOp();
         var ctn = this.ctn;
         var fxCtn = this.fxCtn;
+
+        //update player
+        {
+            $(".inputPanel").show();
+            $(".btnUpdate").click((e)=> {
+                var s = $(e.target).data("pos").toString();
+                var pos = parseInt(s);
+                var playerId = $($(".playerId")[pos]).val();
+                console.log($(e.target).data("pos"), playerId);
+
+                $.post("/getPlayerInfo/" + playerId, null, function (res) {
+                    var data = JSON.parse(res);
+                    cmd.proxy(CommandId.cs_updatePlayer, {playerInfo: data.playerInfo, pos: pos});
+                    $($(".playerAvatar")[pos]).attr("src", data.playerInfo.avatar);
+                });
+            });
+        }
+
 
         var btnMove = this.newBtn(()=> {
             this.curSelectCtn = ctn;
@@ -137,6 +156,12 @@ class StagePanelView extends BaseView {
 
     handle() {
         console.log("handle()");
+        cmd.on(CommandId.updatePlayer, (param)=> {
+            var pos = param.pos;
+            var playerData = param.playerInfo;
+            this.setPlayer(pos, playerData);
+        });
+
         cmd.on(CommandId.addLeftScore, (leftScore)=> {
             console.log("handle left score");
             this.setLeftScore(leftScore)
@@ -160,6 +185,7 @@ class StagePanelView extends BaseView {
                 appInfo.panel.stage.timerState = 1;
             }
         });
+
         cmd.on(CommandId.resetTimer, ()=> {
             //$("#btnResetTime").on(MouseEvt.CLICK, ()=> {
             appInfo.panel.stage.time = 0;
@@ -237,6 +263,12 @@ class StagePanelView extends BaseView {
                 createjs.Tween.get(this.rightCircleArr[len - 1 - i]).to({alpha: 0}, 200);
             }
         }
+    }
+
+    setPlayer(pos, playerData:PlayerInfo) {
+        var playerInfo = new PlayerInfo(playerData);
+        console.log("updatePlayer", pos, playerInfo);
+        this.eloLabelArr[pos].text = playerInfo.eloScore();
     }
 
     setCtnXY(param) {
@@ -358,6 +390,7 @@ class StagePanelView extends BaseView {
         }
 
         {//left right player
+            this.eloLabelArr = [];
             var leftOfs = 5;
             var bgLeft = new createjs.Bitmap("/img/panel/stageleft.png");//694x132
             bgLeft.x = leftOfs;
@@ -395,6 +428,7 @@ class StagePanelView extends BaseView {
                 leftEloLabel.textAlign = "left";
                 leftEloLabel.x = leftEloBg.x + 12;
                 leftEloLabel.y = leftEloBg.y;
+                this.eloLabelArr.push(leftEloLabel);
                 ctnMove.addChild(leftEloLabel);
 
                 var leftStyleIcon = new createjs.Bitmap("/img/panel/feng.png");//694x132
@@ -407,7 +441,6 @@ class StagePanelView extends BaseView {
                 leftNameLabel.x = leftAvatarBg.x + 20;
                 leftNameLabel.y = leftAvatarBg.y + 90;
                 ctnMove.addChild(leftNameLabel);
-
             }
             // };
 
@@ -430,6 +463,7 @@ class StagePanelView extends BaseView {
                 rightEloLabel.textAlign = "right";
                 rightEloLabel.x = rightEloBg.x + 53;
                 rightEloLabel.y = rightEloBg.y;
+                this.eloLabelArr.push(rightEloLabel);
                 ctnMove.addChild(rightEloLabel);
 
 
@@ -491,6 +525,12 @@ class StagePanelView extends BaseView {
             this.setLeftScore(param.leftScore);
             this.setRightScore(param.rightScore);
             this.setTime(param.time, param.state);
+            for (var i = 0; i < param.playerInfoArr.length; i++) {
+                var obj = param.playerInfoArr[i];
+                if (obj) {
+                    this.setPlayer(obj.pos, obj);
+                }
+            }
             if (param.ctnXY)
                 this.setCtnXY(param.ctnXY);
         }

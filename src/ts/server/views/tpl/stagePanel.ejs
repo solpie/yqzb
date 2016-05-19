@@ -44,16 +44,17 @@
 </div>
 <script>
     if (isOp) {
-        $(".inputPanel").show();
-        $(".btnUpdate").click(function () {
-            var pos = parseInt($(this).data("pos"));
-            var playerId = $($(".playerId")[pos]).val();
-            console.log($(this).data("pos"), playerId);
-            $.post("/getPlayerInfo/" + playerId, null, function (res) {
-                var data = JSON.parse(res);
-                console.log(res);
-                $($(".playerAvatar")[pos]).attr("src", data.playerInfo.avatar);
-            });
-        });
+//        $(".inputPanel").show();
+//        $(".btnUpdate").click(function () {
+//            var pos = parseInt($(this).data("pos"));
+//            var playerId = $($(".playerId")[pos]).val();
+//            console.log($(this).data("pos"), playerId);
+//
+//            $.post("/getPlayerInfo/" + playerId + "/" + pos, null, function (res) {
+//                var data = JSON.parse(res);
+//                cmd.emit(CommandId.updatePlayer, data)
+//                $($(".playerAvatar")[pos]).attr("src", data.playerInfo.avatar);
+//            });
+//        });
     }
 </script>

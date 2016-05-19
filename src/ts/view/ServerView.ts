@@ -23,14 +23,12 @@ class ServerView {
         //this._fillRect("#ffff00", 0, 0, 800, 300);
         //this.test()
 
-
         ////createjs
         // this.canvas = document.getElementById("stage");
         // this.canvas.setAttribute("width", this.stageWidth + "");
         // this.canvas.setAttribute("height", this.stageHeight + "");
         // this.stage = new createjs.Stage(this.canvas);
         // this.stage.autoClear = true;
-
 
         //stage bg
         //var bgRed = new createjs.Shape();
@@ -43,14 +41,12 @@ class ServerView {
         // this.panelView = new StagePanelView(this.stage, false, true);
         // this.trackerView = new TrackerView(this.stage, false,true);
 
-
         ////avatar panel
         //var bgAvatar = new createjs.Shape();
         //bgAvatar.graphics.beginFill("#cccccc");
         //bgAvatar.graphics.drawRect(5, 50, 115, 580);
         //bgAvatar.graphics.endFill();
         //this.stage.addChild(bgAvatar);
-
 
         //var images = [];
         //for (var i = 1; i <= 14; i++) {
@@ -70,12 +66,6 @@ class ServerView {
         //this.stage.addChild(man);
         ////  }
         //this.stage.update();
-
-
-        // createjs.Ticker.setFPS(60);
-        // createjs.Ticker.addEventListener("tick", ()=> {
-        //     this.stage.update(event);
-        // });
     }
 
 }

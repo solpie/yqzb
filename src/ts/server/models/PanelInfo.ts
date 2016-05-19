@@ -26,7 +26,7 @@ class PlayerPanelInfo extends BasePanelInfo {
     // playerInfoArr:Array<PlayerInfo> = [];
 
     getInfo() {
-        this.playerInfo.name ("tmac");
+        this.playerInfo.name("tmac");
         return {
             playerInfo: this.playerInfo
         }
@@ -55,6 +55,7 @@ class StagePanelInfo extends BasePanelInfo {
     time:number = 0;
     timerState:number = 0;
     ctnXY:any;
+    playerInfoArr:any = new Array(8);
 
     getInfo() {
         return {
@@ -62,7 +63,8 @@ class StagePanelInfo extends BasePanelInfo {
             rightScore: this.rightScore,
             time: this.time,
             state: this.timerState,
-            ctnXY:this.ctnXY,
+            ctnXY: this.ctnXY,
+            playerInfoArr: this.playerInfoArr
         }
     }
 
@@ -100,5 +102,13 @@ class StagePanelInfo extends BasePanelInfo {
     movePanel(param) {
         this.ctnXY = param;
         cmd.emit(CommandId.moveStagePanel, param, this.pid);
+    }
+
+    updatePlayer(param:any) {
+        var pos = param.pos;
+        param.playerInfo.pos = pos;
+        this.playerInfoArr[pos] = param.playerInfo;
+        console.log(this, JSON.stringify(param.playerInfo));
+        cmd.emit(CommandId.updatePlayer, param, this.pid);
     }
 }

@@ -10,6 +10,7 @@ class AppInfo extends EventDispatcher {
     panel:PanelInfo;
     isServer:boolean;
     savePlayerInfo:(playerInfo)=>any;
+    parsePlayerInfo:(playerInfo)=>any;
     wsc:any;
 
     constructor() {

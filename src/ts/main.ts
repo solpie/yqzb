@@ -18,12 +18,17 @@ jsonfile.readFile("config.json", null, (err, confData)=> {
 });
 var app:YuanqiTvView;
 appInfo.isServer = true;
+
 appInfo.savePlayerInfo = function (playerInfo) {
     if (playerInfo.id())
         jsonfile.writeFile("data/" + playerInfo.id() + '.player', playerInfo.playerData, null, (err, confData)=> {
         });
     else
         throw Error("no player id!!!");
+};
+appInfo.parsePlayerInfo = function () {
+
+
 };
 $(() => {
     app = new YuanqiTvView(appInfo);
