@@ -6,6 +6,7 @@ var msgpack = require("msgpack-lite");
 class HttpServer {
     playerInfoCollection:any;
     db:any;
+
     getIPAddress() {
         var interfaces = require('os').networkInterfaces();
         for (var devName in interfaces) {
@@ -112,7 +113,7 @@ class HttpServer {
         });
 
 
-        this.serverSend();
+        this.initWebSocket();
         this.handleOp();
     }
 
@@ -194,7 +195,7 @@ class HttpServer {
         });
     }
 
-    serverSend() {
+    initWebSocket() {
         var url = require('url');
         var WebSocketServer = require('ws').Server
             , wss = new WebSocketServer({port: serverConf.port});
@@ -205,7 +206,8 @@ class HttpServer {
             // or ws.upgradeReq.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
             wsClient.on('message', function incoming(message) {
                 console.log('client: ', message);
-                var req = JSON.parse(message);
+                // var req = JSON.parse(message);
+                var req = msgpack.decode(message);
                 if (req.req == "info") {
                     var pid = req.pid;
                     wsClient.pid = pid;

@@ -459,6 +459,7 @@ var StagePanelInfo = (function (_super) {
 /// <reference path="../server/models/PanelInfo.ts"/>
 var AppInfo = (function (_super) {
     __extends(AppInfo, _super);
+    // wsc:any;
     function AppInfo() {
         _super.call(this);
         this.panel = new PanelInfo();
@@ -1406,11 +1407,27 @@ var Client = (function () {
         this.initWsClient(pid, host, port);
         this.isOB = isOB;
     }
+    Client.prototype.newWsClient = function (pid, host, port) {
+        var wsc = new WebSocket('ws://' + host + ':' + port);
+        return wsc;
+    };
     Client.prototype.initWsClient = function (pid, host, port) {
         var _this = this;
         var wsc = new WebSocket('ws://' + host + ':' + port);
+        var isAlive = false;
+        var relinkTimer;
+        var initReq = function () {
+            wsc.send(msgpack.encode({ req: "info", pid: pid }));
+        };
+        var relink = function () {
+            console.log('ws relink');
+            wsc = _this.initWsClient(pid, host, port);
+            if (isAlive)
+                clearInterval(relinkTimer);
+        };
         wsc.onopen = function () {
-            wsc.send('{"req":"info","pid":"' + pid + '"}');
+            isAlive = true;
+            initReq();
         };
         wsc.onmessage = function (event) {
             console.log(event.data);
@@ -1421,10 +1438,19 @@ var Client = (function () {
                 _this.initPanel(pid, info.param);
             }
         };
-        cmd.proxy = function (type, param) {
-            wsc.send(JSON.stringify({ req: "op", pid: pid, param: { type: type, param: param } }));
+        wsc.onclose = function (event) {
+            isAlive = false;
+            console.log(event);
+            relinkTimer = setInterval(relink, 1);
         };
-        appInfo.wsc = wsc;
+        wsc.onerror = function (event) {
+            console.log(event);
+        };
+        cmd.proxy = function (type, param) {
+            wsc.send(msgpack.encode({ req: "op", pid: pid, param: { type: type, param: param } }));
+        };
+        return wsc;
+        // appInfo.wsc = wsc;
     };
     Client.prototype.initPanel = function (pid, param) {
         var stage = this.initCanvas();

@@ -11,7 +11,7 @@ class AppInfo extends EventDispatcher {
     isServer:boolean;
     savePlayerInfo:(playerInfo)=>any;
     parsePlayerInfo:(playerInfo)=>any;
-    wsc:any;
+    // wsc:any;
 
     constructor() {
         super();

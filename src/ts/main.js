@@ -473,6 +473,7 @@ var StagePanelInfo = (function (_super) {
 /// <reference path="../server/models/PanelInfo.ts"/>
 var AppInfo = (function (_super) {
     __extends(AppInfo, _super);
+    // wsc:any;
     function AppInfo() {
         _super.call(this);
         this.panel = new PanelInfo();
@@ -1529,6 +1530,7 @@ var serverConf = {
  * Created by toramisu on 2016/5/13.
  */
 /// <reference path="Config.ts"/>
+var msgpack = require("msgpack-lite");
 var HttpServer = (function () {
     function HttpServer() {
         this.initDB();
@@ -1579,7 +1581,7 @@ var HttpServer = (function () {
             //and... we're live
             console.log("wshost:", serverConf.host, "ws port:", serverConf.port);
         });
-        this.serverSend();
+        this.initWebSocket();
         this.handleOp();
     }
     HttpServer.prototype.getIPAddress = function () {
@@ -1700,7 +1702,7 @@ var HttpServer = (function () {
             appInfo.panel.stage.movePanel(param);
         });
     };
-    HttpServer.prototype.serverSend = function () {
+    HttpServer.prototype.initWebSocket = function () {
         var url = require('url');
         var WebSocketServer = require('ws').Server, wss = new WebSocketServer({ port: serverConf.port });
         wss.on('connection', function connection(wsClient) {
@@ -1709,7 +1711,8 @@ var HttpServer = (function () {
             // or ws.upgradeReq.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
             wsClient.on('message', function incoming(message) {
                 console.log('client: ', message);
-                var req = JSON.parse(message);
+                // var req = JSON.parse(message);
+                var req = msgpack.decode(message);
                 if (req.req == "info") {
                     var pid = req.pid;
                     wsClient.pid = pid;
