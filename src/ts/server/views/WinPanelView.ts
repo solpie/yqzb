@@ -3,6 +3,7 @@
 class WinPanelView extends BaseView {
     playerCtn:any;
     mvpPos:number = 0;
+    isRed:boolean = true;
 
     init(param) {
         super.init(param);
@@ -62,9 +63,8 @@ class WinPanelView extends BaseView {
 
         this.onServerBroadcast();
 
-        if(param)
-        {
-            this.setPlayerInfoArr(param.playerInfoArr,true);
+        if (param) {
+            this.setPlayerInfoArr(param.playerInfoArr, true);
         }
     }
 
@@ -74,13 +74,14 @@ class WinPanelView extends BaseView {
         var px = 60;
         var py = 30;
         var prePlayerIsMvp = false;
-      
+
         playerInfoArr.sort(sortCompare('pos'));
         for (var i = 0; i < playerInfoArr.length; i++) {
             var pInfo;
             if (isPlayerData) {
                 pInfo = new PlayerInfo(playerInfoArr[i]);
                 pInfo.isMvp = playerInfoArr[i].isMvp;
+                pInfo.isRed = playerInfoArr[i].isRed;
             }
             else
                 pInfo = playerInfoArr[i];
@@ -109,18 +110,34 @@ class WinPanelView extends BaseView {
     }
 
     fadeIn() {
-
+        for (var i = 0; i < 4; i++) {
+            var playerCard = this.playerCtn.getChildAt(i);
+            createjs.Tween.get(playerCard)
+                .to({scaleX: 1, scaleY: 1}, 300, createjs.Ease.bounceInOut);
+        }
     }
 
     fadeOut() {
-
+        for (var i = 0; i < 4; i++) {
+            var playerCard = this.playerCtn.getChildAt(i);
+            createjs.Tween.get(playerCard)
+                .to({x: 500, scaleX: 0.01, scaleY: 0.01}, 100, createjs.Ease.bounceInOut);
+        }
     }
 
     initOp() {
         super.initOp();
+        $("#btnFadeOut").click((e)=> {
+            this.fadeOut();
+        });
+
+        $("#btnFadeIn").click((e)=> {
+            this.fadeIn();
+        });
+
         $("#btnUpdateAll").click((e)=> {
             var playerIdArr = [];
-            for (var i = 0; i < 8; i++) {
+            for (var i = 0; i < 4; i++) {
                 var pos = i;
                 var playerId = $($(".playerId")[pos]).val();
                 if (playerId) {
@@ -128,11 +145,19 @@ class WinPanelView extends BaseView {
                 }
             }
             if (playerIdArr.length)
-                cmd.proxy(CommandId.cs_updatePlayerAllWin, {playerIdArr: playerIdArr, mvp: this.mvpPos});
+                cmd.proxy(CommandId.cs_updatePlayerAllWin, {playerIdArr: playerIdArr, mvp: this.mvpPos, isRed: this.isRed});
         });
-        $(".playerMvp")[0].checked = true;
-        $(".playerMvp").change((e)=> {
+        var mvpArr = $(".playerMvp");
+        mvpArr[0].checked = true;
+        mvpArr.change((e)=> {
             this.mvpPos = parseInt($(e.target).data("pos").toString());
+        });
+
+
+        var isRedArr = $(".isRed");
+        isRedArr[0].checked = true;
+        isRedArr.change((e)=> {
+            this.isRed = ($(e.target).data("pos").toString() == "1");
         });
     }
 

@@ -47,7 +47,7 @@ class WinPanelInfo extends BasePanelInfo {
         for (var i = 0; i < param.length; i++) {
             var obj = param[i];
             this.playerInfoArr[obj.pos] = obj;
-            console.log(this, "updatePlayer", JSON.stringify(obj), obj.pos);
+            console.log(this, "updatePlayer", JSON.stringify(obj), obj.pos, obj.isRed);
         }
         cmd.emit(CommandId.updatePlayerAllWin, param, this.pid);
     }

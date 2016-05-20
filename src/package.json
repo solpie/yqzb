@@ -15,5 +15,8 @@
   "devDependencies": {
     "express": "^4.13.4",
     "nedb": "^1.8.0"
+  },
+  "dependencies": {
+    "msgpack-lite": "^0.1.20"
   }
 }

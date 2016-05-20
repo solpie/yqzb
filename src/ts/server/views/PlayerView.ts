@@ -1,5 +1,7 @@
 class PlayerView {
     nameLabel:any;
+    
+
 
     constructor() {
 

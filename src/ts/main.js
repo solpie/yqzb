@@ -393,7 +393,7 @@ var WinPanelInfo = (function (_super) {
         for (var i = 0; i < param.length; i++) {
             var obj = param[i];
             this.playerInfoArr[obj.pos] = obj;
-            console.log(this, "updatePlayer", JSON.stringify(obj), obj.pos);
+            console.log(this, "updatePlayer", JSON.stringify(obj), obj.pos, obj.isRed);
         }
         cmd.emit(CommandId.updatePlayerAllWin, param, this.pid);
     };
@@ -1630,7 +1630,8 @@ var HttpServer = (function () {
         cmd.on(CommandId.cs_updatePlayerAllWin, function (param) {
             var playerIdArr = param.playerIdArr;
             var mvpPos = param.mvp;
-            console.log(_this, playerIdArr, "mvp", mvpPos);
+            var isRed = param.isRed;
+            console.log(_this, playerIdArr, "mvp", mvpPos, "isRed", isRed);
             var idArr = [];
             var idPosMap = {};
             for (var i = 0; i < playerIdArr.length; i++) {
@@ -1644,6 +1645,7 @@ var HttpServer = (function () {
                     delete playerInfo['_id'];
                     playerInfo.pos = idPosMap[playerInfo.id];
                     playerInfo.isMvp = (playerInfo.pos == mvpPos);
+                    playerInfo.isRed = isRed;
                 }
                 appInfo.panel.win.updatePlayerAllWin(docs);
             });

@@ -2,11 +2,10 @@
  * Created by toramisu on 2016/5/13.
  */
 /// <reference path="Config.ts"/>
-
+var msgpack = require("msgpack-lite");
 class HttpServer {
     playerInfoCollection:any;
     db:any;
-
     getIPAddress() {
         var interfaces = require('os').networkInterfaces();
         for (var devName in interfaces) {
@@ -121,7 +120,8 @@ class HttpServer {
         cmd.on(CommandId.cs_updatePlayerAllWin, (param)=> {
             var playerIdArr = param.playerIdArr;
             var mvpPos = param.mvp;
-            console.log(this, playerIdArr,"mvp",mvpPos);
+            var isRed = param.isRed;
+            console.log(this, playerIdArr, "mvp", mvpPos, "isRed", isRed);
             var idArr = [];
             var idPosMap = {};
             for (var i = 0; i < playerIdArr.length; i++) {
@@ -135,6 +135,7 @@ class HttpServer {
                     delete playerInfo['_id'];
                     playerInfo.pos = idPosMap[playerInfo.id];
                     playerInfo.isMvp = (playerInfo.pos == mvpPos);
+                    playerInfo.isRed = isRed;
                 }
 
                 appInfo.panel.win.updatePlayerAllWin(docs);

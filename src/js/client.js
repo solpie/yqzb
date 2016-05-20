@@ -379,7 +379,7 @@ var WinPanelInfo = (function (_super) {
         for (var i = 0; i < param.length; i++) {
             var obj = param[i];
             this.playerInfoArr[obj.pos] = obj;
-            console.log(this, "updatePlayer", JSON.stringify(obj), obj.pos);
+            console.log(this, "updatePlayer", JSON.stringify(obj), obj.pos, obj.isRed);
         }
         cmd.emit(CommandId.updatePlayerAllWin, param, this.pid);
     };
@@ -1247,6 +1247,7 @@ var WinPanelView = (function (_super) {
     function WinPanelView() {
         _super.apply(this, arguments);
         this.mvpPos = 0;
+        this.isRed = true;
     }
     WinPanelView.prototype.init = function (param) {
         _super.prototype.init.call(this, param);
@@ -1310,6 +1311,7 @@ var WinPanelView = (function (_super) {
             if (isPlayerData) {
                 pInfo = new PlayerInfo(playerInfoArr[i]);
                 pInfo.isMvp = playerInfoArr[i].isMvp;
+                pInfo.isRed = playerInfoArr[i].isRed;
             }
             else
                 pInfo = playerInfoArr[i];
@@ -1334,15 +1336,31 @@ var WinPanelView = (function (_super) {
         this.ctn.hide();
     };
     WinPanelView.prototype.fadeIn = function () {
+        for (var i = 0; i < 4; i++) {
+            var playerCard = this.playerCtn.getChildAt(i);
+            createjs.Tween.get(playerCard)
+                .to({ scaleX: 1, scaleY: 1 }, 300, createjs.Ease.bounceInOut);
+        }
     };
     WinPanelView.prototype.fadeOut = function () {
+        for (var i = 0; i < 4; i++) {
+            var playerCard = this.playerCtn.getChildAt(i);
+            createjs.Tween.get(playerCard)
+                .to({ x: 500, scaleX: 0.01, scaleY: 0.01 }, 100, createjs.Ease.bounceInOut);
+        }
     };
     WinPanelView.prototype.initOp = function () {
         var _this = this;
         _super.prototype.initOp.call(this);
+        $("#btnFadeOut").click(function (e) {
+            _this.fadeOut();
+        });
+        $("#btnFadeIn").click(function (e) {
+            _this.fadeIn();
+        });
         $("#btnUpdateAll").click(function (e) {
             var playerIdArr = [];
-            for (var i = 0; i < 8; i++) {
+            for (var i = 0; i < 4; i++) {
                 var pos = i;
                 var playerId = $($(".playerId")[pos]).val();
                 if (playerId) {
@@ -1350,11 +1368,17 @@ var WinPanelView = (function (_super) {
                 }
             }
             if (playerIdArr.length)
-                cmd.proxy(CommandId.cs_updatePlayerAllWin, { playerIdArr: playerIdArr, mvp: _this.mvpPos });
+                cmd.proxy(CommandId.cs_updatePlayerAllWin, { playerIdArr: playerIdArr, mvp: _this.mvpPos, isRed: _this.isRed });
         });
-        $(".playerMvp")[0].checked = true;
-        $(".playerMvp").change(function (e) {
+        var mvpArr = $(".playerMvp");
+        mvpArr[0].checked = true;
+        mvpArr.change(function (e) {
             _this.mvpPos = parseInt($(e.target).data("pos").toString());
+        });
+        var isRedArr = $(".isRed");
+        isRedArr[0].checked = true;
+        isRedArr.change(function (e) {
+            _this.isRed = ($(e.target).data("pos").toString() == "1");
         });
     };
     WinPanelView.prototype.onServerBroadcast = function () {
