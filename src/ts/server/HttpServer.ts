@@ -4,6 +4,9 @@
 /// <reference path="Config.ts"/>
 
 class HttpServer {
+    playerInfoCollection:any;
+    db:any;
+
     getIPAddress() {
         var interfaces = require('os').networkInterfaces();
         for (var devName in interfaces) {
@@ -17,7 +20,39 @@ class HttpServer {
         }
     }
 
+    dbPlayerInfo() {
+        return this.db.collection("player_info")
+    }
+
+    initDB() {
+        var Engine = require('tingodb')().Db,
+            assert = require('assert');
+        var db = new Engine('db/tingodb', {});
+// Fetch a collection to insert document into
+        this.db = db;
+        // this.playerInfoCollection = db.collection("player_info");
+        // this.playerInfoCollection.insert([{playerId: 1,name:"tmac"}, {playerId: 2,name:"curry"}]);
+        // this.playerInfoCollection.findOne({playerId: 2}, function (err, playerInfo) {
+        //     assert.equal(null, err);
+        //     assert.equal('2', playerInfo.playerId);
+        // });
+        // console.log(this, "init db", this.playerInfoCollection);
+///
+// Insert a single document
+//         collection.insert([{hello: 'world_safe1'}
+//             , {hello: 'world_safe2'}], {w: 1}, function (err, result) {
+//             assert.equal(null, err);
+//
+//             // Fetch the document
+//             collection.findOne({hello: 'world_safe2'}, function (err, item) {
+//                 assert.equal(null, err);
+//                 assert.equal('world_safe2', item.hello);
+//             })
+//         });
+    }
+
     constructor() {
+        this.initDB();
         if (serverConf.host == 'localhost')
             serverConf.host = this.getIPAddress();
         ///server
@@ -89,24 +124,26 @@ class HttpServer {
                 var obj = param[i];
                 obj.src = 'data/' + obj.playerId + '.player';
             }
-            queueFile(param, handleComplete);
-            // queue.loadManifest(manifest);
-            function handleComplete(err, param) {
+            queueFile(param, (err, param)=> {
                 if (err) {
 
                 }
                 else {
                     console.log(this, "load all playerInfo");
+                    // var data = [];
                     for (var i = 0; i < param.length; i++) {
                         var obj = param[i];
                         obj.playerInfo = obj.data;
+                        // data.push(obj.data);
                         delete obj['data'];
                         console.log(this, "load playerInfo id:", obj.playerId, obj.playerInfo);
                     }
+                    // this.dbPlayerInfo().insert(data);
                     appInfo.panel.stage.updatePlayerAll(param);
                 }
 
-            }
+            });
+            // queue.loadManifest(manifest);
         });
         cmd.on(CommandId.cs_updatePlayer, (param)=> {
             appInfo.panel.stage.updatePlayer(param);

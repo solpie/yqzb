@@ -25,7 +25,7 @@ class BaseView {
     newBtn(func, text?) {
         var ctn = new createjs.Container();
         var btn = new createjs.Shape();
-        var btnWidth = 75 * 1.5, btnHeight = 30 * 1.5;
+        var btnWidth = 75 * 3, btnHeight = 30 * 3;
         btn.graphics
             .beginFill("#3c3c3c")
             .drawRect(0, 0, btnWidth, btnHeight);
@@ -33,7 +33,7 @@ class BaseView {
         // btn.addEventListener("mousedown", func);
         ctn.addChild(btn);
         if (text) {
-            var txt = new createjs.Text(text, "24px Arial", "#e2e2e2");
+            var txt = new createjs.Text(text, "30px Arial", "#e2e2e2");
             txt.x = (btnWidth - txt.getMeasuredWidth()) * .5;
             txt.y = (btnHeight - txt.getMeasuredHeight()) * .5 - 5;
             txt.mouseEnabled = false;

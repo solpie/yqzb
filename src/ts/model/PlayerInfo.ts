@@ -14,6 +14,8 @@ class PlayerData {
 }
 class PlayerInfo extends BaseInfo {
     playerData:PlayerData = new PlayerData();
+    isRed:Boolean = true;
+    isMvp:Boolean = false;
 
     constructor(playerData?) {
         super();
@@ -34,6 +36,10 @@ class PlayerInfo extends BaseInfo {
         return prop(this.playerData, "eloScore", val);
     }
 
+    dtScore(val?) {
+        return prop(this.playerData, "dtScore", val);
+    }
+
     style(val?) {
         return prop(this.playerData, "style", val);
     }
@@ -44,6 +50,10 @@ class PlayerInfo extends BaseInfo {
 
     winpercent(val?) {
         return prop(this.playerData, "winpercent", val);
+    }
+
+    gameCount(val?) {
+        return prop(this.playerData, "gameCount", val);
     }
 
     getWinPercent() {
@@ -72,6 +82,23 @@ class PlayerInfo extends BaseInfo {
         }
         else if (this.style() == 4) {
             path += 'lin.png'
+        }
+        return path
+    }
+
+    getWinStyleIcon() {
+        var path = '/img/panel/';
+        if (this.style() == 1) {
+            path += 'fengWin.png'
+        }
+        else if (this.style() == 2) {
+            path += 'huoWin.png'
+        }
+        else if (this.style() == 3) {
+            path += 'shanWin.png'
+        }
+        else if (this.style() == 4) {
+            path += 'linWin.png'
         }
         return path
     }

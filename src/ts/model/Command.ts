@@ -14,6 +14,12 @@ enum CommandId{
     cs_addLeftScore,//1000010
     addRightScore,
     cs_addRightScore,
+        
+    minLeftScore,
+    cs_minLeftScore,//1000010
+    minRightScore,
+    cs_minRightScore,
+        
     stageFadeOut,
     cs_fadeOut,
     playerScore,

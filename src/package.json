@@ -13,6 +13,7 @@
     "toolbar": false
   },
   "devDependencies": {
-    "express": "^4.13.4"
+    "express": "^4.13.4",
+    "tingodb": "^0.4.2"
   }
 }

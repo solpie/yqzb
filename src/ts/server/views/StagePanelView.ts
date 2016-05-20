@@ -34,7 +34,6 @@ class StagePanelView extends BaseView {
         super.initOp();
         var ctn = this.ctn;
         var fxCtn = this.fxCtn;
-
         //update player
         {
             $(".inputPanel").show();
@@ -79,46 +78,61 @@ class StagePanelView extends BaseView {
 
 
         var btnMove = this.newBtn(()=> {
-            this.curSelectCtn = ctn;
-            // this.moveCtnIdx = 0;
+            if (this.curSelectCtn)
+                this.curSelectCtn = null;
+            else
+                this.curSelectCtn = ctn;
         }, "moveStage");
         fxCtn.addChild(btnMove);
 
         var btnMove = this.newBtn(()=> {
-            this.curSelectCtn = this.eventCtn;
-            // this.moveCtnIdx = 1;
+            if (this.curSelectCtn)
+                this.curSelectCtn = null;
+            else
+                this.curSelectCtn = this.eventCtn;
         }, "moveEvent");
-        btnMove.y = 50;
+        btnMove.y = 100;
         fxCtn.addChild(btnMove);
 
         var btnLeft = this.newBtn(()=> {
             cmd.proxy(CommandId.cs_addLeftScore);
-        });
-        btnLeft.x = 450;
-        btnLeft.y = 5;
-        btnLeft.alpha = .5;
+        }, "addLeft");
+        btnLeft.x = 20;
+        btnLeft.y = 500;
         fxCtn.addChild(btnLeft);
+
+        var btn = this.newBtn(()=> {
+            cmd.proxy(CommandId.cs_minLeftScore);
+        }, "minLeft");
+        btn.x = 300;
+        btn.y = 500;
+        fxCtn.addChild(btn);
+
+        var btn = this.newBtn(()=> {
+            cmd.proxy(CommandId.cs_minRightScore);
+        }, 'minRight');
+        btn.x = 590;
+        btn.y = 500;
+        fxCtn.addChild(btn);
 
         var btnRight = this.newBtn(()=> {
             cmd.proxy(CommandId.cs_addRightScore);
-        });
-        btnRight.x = 590;
-        btnRight.y = 5;
-        btnRight.alpha = .5;
+        }, 'addRight');
+        btnRight.x = 850;
+        btnRight.y = 500;
         fxCtn.addChild(btnRight);
+
         var btn = this.newBtn(()=> {
             cmd.proxy(CommandId.cs_toggleTimer);
         }, "toggle");
-        btn.x = 450;
-        btn.y = 100;
-        btn.alpha = .5;
+        btn.x = 200;
+        btn.y = 300;
         fxCtn.addChild(btn);
         var btn = this.newBtn(()=> {
             cmd.proxy(CommandId.cs_resetTimer);
         }, "reset");
         btn.x = 590;
-        btn.y = 100;
-        btn.alpha = .5;
+        btn.y = 300;
         fxCtn.addChild(btn);
 
         var btn = this.newBtn(()=> {
@@ -126,15 +140,13 @@ class StagePanelView extends BaseView {
         }, "fadeOut");
         btn.x = 520;
         btn.y = 200;
-        // btn.alpha = .5;
         fxCtn.addChild(btn);
 
         var btn = this.newBtn(()=> {
             cmd.proxy(CommandId.cs_stageFadeIn);
         }, "fadeIn");
         btn.x = 520;
-        btn.y = 150;
-        // btn.alpha = .5;
+        btn.y = 100;
         fxCtn.addChild(btn);
 
         var btn = this.newBtn(()=> {
@@ -142,7 +154,6 @@ class StagePanelView extends BaseView {
         }, "score");
         btn.x = 820;
         btn.y = 150;
-        // btn.alpha = .5;
         fxCtn.addChild(btn);
 
         //key
@@ -162,13 +173,11 @@ class StagePanelView extends BaseView {
             {
                 this.curSelectCtn.y += 1;
                 isMove = true;
-
             }
             else if (key == 37)//left
             {
                 this.curSelectCtn.x -= 1;
                 isMove = true;
-
             }
             else if (key == 39)//right
             {
@@ -238,7 +247,7 @@ class StagePanelView extends BaseView {
         });
 
         cmd.on(CommandId.stageFadeOut, ()=> {
-            createjs.Tween.get(this.fxCtn).to({y: -100, alpha: .2}, 200);
+            createjs.Tween.get(this.fxCtn).to({y: 140, alpha: .2}, 200);
         });
 
         cmd.on(CommandId.stageFadeIn, ()=> {

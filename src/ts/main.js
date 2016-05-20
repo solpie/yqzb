@@ -256,6 +256,8 @@ var PlayerInfo = (function (_super) {
     function PlayerInfo(playerData) {
         _super.call(this);
         this.playerData = new PlayerData();
+        this.isRed = true;
+        this.isMvp = false;
         if (playerData) {
             this.playerData = obj2Class(playerData, PlayerData);
         }
@@ -269,6 +271,9 @@ var PlayerInfo = (function (_super) {
     PlayerInfo.prototype.eloScore = function (val) {
         return prop(this.playerData, "eloScore", val);
     };
+    PlayerInfo.prototype.dtScore = function (val) {
+        return prop(this.playerData, "dtScore", val);
+    };
     PlayerInfo.prototype.style = function (val) {
         return prop(this.playerData, "style", val);
     };
@@ -277,6 +282,9 @@ var PlayerInfo = (function (_super) {
     };
     PlayerInfo.prototype.winpercent = function (val) {
         return prop(this.playerData, "winpercent", val);
+    };
+    PlayerInfo.prototype.gameCount = function (val) {
+        return prop(this.playerData, "gameCount", val);
     };
     PlayerInfo.prototype.getWinPercent = function () {
         return (this.winpercent() * 100).toFixed(1) + "%";
@@ -301,6 +309,22 @@ var PlayerInfo = (function (_super) {
         }
         else if (this.style() == 4) {
             path += 'lin.png';
+        }
+        return path;
+    };
+    PlayerInfo.prototype.getWinStyleIcon = function () {
+        var path = '/img/panel/';
+        if (this.style() == 1) {
+            path += 'fengWin.png';
+        }
+        else if (this.style() == 2) {
+            path += 'huoWin.png';
+        }
+        else if (this.style() == 3) {
+            path += 'shanWin.png';
+        }
+        else if (this.style() == 4) {
+            path += 'linWin.png';
         }
         return path;
     };
@@ -449,21 +473,25 @@ var CommandId;
     CommandId[CommandId["cs_addLeftScore"] = 100009] = "cs_addLeftScore";
     CommandId[CommandId["addRightScore"] = 100010] = "addRightScore";
     CommandId[CommandId["cs_addRightScore"] = 100011] = "cs_addRightScore";
-    CommandId[CommandId["stageFadeOut"] = 100012] = "stageFadeOut";
-    CommandId[CommandId["cs_fadeOut"] = 100013] = "cs_fadeOut";
-    CommandId[CommandId["playerScore"] = 100014] = "playerScore";
-    CommandId[CommandId["cs_playerScore"] = 100015] = "cs_playerScore";
-    CommandId[CommandId["stageFadeIn"] = 100016] = "stageFadeIn";
-    CommandId[CommandId["cs_stageFadeIn"] = 100017] = "cs_stageFadeIn";
-    CommandId[CommandId["moveStagePanel"] = 100018] = "moveStagePanel";
-    CommandId[CommandId["cs_moveStagePanel"] = 100019] = "cs_moveStagePanel";
-    CommandId[CommandId["updatePlayer"] = 100020] = "updatePlayer";
-    CommandId[CommandId["cs_updatePlayer"] = 100021] = "cs_updatePlayer";
-    CommandId[CommandId["updatePlayerAll"] = 100022] = "updatePlayerAll";
-    CommandId[CommandId["cs_updatePlayerAll"] = 100023] = "cs_updatePlayerAll";
+    CommandId[CommandId["minLeftScore"] = 100012] = "minLeftScore";
+    CommandId[CommandId["cs_minLeftScore"] = 100013] = "cs_minLeftScore";
+    CommandId[CommandId["minRightScore"] = 100014] = "minRightScore";
+    CommandId[CommandId["cs_minRightScore"] = 100015] = "cs_minRightScore";
+    CommandId[CommandId["stageFadeOut"] = 100016] = "stageFadeOut";
+    CommandId[CommandId["cs_fadeOut"] = 100017] = "cs_fadeOut";
+    CommandId[CommandId["playerScore"] = 100018] = "playerScore";
+    CommandId[CommandId["cs_playerScore"] = 100019] = "cs_playerScore";
+    CommandId[CommandId["stageFadeIn"] = 100020] = "stageFadeIn";
+    CommandId[CommandId["cs_stageFadeIn"] = 100021] = "cs_stageFadeIn";
+    CommandId[CommandId["moveStagePanel"] = 100022] = "moveStagePanel";
+    CommandId[CommandId["cs_moveStagePanel"] = 100023] = "cs_moveStagePanel";
+    CommandId[CommandId["updatePlayer"] = 100024] = "updatePlayer";
+    CommandId[CommandId["cs_updatePlayer"] = 100025] = "cs_updatePlayer";
+    CommandId[CommandId["updatePlayerAll"] = 100026] = "updatePlayerAll";
+    CommandId[CommandId["cs_updatePlayerAll"] = 100027] = "cs_updatePlayerAll";
     //
-    CommandId[CommandId["updateLeftTeam"] = 100024] = "updateLeftTeam";
-    CommandId[CommandId["updateRightTeam"] = 100025] = "updateRightTeam";
+    CommandId[CommandId["updateLeftTeam"] = 100028] = "updateLeftTeam";
+    CommandId[CommandId["updateRightTeam"] = 100029] = "updateRightTeam";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {
@@ -528,7 +556,7 @@ var BaseView = (function () {
     BaseView.prototype.newBtn = function (func, text) {
         var ctn = new createjs.Container();
         var btn = new createjs.Shape();
-        var btnWidth = 75 * 1.5, btnHeight = 30 * 1.5;
+        var btnWidth = 75 * 3, btnHeight = 30 * 3;
         btn.graphics
             .beginFill("#3c3c3c")
             .drawRect(0, 0, btnWidth, btnHeight);
@@ -536,7 +564,7 @@ var BaseView = (function () {
         // btn.addEventListener("mousedown", func);
         ctn.addChild(btn);
         if (text) {
-            var txt = new createjs.Text(text, "24px Arial", "#e2e2e2");
+            var txt = new createjs.Text(text, "30px Arial", "#e2e2e2");
             txt.x = (btnWidth - txt.getMeasuredWidth()) * .5;
             txt.y = (btnHeight - txt.getMeasuredHeight()) * .5 - 5;
             txt.mouseEnabled = false;
@@ -598,64 +626,73 @@ var StagePanelView = (function (_super) {
             });
         }
         var btnMove = this.newBtn(function () {
-            _this.curSelectCtn = ctn;
-            // this.moveCtnIdx = 0;
+            if (_this.curSelectCtn)
+                _this.curSelectCtn = null;
+            else
+                _this.curSelectCtn = ctn;
         }, "moveStage");
         fxCtn.addChild(btnMove);
         var btnMove = this.newBtn(function () {
-            _this.curSelectCtn = _this.eventCtn;
-            // this.moveCtnIdx = 1;
+            if (_this.curSelectCtn)
+                _this.curSelectCtn = null;
+            else
+                _this.curSelectCtn = _this.eventCtn;
         }, "moveEvent");
-        btnMove.y = 50;
+        btnMove.y = 100;
         fxCtn.addChild(btnMove);
         var btnLeft = this.newBtn(function () {
             cmd.proxy(CommandId.cs_addLeftScore);
-        });
-        btnLeft.x = 450;
-        btnLeft.y = 5;
-        btnLeft.alpha = .5;
+        }, "addLeft");
+        btnLeft.x = 20;
+        btnLeft.y = 500;
         fxCtn.addChild(btnLeft);
+        var btn = this.newBtn(function () {
+            cmd.proxy(CommandId.cs_minLeftScore);
+        }, "minLeft");
+        btn.x = 300;
+        btn.y = 500;
+        fxCtn.addChild(btn);
+        var btn = this.newBtn(function () {
+            cmd.proxy(CommandId.cs_minRightScore);
+        }, 'minRight');
+        btn.x = 590;
+        btn.y = 500;
+        fxCtn.addChild(btn);
         var btnRight = this.newBtn(function () {
             cmd.proxy(CommandId.cs_addRightScore);
-        });
-        btnRight.x = 590;
-        btnRight.y = 5;
-        btnRight.alpha = .5;
+        }, 'addRight');
+        btnRight.x = 850;
+        btnRight.y = 500;
         fxCtn.addChild(btnRight);
         var btn = this.newBtn(function () {
             cmd.proxy(CommandId.cs_toggleTimer);
         }, "toggle");
-        btn.x = 450;
-        btn.y = 100;
-        btn.alpha = .5;
+        btn.x = 200;
+        btn.y = 300;
         fxCtn.addChild(btn);
         var btn = this.newBtn(function () {
             cmd.proxy(CommandId.cs_resetTimer);
         }, "reset");
         btn.x = 590;
-        btn.y = 100;
-        btn.alpha = .5;
+        btn.y = 300;
         fxCtn.addChild(btn);
         var btn = this.newBtn(function () {
             cmd.proxy(CommandId.cs_fadeOut);
         }, "fadeOut");
         btn.x = 520;
         btn.y = 200;
-        // btn.alpha = .5;
         fxCtn.addChild(btn);
         var btn = this.newBtn(function () {
             cmd.proxy(CommandId.cs_stageFadeIn);
         }, "fadeIn");
         btn.x = 520;
-        btn.y = 150;
-        // btn.alpha = .5;
+        btn.y = 100;
         fxCtn.addChild(btn);
         var btn = this.newBtn(function () {
             cmd.proxy(CommandId.cs_playerScore);
         }, "score");
         btn.x = 820;
         btn.y = 150;
-        // btn.alpha = .5;
         fxCtn.addChild(btn);
         //key
         document.onkeydown = function (e) {
@@ -737,7 +774,7 @@ var StagePanelView = (function (_super) {
             _this.timeLabel.text = _this.formatSecond(appInfo.panel.stage.time);
         });
         cmd.on(CommandId.stageFadeOut, function () {
-            createjs.Tween.get(_this.fxCtn).to({ y: -100, alpha: .2 }, 200);
+            createjs.Tween.get(_this.fxCtn).to({ y: 140, alpha: .2 }, 200);
         });
         cmd.on(CommandId.stageFadeIn, function () {
             createjs.Tween.get(_this.fxCtn).to({ y: 0, alpha: 1 }, 200);
@@ -992,7 +1029,7 @@ var StagePanelView = (function (_super) {
                     .lineTo(180, 76)
                     .lineTo(180 - sx, 0)
                     .lineTo(0, 0);
-                var avatarBmp = new createjs.Bitmap("/img/player/p0.png");
+                var avatarBmp = new createjs.Bitmap("/img/player/p3.png");
                 avatarBmp.mask = rightMask;
                 rightAvatarCtn.addChild(rightMask);
                 rightAvatarCtn.addChild(avatarBmp);
@@ -1468,7 +1505,7 @@ var serverConf = {
 /// <reference path="Config.ts"/>
 var HttpServer = (function () {
     function HttpServer() {
-        var _this = this;
+        this.initDB();
         if (serverConf.host == 'localhost')
             serverConf.host = this.getIPAddress();
         ///server
@@ -1514,7 +1551,7 @@ var HttpServer = (function () {
         //listen up
         app.server.listen(80, function () {
             //and... we're live
-            console.log("host:", _this.getIPAddress(), "ws port:", serverConf.port);
+            console.log("wshost:", serverConf.host, "ws port:", serverConf.port);
         });
         this.serverSend();
         this.handleOp();
@@ -1531,7 +1568,36 @@ var HttpServer = (function () {
             }
         }
     };
+    HttpServer.prototype.dbPlayerInfo = function () {
+        return this.db.collection("player_info");
+    };
+    HttpServer.prototype.initDB = function () {
+        var Engine = require('tingodb')().Db, assert = require('assert');
+        var db = new Engine('db/tingodb', {});
+        // Fetch a collection to insert document into
+        this.db = db;
+        // this.playerInfoCollection = db.collection("player_info");
+        // this.playerInfoCollection.insert([{playerId: 1,name:"tmac"}, {playerId: 2,name:"curry"}]);
+        // this.playerInfoCollection.findOne({playerId: 2}, function (err, playerInfo) {
+        //     assert.equal(null, err);
+        //     assert.equal('2', playerInfo.playerId);
+        // });
+        // console.log(this, "init db", this.playerInfoCollection);
+        ///
+        // Insert a single document
+        //         collection.insert([{hello: 'world_safe1'}
+        //             , {hello: 'world_safe2'}], {w: 1}, function (err, result) {
+        //             assert.equal(null, err);
+        //
+        //             // Fetch the document
+        //             collection.findOne({hello: 'world_safe2'}, function (err, item) {
+        //                 assert.equal(null, err);
+        //                 assert.equal('world_safe2', item.hello);
+        //             })
+        //         });
+    };
     HttpServer.prototype.handleOp = function () {
+        var _this = this;
         cmd.on(CommandId.cs_updatePlayerAll, function (param) {
             // var queue = new createjs.LoadQueue();
             // queue.on("complete", handleComplete, this);
@@ -1541,22 +1607,24 @@ var HttpServer = (function () {
                 var obj = param[i];
                 obj.src = 'data/' + obj.playerId + '.player';
             }
-            queueFile(param, handleComplete);
-            // queue.loadManifest(manifest);
-            function handleComplete(err, param) {
+            queueFile(param, function (err, param) {
                 if (err) {
                 }
                 else {
-                    console.log(this, "load all playerInfo");
+                    console.log(_this, "load all playerInfo");
+                    // var data = [];
                     for (var i = 0; i < param.length; i++) {
                         var obj = param[i];
                         obj.playerInfo = obj.data;
+                        // data.push(obj.data);
                         delete obj['data'];
-                        console.log(this, "load playerInfo id:", obj.playerId, obj.playerInfo);
+                        console.log(_this, "load playerInfo id:", obj.playerId, obj.playerInfo);
                     }
+                    // this.dbPlayerInfo().insert(data);
                     appInfo.panel.stage.updatePlayerAll(param);
                 }
-            }
+            });
+            // queue.loadManifest(manifest);
         });
         cmd.on(CommandId.cs_updatePlayer, function (param) {
             appInfo.panel.stage.updatePlayer(param);
@@ -1658,14 +1726,6 @@ appInfo.parsePlayerInfo = function () {
 $(function () {
     app = new YuanqiTvView(appInfo);
     app.run();
-    var playerInfo = new PlayerInfo();
-    playerInfo.id(111);
-    playerInfo.name("tmac");
-    playerInfo.avatar("/img/player/p1.png");
-    playerInfo.eloScore(2431);
-    playerInfo.style(2);
-    playerInfo.winpercent(.9501);
-    appInfo.savePlayerInfo(playerInfo);
     //new Test(cmd,appInfo);
 });
 //# sourceMappingURL=main.js.map

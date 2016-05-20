@@ -16,9 +16,9 @@ jsonfile.readFile("config.json", null, (err, confData)=> {
         serverConf.port = confData.server['wsPort'];
     server = new HttpServer();
 });
+
 var app:YuanqiTvView;
 appInfo.isServer = true;
-
 appInfo.savePlayerInfo = function (playerInfo) {
     if (playerInfo.id())
         jsonfile.writeFile("data/" + playerInfo.id() + '.player', playerInfo.playerData, null, (err, confData)=> {
@@ -33,14 +33,5 @@ appInfo.parsePlayerInfo = function () {
 $(() => {
     app = new YuanqiTvView(appInfo);
     app.run();
-
-    var playerInfo = new PlayerInfo();
-    playerInfo.id(111);
-    playerInfo.name("tmac");
-    playerInfo.avatar("/img/player/p1.png");
-    playerInfo.eloScore(2431);
-    playerInfo.style(2);
-    playerInfo.winpercent(.9501);
-    appInfo.savePlayerInfo(playerInfo);
     //new Test(cmd,appInfo);
 });

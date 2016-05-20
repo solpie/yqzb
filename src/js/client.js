@@ -104,21 +104,25 @@ var CommandId;
     CommandId[CommandId["cs_addLeftScore"] = 100009] = "cs_addLeftScore";
     CommandId[CommandId["addRightScore"] = 100010] = "addRightScore";
     CommandId[CommandId["cs_addRightScore"] = 100011] = "cs_addRightScore";
-    CommandId[CommandId["stageFadeOut"] = 100012] = "stageFadeOut";
-    CommandId[CommandId["cs_fadeOut"] = 100013] = "cs_fadeOut";
-    CommandId[CommandId["playerScore"] = 100014] = "playerScore";
-    CommandId[CommandId["cs_playerScore"] = 100015] = "cs_playerScore";
-    CommandId[CommandId["stageFadeIn"] = 100016] = "stageFadeIn";
-    CommandId[CommandId["cs_stageFadeIn"] = 100017] = "cs_stageFadeIn";
-    CommandId[CommandId["moveStagePanel"] = 100018] = "moveStagePanel";
-    CommandId[CommandId["cs_moveStagePanel"] = 100019] = "cs_moveStagePanel";
-    CommandId[CommandId["updatePlayer"] = 100020] = "updatePlayer";
-    CommandId[CommandId["cs_updatePlayer"] = 100021] = "cs_updatePlayer";
-    CommandId[CommandId["updatePlayerAll"] = 100022] = "updatePlayerAll";
-    CommandId[CommandId["cs_updatePlayerAll"] = 100023] = "cs_updatePlayerAll";
+    CommandId[CommandId["minLeftScore"] = 100012] = "minLeftScore";
+    CommandId[CommandId["cs_minLeftScore"] = 100013] = "cs_minLeftScore";
+    CommandId[CommandId["minRightScore"] = 100014] = "minRightScore";
+    CommandId[CommandId["cs_minRightScore"] = 100015] = "cs_minRightScore";
+    CommandId[CommandId["stageFadeOut"] = 100016] = "stageFadeOut";
+    CommandId[CommandId["cs_fadeOut"] = 100017] = "cs_fadeOut";
+    CommandId[CommandId["playerScore"] = 100018] = "playerScore";
+    CommandId[CommandId["cs_playerScore"] = 100019] = "cs_playerScore";
+    CommandId[CommandId["stageFadeIn"] = 100020] = "stageFadeIn";
+    CommandId[CommandId["cs_stageFadeIn"] = 100021] = "cs_stageFadeIn";
+    CommandId[CommandId["moveStagePanel"] = 100022] = "moveStagePanel";
+    CommandId[CommandId["cs_moveStagePanel"] = 100023] = "cs_moveStagePanel";
+    CommandId[CommandId["updatePlayer"] = 100024] = "updatePlayer";
+    CommandId[CommandId["cs_updatePlayer"] = 100025] = "cs_updatePlayer";
+    CommandId[CommandId["updatePlayerAll"] = 100026] = "updatePlayerAll";
+    CommandId[CommandId["cs_updatePlayerAll"] = 100027] = "cs_updatePlayerAll";
     //
-    CommandId[CommandId["updateLeftTeam"] = 100024] = "updateLeftTeam";
-    CommandId[CommandId["updateRightTeam"] = 100025] = "updateRightTeam";
+    CommandId[CommandId["updateLeftTeam"] = 100028] = "updateLeftTeam";
+    CommandId[CommandId["updateRightTeam"] = 100029] = "updateRightTeam";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {
@@ -235,6 +239,8 @@ var PlayerInfo = (function (_super) {
     function PlayerInfo(playerData) {
         _super.call(this);
         this.playerData = new PlayerData();
+        this.isRed = true;
+        this.isMvp = false;
         if (playerData) {
             this.playerData = obj2Class(playerData, PlayerData);
         }
@@ -248,6 +254,9 @@ var PlayerInfo = (function (_super) {
     PlayerInfo.prototype.eloScore = function (val) {
         return prop(this.playerData, "eloScore", val);
     };
+    PlayerInfo.prototype.dtScore = function (val) {
+        return prop(this.playerData, "dtScore", val);
+    };
     PlayerInfo.prototype.style = function (val) {
         return prop(this.playerData, "style", val);
     };
@@ -256,6 +265,9 @@ var PlayerInfo = (function (_super) {
     };
     PlayerInfo.prototype.winpercent = function (val) {
         return prop(this.playerData, "winpercent", val);
+    };
+    PlayerInfo.prototype.gameCount = function (val) {
+        return prop(this.playerData, "gameCount", val);
     };
     PlayerInfo.prototype.getWinPercent = function () {
         return (this.winpercent() * 100).toFixed(1) + "%";
@@ -280,6 +292,22 @@ var PlayerInfo = (function (_super) {
         }
         else if (this.style() == 4) {
             path += 'lin.png';
+        }
+        return path;
+    };
+    PlayerInfo.prototype.getWinStyleIcon = function () {
+        var path = '/img/panel/';
+        if (this.style() == 1) {
+            path += 'fengWin.png';
+        }
+        else if (this.style() == 2) {
+            path += 'huoWin.png';
+        }
+        else if (this.style() == 3) {
+            path += 'shanWin.png';
+        }
+        else if (this.style() == 4) {
+            path += 'linWin.png';
         }
         return path;
     };
@@ -441,7 +469,7 @@ var BaseView = (function () {
     BaseView.prototype.newBtn = function (func, text) {
         var ctn = new createjs.Container();
         var btn = new createjs.Shape();
-        var btnWidth = 75 * 1.5, btnHeight = 30 * 1.5;
+        var btnWidth = 75 * 3, btnHeight = 30 * 3;
         btn.graphics
             .beginFill("#3c3c3c")
             .drawRect(0, 0, btnWidth, btnHeight);
@@ -449,7 +477,7 @@ var BaseView = (function () {
         // btn.addEventListener("mousedown", func);
         ctn.addChild(btn);
         if (text) {
-            var txt = new createjs.Text(text, "24px Arial", "#e2e2e2");
+            var txt = new createjs.Text(text, "30px Arial", "#e2e2e2");
             txt.x = (btnWidth - txt.getMeasuredWidth()) * .5;
             txt.y = (btnHeight - txt.getMeasuredHeight()) * .5 - 5;
             txt.mouseEnabled = false;
@@ -511,64 +539,73 @@ var StagePanelView = (function (_super) {
             });
         }
         var btnMove = this.newBtn(function () {
-            _this.curSelectCtn = ctn;
-            // this.moveCtnIdx = 0;
+            if (_this.curSelectCtn)
+                _this.curSelectCtn = null;
+            else
+                _this.curSelectCtn = ctn;
         }, "moveStage");
         fxCtn.addChild(btnMove);
         var btnMove = this.newBtn(function () {
-            _this.curSelectCtn = _this.eventCtn;
-            // this.moveCtnIdx = 1;
+            if (_this.curSelectCtn)
+                _this.curSelectCtn = null;
+            else
+                _this.curSelectCtn = _this.eventCtn;
         }, "moveEvent");
-        btnMove.y = 50;
+        btnMove.y = 100;
         fxCtn.addChild(btnMove);
         var btnLeft = this.newBtn(function () {
             cmd.proxy(CommandId.cs_addLeftScore);
-        });
-        btnLeft.x = 450;
-        btnLeft.y = 5;
-        btnLeft.alpha = .5;
+        }, "addLeft");
+        btnLeft.x = 20;
+        btnLeft.y = 500;
         fxCtn.addChild(btnLeft);
+        var btn = this.newBtn(function () {
+            cmd.proxy(CommandId.cs_minLeftScore);
+        }, "minLeft");
+        btn.x = 300;
+        btn.y = 500;
+        fxCtn.addChild(btn);
+        var btn = this.newBtn(function () {
+            cmd.proxy(CommandId.cs_minRightScore);
+        }, 'minRight');
+        btn.x = 590;
+        btn.y = 500;
+        fxCtn.addChild(btn);
         var btnRight = this.newBtn(function () {
             cmd.proxy(CommandId.cs_addRightScore);
-        });
-        btnRight.x = 590;
-        btnRight.y = 5;
-        btnRight.alpha = .5;
+        }, 'addRight');
+        btnRight.x = 850;
+        btnRight.y = 500;
         fxCtn.addChild(btnRight);
         var btn = this.newBtn(function () {
             cmd.proxy(CommandId.cs_toggleTimer);
         }, "toggle");
-        btn.x = 450;
-        btn.y = 100;
-        btn.alpha = .5;
+        btn.x = 200;
+        btn.y = 300;
         fxCtn.addChild(btn);
         var btn = this.newBtn(function () {
             cmd.proxy(CommandId.cs_resetTimer);
         }, "reset");
         btn.x = 590;
-        btn.y = 100;
-        btn.alpha = .5;
+        btn.y = 300;
         fxCtn.addChild(btn);
         var btn = this.newBtn(function () {
             cmd.proxy(CommandId.cs_fadeOut);
         }, "fadeOut");
         btn.x = 520;
         btn.y = 200;
-        // btn.alpha = .5;
         fxCtn.addChild(btn);
         var btn = this.newBtn(function () {
             cmd.proxy(CommandId.cs_stageFadeIn);
         }, "fadeIn");
         btn.x = 520;
-        btn.y = 150;
-        // btn.alpha = .5;
+        btn.y = 100;
         fxCtn.addChild(btn);
         var btn = this.newBtn(function () {
             cmd.proxy(CommandId.cs_playerScore);
         }, "score");
         btn.x = 820;
         btn.y = 150;
-        // btn.alpha = .5;
         fxCtn.addChild(btn);
         //key
         document.onkeydown = function (e) {
@@ -650,7 +687,7 @@ var StagePanelView = (function (_super) {
             _this.timeLabel.text = _this.formatSecond(appInfo.panel.stage.time);
         });
         cmd.on(CommandId.stageFadeOut, function () {
-            createjs.Tween.get(_this.fxCtn).to({ y: -100, alpha: .2 }, 200);
+            createjs.Tween.get(_this.fxCtn).to({ y: 140, alpha: .2 }, 200);
         });
         cmd.on(CommandId.stageFadeIn, function () {
             createjs.Tween.get(_this.fxCtn).to({ y: 0, alpha: 1 }, 200);
@@ -905,7 +942,7 @@ var StagePanelView = (function (_super) {
                     .lineTo(180, 76)
                     .lineTo(180 - sx, 0)
                     .lineTo(0, 0);
-                var avatarBmp = new createjs.Bitmap("/img/player/p0.png");
+                var avatarBmp = new createjs.Bitmap("/img/player/p3.png");
                 avatarBmp.mask = rightMask;
                 rightAvatarCtn.addChild(rightMask);
                 rightAvatarCtn.addChild(avatarBmp);
@@ -1020,6 +1057,99 @@ var StagePanelView = (function (_super) {
 var PlayerView = (function () {
     function PlayerView() {
     }
+    PlayerView.getWinPlayerCard = function (p) {
+        var isMvp = p.isMvp;
+        var ctn = new createjs.Container();
+        var avatar = new createjs.Bitmap(p.avatar());
+        if (isMvp) {
+            avatar.scaleX = avatar.scaleY = 1.5;
+            avatar.x = (180 - 180 * 1.2) * .5;
+            avatar.y = 45;
+        }
+        else {
+            avatar.scaleX = avatar.scaleY = 1.2;
+            avatar.x = (180 - 180 * 1.2) * .5;
+            avatar.y = 50;
+        }
+        ctn.addChild(avatar);
+        var bgPath = '/img/panel/playerBgWin';
+        if (p.isRed)
+            bgPath += "Red";
+        else
+            bgPath += "Blue";
+        if (p.isMvp)
+            bgPath += "Mvp";
+        bgPath += '.png';
+        var bg = new createjs.Bitmap(bgPath);
+        if (p.isMvp) {
+            bg.x = -192;
+            bg.y = -135;
+        }
+        else {
+            bg.x = -176;
+            bg.y = -110;
+        }
+        ctn.addChild(bg);
+        var col;
+        if (p.isRed)
+            col = "#e23f6b";
+        else
+            col = "#1ac3fa";
+        var nameCol = "#ddd";
+        if (isMvp)
+            nameCol = "#f1c236";
+        var name;
+        if (isMvp)
+            name = new createjs.Text(p.name(), "30px Arial", nameCol);
+        else
+            name = new createjs.Text(p.name(), "30px Arial", col);
+        name.textAlign = 'center';
+        name.x = 90;
+        if (isMvp)
+            name.x += 20;
+        name.y = 185;
+        ctn.addChild(name);
+        var eloScore;
+        eloScore = new createjs.Text(p.eloScore(), "bold 32px Arial", nameCol);
+        eloScore.textAlign = 'center';
+        eloScore.x = name.x;
+        eloScore.y = 245;
+        if (isMvp)
+            eloScore.y += 30;
+        ctn.addChild(eloScore);
+        var eloScoreDt = new createjs.Text("+" + p.eloScore(), "12px Arial", col);
+        eloScoreDt.textAlign = 'left';
+        eloScoreDt.x = 140;
+        eloScoreDt.y = 260;
+        if (isMvp) {
+            eloScoreDt.x += 30;
+            eloScoreDt.y += 30;
+        }
+        ctn.addChild(eloScoreDt);
+        var winpercent = new createjs.Text("胜率" + p.winpercent().toFixed(3) * 100 + "%", "18px Arial", col);
+        winpercent.textAlign = 'center';
+        winpercent.x = name.x;
+        winpercent.y = 290;
+        if (isMvp)
+            winpercent.y += 35;
+        ctn.addChild(winpercent);
+        var gameCount = new createjs.Text("总场数" + p.gameCount(), "18px Arial", col);
+        gameCount.textAlign = 'center';
+        gameCount.x = name.x;
+        gameCount.y = 320;
+        if (isMvp)
+            gameCount.y += 35;
+        ctn.addChild(gameCount);
+        var style = new createjs.Bitmap(p.getWinStyleIcon());
+        style.x = 50;
+        style.y = 340;
+        if (isMvp) {
+            style.x += 20;
+            style.y += 45;
+        }
+        ctn.addChild(style);
+        return ctn;
+    };
     PlayerView.getPlayerCard = function (p) {
         var ctn = new createjs.Container();
         var bg = new createjs.Shape();
@@ -1087,57 +1217,68 @@ var WinPanelView = (function (_super) {
     function WinPanelView() {
         _super.apply(this, arguments);
     }
-    // constructor(){
-    //     super()
-    // }
     WinPanelView.prototype.init = function (param) {
         _super.prototype.init.call(this, param);
         var ctn = this.ctn;
-        var bg = new createjs.Shape();
-        bg.graphics.beginFill("#ccc").drawRoundRect(0, 0, 600, 350, 10);
-        ctn.addChild(bg);
+        // var bg = new createjs.Shape();
+        // bg.graphics.beginFill("#000").drawRect(0, 0, 1920, 1080);
+        // ctn.addChild(bg);
+        var playerCtn = new createjs.Container();
+        playerCtn.x = (1920 - 4 * 390) * .5;
+        playerCtn.y = (this.stage.height - 690) * .5;
+        ctn.addChild(playerCtn);
         var playerArr = [];
         var playerInfo = new PlayerInfo();
         playerInfo.name("tmac");
         playerInfo.avatar("/img/player/p1.png");
         playerInfo.eloScore(2431);
+        playerInfo.style(1);
+        playerInfo.winpercent(.9501);
+        playerArr.push(playerInfo);
+        var playerInfo = new PlayerInfo();
+        playerInfo.name("tmac");
+        playerInfo.avatar("/img/player/p2.png");
+        playerInfo.eloScore(2431);
         playerInfo.style(2);
         playerInfo.winpercent(.9501);
         playerArr.push(playerInfo);
-        // var playerInfo = new PlayerInfo();
-        // playerInfo.name = "curry";
-        // playerInfo.avatar = "/img/player/p2.png";
-        // playerInfo.eloScore = 2143;
-        // playerInfo.style = 1;
-        // playerInfo.winpercent = 15/42;
-        // playerArr.push(playerInfo);
-        // var playerInfo = new PlayerInfo();
-        // playerInfo.name = "harden";
-        // playerInfo.avatar = "/img/player/p3.png";
-        // playerInfo.eloScore = 2431;
-        // playerInfo.style = 4;
-        // playerInfo.winpercent = .9501;
-        // playerArr.push(playerInfo);
-        // var playerInfo = new PlayerInfo();
-        // playerInfo.name = "westbrook";
-        // playerInfo.avatar = "/img/player/p4.png";
-        // playerInfo.eloScore = 2143;
-        // playerInfo.style = 3;
-        // playerInfo.winpercent = 15/42;
-        // playerArr.push(playerInfo);
+        playerInfo.isMvp = true;
+        var playerInfo = new PlayerInfo();
+        playerInfo.name("tmac");
+        playerInfo.avatar("/img/player/p3.png");
+        playerInfo.eloScore(2431);
+        playerInfo.style(3);
+        playerInfo.winpercent(.9501);
+        playerArr.push(playerInfo);
+        var playerInfo = new PlayerInfo();
+        playerInfo.name("tmac");
+        playerInfo.avatar("/img/player/p4.png");
+        playerInfo.eloScore(2431);
+        playerInfo.style(4);
+        playerInfo.winpercent(.9501);
+        playerArr.push(playerInfo);
         var px = 60;
         var py = 30;
+        var prePlayerIsMvp = false;
         for (var i = 0; i < playerArr.length; i++) {
             var pInfo = playerArr[i];
-            var playerView = PlayerView.getPlayerCard(pInfo);
-            playerView.x = px + i * 120;
-            playerView.y = py;
-            var winpercent = new createjs.Text(pInfo.getWinPercent() + '', "24px Arial", "#a2a2a2");
-            winpercent.y = 120;
-            playerView.addChild(winpercent);
-            ctn.addChild(playerView);
+            var playerView = PlayerView.getWinPlayerCard(pInfo);
+            playerView.x = px + i * 390;
+            if (pInfo.isMvp)
+                playerView.y = py - 30;
+            else
+                playerView.y = py;
+            // var winpercent = new createjs.Text(pInfo.getWinPercent() + '', "24px Arial", "#a2a2a2");
+            // winpercent.y = 120;
+            // playerView.addChild(winpercent);
+            playerCtn.addChild(playerView);
+            prePlayerIsMvp = pInfo.isMvp;
         }
         this.stage.addChild(ctn);
+        playerCtn.x = 360;
+        playerCtn.y = (this.stage.height - 690) * .5;
+    };
+    WinPanelView.prototype.onServerBroadcast = function () {
     };
     WinPanelView.prototype.renderChangeData = function () {
     };
