@@ -35,7 +35,7 @@ class PlayerPanelInfo extends BasePanelInfo {
 
 }
 class WinPanelInfo extends BasePanelInfo {
-    playerInfoArr:Array<PlayerInfo> = [];
+    playerInfoArr:Array<PlayerInfo> = new Array(4);
 
     getInfo() {
         return {
@@ -46,11 +46,10 @@ class WinPanelInfo extends BasePanelInfo {
     updatePlayerAll(param:any) {
         for (var i = 0; i < param.length; i++) {
             var obj = param[i];
-            this.playerInfoArr[obj.pos] = obj.playerInfo;
-            obj.playerInfo.pos = obj.pos;
-            console.log(this, "updatePlayer", JSON.stringify(obj.playerInfo), obj.playerInfo.pos);
+            this.playerInfoArr[obj.pos] = obj;
+            console.log(this, "updatePlayer", JSON.stringify(obj), obj.pos);
         }
-        cmd.emit(CommandId.updatePlayerAll, param, this.pid);
+        cmd.emit(CommandId.updatePlayerAllWin, param, this.pid);
     }
 }
 

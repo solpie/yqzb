@@ -353,7 +353,7 @@ var WinPanelInfo = (function (_super) {
     __extends(WinPanelInfo, _super);
     function WinPanelInfo() {
         _super.apply(this, arguments);
-        this.playerInfoArr = [];
+        this.playerInfoArr = new Array(4);
     }
     WinPanelInfo.prototype.getInfo = function () {
         return {
@@ -363,11 +363,10 @@ var WinPanelInfo = (function (_super) {
     WinPanelInfo.prototype.updatePlayerAll = function (param) {
         for (var i = 0; i < param.length; i++) {
             var obj = param[i];
-            this.playerInfoArr[obj.pos] = obj.playerInfo;
-            obj.playerInfo.pos = obj.pos;
-            console.log(this, "updatePlayer", JSON.stringify(obj.playerInfo), obj.playerInfo.pos);
+            this.playerInfoArr[obj.pos] = obj;
+            console.log(this, "updatePlayer", JSON.stringify(obj), obj.pos);
         }
-        cmd.emit(CommandId.updatePlayerAll, param, this.pid);
+        cmd.emit(CommandId.updatePlayerAllWin, param, this.pid);
     };
     return WinPanelInfo;
 }(BasePanelInfo));
@@ -1255,7 +1254,7 @@ var WinPanelView = (function (_super) {
         playerArr.push(playerInfo);
         var playerInfo = new PlayerInfo();
         playerInfo.name("tmac");
-        playerInfo.avatar("/img/player/p2.png");
+        playerInfo.avatar("/img/player/p1.png");
         playerInfo.eloScore(2431);
         playerInfo.style(2);
         playerInfo.winpercent(.9501);
@@ -1263,49 +1262,37 @@ var WinPanelView = (function (_super) {
         playerInfo.isMvp = true;
         var playerInfo = new PlayerInfo();
         playerInfo.name("tmac");
-        playerInfo.avatar("/img/player/p3.png");
+        playerInfo.avatar("/img/player/p1.png");
         playerInfo.eloScore(2431);
         playerInfo.style(3);
         playerInfo.winpercent(.9501);
         playerArr.push(playerInfo);
         var playerInfo = new PlayerInfo();
         playerInfo.name("tmac");
-        playerInfo.avatar("/img/player/p4.png");
+        playerInfo.avatar("/img/player/p1.png");
         playerInfo.eloScore(2431);
         playerInfo.style(4);
         playerInfo.winpercent(.9501);
         playerArr.push(playerInfo);
-        // var px = 60;
-        // var py = 30;
-        // var prePlayerIsMvp = false;
-        // for (var i = 0; i < playerArr.length; i++) {
-        //     var pInfo = playerArr[i];
-        //     var playerView1 = new PlayerView();
-        //     var playerView = playerView1.getWinPlayerCard(pInfo);
-        //     playerView.x = px + i * 390;
-        //     if (pInfo.isMvp)
-        //         playerView.y = py - 30;
-        //     else
-        //         playerView.y = py;
-        //     playerCtn.addChild(playerView);
-        //     prePlayerIsMvp = pInfo.isMvp;
-        // }
-        this.setPlayerInfoArr(playerArr);
+        this.setPlayerInfoArr(playerArr, false);
         this.stage.addChild(ctn);
-        playerCtn.x = 360;
-        playerCtn.y = (this.stage.height - 690) * .5;
         //===============
         if (this.isOp)
             this.initOp();
+        this.onServerBroadcast();
     };
-    WinPanelView.prototype.setPlayerInfoArr = function (playerInfoArr) {
+    WinPanelView.prototype.setPlayerInfoArr = function (playerInfoArr, isPlayerData) {
         // this.ctn.removeAllChildren()
         this.playerCtn.removeAllChildren();
         var px = 60;
         var py = 30;
         var prePlayerIsMvp = false;
         for (var i = 0; i < playerInfoArr.length; i++) {
-            var pInfo = playerInfoArr[i];
+            var pInfo;
+            if (isPlayerData)
+                pInfo = new PlayerInfo(playerInfoArr[i]);
+            else
+                pInfo = playerInfoArr[i];
             var playerView1 = new PlayerView();
             var playerView = playerView1.getWinPlayerCard(pInfo);
             playerView.x = px + i * 390;
@@ -1316,6 +1303,8 @@ var WinPanelView = (function (_super) {
             this.playerCtn.addChild(playerView);
             prePlayerIsMvp = pInfo.isMvp;
         }
+        this.playerCtn.x = (this.stageWidth - 390 * 4) * .5;
+        this.playerCtn.y = (this.stageHeight - 690) * .5;
     };
     WinPanelView.prototype.show = function () {
         this.ctn.show();
@@ -1328,6 +1317,7 @@ var WinPanelView = (function (_super) {
     WinPanelView.prototype.fadeOut = function () {
     };
     WinPanelView.prototype.initOp = function () {
+        _super.prototype.initOp.call(this);
         $("#btnUpdateAll").click(function (e) {
             var playerIdArr = [];
             for (var i = 0; i < 8; i++) {
@@ -1344,7 +1334,11 @@ var WinPanelView = (function (_super) {
     WinPanelView.prototype.onServerBroadcast = function () {
         var _this = this;
         cmd.on(CommandId.updatePlayerAllWin, function (playerInfoArr) {
-            _this.setPlayerInfoArr(playerInfoArr);
+            // for (var i = 0; i < playerCtn.length; i++) {
+            //     var obj = playerCtn[i];
+            //
+            // }
+            _this.setPlayerInfoArr(playerInfoArr, true);
         });
     };
     WinPanelView.prototype.renderChangeData = function () {

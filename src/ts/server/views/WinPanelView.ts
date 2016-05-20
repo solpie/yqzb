@@ -6,8 +6,6 @@ class WinPanelView extends BaseView {
     init(param) {
         super.init(param);
         var ctn = this.ctn;
-
-
         var bg = new createjs.Shape();
         bg.graphics.beginFill('#000').drawRect(0, 0, this.stageWidth, this.stageHeight);
         bg.alpha = .3;
@@ -31,7 +29,7 @@ class WinPanelView extends BaseView {
 
         var playerInfo = new PlayerInfo();
         playerInfo.name("tmac");
-        playerInfo.avatar("/img/player/p2.png");
+        playerInfo.avatar("/img/player/p1.png");
         playerInfo.eloScore(2431);
         playerInfo.style(2);
         playerInfo.winpercent(.9501);
@@ -40,7 +38,7 @@ class WinPanelView extends BaseView {
 
         var playerInfo = new PlayerInfo();
         playerInfo.name("tmac");
-        playerInfo.avatar("/img/player/p3.png");
+        playerInfo.avatar("/img/player/p1.png");
         playerInfo.eloScore(2431);
         playerInfo.style(3);
         playerInfo.winpercent(.9501);
@@ -48,46 +46,36 @@ class WinPanelView extends BaseView {
 
         var playerInfo = new PlayerInfo();
         playerInfo.name("tmac");
-        playerInfo.avatar("/img/player/p4.png");
+        playerInfo.avatar("/img/player/p1.png");
         playerInfo.eloScore(2431);
         playerInfo.style(4);
         playerInfo.winpercent(.9501);
         playerArr.push(playerInfo);
 
-        // var px = 60;
-        // var py = 30;
-        // var prePlayerIsMvp = false;
-        // for (var i = 0; i < playerArr.length; i++) {
-        //     var pInfo = playerArr[i];
-        //     var playerView1 = new PlayerView();
-        //     var playerView = playerView1.getWinPlayerCard(pInfo);
-        //     playerView.x = px + i * 390;
-        //     if (pInfo.isMvp)
-        //         playerView.y = py - 30;
-        //     else
-        //         playerView.y = py;
-        //     playerCtn.addChild(playerView);
-        //     prePlayerIsMvp = pInfo.isMvp;
-        // }
-        this.setPlayerInfoArr(playerArr);
+        this.setPlayerInfoArr(playerArr, false);
 
         this.stage.addChild(ctn);
-        playerCtn.x = 360;
-        playerCtn.y = (this.stage.height - 690) * .5;
+
 
         //===============
         if (this.isOp)
             this.initOp();
+
+        this.onServerBroadcast();
     }
 
-    setPlayerInfoArr(playerInfoArr) {
+    setPlayerInfoArr(playerInfoArr, isPlayerData) {
         // this.ctn.removeAllChildren()
         this.playerCtn.removeAllChildren();
         var px = 60;
         var py = 30;
         var prePlayerIsMvp = false;
         for (var i = 0; i < playerInfoArr.length; i++) {
-            var pInfo = playerInfoArr[i];
+            var pInfo;
+            if (isPlayerData)
+                pInfo = new PlayerInfo(playerInfoArr[i]);
+            else
+                pInfo = playerInfoArr[i];
             var playerView1 = new PlayerView();
             var playerView = playerView1.getWinPlayerCard(pInfo);
             playerView.x = px + i * 390;
@@ -98,6 +86,9 @@ class WinPanelView extends BaseView {
             this.playerCtn.addChild(playerView);
             prePlayerIsMvp = pInfo.isMvp;
         }
+
+        this.playerCtn.x = (this.stageWidth - 390*4) * .5;
+        this.playerCtn.y = (this.stageHeight - 690) * .5;
     }
 
     show() {
@@ -134,7 +125,11 @@ class WinPanelView extends BaseView {
 
     onServerBroadcast() {
         cmd.on(CommandId.updatePlayerAllWin, (playerInfoArr)=> {
-            this.setPlayerInfoArr(playerInfoArr);
+            // for (var i = 0; i < playerCtn.length; i++) {
+            //     var obj = playerCtn[i];
+            //
+            // }
+            this.setPlayerInfoArr(playerInfoArr, true);
         });
 
     }

@@ -21,15 +21,18 @@ class HttpServer {
     }
 
     dbPlayerInfo() {
-        return this.db.collection("player_info")
+        return this.db.player;
     }
 
     initDB() {
-        var Engine = require('tingodb')().Db,
-            assert = require('assert');
-        var db = new Engine('db/tingodb', {});
+        // var Engine = require('tingodb')().Db,
+        //     assert = require('assert');
+        // var db = new Engine('db/tingodb', {});
+
+        var Datastore = require('nedb');
 // Fetch a collection to insert document into
-        this.db = db;
+        this.db = {};
+        this.db.player = new Datastore({filename: 'db/player.db', autoload: true});
         // this.playerInfoCollection = db.collection("player_info");
         // this.playerInfoCollection.insert([{playerId: 1,name:"tmac"}, {playerId: 2,name:"curry"}]);
         // this.playerInfoCollection.findOne({playerId: 2}, function (err, playerInfo) {
@@ -115,10 +118,25 @@ class HttpServer {
     }
 
     handleOp() {
-        cmd.on(CommandId.cs_updatePlayerAll, (param)=> {
-            appInfo.panel.win.updatePlayerAll(param);
+        cmd.on(CommandId.cs_updatePlayerAllWin, (param)=> {
+            console.log(this, param);
+            var idArr = [];
+            var idPosMap = {};
+            for (var i = 0; i < param.length; i++) {
+                var obj = param[i];
+                idArr.push({id: parseInt(obj.playerId)});
+                idPosMap[obj.playerId] = obj.pos;
+            }
+            this.dbPlayerInfo().find({'$or': idArr}, (err, docs)=> {
+                for (var i = 0; i < docs.length; i++) {
+                    var playerInfo = docs[i];
+                    playerInfo.pos = idPosMap[playerInfo.id];
+                    console.log(playerInfo.name);
+                }
+                appInfo.panel.win.updatePlayerAll(docs);
+            });
         });
-        
+
         cmd.on(CommandId.cs_updatePlayerAll, (param)=> {
             for (var i = 0; i < param.length; i++) {
                 var obj = param[i];

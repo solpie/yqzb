@@ -367,7 +367,7 @@ var WinPanelInfo = (function (_super) {
     __extends(WinPanelInfo, _super);
     function WinPanelInfo() {
         _super.apply(this, arguments);
-        this.playerInfoArr = [];
+        this.playerInfoArr = new Array(4);
     }
     WinPanelInfo.prototype.getInfo = function () {
         return {
@@ -377,11 +377,10 @@ var WinPanelInfo = (function (_super) {
     WinPanelInfo.prototype.updatePlayerAll = function (param) {
         for (var i = 0; i < param.length; i++) {
             var obj = param[i];
-            this.playerInfoArr[obj.pos] = obj.playerInfo;
-            obj.playerInfo.pos = obj.pos;
-            console.log(this, "updatePlayer", JSON.stringify(obj.playerInfo), obj.playerInfo.pos);
+            this.playerInfoArr[obj.pos] = obj;
+            console.log(this, "updatePlayer", JSON.stringify(obj), obj.pos);
         }
-        cmd.emit(CommandId.updatePlayerAll, param, this.pid);
+        cmd.emit(CommandId.updatePlayerAllWin, param, this.pid);
     };
     return WinPanelInfo;
 }(BasePanelInfo));
@@ -1581,13 +1580,16 @@ var HttpServer = (function () {
         }
     };
     HttpServer.prototype.dbPlayerInfo = function () {
-        return this.db.collection("player_info");
+        return this.db.player;
     };
     HttpServer.prototype.initDB = function () {
-        var Engine = require('tingodb')().Db, assert = require('assert');
-        var db = new Engine('db/tingodb', {});
+        // var Engine = require('tingodb')().Db,
+        //     assert = require('assert');
+        // var db = new Engine('db/tingodb', {});
+        var Datastore = require('nedb');
         // Fetch a collection to insert document into
-        this.db = db;
+        this.db = {};
+        this.db.player = new Datastore({ filename: 'db/player.db', autoload: true });
         // this.playerInfoCollection = db.collection("player_info");
         // this.playerInfoCollection.insert([{playerId: 1,name:"tmac"}, {playerId: 2,name:"curry"}]);
         // this.playerInfoCollection.findOne({playerId: 2}, function (err, playerInfo) {
@@ -1610,7 +1612,23 @@ var HttpServer = (function () {
     };
     HttpServer.prototype.handleOp = function () {
         var _this = this;
-        cmd.on(CommandId.cs_updatePlayerAll, function (param) {
+        cmd.on(CommandId.cs_updatePlayerAllWin, function (param) {
+            console.log(_this, param);
+            var idArr = [];
+            var idPosMap = {};
+            for (var i = 0; i < param.length; i++) {
+                var obj = param[i];
+                idArr.push({ id: parseInt(obj.playerId) });
+                idPosMap[obj.playerId] = obj.pos;
+            }
+            _this.dbPlayerInfo().find({ '$or': idArr }, function (err, docs) {
+                for (var i = 0; i < docs.length; i++) {
+                    var playerInfo = docs[i];
+                    playerInfo.pos = idPosMap[playerInfo.id];
+                    console.log(playerInfo.name);
+                }
+                appInfo.panel.win.updatePlayerAll(docs);
+            });
         });
         cmd.on(CommandId.cs_updatePlayerAll, function (param) {
             for (var i = 0; i < param.length; i++) {

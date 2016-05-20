@@ -14,7 +14,6 @@
   },
   "devDependencies": {
     "express": "^4.13.4",
-    "nedb": "^1.8.0",
-    "tingodb": "^0.4.2"
+    "nedb": "^1.8.0"
   }
 }
