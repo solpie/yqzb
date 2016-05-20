@@ -119,21 +119,25 @@ class HttpServer {
 
     handleOp() {
         cmd.on(CommandId.cs_updatePlayerAllWin, (param)=> {
-            console.log(this, param);
+            var playerIdArr = param.playerIdArr;
+            var mvpPos = param.mvp;
+            console.log(this, playerIdArr,"mvp",mvpPos);
             var idArr = [];
             var idPosMap = {};
-            for (var i = 0; i < param.length; i++) {
-                var obj = param[i];
+            for (var i = 0; i < playerIdArr.length; i++) {
+                var obj = playerIdArr[i];
                 idArr.push({id: parseInt(obj.playerId)});
                 idPosMap[obj.playerId] = obj.pos;
             }
             this.dbPlayerInfo().find({'$or': idArr}, (err, docs)=> {
                 for (var i = 0; i < docs.length; i++) {
                     var playerInfo = docs[i];
+                    delete playerInfo['_id'];
                     playerInfo.pos = idPosMap[playerInfo.id];
-                    console.log(playerInfo.name);
+                    playerInfo.isMvp = (playerInfo.pos == mvpPos);
                 }
-                appInfo.panel.win.updatePlayerAll(docs);
+
+                appInfo.panel.win.updatePlayerAllWin(docs);
             });
         });
 

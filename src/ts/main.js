@@ -14,6 +14,21 @@ function chooseFile(name) {
     chooser.trigger('click');
     return chooser;
 }
+var sortCompare = function (prop) {
+    return function (obj1, obj2) {
+        var val1 = obj1[prop];
+        var val2 = obj2[prop];
+        if (val1 < val2) {
+            return -1;
+        }
+        else if (val1 > val2) {
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    };
+};
 var fs = require('fs');
 function readFile(file, options, callback) {
     if (callback == null) {
@@ -374,7 +389,7 @@ var WinPanelInfo = (function (_super) {
             playerInfoArr: this.playerInfoArr
         };
     };
-    WinPanelInfo.prototype.updatePlayerAll = function (param) {
+    WinPanelInfo.prototype.updatePlayerAllWin = function (param) {
         for (var i = 0; i < param.length; i++) {
             var obj = param[i];
             this.playerInfoArr[obj.pos] = obj;
@@ -1613,21 +1628,24 @@ var HttpServer = (function () {
     HttpServer.prototype.handleOp = function () {
         var _this = this;
         cmd.on(CommandId.cs_updatePlayerAllWin, function (param) {
-            console.log(_this, param);
+            var playerIdArr = param.playerIdArr;
+            var mvpPos = param.mvp;
+            console.log(_this, playerIdArr, "mvp", mvpPos);
             var idArr = [];
             var idPosMap = {};
-            for (var i = 0; i < param.length; i++) {
-                var obj = param[i];
+            for (var i = 0; i < playerIdArr.length; i++) {
+                var obj = playerIdArr[i];
                 idArr.push({ id: parseInt(obj.playerId) });
                 idPosMap[obj.playerId] = obj.pos;
             }
             _this.dbPlayerInfo().find({ '$or': idArr }, function (err, docs) {
                 for (var i = 0; i < docs.length; i++) {
                     var playerInfo = docs[i];
+                    delete playerInfo['_id'];
                     playerInfo.pos = idPosMap[playerInfo.id];
-                    console.log(playerInfo.name);
+                    playerInfo.isMvp = (playerInfo.pos == mvpPos);
                 }
-                appInfo.panel.win.updatePlayerAll(docs);
+                appInfo.panel.win.updatePlayerAllWin(docs);
             });
         });
         cmd.on(CommandId.cs_updatePlayerAll, function (param) {

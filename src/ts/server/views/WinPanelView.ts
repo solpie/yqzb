@@ -2,6 +2,7 @@
 
 class WinPanelView extends BaseView {
     playerCtn:any;
+    mvpPos:number = 0;
 
     init(param) {
         super.init(param);
@@ -12,8 +13,6 @@ class WinPanelView extends BaseView {
         ctn.addChild(bg);
 
         var playerCtn = new createjs.Container();
-        // playerCtn.x = (1920 - 4 * 390) * .5;
-        // playerCtn.y = (this.stage.height - 690) * .5;
         ctn.addChild(playerCtn);
         this.playerCtn = playerCtn;
 
@@ -62,6 +61,11 @@ class WinPanelView extends BaseView {
             this.initOp();
 
         this.onServerBroadcast();
+
+        if(param)
+        {
+            this.setPlayerInfoArr(param.playerInfoArr,true);
+        }
     }
 
     setPlayerInfoArr(playerInfoArr, isPlayerData) {
@@ -70,12 +74,17 @@ class WinPanelView extends BaseView {
         var px = 60;
         var py = 30;
         var prePlayerIsMvp = false;
+      
+        playerInfoArr.sort(sortCompare('pos'));
         for (var i = 0; i < playerInfoArr.length; i++) {
             var pInfo;
-            if (isPlayerData)
+            if (isPlayerData) {
                 pInfo = new PlayerInfo(playerInfoArr[i]);
+                pInfo.isMvp = playerInfoArr[i].isMvp;
+            }
             else
                 pInfo = playerInfoArr[i];
+            // pInfo.isMvp = (pInfo.pos == mvpPos);
             var playerView1 = new PlayerView();
             var playerView = playerView1.getWinPlayerCard(pInfo);
             playerView.x = px + i * 390;
@@ -87,7 +96,7 @@ class WinPanelView extends BaseView {
             prePlayerIsMvp = pInfo.isMvp;
         }
 
-        this.playerCtn.x = (this.stageWidth - 390*4) * .5;
+        this.playerCtn.x = (this.stageWidth - 390 * 4) * .5;
         this.playerCtn.y = (this.stageHeight - 690) * .5;
     }
 
@@ -119,16 +128,16 @@ class WinPanelView extends BaseView {
                 }
             }
             if (playerIdArr.length)
-                cmd.proxy(CommandId.cs_updatePlayerAllWin, playerIdArr);
+                cmd.proxy(CommandId.cs_updatePlayerAllWin, {playerIdArr: playerIdArr, mvp: this.mvpPos});
+        });
+        $(".playerMvp")[0].checked = true;
+        $(".playerMvp").change((e)=> {
+            this.mvpPos = parseInt($(e.target).data("pos").toString());
         });
     }
 
     onServerBroadcast() {
         cmd.on(CommandId.updatePlayerAllWin, (playerInfoArr)=> {
-            // for (var i = 0; i < playerCtn.length; i++) {
-            //     var obj = playerCtn[i];
-            //
-            // }
             this.setPlayerInfoArr(playerInfoArr, true);
         });
 

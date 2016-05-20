@@ -14,6 +14,21 @@ function chooseFile(name) {
     chooser.trigger('click');
     return chooser;
 }
+var sortCompare = function (prop) {
+    return function (obj1, obj2) {
+        var val1 = obj1[prop];
+        var val2 = obj2[prop];
+        if (val1 < val2) {
+            return -1;
+        }
+        else if (val1 > val2) {
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    };
+};
 /// <reference path="JQuery.ts"/>
 /// <reference path="libs/createjs/easeljs.d.ts"/>
 /// <reference path="libs/createjs/createjs.d.ts"/>
@@ -360,7 +375,7 @@ var WinPanelInfo = (function (_super) {
             playerInfoArr: this.playerInfoArr
         };
     };
-    WinPanelInfo.prototype.updatePlayerAll = function (param) {
+    WinPanelInfo.prototype.updatePlayerAllWin = function (param) {
         for (var i = 0; i < param.length; i++) {
             var obj = param[i];
             this.playerInfoArr[obj.pos] = obj;
@@ -1231,6 +1246,7 @@ var WinPanelView = (function (_super) {
     __extends(WinPanelView, _super);
     function WinPanelView() {
         _super.apply(this, arguments);
+        this.mvpPos = 0;
     }
     WinPanelView.prototype.init = function (param) {
         _super.prototype.init.call(this, param);
@@ -1240,8 +1256,6 @@ var WinPanelView = (function (_super) {
         bg.alpha = .3;
         ctn.addChild(bg);
         var playerCtn = new createjs.Container();
-        // playerCtn.x = (1920 - 4 * 390) * .5;
-        // playerCtn.y = (this.stage.height - 690) * .5;
         ctn.addChild(playerCtn);
         this.playerCtn = playerCtn;
         var playerArr = [];
@@ -1280,6 +1294,9 @@ var WinPanelView = (function (_super) {
         if (this.isOp)
             this.initOp();
         this.onServerBroadcast();
+        if (param) {
+            this.setPlayerInfoArr(param.playerInfoArr, true);
+        }
     };
     WinPanelView.prototype.setPlayerInfoArr = function (playerInfoArr, isPlayerData) {
         // this.ctn.removeAllChildren()
@@ -1287,12 +1304,16 @@ var WinPanelView = (function (_super) {
         var px = 60;
         var py = 30;
         var prePlayerIsMvp = false;
+        playerInfoArr.sort(sortCompare('pos'));
         for (var i = 0; i < playerInfoArr.length; i++) {
             var pInfo;
-            if (isPlayerData)
+            if (isPlayerData) {
                 pInfo = new PlayerInfo(playerInfoArr[i]);
+                pInfo.isMvp = playerInfoArr[i].isMvp;
+            }
             else
                 pInfo = playerInfoArr[i];
+            // pInfo.isMvp = (pInfo.pos == mvpPos);
             var playerView1 = new PlayerView();
             var playerView = playerView1.getWinPlayerCard(pInfo);
             playerView.x = px + i * 390;
@@ -1317,6 +1338,7 @@ var WinPanelView = (function (_super) {
     WinPanelView.prototype.fadeOut = function () {
     };
     WinPanelView.prototype.initOp = function () {
+        var _this = this;
         _super.prototype.initOp.call(this);
         $("#btnUpdateAll").click(function (e) {
             var playerIdArr = [];
@@ -1328,16 +1350,16 @@ var WinPanelView = (function (_super) {
                 }
             }
             if (playerIdArr.length)
-                cmd.proxy(CommandId.cs_updatePlayerAllWin, playerIdArr);
+                cmd.proxy(CommandId.cs_updatePlayerAllWin, { playerIdArr: playerIdArr, mvp: _this.mvpPos });
+        });
+        $(".playerMvp")[0].checked = true;
+        $(".playerMvp").change(function (e) {
+            _this.mvpPos = parseInt($(e.target).data("pos").toString());
         });
     };
     WinPanelView.prototype.onServerBroadcast = function () {
         var _this = this;
         cmd.on(CommandId.updatePlayerAllWin, function (playerInfoArr) {
-            // for (var i = 0; i < playerCtn.length; i++) {
-            //     var obj = playerCtn[i];
-            //
-            // }
             _this.setPlayerInfoArr(playerInfoArr, true);
         });
     };

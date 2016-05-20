@@ -3,6 +3,8 @@
 /// <reference path="../Model/ElemID.ts"/>
 /// <reference path="../JQuery.ts"/>
 /// <reference path="../lib.ts"/>
+
+
 class BaseView {
     stageWidth = 1920;
     stageHeight = 1080;

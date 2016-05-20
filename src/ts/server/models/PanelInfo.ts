@@ -43,7 +43,7 @@ class WinPanelInfo extends BasePanelInfo {
         }
     }
 
-    updatePlayerAll(param:any) {
+    updatePlayerAllWin(param:any) {
         for (var i = 0; i < param.length; i++) {
             var obj = param[i];
             this.playerInfoArr[obj.pos] = obj;
