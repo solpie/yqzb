@@ -43,14 +43,19 @@ this.playerInfoCollection.find({},{}).toArray(function (err, playerInfo) {
 //delete key
 // this.playerInfoCollection.update({id: 18}, {$unset: {'pos': true}});
 
+
+var Datastore = require('nedb')
+    , nedb = new Datastore({filename: 'db/player.db', autoload: true});
+
 var savePlayerToFile = function () {
     var col = db.collection("player_info");
     col.find().toArray(function (err, docs) {
         assert.equal(null, err);
         for (var i = 0; i < docs.length; i++) {
             var obj = docs[i];
-            writeFile('db/playerInfo/' + obj.id + '.player', obj);
+            nedb.insert(obj);
+            // writeFile('db/playerInfo/' + obj.id + '.player', obj);
         }
     });
 };
-// savePlayerToFile();
+savePlayerToFile();

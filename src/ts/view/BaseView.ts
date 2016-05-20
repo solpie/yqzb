@@ -4,6 +4,8 @@
 /// <reference path="../JQuery.ts"/>
 /// <reference path="../lib.ts"/>
 class BaseView {
+    stageWidth = 1920;
+    stageHeight = 1080;
     stage:any;
     isOp:Boolean = false;
     ctn:any;
@@ -19,7 +21,9 @@ class BaseView {
     }
     
     initOp(){
-        console.log("init op");
+        $(".inputPanel").show();
+
+      
     }
 
     newBtn(func, text?) {

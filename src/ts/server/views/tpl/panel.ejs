@@ -16,8 +16,8 @@
 
         #stage {
             position: absolute;
-            left: 0px;
-            top: 0px;
+            left: 0;
+            top: 0;
         }
     </style>
 </head>
@@ -34,6 +34,9 @@
 <div>
     <% if (pid == "stage") { %>
     <%- include stagePanel %>
+    <% } %>
+    <% if (pid == "win") { %>
+    <%- include winPanel %>
     <% } %>
     <canvas id="stage">
     </canvas>

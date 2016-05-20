@@ -120,9 +120,12 @@ var CommandId;
     CommandId[CommandId["cs_updatePlayer"] = 100025] = "cs_updatePlayer";
     CommandId[CommandId["updatePlayerAll"] = 100026] = "updatePlayerAll";
     CommandId[CommandId["cs_updatePlayerAll"] = 100027] = "cs_updatePlayerAll";
+    //-----------------win panel
+    CommandId[CommandId["updatePlayerAllWin"] = 100028] = "updatePlayerAllWin";
+    CommandId[CommandId["cs_updatePlayerAllWin"] = 100029] = "cs_updatePlayerAllWin";
     //
-    CommandId[CommandId["updateLeftTeam"] = 100028] = "updateLeftTeam";
-    CommandId[CommandId["updateRightTeam"] = 100029] = "updateRightTeam";
+    CommandId[CommandId["updateLeftTeam"] = 100030] = "updateLeftTeam";
+    CommandId[CommandId["updateRightTeam"] = 100031] = "updateRightTeam";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {
@@ -357,6 +360,15 @@ var WinPanelInfo = (function (_super) {
             playerInfoArr: this.playerInfoArr
         };
     };
+    WinPanelInfo.prototype.updatePlayerAll = function (param) {
+        for (var i = 0; i < param.length; i++) {
+            var obj = param[i];
+            this.playerInfoArr[obj.pos] = obj.playerInfo;
+            obj.playerInfo.pos = obj.pos;
+            console.log(this, "updatePlayer", JSON.stringify(obj.playerInfo), obj.playerInfo.pos);
+        }
+        cmd.emit(CommandId.updatePlayerAll, param, this.pid);
+    };
     return WinPanelInfo;
 }(BasePanelInfo));
 var StagePanelInfo = (function (_super) {
@@ -455,6 +467,8 @@ var PanelId = {
 /// <reference path="../lib.ts"/>
 var BaseView = (function () {
     function BaseView(stage, isOp) {
+        this.stageWidth = 1920;
+        this.stageHeight = 1080;
         this.isOp = false;
         this.stage = stage;
         this.isOp = isOp;
@@ -464,7 +478,7 @@ var BaseView = (function () {
         this.ctn = new createjs.Container();
     };
     BaseView.prototype.initOp = function () {
-        console.log("init op");
+        $(".inputPanel").show();
     };
     BaseView.prototype.newBtn = function (func, text) {
         var ctn = new createjs.Container();
@@ -492,8 +506,6 @@ var StagePanelView = (function (_super) {
     __extends(StagePanelView, _super);
     function StagePanelView(stage, isOp) {
         _super.call(this, stage, isOp);
-        // if (!this.isClient)
-        //     this.init(null);
         this.onServerBroadcast();
     }
     StagePanelView.prototype.initOp = function () {
@@ -1057,7 +1069,10 @@ var StagePanelView = (function (_super) {
 var PlayerView = (function () {
     function PlayerView() {
     }
-    PlayerView.getWinPlayerCard = function (p) {
+    PlayerView.prototype.setPlayerInfo = function (playerInfo) {
+    };
+    ;
+    PlayerView.prototype.getWinPlayerCard = function (p) {
         var isMvp = p.isMvp;
         var ctn = new createjs.Container();
         var avatar = new createjs.Bitmap(p.avatar());
@@ -1109,6 +1124,7 @@ var PlayerView = (function () {
             name.x += 20;
         name.y = 185;
         ctn.addChild(name);
+        this.nameLabel = name;
         var eloScore;
         eloScore = new createjs.Text(p.eloScore(), "bold 32px Arial", nameCol);
         eloScore.textAlign = 'center';
@@ -1220,13 +1236,15 @@ var WinPanelView = (function (_super) {
     WinPanelView.prototype.init = function (param) {
         _super.prototype.init.call(this, param);
         var ctn = this.ctn;
-        // var bg = new createjs.Shape();
-        // bg.graphics.beginFill("#000").drawRect(0, 0, 1920, 1080);
-        // ctn.addChild(bg);
+        var bg = new createjs.Shape();
+        bg.graphics.beginFill('#000').drawRect(0, 0, this.stageWidth, this.stageHeight);
+        bg.alpha = .3;
+        ctn.addChild(bg);
         var playerCtn = new createjs.Container();
-        playerCtn.x = (1920 - 4 * 390) * .5;
-        playerCtn.y = (this.stage.height - 690) * .5;
+        // playerCtn.x = (1920 - 4 * 390) * .5;
+        // playerCtn.y = (this.stage.height - 690) * .5;
         ctn.addChild(playerCtn);
+        this.playerCtn = playerCtn;
         var playerArr = [];
         var playerInfo = new PlayerInfo();
         playerInfo.name("tmac");
@@ -1257,28 +1275,77 @@ var WinPanelView = (function (_super) {
         playerInfo.style(4);
         playerInfo.winpercent(.9501);
         playerArr.push(playerInfo);
+        // var px = 60;
+        // var py = 30;
+        // var prePlayerIsMvp = false;
+        // for (var i = 0; i < playerArr.length; i++) {
+        //     var pInfo = playerArr[i];
+        //     var playerView1 = new PlayerView();
+        //     var playerView = playerView1.getWinPlayerCard(pInfo);
+        //     playerView.x = px + i * 390;
+        //     if (pInfo.isMvp)
+        //         playerView.y = py - 30;
+        //     else
+        //         playerView.y = py;
+        //     playerCtn.addChild(playerView);
+        //     prePlayerIsMvp = pInfo.isMvp;
+        // }
+        this.setPlayerInfoArr(playerArr);
+        this.stage.addChild(ctn);
+        playerCtn.x = 360;
+        playerCtn.y = (this.stage.height - 690) * .5;
+        //===============
+        if (this.isOp)
+            this.initOp();
+    };
+    WinPanelView.prototype.setPlayerInfoArr = function (playerInfoArr) {
+        // this.ctn.removeAllChildren()
+        this.playerCtn.removeAllChildren();
         var px = 60;
         var py = 30;
         var prePlayerIsMvp = false;
-        for (var i = 0; i < playerArr.length; i++) {
-            var pInfo = playerArr[i];
-            var playerView = PlayerView.getWinPlayerCard(pInfo);
+        for (var i = 0; i < playerInfoArr.length; i++) {
+            var pInfo = playerInfoArr[i];
+            var playerView1 = new PlayerView();
+            var playerView = playerView1.getWinPlayerCard(pInfo);
             playerView.x = px + i * 390;
             if (pInfo.isMvp)
                 playerView.y = py - 30;
             else
                 playerView.y = py;
-            // var winpercent = new createjs.Text(pInfo.getWinPercent() + '', "24px Arial", "#a2a2a2");
-            // winpercent.y = 120;
-            // playerView.addChild(winpercent);
-            playerCtn.addChild(playerView);
+            this.playerCtn.addChild(playerView);
             prePlayerIsMvp = pInfo.isMvp;
         }
-        this.stage.addChild(ctn);
-        playerCtn.x = 360;
-        playerCtn.y = (this.stage.height - 690) * .5;
+    };
+    WinPanelView.prototype.show = function () {
+        this.ctn.show();
+    };
+    WinPanelView.prototype.hide = function () {
+        this.ctn.hide();
+    };
+    WinPanelView.prototype.fadeIn = function () {
+    };
+    WinPanelView.prototype.fadeOut = function () {
+    };
+    WinPanelView.prototype.initOp = function () {
+        $("#btnUpdateAll").click(function (e) {
+            var playerIdArr = [];
+            for (var i = 0; i < 8; i++) {
+                var pos = i;
+                var playerId = $($(".playerId")[pos]).val();
+                if (playerId) {
+                    playerIdArr.push({ playerId: playerId, pos: pos });
+                }
+            }
+            if (playerIdArr.length)
+                cmd.proxy(CommandId.cs_updatePlayerAllWin, playerIdArr);
+        });
     };
     WinPanelView.prototype.onServerBroadcast = function () {
+        var _this = this;
+        cmd.on(CommandId.updatePlayerAllWin, function (playerInfoArr) {
+            _this.setPlayerInfoArr(playerInfoArr);
+        });
     };
     WinPanelView.prototype.renderChangeData = function () {
     };
@@ -1325,13 +1392,6 @@ var Client = (function () {
         viewMap[PanelId.stagePanel] = StagePanelView;
         viewMap[PanelId.playerPanel] = PlayerPanelView;
         viewMap[PanelId.winPanel] = WinPanelView;
-        var view = viewMap[pid];
-        // if (pid == PanelId.stagePanel) {
-        //     view = StagePanelView;
-        // }
-        // else if (pid == PanelId.playerPanel) {
-        //     view = PlayerPanelView;
-        // }
         this.panel = new viewMap[pid](stage, this.isOB);
         this.panel.init(param);
     };

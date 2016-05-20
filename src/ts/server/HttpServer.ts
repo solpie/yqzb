@@ -116,10 +116,10 @@ class HttpServer {
 
     handleOp() {
         cmd.on(CommandId.cs_updatePlayerAll, (param)=> {
-            // var queue = new createjs.LoadQueue();
-            // queue.on("complete", handleComplete, this);
-            // var manifest = [];
-            // //[{playerId:1,pos:1}]
+            appInfo.panel.win.updatePlayerAll(param);
+        });
+        
+        cmd.on(CommandId.cs_updatePlayerAll, (param)=> {
             for (var i = 0; i < param.length; i++) {
                 var obj = param[i];
                 obj.src = 'data/' + obj.playerId + '.player';
@@ -138,12 +138,9 @@ class HttpServer {
                         delete obj['data'];
                         console.log(this, "load playerInfo id:", obj.playerId, obj.playerInfo);
                     }
-                    // this.dbPlayerInfo().insert(data);
                     appInfo.panel.stage.updatePlayerAll(param);
                 }
-
             });
-            // queue.loadManifest(manifest);
         });
         cmd.on(CommandId.cs_updatePlayer, (param)=> {
             appInfo.panel.stage.updatePlayer(param);

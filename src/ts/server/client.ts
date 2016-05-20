@@ -44,13 +44,6 @@ class Client {
         viewMap[PanelId.stagePanel] = StagePanelView;
         viewMap[PanelId.playerPanel] = PlayerPanelView;
         viewMap[PanelId.winPanel] = WinPanelView;
-        var view = viewMap[pid];
-        // if (pid == PanelId.stagePanel) {
-        //     view = StagePanelView;
-        // }
-        // else if (pid == PanelId.playerPanel) {
-        //     view = PlayerPanelView;
-        // }
         this.panel = new viewMap[pid](stage, this.isOB);
         this.panel.init(param);
     }

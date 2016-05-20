@@ -1,6 +1,15 @@
 class PlayerView {
+    nameLabel:any;
 
-    static getWinPlayerCard(p:PlayerInfo) {
+    constructor() {
+
+    }
+
+    setPlayerInfo(playerInfo:PlayerInfo) {
+
+    };
+
+    getWinPlayerCard(p:PlayerInfo) {
         var isMvp = p.isMvp;
         var ctn = new createjs.Container();
         var avatar = new createjs.Bitmap(p.avatar());
@@ -57,6 +66,7 @@ class PlayerView {
             name.x += 20;
         name.y = 185;
         ctn.addChild(name);
+        this.nameLabel = name;
 
         var eloScore;
         eloScore = new createjs.Text(p.eloScore(), "bold 32px Arial", nameCol);
@@ -102,6 +112,7 @@ class PlayerView {
             style.y += 45;
         }
         ctn.addChild(style);
+
         return ctn;
     }
 

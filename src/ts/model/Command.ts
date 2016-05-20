@@ -32,6 +32,9 @@ enum CommandId{
     cs_updatePlayer,
     updatePlayerAll,
     cs_updatePlayerAll,
+        //-----------------win panel
+    updatePlayerAllWin,
+    cs_updatePlayerAllWin,
         //
     updateLeftTeam,
     updateRightTeam,

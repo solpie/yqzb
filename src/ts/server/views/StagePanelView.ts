@@ -24,9 +24,6 @@ class StagePanelView extends BaseView {
 
     constructor(stage, isOp) {
         super(stage, isOp);
-        // if (!this.isClient)
-        //     this.init(null);
-
         this.onServerBroadcast();
     }
 
@@ -213,7 +210,6 @@ class StagePanelView extends BaseView {
                 var playerData = playerInfo.playerInfo;
                 tweenCall(i * 300, pos, playerData);
             }
-
         });
 
         cmd.on(CommandId.addLeftScore, (leftScore)=> {

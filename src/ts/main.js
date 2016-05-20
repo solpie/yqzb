@@ -374,6 +374,15 @@ var WinPanelInfo = (function (_super) {
             playerInfoArr: this.playerInfoArr
         };
     };
+    WinPanelInfo.prototype.updatePlayerAll = function (param) {
+        for (var i = 0; i < param.length; i++) {
+            var obj = param[i];
+            this.playerInfoArr[obj.pos] = obj.playerInfo;
+            obj.playerInfo.pos = obj.pos;
+            console.log(this, "updatePlayer", JSON.stringify(obj.playerInfo), obj.playerInfo.pos);
+        }
+        cmd.emit(CommandId.updatePlayerAll, param, this.pid);
+    };
     return WinPanelInfo;
 }(BasePanelInfo));
 var StagePanelInfo = (function (_super) {
@@ -489,9 +498,12 @@ var CommandId;
     CommandId[CommandId["cs_updatePlayer"] = 100025] = "cs_updatePlayer";
     CommandId[CommandId["updatePlayerAll"] = 100026] = "updatePlayerAll";
     CommandId[CommandId["cs_updatePlayerAll"] = 100027] = "cs_updatePlayerAll";
+    //-----------------win panel
+    CommandId[CommandId["updatePlayerAllWin"] = 100028] = "updatePlayerAllWin";
+    CommandId[CommandId["cs_updatePlayerAllWin"] = 100029] = "cs_updatePlayerAllWin";
     //
-    CommandId[CommandId["updateLeftTeam"] = 100028] = "updateLeftTeam";
-    CommandId[CommandId["updateRightTeam"] = 100029] = "updateRightTeam";
+    CommandId[CommandId["updateLeftTeam"] = 100030] = "updateLeftTeam";
+    CommandId[CommandId["updateRightTeam"] = 100031] = "updateRightTeam";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {
@@ -542,6 +554,8 @@ var PanelId = {
 /// <reference path="../lib.ts"/>
 var BaseView = (function () {
     function BaseView(stage, isOp) {
+        this.stageWidth = 1920;
+        this.stageHeight = 1080;
         this.isOp = false;
         this.stage = stage;
         this.isOp = isOp;
@@ -551,7 +565,7 @@ var BaseView = (function () {
         this.ctn = new createjs.Container();
     };
     BaseView.prototype.initOp = function () {
-        console.log("init op");
+        $(".inputPanel").show();
     };
     BaseView.prototype.newBtn = function (func, text) {
         var ctn = new createjs.Container();
@@ -579,8 +593,6 @@ var StagePanelView = (function (_super) {
     __extends(StagePanelView, _super);
     function StagePanelView(stage, isOp) {
         _super.call(this, stage, isOp);
-        // if (!this.isClient)
-        //     this.init(null);
         this.onServerBroadcast();
     }
     StagePanelView.prototype.initOp = function () {
@@ -1599,10 +1611,8 @@ var HttpServer = (function () {
     HttpServer.prototype.handleOp = function () {
         var _this = this;
         cmd.on(CommandId.cs_updatePlayerAll, function (param) {
-            // var queue = new createjs.LoadQueue();
-            // queue.on("complete", handleComplete, this);
-            // var manifest = [];
-            // //[{playerId:1,pos:1}]
+        });
+        cmd.on(CommandId.cs_updatePlayerAll, function (param) {
             for (var i = 0; i < param.length; i++) {
                 var obj = param[i];
                 obj.src = 'data/' + obj.playerId + '.player';
@@ -1620,11 +1630,9 @@ var HttpServer = (function () {
                         delete obj['data'];
                         console.log(_this, "load playerInfo id:", obj.playerId, obj.playerInfo);
                     }
-                    // this.dbPlayerInfo().insert(data);
                     appInfo.panel.stage.updatePlayerAll(param);
                 }
             });
-            // queue.loadManifest(manifest);
         });
         cmd.on(CommandId.cs_updatePlayer, function (param) {
             appInfo.panel.stage.updatePlayer(param);
