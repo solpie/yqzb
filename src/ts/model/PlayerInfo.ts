@@ -14,6 +14,7 @@ class PlayerData {
 }
 class PlayerInfo extends BaseInfo {
     playerData:PlayerData = new PlayerData();
+    pos:number;
     isRed:Boolean = true;
     isMvp:Boolean = false;
 

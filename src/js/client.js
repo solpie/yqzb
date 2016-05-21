@@ -786,6 +786,9 @@ var StagePanelView = (function (_super) {
     };
     StagePanelView.prototype.setPlayer = function (pos, playerData) {
         var playerInfo = new PlayerInfo(playerData);
+        playerInfo.isRed = playerData.isRed;
+        playerInfo.isMvp = playerData.isMvp;
+        playerInfo.pos = playerData.pos;
         this.playerInfoArr[pos] = playerInfo;
         console.log("updatePlayer", pos, playerInfo);
         this.eloLabelArr[pos].text = playerInfo.eloScore();

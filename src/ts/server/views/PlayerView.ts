@@ -55,7 +55,6 @@ class PlayerView {
 
         var nameCol = "#ddd";
         if (isMvp)
-
             nameCol = "#f1c236";
         var name;
         if (isMvp)
