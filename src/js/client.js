@@ -136,11 +136,13 @@ var CommandId;
     CommandId[CommandId["updatePlayerAll"] = 100026] = "updatePlayerAll";
     CommandId[CommandId["cs_updatePlayerAll"] = 100027] = "cs_updatePlayerAll";
     //-----------------win panel
-    CommandId[CommandId["updatePlayerAllWin"] = 100028] = "updatePlayerAllWin";
-    CommandId[CommandId["cs_updatePlayerAllWin"] = 100029] = "cs_updatePlayerAllWin";
+    CommandId[CommandId["fadeInWinPanel"] = 100028] = "fadeInWinPanel";
+    CommandId[CommandId["cs_fadeInWinPanel"] = 100029] = "cs_fadeInWinPanel";
+    CommandId[CommandId["fadeOutWinPanel"] = 100030] = "fadeOutWinPanel";
+    CommandId[CommandId["cs_fadeOutWinPanel"] = 100031] = "cs_fadeOutWinPanel";
     //
-    CommandId[CommandId["updateLeftTeam"] = 100030] = "updateLeftTeam";
-    CommandId[CommandId["updateRightTeam"] = 100031] = "updateRightTeam";
+    CommandId[CommandId["updateLeftTeam"] = 100032] = "updateLeftTeam";
+    CommandId[CommandId["updateRightTeam"] = 100033] = "updateRightTeam";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {
@@ -381,7 +383,7 @@ var WinPanelInfo = (function (_super) {
         //     this.playerInfoArr[obj.pos] = obj;
         //     console.log(this, "updatePlayer", JSON.stringify(obj), obj.pos, obj.isRed);
         // }
-        cmd.emit(CommandId.updatePlayerAllWin, param, this.pid);
+        cmd.emit(CommandId.fadeInWinPanel, param, this.pid);
     };
     return WinPanelInfo;
 }(BasePanelInfo));
@@ -447,7 +449,10 @@ var StagePanelInfo = (function (_super) {
         this.playerInfoArr[pos] = playerInfo;
     };
     StagePanelInfo.prototype.showWinPanel = function (param) {
-        cmd.emit(CommandId.updatePlayerAllWin, param, this.pid);
+        cmd.emit(CommandId.fadeInWinPanel, param, this.pid);
+    };
+    StagePanelInfo.prototype.hideWinPanel = function (param) {
+        cmd.emit(CommandId.fadeOutWinPanel, param, this.pid);
     };
     StagePanelInfo.prototype.updatePlayerAll = function (param) {
         for (var i = 0; i < param.length; i++) {
@@ -1388,7 +1393,7 @@ var WinPanelView = (function (_super) {
                 }
             }
             if (playerIdArr.length)
-                cmd.proxy(CommandId.cs_updatePlayerAllWin, { playerIdArr: playerIdArr, mvp: _this.mvpPos, isRed: _this.isRed });
+                cmd.proxy(CommandId.cs_fadeInWinPanel, { playerIdArr: playerIdArr, mvp: _this.mvpPos, isRed: _this.isRed });
         });
         var mvpArr = $(".playerMvp");
         mvpArr[0].checked = true;
@@ -1403,7 +1408,7 @@ var WinPanelView = (function (_super) {
     };
     WinPanelView.prototype.onServerBroadcast = function () {
         var _this = this;
-        cmd.on(CommandId.updatePlayerAllWin, function (playerInfoArr) {
+        cmd.on(CommandId.fadeInWinPanel, function (playerInfoArr) {
             _this.setPlayerInfoArr(playerInfoArr, true);
         });
     };

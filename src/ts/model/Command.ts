@@ -33,8 +33,10 @@ enum CommandId{
     updatePlayerAll,
     cs_updatePlayerAll,
         //-----------------win panel
-    updatePlayerAllWin,
-    cs_updatePlayerAllWin,
+    fadeInWinPanel,
+    cs_fadeInWinPanel,
+    fadeOutWinPanel,
+    cs_fadeOutWinPanel,
         //
     updateLeftTeam,
     updateRightTeam,

@@ -395,7 +395,7 @@ var WinPanelInfo = (function (_super) {
         //     this.playerInfoArr[obj.pos] = obj;
         //     console.log(this, "updatePlayer", JSON.stringify(obj), obj.pos, obj.isRed);
         // }
-        cmd.emit(CommandId.updatePlayerAllWin, param, this.pid);
+        cmd.emit(CommandId.fadeInWinPanel, param, this.pid);
     };
     return WinPanelInfo;
 }(BasePanelInfo));
@@ -461,7 +461,10 @@ var StagePanelInfo = (function (_super) {
         this.playerInfoArr[pos] = playerInfo;
     };
     StagePanelInfo.prototype.showWinPanel = function (param) {
-        cmd.emit(CommandId.updatePlayerAllWin, param, this.pid);
+        cmd.emit(CommandId.fadeInWinPanel, param, this.pid);
+    };
+    StagePanelInfo.prototype.hideWinPanel = function (param) {
+        cmd.emit(CommandId.fadeOutWinPanel, param, this.pid);
     };
     StagePanelInfo.prototype.updatePlayerAll = function (param) {
         for (var i = 0; i < param.length; i++) {
@@ -525,11 +528,13 @@ var CommandId;
     CommandId[CommandId["updatePlayerAll"] = 100026] = "updatePlayerAll";
     CommandId[CommandId["cs_updatePlayerAll"] = 100027] = "cs_updatePlayerAll";
     //-----------------win panel
-    CommandId[CommandId["updatePlayerAllWin"] = 100028] = "updatePlayerAllWin";
-    CommandId[CommandId["cs_updatePlayerAllWin"] = 100029] = "cs_updatePlayerAllWin";
+    CommandId[CommandId["fadeInWinPanel"] = 100028] = "fadeInWinPanel";
+    CommandId[CommandId["cs_fadeInWinPanel"] = 100029] = "cs_fadeInWinPanel";
+    CommandId[CommandId["fadeOutWinPanel"] = 100030] = "fadeOutWinPanel";
+    CommandId[CommandId["cs_fadeOutWinPanel"] = 100031] = "cs_fadeOutWinPanel";
     //
-    CommandId[CommandId["updateLeftTeam"] = 100030] = "updateLeftTeam";
-    CommandId[CommandId["updateRightTeam"] = 100031] = "updateRightTeam";
+    CommandId[CommandId["updateLeftTeam"] = 100032] = "updateLeftTeam";
+    CommandId[CommandId["updateRightTeam"] = 100033] = "updateRightTeam";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {
@@ -1648,31 +1653,11 @@ var HttpServer = (function () {
     };
     HttpServer.prototype.handleOp = function () {
         var _this = this;
-        cmd.on(CommandId.cs_updatePlayerAllWin, function (param) {
-            // var playerIdArr = param.playerIdArr;
-            // var mvpPos = param.mvp;
-            // var isRed = param.isRed;
-            // console.log(this, playerIdArr, "mvp", mvpPos, "isRed", isRed);
-            // var idArr = [];
-            // var idPosMap = {};
-            // for (var i = 0; i < playerIdArr.length; i++) {
-            //     var obj = playerIdArr[i];
-            //     idArr.push({id: parseInt(obj.playerId)});
-            //     idPosMap[obj.playerId] = obj.pos;
-            // }
-            // this.dbPlayerInfo().find({'$or': idArr}, (err, docs)=> {
-            //     for (var i = 0; i < docs.length; i++) {
-            //         var playerInfo = docs[i];
-            //         delete playerInfo['_id'];
-            //         playerInfo.pos = idPosMap[playerInfo.id];
-            //         playerInfo.isMvp = (playerInfo.pos == mvpPos);
-            //         playerInfo.isRed = isRed;
-            //     }
-            //
-            //     appInfo.panel.win.updatePlayerAllWin(docs);
-            // });
-            ////new 
+        cmd.on(CommandId.cs_fadeInWinPanel, function (param) {
             appInfo.panel.stage.showWinPanel(param);
+        });
+        cmd.on(CommandId.cs_fadeOutWinPanel, function (param) {
+            appInfo.panel.stage.hideWinPanel(param);
         });
         cmd.on(CommandId.cs_updatePlayerAll, function (param) {
             for (var i = 0; i < param.length; i++) {

@@ -145,7 +145,7 @@ class WinPanelView extends BaseView {
                 }
             }
             if (playerIdArr.length)
-                cmd.proxy(CommandId.cs_updatePlayerAllWin, {playerIdArr: playerIdArr, mvp: this.mvpPos, isRed: this.isRed});
+                cmd.proxy(CommandId.cs_fadeInWinPanel, {playerIdArr: playerIdArr, mvp: this.mvpPos, isRed: this.isRed});
         });
         var mvpArr = $(".playerMvp");
         mvpArr[0].checked = true;
@@ -162,7 +162,7 @@ class WinPanelView extends BaseView {
     }
 
     onServerBroadcast() {
-        cmd.on(CommandId.updatePlayerAllWin, (playerInfoArr)=> {
+        cmd.on(CommandId.fadeInWinPanel, (playerInfoArr)=> {
             this.setPlayerInfoArr(playerInfoArr, true);
         });
 

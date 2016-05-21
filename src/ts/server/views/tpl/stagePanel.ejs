@@ -60,13 +60,17 @@
     Mvp pos:<label id="txtMvpPos">0</label>
     <br>
     <input id="btnShowWin" class="WinPanelButton" type="button" value="Show Win"/>
-    <input id="btnHideWin" class="WinPanelButton" type="button" value="Hide Win" onclick="fadeInWinPanel()"/>
+    <input id="btnHideWin" class="WinPanelButton" type="button" value="Hide Win"/>
 </div>
 <script>
     var onServer = function () {
-        cmd.on(CommandId.updatePlayerAllWin, function (param) {
+        cmd.on(CommandId.fadeInWinPanel, function (param) {
             console.log("show win panel", param);
             fadeInWinPanel(param.mvp);
+        })
+        cmd.on(CommandId.fadeOutWinPanel, function (param) {
+            console.log("hide win panel", param);
+            fadeOutWinPanel();
         })
     }
 </script>
@@ -82,10 +86,15 @@
         });
 
         $("#btnShowWin").click(function () {
-            cmd.proxy(CommandId.cs_updatePlayerAllWin, {
+            cmd.proxy(CommandId.cs_fadeInWinPanel, {
                 mvp: mvpPos
             });
         });
+
+        $("#btnHideWin").click(function () {
+            cmd.proxy(CommandId.cs_fadeOutWinPanel);
+        });
+
         onServer();
     });
     var verifyWin = function (playerInfoArr, mvp) {
@@ -97,11 +106,22 @@
         }
         return true;
     }
+
+    var fadeOutWinPanel = function () {
+        console.log(this, "show fade Out WinPanel");
+        var stagePanel = client.panel;
+        var ctn = stagePanel.winCtn;
+        createjs.Tween.get(ctn).to({alpha: 0}, 200)
+                .call(function () {
+                    ctn.alpha = 1;
+                    ctn.removeAllChildren();
+                });
+    }
+
     var fadeInWinPanel = function (mvp) {
         console.log(this, "show fadeInWinPanel");
         var stagePanel = client.panel;
         var ctn = stagePanel.winCtn;
-        ctn.removeAllChildren();
 
         var bg = new createjs.Shape();
         bg.graphics.beginFill('#000').drawRect(0, 0, client.panel.stageWidth, client.panel.stageHeight);
@@ -127,17 +147,14 @@
 
             var prePlayerIsMvp = false;
             var start = 0;
-            if (isRedWin) {
+            if (isRedWin)
                 start = 4
-            }
+
             playerCtn.x = (stagePanel.stageWidth - 4 * 390) * .5;
             playerCtn.y = 300;
-//            var mvpPos = parseInt($("#txtMvpPos").html());
-
             for (var i = 0; i < 4; i++) {
                 var pInfo;
                 pInfo = playerInfoArr[i + start];
-//                pInfo.isMvp = (mvpPos == pInfo.pos);
                 var playerCard = getWinPlayerCard(pInfo);
                 playerCard.x = i * 390;
                 if (pInfo.isMvp)
@@ -145,6 +162,11 @@
                 else
                     playerCard.y = 0;
                 console.log(this, "new player card", playerCard.x, playerCard.y, mvpPos);
+                playerCard.px = playerCard.x;
+                playerCard.py = playerCard.y;
+                playerCard.x = 500;
+                playerCard.scaleX = playerCard.scaleY = 0.01;
+                createjs.Tween.get(playerCard).to({x: playerCard.px, scaleX: 1, scaleY: 1}, 200);
                 playerCtn.addChild(playerCard);
                 prePlayerIsMvp = pInfo.isMvp;
             }

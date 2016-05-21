@@ -30,14 +30,17 @@
     var port = "<%= port %>";
     $(function () {
         client = new Client("<%= pid %>", isOp, host, port);
+        if (isOp) {
+            $(".inputPanel").show()
+        }
     });
 </script>
 <div>
     <% if (pid == "stage") { %>
     <%- include stagePanel %>
     <% } %>
-    <% if (pid == "win") { %>
-    <%- include winPanel %>
+    <% if (pid == "player") { %>
+    <%- include playerPanel %>
     <% } %>
     <canvas id="stage">
     </canvas>
