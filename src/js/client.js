@@ -376,11 +376,11 @@ var WinPanelInfo = (function (_super) {
         };
     };
     WinPanelInfo.prototype.updatePlayerAllWin = function (param) {
-        for (var i = 0; i < param.length; i++) {
-            var obj = param[i];
-            this.playerInfoArr[obj.pos] = obj;
-            console.log(this, "updatePlayer", JSON.stringify(obj), obj.pos, obj.isRed);
-        }
+        // for (var i = 0; i < param.length; i++) {
+        //     var obj = param[i];
+        //     this.playerInfoArr[obj.pos] = obj;
+        //     console.log(this, "updatePlayer", JSON.stringify(obj), obj.pos, obj.isRed);
+        // }
         cmd.emit(CommandId.updatePlayerAllWin, param, this.pid);
     };
     return WinPanelInfo;
@@ -445,6 +445,9 @@ var StagePanelInfo = (function (_super) {
     StagePanelInfo.prototype._setPlayerPos = function (pos, playerInfo) {
         playerInfo.isRed = (pos > 3);
         this.playerInfoArr[pos] = playerInfo;
+    };
+    StagePanelInfo.prototype.showWinPanel = function (param) {
+        cmd.emit(CommandId.updatePlayerAllWin, param, this.pid);
     };
     StagePanelInfo.prototype.updatePlayerAll = function (param) {
         for (var i = 0; i < param.length; i++) {

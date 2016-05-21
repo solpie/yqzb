@@ -58,36 +58,46 @@
     </div>
     <br>
     Mvp pos:<label id="txtMvpPos">0</label>
-    Win team:<label id="txtWinTeam">blue</label>
     <br>
-    <input id="btnShowWin" class="WinPanelButton" type="button" value="Show Win" onclick="fadeInWinPanel()"/>
+    <input id="btnShowWin" class="WinPanelButton" type="button" value="Show Win"/>
     <input id="btnHideWin" class="WinPanelButton" type="button" value="Hide Win" onclick="fadeInWinPanel()"/>
 </div>
 <script>
+    var onServer = function () {
+        cmd.on(CommandId.updatePlayerAllWin, function (param) {
+            console.log("show win panel", param);
+            fadeInWinPanel(param.mvp);
+        })
+    }
+</script>
+<script>
+    var mvpPos = 0;
     $(function () {
         var mvpArr = $(".playerMvp");
         mvpArr[0].checked = true;
         mvpArr.change(function (e) {
-            var mvpPos = $(e.target).data("pos");
+            mvpPos = $(e.target).data("pos");
             console.log("on mvp change");
             $("#txtMvpPos").html(mvpPos);
-            if (mvpPos < 4)
-                $("#txtWinTeam").html('blue');
-            else
-                $("#txtWinTeam").html('red');
-
         });
-    })
-    var verifyWin = function (playerInfoArr) {
+
+        $("#btnShowWin").click(function () {
+            cmd.proxy(CommandId.cs_updatePlayerAllWin, {
+                mvp: mvpPos
+            });
+        });
+        onServer();
+    });
+    var verifyWin = function (playerInfoArr, mvp) {
         for (var i = 0; i < playerInfoArr.length; i++) {
             var playerInfo = playerInfoArr[i];
             if (!playerInfo)
                 return false;
-
+            playerInfo.isMvp = (i == mvp);
         }
         return true;
     }
-    var fadeInWinPanel = function () {
+    var fadeInWinPanel = function (mvp) {
         console.log(this, "show fadeInWinPanel");
         var stagePanel = client.panel;
         var ctn = stagePanel.winCtn;
@@ -102,8 +112,8 @@
         ctn.addChild(playerCtn);
 
         var playerInfoArr = stagePanel.playerInfoArr;
-        if (verifyWin(playerInfoArr)) {
-            var isRedWin = ($('#txtWinTeam').html() == 'red');
+        if (verifyWin(playerInfoArr, mvp)) {
+            var isRedWin = (mvp > 3);
 
             var titlePath = "/img/panel/winPanelTitle"
             if (isRedWin)
@@ -122,19 +132,19 @@
             }
             playerCtn.x = (stagePanel.stageWidth - 4 * 390) * .5;
             playerCtn.y = 300;
-            var mvpPos = parseInt($("#txtMvpPos").html());
+//            var mvpPos = parseInt($("#txtMvpPos").html());
 
             for (var i = 0; i < 4; i++) {
                 var pInfo;
                 pInfo = playerInfoArr[i + start];
-                pInfo.isMvp = (mvpPos == pInfo.pos);
+//                pInfo.isMvp = (mvpPos == pInfo.pos);
                 var playerCard = getWinPlayerCard(pInfo);
                 playerCard.x = i * 390;
                 if (pInfo.isMvp)
                     playerCard.y = -30;
                 else
                     playerCard.y = 0;
-                console.log(this, "new player card", playerCard.x, playerCard.y,mvpPos);
+                console.log(this, "new player card", playerCard.x, playerCard.y, mvpPos);
                 playerCtn.addChild(playerCard);
                 prePlayerIsMvp = pInfo.isMvp;
             }

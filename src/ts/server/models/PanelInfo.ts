@@ -44,11 +44,11 @@ class WinPanelInfo extends BasePanelInfo {
     }
 
     updatePlayerAllWin(param:any) {
-        for (var i = 0; i < param.length; i++) {
-            var obj = param[i];
-            this.playerInfoArr[obj.pos] = obj;
-            console.log(this, "updatePlayer", JSON.stringify(obj), obj.pos, obj.isRed);
-        }
+        // for (var i = 0; i < param.length; i++) {
+        //     var obj = param[i];
+        //     this.playerInfoArr[obj.pos] = obj;
+        //     console.log(this, "updatePlayer", JSON.stringify(obj), obj.pos, obj.isRed);
+        // }
         cmd.emit(CommandId.updatePlayerAllWin, param, this.pid);
     }
 }
@@ -121,6 +121,10 @@ class StagePanelInfo extends BasePanelInfo {
     _setPlayerPos(pos, playerInfo) {
         playerInfo.isRed = (pos > 3);
         this.playerInfoArr[pos] = playerInfo;
+    }
+
+    showWinPanel(param:any) {
+        cmd.emit(CommandId.updatePlayerAllWin, param, this.pid);
     }
 
     updatePlayerAll(param:any) {

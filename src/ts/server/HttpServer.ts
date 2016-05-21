@@ -118,28 +118,31 @@ class HttpServer {
 
     handleOp() {
         cmd.on(CommandId.cs_updatePlayerAllWin, (param)=> {
-            var playerIdArr = param.playerIdArr;
-            var mvpPos = param.mvp;
-            var isRed = param.isRed;
-            console.log(this, playerIdArr, "mvp", mvpPos, "isRed", isRed);
-            var idArr = [];
-            var idPosMap = {};
-            for (var i = 0; i < playerIdArr.length; i++) {
-                var obj = playerIdArr[i];
-                idArr.push({id: parseInt(obj.playerId)});
-                idPosMap[obj.playerId] = obj.pos;
-            }
-            this.dbPlayerInfo().find({'$or': idArr}, (err, docs)=> {
-                for (var i = 0; i < docs.length; i++) {
-                    var playerInfo = docs[i];
-                    delete playerInfo['_id'];
-                    playerInfo.pos = idPosMap[playerInfo.id];
-                    playerInfo.isMvp = (playerInfo.pos == mvpPos);
-                    playerInfo.isRed = isRed;
-                }
+            // var playerIdArr = param.playerIdArr;
+            // var mvpPos = param.mvp;
+            // var isRed = param.isRed;
+            // console.log(this, playerIdArr, "mvp", mvpPos, "isRed", isRed);
+            // var idArr = [];
+            // var idPosMap = {};
+            // for (var i = 0; i < playerIdArr.length; i++) {
+            //     var obj = playerIdArr[i];
+            //     idArr.push({id: parseInt(obj.playerId)});
+            //     idPosMap[obj.playerId] = obj.pos;
+            // }
+            // this.dbPlayerInfo().find({'$or': idArr}, (err, docs)=> {
+            //     for (var i = 0; i < docs.length; i++) {
+            //         var playerInfo = docs[i];
+            //         delete playerInfo['_id'];
+            //         playerInfo.pos = idPosMap[playerInfo.id];
+            //         playerInfo.isMvp = (playerInfo.pos == mvpPos);
+            //         playerInfo.isRed = isRed;
+            //     }
+            //
+            //     appInfo.panel.win.updatePlayerAllWin(docs);
+            // });
 
-                appInfo.panel.win.updatePlayerAllWin(docs);
-            });
+            ////new 
+            appInfo.panel.stage.showWinPanel(param);
         });
 
         cmd.on(CommandId.cs_updatePlayerAll, (param)=> {

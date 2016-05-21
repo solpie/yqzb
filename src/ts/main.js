@@ -390,11 +390,11 @@ var WinPanelInfo = (function (_super) {
         };
     };
     WinPanelInfo.prototype.updatePlayerAllWin = function (param) {
-        for (var i = 0; i < param.length; i++) {
-            var obj = param[i];
-            this.playerInfoArr[obj.pos] = obj;
-            console.log(this, "updatePlayer", JSON.stringify(obj), obj.pos, obj.isRed);
-        }
+        // for (var i = 0; i < param.length; i++) {
+        //     var obj = param[i];
+        //     this.playerInfoArr[obj.pos] = obj;
+        //     console.log(this, "updatePlayer", JSON.stringify(obj), obj.pos, obj.isRed);
+        // }
         cmd.emit(CommandId.updatePlayerAllWin, param, this.pid);
     };
     return WinPanelInfo;
@@ -459,6 +459,9 @@ var StagePanelInfo = (function (_super) {
     StagePanelInfo.prototype._setPlayerPos = function (pos, playerInfo) {
         playerInfo.isRed = (pos > 3);
         this.playerInfoArr[pos] = playerInfo;
+    };
+    StagePanelInfo.prototype.showWinPanel = function (param) {
+        cmd.emit(CommandId.updatePlayerAllWin, param, this.pid);
     };
     StagePanelInfo.prototype.updatePlayerAll = function (param) {
         for (var i = 0; i < param.length; i++) {
@@ -1646,27 +1649,30 @@ var HttpServer = (function () {
     HttpServer.prototype.handleOp = function () {
         var _this = this;
         cmd.on(CommandId.cs_updatePlayerAllWin, function (param) {
-            var playerIdArr = param.playerIdArr;
-            var mvpPos = param.mvp;
-            var isRed = param.isRed;
-            console.log(_this, playerIdArr, "mvp", mvpPos, "isRed", isRed);
-            var idArr = [];
-            var idPosMap = {};
-            for (var i = 0; i < playerIdArr.length; i++) {
-                var obj = playerIdArr[i];
-                idArr.push({ id: parseInt(obj.playerId) });
-                idPosMap[obj.playerId] = obj.pos;
-            }
-            _this.dbPlayerInfo().find({ '$or': idArr }, function (err, docs) {
-                for (var i = 0; i < docs.length; i++) {
-                    var playerInfo = docs[i];
-                    delete playerInfo['_id'];
-                    playerInfo.pos = idPosMap[playerInfo.id];
-                    playerInfo.isMvp = (playerInfo.pos == mvpPos);
-                    playerInfo.isRed = isRed;
-                }
-                appInfo.panel.win.updatePlayerAllWin(docs);
-            });
+            // var playerIdArr = param.playerIdArr;
+            // var mvpPos = param.mvp;
+            // var isRed = param.isRed;
+            // console.log(this, playerIdArr, "mvp", mvpPos, "isRed", isRed);
+            // var idArr = [];
+            // var idPosMap = {};
+            // for (var i = 0; i < playerIdArr.length; i++) {
+            //     var obj = playerIdArr[i];
+            //     idArr.push({id: parseInt(obj.playerId)});
+            //     idPosMap[obj.playerId] = obj.pos;
+            // }
+            // this.dbPlayerInfo().find({'$or': idArr}, (err, docs)=> {
+            //     for (var i = 0; i < docs.length; i++) {
+            //         var playerInfo = docs[i];
+            //         delete playerInfo['_id'];
+            //         playerInfo.pos = idPosMap[playerInfo.id];
+            //         playerInfo.isMvp = (playerInfo.pos == mvpPos);
+            //         playerInfo.isRed = isRed;
+            //     }
+            //
+            //     appInfo.panel.win.updatePlayerAllWin(docs);
+            // });
+            ////new 
+            appInfo.panel.stage.showWinPanel(param);
         });
         cmd.on(CommandId.cs_updatePlayerAll, function (param) {
             for (var i = 0; i < param.length; i++) {
