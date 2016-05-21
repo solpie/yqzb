@@ -4,7 +4,6 @@
 /// <reference path="Config.ts"/>
 var msgpack = require("msgpack-lite");
 class HttpServer {
-    playerInfoCollection:any;
     db:any;
 
     getIPAddress() {

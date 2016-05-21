@@ -437,16 +437,24 @@ var StagePanelInfo = (function (_super) {
     StagePanelInfo.prototype.updatePlayer = function (param) {
         var pos = param.pos;
         param.playerInfo.pos = pos;
-        this.playerInfoArr[pos] = param.playerInfo;
+        // this.playerInfoArr[pos] = param.playerInfo;
+        this._setPlayerPos(pos, param.playerInfo);
         console.log(this, "updatePlayer", JSON.stringify(param.playerInfo), param.playerInfo.pos);
         cmd.emit(CommandId.updatePlayer, param, this.pid);
+    };
+    StagePanelInfo.prototype._setPlayerPos = function (pos, playerInfo) {
+        playerInfo.isRed = (pos > 3);
+        this.playerInfoArr[pos] = playerInfo;
     };
     StagePanelInfo.prototype.updatePlayerAll = function (param) {
         for (var i = 0; i < param.length; i++) {
             var obj = param[i];
-            this.playerInfoArr[obj.pos] = obj.playerInfo;
+            this._setPlayerPos(obj.pos, obj.playerInfo);
+            // this.playerInfoArr[obj.pos] = obj.playerInfo;
             obj.playerInfo.pos = obj.pos;
             console.log(this, "updatePlayer", JSON.stringify(obj.playerInfo), obj.playerInfo.pos);
+        }
+        for (var i = 0; i < 8; i++) {
         }
         cmd.emit(CommandId.updatePlayerAll, param, this.pid);
     };
@@ -521,6 +529,8 @@ var StagePanelView = (function (_super) {
     __extends(StagePanelView, _super);
     function StagePanelView(stage, isOp) {
         _super.call(this, stage, isOp);
+        //playerInfo array
+        this.playerInfoArr = new Array(8);
         this.onServerBroadcast();
     }
     StagePanelView.prototype.initOp = function () {
@@ -776,6 +786,7 @@ var StagePanelView = (function (_super) {
     };
     StagePanelView.prototype.setPlayer = function (pos, playerData) {
         var playerInfo = new PlayerInfo(playerData);
+        this.playerInfoArr[pos] = playerInfo;
         console.log("updatePlayer", pos, playerInfo);
         this.eloLabelArr[pos].text = playerInfo.eloScore();
         this.nameLabelArr[pos].text = playerInfo.name();
@@ -814,6 +825,8 @@ var StagePanelView = (function (_super) {
         var ctnMove = this.fxCtn;
         this.stage.addChild(ctn);
         this.ctn.addChild(ctnMove);
+        this.winCtn = new createjs.Container();
+        this.stage.addChild(this.winCtn);
         var bg = new createjs.Bitmap("/img/panel/stagescore.png");
         bg.x = (stageWidth - 658) * .5;
         bg.y = stageHeight - 107;
@@ -1093,13 +1106,13 @@ var PlayerView = (function () {
         var avatar = new createjs.Bitmap(p.avatar());
         if (isMvp) {
             avatar.scaleX = avatar.scaleY = 1.5;
-            avatar.x = (180 - 180 * 1.2) * .5;
-            avatar.y = 45;
+            avatar.x = (180 - 180 * 1.2) * .5 + 60;
+            avatar.y = 45 + 30;
         }
         else {
             avatar.scaleX = avatar.scaleY = 1.2;
-            avatar.x = (180 - 180 * 1.2) * .5;
-            avatar.y = 50;
+            avatar.x = (180 - 180 * 1.2) * .5 + 60;
+            avatar.y = 50 + 30;
         }
         ctn.addChild(avatar);
         var bgPath = '/img/panel/playerBgWin';
@@ -1112,12 +1125,12 @@ var PlayerView = (function () {
         bgPath += '.png';
         var bg = new createjs.Bitmap(bgPath);
         if (p.isMvp) {
-            bg.x = -192;
-            bg.y = -135;
+            bg.x = -192 + 60;
+            bg.y = -135 + 30;
         }
         else {
-            bg.x = -176;
-            bg.y = -110;
+            bg.x = -176 + 60;
+            bg.y = -110 + 30;
         }
         ctn.addChild(bg);
         var col;
@@ -1134,24 +1147,24 @@ var PlayerView = (function () {
         else
             name = new createjs.Text(p.name(), "30px Arial", col);
         name.textAlign = 'center';
-        name.x = 90;
+        name.x = 90 + 60;
         if (isMvp)
             name.x += 20;
-        name.y = 185;
+        name.y = 185 + 30;
         ctn.addChild(name);
         this.nameLabel = name;
         var eloScore;
         eloScore = new createjs.Text(p.eloScore(), "bold 32px Arial", nameCol);
         eloScore.textAlign = 'center';
         eloScore.x = name.x;
-        eloScore.y = 245;
+        eloScore.y = 245 + 30;
         if (isMvp)
             eloScore.y += 30;
         ctn.addChild(eloScore);
         var eloScoreDt = new createjs.Text("+" + p.eloScore(), "12px Arial", col);
         eloScoreDt.textAlign = 'left';
-        eloScoreDt.x = 140;
-        eloScoreDt.y = 260;
+        eloScoreDt.x = 140 + 60;
+        eloScoreDt.y = 260 + 30;
         if (isMvp) {
             eloScoreDt.x += 30;
             eloScoreDt.y += 30;
@@ -1160,20 +1173,20 @@ var PlayerView = (function () {
         var winpercent = new createjs.Text("胜率" + p.winpercent().toFixed(3) * 100 + "%", "18px Arial", col);
         winpercent.textAlign = 'center';
         winpercent.x = name.x;
-        winpercent.y = 290;
+        winpercent.y = 290 + 30;
         if (isMvp)
             winpercent.y += 35;
         ctn.addChild(winpercent);
         var gameCount = new createjs.Text("总场数" + p.gameCount(), "18px Arial", col);
         gameCount.textAlign = 'center';
         gameCount.x = name.x;
-        gameCount.y = 320;
+        gameCount.y = 320 + 30;
         if (isMvp)
             gameCount.y += 35;
         ctn.addChild(gameCount);
         var style = new createjs.Bitmap(p.getWinStyleIcon());
-        style.x = 50;
-        style.y = 340;
+        style.x = 50 + 60;
+        style.y = 340 + 30;
         if (isMvp) {
             style.x += 20;
             style.y += 45;
@@ -1407,10 +1420,6 @@ var Client = (function () {
         this.initWsClient(pid, host, port);
         this.isOB = isOB;
     }
-    Client.prototype.newWsClient = function (pid, host, port) {
-        var wsc = new WebSocket('ws://' + host + ':' + port);
-        return wsc;
-    };
     Client.prototype.initWsClient = function (pid, host, port) {
         var _this = this;
         var wsc = new WebSocket('ws://' + host + ':' + port);
@@ -1441,7 +1450,7 @@ var Client = (function () {
         wsc.onclose = function (event) {
             isAlive = false;
             console.log(event);
-            relinkTimer = setInterval(relink, 1);
+            // relinkTimer = setInterval(relink, 1);
         };
         wsc.onerror = function (event) {
             console.log(event);
@@ -1450,7 +1459,6 @@ var Client = (function () {
             wsc.send(msgpack.encode({ req: "op", pid: pid, param: { type: type, param: param } }));
         };
         return wsc;
-        // appInfo.wsc = wsc;
     };
     Client.prototype.initPanel = function (pid, param) {
         var stage = this.initCanvas();

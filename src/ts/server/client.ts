@@ -7,21 +7,38 @@
 var cmd:Command = new Command();
 var appInfo = new AppInfo();
 appInfo.isServer = false;
+declare var msgpack:{
+    encode(obj:any):any;
+    decode(obj:any):any;
+};
 class Client {
     panel:BaseView;
     pid:number;
     isOB:boolean;
 
-    constructor(pid, isOB,host,port) {
+    constructor(pid, isOB, host, port) {
         this.pid = pid;
-        this.initWsClient(pid,host,port);
+        this.initWsClient(pid, host, port);
         this.isOB = isOB;
     }
 
-    initWsClient(pid,host,port) {
+    initWsClient(pid, host, port) {
         var wsc = new WebSocket('ws://' + host + ':' + port);
+        var isAlive = false;
+        var relinkTimer;
+        var initReq = function () {
+            wsc.send(msgpack.encode({req: "info", pid: pid}));
+        };
+        var relink = ()=> {
+            console.log('ws relink');
+            wsc = this.initWsClient(pid, host, port);
+            if (isAlive)
+                clearInterval(relinkTimer)
+        };
+
         wsc.onopen = function () {
-            wsc.send('{"req":"info","pid":"' + pid + '"}');
+            isAlive = true;
+            initReq()
         };
         wsc.onmessage = (event)=> {
             console.log(event.data);
@@ -32,10 +49,18 @@ class Client {
                 this.initPanel(pid, info.param);
             }
         };
-        cmd.proxy = (type:any, param?)=> {
-            wsc.send(JSON.stringify({req: "op", pid: pid, param: {type: type, param: param}}))
+        wsc.onclose = (event)=> {
+            isAlive = false;
+            console.log(event);
+            // relinkTimer = setInterval(relink, 1);
         };
-        appInfo.wsc = wsc;
+        wsc.onerror = (event)=> {
+            console.log(event);
+        };
+        cmd.proxy = (type:any, param?)=> {
+            wsc.send(msgpack.encode({req: "op", pid: pid, param: {type: type, param: param}}))
+        };
+        return wsc;
     }
 
     initPanel(pid, param) {

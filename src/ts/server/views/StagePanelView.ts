@@ -16,11 +16,14 @@ class StagePanelView extends BaseView {
     fxEventCtn:any;
 
     //playerInfo array
+    playerInfoArr:any = new Array(8);
     eloLabelArr:any;
     nameLabelArr:any;
     avatarArr:any;
     styleArr:any;
 
+    //
+    winCtn:any;
 
     constructor(stage, isOp) {
         super(stage, isOp);
@@ -316,6 +319,7 @@ class StagePanelView extends BaseView {
 
     setPlayer(pos, playerData:PlayerInfo) {
         var playerInfo = new PlayerInfo(playerData);
+        this.playerInfoArr[pos] = playerInfo;
         console.log("updatePlayer", pos, playerInfo);
         this.eloLabelArr[pos].text = playerInfo.eloScore();
         this.nameLabelArr[pos].text = playerInfo.name();
@@ -356,12 +360,13 @@ class StagePanelView extends BaseView {
         var stageHeight = 1080;
         var ctn = this.ctn;
 
-
         this.fxCtn = new createjs.Container();
         var ctnMove = this.fxCtn;
         this.stage.addChild(ctn);
         this.ctn.addChild(ctnMove);
 
+        this.winCtn = new createjs.Container();
+        this.stage.addChild(this.winCtn);
 
         var bg = new createjs.Bitmap("/img/panel/stagescore.png");
         bg.x = (stageWidth - 658) * .5;

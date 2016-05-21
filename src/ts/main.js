@@ -451,16 +451,24 @@ var StagePanelInfo = (function (_super) {
     StagePanelInfo.prototype.updatePlayer = function (param) {
         var pos = param.pos;
         param.playerInfo.pos = pos;
-        this.playerInfoArr[pos] = param.playerInfo;
+        // this.playerInfoArr[pos] = param.playerInfo;
+        this._setPlayerPos(pos, param.playerInfo);
         console.log(this, "updatePlayer", JSON.stringify(param.playerInfo), param.playerInfo.pos);
         cmd.emit(CommandId.updatePlayer, param, this.pid);
+    };
+    StagePanelInfo.prototype._setPlayerPos = function (pos, playerInfo) {
+        playerInfo.isRed = (pos > 3);
+        this.playerInfoArr[pos] = playerInfo;
     };
     StagePanelInfo.prototype.updatePlayerAll = function (param) {
         for (var i = 0; i < param.length; i++) {
             var obj = param[i];
-            this.playerInfoArr[obj.pos] = obj.playerInfo;
+            this._setPlayerPos(obj.pos, obj.playerInfo);
+            // this.playerInfoArr[obj.pos] = obj.playerInfo;
             obj.playerInfo.pos = obj.pos;
             console.log(this, "updatePlayer", JSON.stringify(obj.playerInfo), obj.playerInfo.pos);
+        }
+        for (var i = 0; i < 8; i++) {
         }
         cmd.emit(CommandId.updatePlayerAll, param, this.pid);
     };
@@ -608,6 +616,8 @@ var StagePanelView = (function (_super) {
     __extends(StagePanelView, _super);
     function StagePanelView(stage, isOp) {
         _super.call(this, stage, isOp);
+        //playerInfo array
+        this.playerInfoArr = new Array(8);
         this.onServerBroadcast();
     }
     StagePanelView.prototype.initOp = function () {
@@ -863,6 +873,7 @@ var StagePanelView = (function (_super) {
     };
     StagePanelView.prototype.setPlayer = function (pos, playerData) {
         var playerInfo = new PlayerInfo(playerData);
+        this.playerInfoArr[pos] = playerInfo;
         console.log("updatePlayer", pos, playerInfo);
         this.eloLabelArr[pos].text = playerInfo.eloScore();
         this.nameLabelArr[pos].text = playerInfo.name();
@@ -901,6 +912,8 @@ var StagePanelView = (function (_super) {
         var ctnMove = this.fxCtn;
         this.stage.addChild(ctn);
         this.ctn.addChild(ctnMove);
+        this.winCtn = new createjs.Container();
+        this.stage.addChild(this.winCtn);
         var bg = new createjs.Bitmap("/img/panel/stagescore.png");
         bg.x = (stageWidth - 658) * .5;
         bg.y = stageHeight - 107;

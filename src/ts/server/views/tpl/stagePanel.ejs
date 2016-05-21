@@ -2,7 +2,7 @@
     .inputPanel {
         width: 100%;
         left: 60px;
-        top: 700px;
+        top: 600px;
         position: absolute;
         display: none;
         z-index: 99;
@@ -27,6 +27,11 @@
     .pickupPlayer {
         width: 150px;
     }
+
+    .WinPanelButton {
+        width: 160px;
+        height: 65px;
+    }
 </style>
 <div class="inputPanel">
     <!--<div class="stagePanel">-->
@@ -44,9 +49,77 @@
             <img class="playerAvatar" src="/img/player/p0.png">
             <input class="playerId" type="text" style="width: 75px"/>
             <input class="btnQuery" type="button" value="query" data-pos="<%= i %>"/>
-            <input class="btnUpdate" type="button" value="update↓↓↓" data-pos="<%= i %>"/>
+            <input class="btnUpdate" type="button" value="update↓↓↓" data-pos="<%= i %>"/><br>
+            <input name="mvp" class="playerMvp" type="radio" value="" data-pos="<%= i %>"/>MVP
         </div>
         <% } %>
         <input id="btnUpdateAll" type="button" value="updateAll"/>
+
     </div>
+    <br>
+    Mvp pos:<label id="txtMvpPos">0</label>
+    Win team:<label id="txtWinTeam">blue</label>
+    <br>
+    <input id="btnShowWin" class="WinPanelButton" type="button" value="Show Win" onclick="fadeInWinPanel()"/>
+    <input id="btnHideWin" class="WinPanelButton" type="button" value="Hide Win" onclick="fadeInWinPanel()"/>
 </div>
+<script>
+    $(function () {
+        var mvpArr = $(".playerMvp");
+        mvpArr[0].checked = true;
+        mvpArr.change(function (e) {
+            var mvpPos = $(e.target).data("pos");
+            console.log("on mvp change");
+            $("#txtMvpPos").html(mvpPos);
+            if(mvpPos<4)
+                $("#txtWinTeam").html('blue');
+            else
+                $("#txtWinTeam").html('red');
+
+        });
+    })
+    var verifyWin = function (playerInfoArr) {
+        for (var i = 0; i < playerInfoArr.length; i++) {
+            var obj = playerInfoArr[i];
+            if (!obj)
+                return false;
+        }
+        return true;
+    }
+    var fadeInWinPanel = function () {
+        console.log(this, "show fadeInWinPanel");
+        var stagePanel = client.panel;
+        var ctn = stagePanel.winCtn;
+        ctn.removeAllChildren();
+
+        var bg = new createjs.Shape();
+        bg.graphics.beginFill('#000').drawRect(0, 0, client.panel.stageWidth, client.panel.stageHeight);
+        bg.alpha = .3;
+        ctn.addChild(bg);
+
+        var playerCtn = new createjs.Container();
+        ctn.addChild(playerCtn);
+
+        var playerInfoArr = stagePanel.playerInfoArr;
+        if (verifyWin(playerInfoArr)) {
+            var prePlayerIsMvp = false;
+            for (var i = 0; i < playerInfoArr.length; i++) {
+                var pInfo;
+                pInfo = playerInfoArr[i];
+                var playerView1 = new PlayerView();
+                var playerCard = playerView1.getWinPlayerCard(pInfo);
+                playerCard.x = i * 390;
+                if (pInfo.isMvp)
+                    playerCard.y = -30;
+                else
+                    playerCard.y = 0;
+                playerCtn.addChild(playerCard);
+                prePlayerIsMvp = pInfo.isMvp;
+            }
+        }
+        else {
+            alert("球员数据不完整！");
+        }
+
+    }
+</script>
