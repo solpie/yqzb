@@ -1663,8 +1663,8 @@ var HttpServer = (function () {
         cmd.on(CommandId.cs_fadeInPlayerPanel, function (param) {
             var playerId = parseInt(param);
             _this.dbPlayerInfo().find({ id: playerId }, function (err, doc) {
-                if (!err)
-                    appInfo.panel.player.showWinPanel(doc);
+                if (!err && doc.length)
+                    appInfo.panel.player.showWinPanel(doc[0]);
             });
         });
         cmd.on(CommandId.cs_fadeOutPlayerPanel, function (param) {

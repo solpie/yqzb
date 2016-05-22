@@ -7,7 +7,68 @@
         display: none;
         z-index: 99;
     }
+
+    #playerName {
+        display: inline-block;
+        font-size: 30px;
+        font-family: 'Microsoft Yahei';
+    }
+
+    #playerNameShadow {
+        display: inline-block;
+        font-size: 30px;
+        font-family: 'Microsoft Yahei';
+    }
+
+    .nameBlue {
+        display: inline-block;
+        font-size: 30px;
+        font-family: 'Microsoft Yahei';
+        background: -webkit-gradient(linear, 0% 20%, 0% 100%, from(#ddecff), to(#5f7aef));
+        color: transparent;
+        -webkit-text-fill-color: transparent;
+        -webkit-background-clip: text;
+        position: absolute;
+        z-index: 10;
+    }
+
+    .nameShadowBlue {
+        display: inline-block;
+        font-size: 30px;
+        font-family: 'Microsoft Yahei';
+
+        text-shadow: 0 0 0.08em #003f8e,
+        -0 -0 0.08em #003f8e;
+        position: absolute;
+        z-index: 9;
+    }
+
+    .nameRed {
+        display: inline-block;
+        font-size: 30px;
+        font-family: 'Microsoft Yahei';
+        background: -webkit-gradient(linear, 0% 20%, 0% 100%, from(#ffe5ec), to(#ff88aa));
+        color: transparent;
+        -webkit-text-fill-color: transparent;
+        -webkit-background-clip: text;
+        position: absolute;
+        z-index: 10;
+    }
+
+    .nameShadowRed {
+        display: inline-block;
+        font-size: 30px;
+        font-family: 'Microsoft Yahei';
+
+        text-shadow: 0 0 0.08em #681d19,
+        -0 -0 0.08em #003f8e;
+        position: absolute;
+        z-index: 9;
+    }
+
 </style>
+<label id="playerNameShadow"></label>
+<label id="playerName"></label>
 <div class="inputPanel">
     <div class="playerPanel">
         player id:
@@ -23,7 +84,8 @@
     var onServer = function () {
         cmd.on(CommandId.fadeInPlayerPanel, function (param) {
             var playerInfo = new PlayerInfo(param);
-            console.log("PlayerInfo:",playerInfo);
+            console.log("PlayerInfo:", playerInfo);
+            fadeInPlayerPanel(playerInfo);
         })
         cmd.on(CommandId.fadeOutPlayerPanel, function (param) {
         })
@@ -42,12 +104,82 @@
         });
 
         $(".btnUpdate").click(function (e) {
+            playerId = $($(".playerId")[0]).val();
             cmd.proxy(CommandId.cs_fadeInPlayerPanel, playerId);
         });
         onServer();
     });
 
-    var fadeInPlayerPanel = function (playerInfo) {
+    var movePlayerName = function (x, y) {
+        x += 140;
+        y += 40;
+        $('#playerName').css({left: x, top: y});
+        $('#playerNameShadow').css({left: x, top: y});
+    }
+    var moveCtn = function (x, y) {
+        var ctn = client.panel.ctn;
+        ctn.x = x;
+        ctn.y = y;
+        movePlayerName(x, y);
+    }
 
+
+    var fadeInPlayerPanel = function (playerInfo) {
+        console.log(this, playerInfo, playerInfo.avatar());
+        var ctn = client.panel.ctn;
+        if(ctn.numChildren)
+            ctn.removeAllChildren();
+        var fxCtn = new createjs.Container()
+        ctn.addChild(fxCtn);
+
+        var avatarCtn = new createjs.Container();
+        avatarCtn.x = 83;
+        avatarCtn.y = 82;
+        var mask = new createjs.Shape();
+        mask.graphics.beginFill("#ff0000").drawCircle(0, 0, 45);
+        avatarCtn.addChild(mask);
+        fxCtn.addChild(avatarCtn);
+
+        var img = new Image()
+        img.onload = function () {
+            var avatar = new createjs.Bitmap(playerInfo.avatar());
+            var bound = avatar.getBounds();
+            avatar.scaleX = avatar.scaleY = 90 / bound.height;
+            avatar.x = -bound.width * .5 * avatar.scaleX;
+            avatar.y = -bound.height * .5 * avatar.scaleX;
+            avatar.mask = mask;
+            avatarCtn.addChild(avatar);
+        }
+        img.src = playerInfo.avatar();
+
+        var bgPath = '/img/panel/playerPanel';
+
+        if (playerInfo.isRed)
+            bgPath += 'Red.png';
+        else
+            bgPath += 'Blue.png';
+
+        var bg = new createjs.Bitmap(bgPath);
+        fxCtn.addChild(bg);
+
+        var eloScore = new createjs.Text(playerInfo.eloScore(), '30px Microsoft Yahei', '#f2f2f2')
+        eloScore.textAlign = 'left';
+        eloScore.x = 190;
+        eloScore.y = 85;
+        fxCtn.addChild(eloScore);
+        var playerName$ = $('#playerName');
+        var playerNameShadow$ = $('#playerNameShadow');
+
+        if (playerInfo.isRed) {
+            playerName$.addClass('nameRed');
+            playerNameShadow$.addClass('nameShadowRed');
+        }
+        else {
+            playerName$.addClass('nameBlue');
+            playerNameShadow$.addClass('nameShadowBlue');
+        }
+        movePlayerName(ctn.x, ctn.y);
+        playerName$.html(playerInfo.name());
+        playerNameShadow$.html(playerInfo.name());
     }
 </script>
