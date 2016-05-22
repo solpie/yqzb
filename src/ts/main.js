@@ -250,7 +250,7 @@ var BaseInfo = (function () {
     }
     return BaseInfo;
 }());
-/// <reference path="BaseInfo.ts"/>
+/// <reference path="../../model/BaseInfo.ts"/>
 var PlayerData = (function () {
     function PlayerData() {
         this.id = 0;
@@ -260,9 +260,11 @@ var PlayerData = (function () {
         this.avatar = "";
         this.height = 0;
         this.weight = 0;
+        this.dtScore = 0;
         this.winpercent = 0; //  胜率  100/100.0%
         this.gameCount = 0; //场数
-        this.dtScore = 0;
+        this.loseGameCount = 0;
+        this.winGameCount = 0;
     }
     return PlayerData;
 }());
@@ -301,16 +303,15 @@ var PlayerInfo = (function (_super) {
     PlayerInfo.prototype.gameCount = function (val) {
         return prop(this.playerData, "gameCount", val);
     };
+    PlayerInfo.prototype.winGameCount = function (val) {
+        return prop(this.playerData, "winGameCount", val);
+    };
+    PlayerInfo.prototype.loseGameCount = function (val) {
+        return prop(this.playerData, "loseGameCount", val);
+    };
     PlayerInfo.prototype.getWinPercent = function () {
         return (this.winpercent() * 100).toFixed(1) + "%";
     };
-    // static getPlayerInfo(pid) {
-    //     jsonfile.readFile("data/" + pid + '.player', null, (err, data)=> {
-    //         var playerInfo = new PlayerInfo();
-    //         playerInfo = data;
-    //         return playerInfo
-    //     });
-    // }
     PlayerInfo.prototype.getStyleIcon = function () {
         var path = '/img/panel/';
         if (this.style() == 1) {
@@ -343,14 +344,144 @@ var PlayerInfo = (function (_super) {
         }
         return path;
     };
+    PlayerInfo.prototype.saveScore = function (dtScore, isWin) {
+        this.dtScore(dtScore);
+        this.eloScore(this.eloScore() + dtScore);
+        // this.ret.push({score: this.eloScore, isWin: isWin});
+        if (isWin) {
+            this.winGameCount(this.winGameCount() + 1);
+        }
+        else
+            this.loseGameCount(this.loseGameCount() + 1);
+        this.gameCount(this.gameCount() + 1);
+    };
+    PlayerInfo.prototype.getCurWinningPercent = function () {
+        return this.winGameCount() / (this.loseGameCount() + this.winGameCount());
+    };
     return PlayerInfo;
 }(BaseInfo));
+// class Player {
+//     id:number;
+//     name:String;
+//     score:number;
+//     initScore:number;
+//     winningPercent:number;//
+//     ret:Array<any>;
+//     countWinGame:number;
+//     countLoseGame:number;
+//     round:number;
+//
+//     constructor(id, wp, name?) {
+//         this.id = id;
+//         this.score = EloConf.score;
+//         this.winningPercent = wp;
+//         this.name = name;
+//         this.ret = [];
+//         this.countWinGame = 0;
+//         this.countLoseGame = 0;
+//         this.round = 0;
+//     }
+//
+//
+// } 
+var EloConf = {
+    score: 2000,
+    K: 32
+};
+/// <reference path="./PlayerInfo.ts"/>
+/// <reference path="./EloInfo.ts"/>
+var TeamInfo = (function () {
+    function TeamInfo() {
+        this.playerArr = [];
+    }
+    TeamInfo.prototype.setPlayer = function (player, pos) {
+        // if (pos) {
+        //     this.playerArr.splice(player,0,pos)
+        // }
+        // else {
+        //     this.playerArr.push(player);
+        // }
+    };
+    TeamInfo.prototype.setScore = function (score) {
+        this.score = score;
+    };
+    TeamInfo.prototype.setName = function (name) {
+        this.name = name;
+    };
+    TeamInfo.prototype.clear = function () {
+        this.score = 0;
+    };
+    // winningPercent:number;
+    // score:number;
+    // name:string;
+    // playerArr:Array<PlayerInfo>;
+    // ret:Array<any>;
+    // constructor(winPercentage?:number, scoreAvg?:number) {
+    //     // this.winningPercent = winPercentage;
+    //     this.score = scoreAvg;
+    //     this.playerArr = [];
+    // }
+    TeamInfo.prototype.setPlayerArr = function (playerArr) {
+        this.playerArr.length = 0;
+        this.playerArr = this.playerArr.concat(playerArr);
+        this.score = 0;
+        for (var i = 0; i < this.playerArr.length; i++) {
+            var player = this.playerArr[i];
+            this.score += player.eloScore();
+        }
+        this.score /= this.playerArr.length;
+        console.log(this, "player score:", this.score);
+    };
+    TeamInfo.prototype.beat = function (loserTeam) {
+        var Elo1 = this.score;
+        var Elo2 = loserTeam.score;
+        var K = EloConf.K;
+        var EloDifference = Elo2 - Elo1;
+        var percentage = 1 / (1 + Math.pow(10, EloDifference / 400));
+        var win = Math.round(K * (1 - percentage));
+        //this.score += win;
+        this.saveScore(win, true);
+        loserTeam.saveScore(-win, false);
+        //loserTeam.score -= win;
+        // this.getWinningPercent() = Math.round(percentage * 100);
+    };
+    TeamInfo.prototype.getPercentage = function () {
+        //var Elo1 = this.score;
+        //
+        //var Elo2 = loserTeam.score;
+        //
+        //var K = EloConf.K;
+        //
+        //var EloDifference = Elo2 - Elo1;
+        //
+        //var percentage = 1 / ( 1 + Math.pow(10, EloDifference / 400) );
+    };
+    TeamInfo.prototype.saveScore = function (score, isWin) {
+        this.score += score;
+        for (var i = 0; i < this.playerArr.length; i++) {
+            var player = this.playerArr[i];
+            player.saveScore(score, isWin);
+        }
+    };
+    TeamInfo.prototype.getWinningPercent = function () {
+        var wp;
+        for (var i = 0; i < this.playerArr.length; i++) {
+            var player = this.playerArr[i];
+            wp += player.getCurWinningPercent();
+        }
+        wp /= this.playerArr.length;
+        return wp;
+    };
+    return TeamInfo;
+}());
 /// <reference path="../../event/ActEvent.ts"/>
-/// <reference path="../../model/PlayerInfo.ts"/>
+/// <reference path="./PlayerInfo.ts"/>
+/// <reference path="./TeamInfo.ts"/>
 var PanelInfo = (function () {
     function PanelInfo() {
         this.stage = new StagePanelInfo(PanelId.stagePanel);
         this.player = new PlayerPanelInfo(PanelId.playerPanel);
+        this.player.stageInfo = this.stage;
         this.win = new WinPanelInfo(PanelId.winPanel);
     }
     return PanelInfo;
@@ -372,6 +503,7 @@ var PlayerPanelInfo = (function (_super) {
     }
     PlayerPanelInfo.prototype.getInfo = function () {
         return {
+            playerInfoArr: this.stageInfo.playerInfoArr,
             playerInfo: this.playerData,
             position: this.position
         };
@@ -420,6 +552,8 @@ var StagePanelInfo = (function (_super) {
         this.time = 0;
         this.timerState = 0;
         this.playerInfoArr = new Array(8);
+        this.straightScoreLeft = 0; //连杀判定
+        this.straightScoreRight = 0; //连杀判定
     }
     StagePanelInfo.prototype.getInfo = function () {
         return {
@@ -433,12 +567,27 @@ var StagePanelInfo = (function (_super) {
     };
     StagePanelInfo.prototype.addLeftScore = function () {
         this.leftScore = (this.leftScore + 1) % (this.winScore + 1);
-        // this.broadcast(CommandId.addLeftScore, this.leftScore);
         cmd.emit(CommandId.addLeftScore, this.leftScore, this.pid);
+        this.straightScoreRight = 0;
+        this.straightScoreLeft++;
+        if (this.leftScore == 0)
+            this.straightScoreLeft = 0;
+        if (this.straightScoreLeft == 3)
+            cmd.emit(CommandId.straightScore3, { team: "left" }, this.pid);
+        if (this.straightScoreLeft == 5)
+            cmd.emit(CommandId.straightScore5, { team: "left" }, this.pid);
     };
     StagePanelInfo.prototype.addRightScore = function () {
         this.rightScore = (this.rightScore + 1) % (this.winScore + 1);
         cmd.emit(CommandId.addRightScore, this.rightScore, this.pid);
+        this.straightScoreLeft = 0;
+        this.straightScoreRight++;
+        if (this.rightScore == 0)
+            this.straightScoreRight = 0;
+        if (this.straightScoreRight == 3)
+            cmd.emit(CommandId.straightScore3, { team: "right" }, this.pid);
+        if (this.straightScoreRight == 5)
+            cmd.emit(CommandId.straightScore5, { team: "right" }, this.pid);
     };
     StagePanelInfo.prototype.toggleTimer = function () {
         cmd.emit(CommandId.toggleTimer, null, this.pid);
@@ -472,22 +621,48 @@ var StagePanelInfo = (function (_super) {
         this.playerInfoArr[pos] = playerInfo;
     };
     StagePanelInfo.prototype.showWinPanel = function (param) {
-        cmd.emit(CommandId.fadeInWinPanel, param, this.pid);
+        for (var i = 0; i < this.playerInfoArr.length; i++) {
+            var obj = this.playerInfoArr[i];
+            console.log(JSON.stringify(obj));
+        }
+        var teamLeft = new TeamInfo();
+        teamLeft.setPlayerArr(appInfo.panel.stage.getLeftTeam());
+        var teamRight = new TeamInfo();
+        teamRight.setPlayerArr(appInfo.panel.stage.getRightTeam());
+        if (param < 4) {
+            teamLeft.beat(teamRight);
+        }
+        else {
+            teamRight.beat(teamLeft);
+        }
+        cmd.emit(CommandId.fadeInWinPanel, this.playerInfoArr, this.pid);
+        console.log(this, "after elo");
+        for (var i = 0; i < this.playerInfoArr.length; i++) {
+            var obj = this.playerInfoArr[i];
+            console.log(JSON.stringify(obj));
+        }
     };
     StagePanelInfo.prototype.hideWinPanel = function (param) {
         cmd.emit(CommandId.fadeOutWinPanel, param, this.pid);
     };
-    StagePanelInfo.prototype.updatePlayerAll = function (param) {
-        for (var i = 0; i < param.length; i++) {
-            var obj = param[i];
-            this._setPlayerPos(obj.pos, obj.playerInfo);
-            // this.playerInfoArr[obj.pos] = obj.playerInfo;
-            obj.playerInfo.pos = obj.pos;
-            console.log(this, "updatePlayer", JSON.stringify(obj.playerInfo), obj.playerInfo.pos);
+    StagePanelInfo.prototype.updatePlayerAll = function (playerDataArr) {
+        for (var i = 0; i < playerDataArr.length; i++) {
+            var obj = playerDataArr[i];
+            this._setPlayerPos(obj.pos, obj.playerData);
+            console.log(this, "updatePlayer", JSON.stringify(obj.playerData), obj.pos);
         }
-        for (var i = 0; i < 8; i++) {
+        cmd.emit(CommandId.updatePlayerAll, this.playerInfoArr, this.pid);
+    };
+    StagePanelInfo.prototype.getLeftTeam = function (start) {
+        if (start === void 0) { start = 0; }
+        var team = [];
+        for (var i = start; i < 4 + start; i++) {
+            team.push(new PlayerInfo(this.playerInfoArr[i]));
         }
-        cmd.emit(CommandId.updatePlayerAll, param, this.pid);
+        return team;
+    };
+    StagePanelInfo.prototype.getRightTeam = function () {
+        return this.getLeftTeam(4);
     };
     return StagePanelInfo;
 }(BasePanelInfo));
@@ -550,7 +725,10 @@ var CommandId;
     CommandId[CommandId["cs_fadeOutPlayerPanel"] = 100035] = "cs_fadeOutPlayerPanel";
     CommandId[CommandId["movePlayerPanel"] = 100036] = "movePlayerPanel";
     CommandId[CommandId["cs_movePlayerPanel"] = 100037] = "cs_movePlayerPanel";
-    CommandId[CommandId["initPanel"] = 100038] = "initPanel";
+    //自动三杀事件
+    CommandId[CommandId["straightScore3"] = 100038] = "straightScore3";
+    CommandId[CommandId["straightScore5"] = 100039] = "straightScore5";
+    CommandId[CommandId["initPanel"] = 100040] = "initPanel";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {
@@ -795,16 +973,15 @@ var StagePanelView = (function (_super) {
             var playerData = param.playerInfo;
             _this.setPlayer(pos, playerData);
         });
-        cmd.on(CommandId.updatePlayerAll, function (playerInfoArr) {
+        cmd.on(CommandId.updatePlayerAll, function (playerDataArr) {
             var tweenCall = function (dt, pos, playerData) {
                 createjs.Tween.get(_this).wait(dt).call(function () {
                     _this.setPlayer(pos, playerData);
                 });
             };
-            for (var i = 0; i < playerInfoArr.length; i++) {
-                var playerInfo = playerInfoArr[i];
-                var pos = playerInfo.pos;
-                var playerData = playerInfo.playerInfo;
+            for (var i = 0; i < playerDataArr.length; i++) {
+                var playerData = playerDataArr[i];
+                var pos = playerData.pos;
                 tweenCall(i * 300, pos, playerData);
             }
         });
@@ -901,7 +1078,7 @@ var StagePanelView = (function (_super) {
         playerInfo.isMvp = playerData.isMvp;
         playerInfo.pos = playerData.pos;
         this.playerInfoArr[pos] = playerInfo;
-        console.log("updatePlayer", pos, playerInfo);
+        console.log("updatePlayer", pos, playerInfo, this.eloLabelArr.length);
         this.eloLabelArr[pos].text = playerInfo.eloScore();
         this.nameLabelArr[pos].text = playerInfo.name();
         var styleCtn = this.styleArr[pos];
@@ -1691,26 +1868,47 @@ var HttpServer = (function () {
             appInfo.panel.stage.hideWinPanel(param);
         });
         cmd.on(CommandId.cs_updatePlayerAll, function (param) {
+            var idArr = [];
+            var idPosMap = {};
             for (var i = 0; i < param.length; i++) {
                 var obj = param[i];
-                obj.src = 'data/' + obj.playerId + '.player';
+                // obj.src = 'data/' + obj.playerId + '.player';
+                idArr.push({ id: parseInt(obj.playerId) });
+                idPosMap[obj.playerId] = parseInt(obj.pos);
             }
-            queueFile(param, function (err, param) {
-                if (err) {
-                }
-                else {
-                    console.log(_this, "load all playerInfo");
-                    // var data = [];
-                    for (var i = 0; i < param.length; i++) {
-                        var obj = param[i];
-                        obj.playerInfo = obj.data;
-                        // data.push(obj.data);
-                        delete obj['data'];
-                        console.log(_this, "load playerInfo id:", obj.playerId, obj.playerInfo);
+            _this.dbPlayerInfo().find({ $or: idArr }, function (err, playerDataArr) {
+                console.log('find in db', err, playerDataArr, idArr);
+                if (!err && playerDataArr.length) {
+                    for (var i = 0; i < playerDataArr.length; i++) {
+                        var playerData = playerDataArr[i];
+                        for (var j = 0; j < param.length; j++) {
+                            var obj = param[j];
+                            if (obj.playerId == playerData.id) {
+                                obj.playerData = playerData;
+                            }
+                        }
                     }
                     appInfo.panel.stage.updatePlayerAll(param);
                 }
             });
+            console.log(_this, "cs_updatePlayerAll");
+            // queueFile(param, (err, param)=> {
+            //     if (err) {
+            //
+            //     }
+            //     else {
+            //         console.log(this, "load all playerInfo");
+            //         // var data = [];
+            //         for (var i = 0; i < param.length; i++) {
+            //             var obj = param[i];
+            //             obj.playerInfo = obj.data;
+            //             // data.push(obj.data);
+            //             delete obj['data'];
+            //             console.log(this, "load playerInfo id:", obj.playerId, obj.playerInfo);
+            //         }
+            //         appInfo.panel.stage.updatePlayerAll(param);
+            //     }
+            // });
         });
         cmd.on(CommandId.cs_updatePlayer, function (param) {
             appInfo.panel.stage.updatePlayer(param);

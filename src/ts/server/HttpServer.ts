@@ -136,29 +136,54 @@ class HttpServer {
         cmd.on(CommandId.cs_fadeOutWinPanel, (param)=> {
             appInfo.panel.stage.hideWinPanel(param);
         });
-        
+
         cmd.on(CommandId.cs_updatePlayerAll, (param)=> {
+            var idArr = [];
+
+            var idPosMap = {};
+
             for (var i = 0; i < param.length; i++) {
                 var obj = param[i];
-                obj.src = 'data/' + obj.playerId + '.player';
+                // obj.src = 'data/' + obj.playerId + '.player';
+                idArr.push({id: parseInt(obj.playerId)});
+                idPosMap[obj.playerId] = parseInt(obj.pos);
             }
-            queueFile(param, (err, param)=> {
-                if (err) {
 
-                }
-                else {
-                    console.log(this, "load all playerInfo");
-                    // var data = [];
-                    for (var i = 0; i < param.length; i++) {
-                        var obj = param[i];
-                        obj.playerInfo = obj.data;
-                        // data.push(obj.data);
-                        delete obj['data'];
-                        console.log(this, "load playerInfo id:", obj.playerId, obj.playerInfo);
+            this.dbPlayerInfo().find({$or: idArr}, function (err, playerDataArr) {
+                console.log('find in db', err, playerDataArr, idArr);
+                if (!err && playerDataArr.length) {
+                    for (var i = 0; i < playerDataArr.length; i++) {
+                        var playerData = playerDataArr[i];
+                        for (var j = 0; j < param.length; j++) {
+                            var obj = param[j];
+                            if (obj.playerId == playerData.id) {
+                                obj.playerData = playerData;
+                            }
+                        }
+                        // playerData.pos = idPosMap[playerData.id];
                     }
                     appInfo.panel.stage.updatePlayerAll(param);
                 }
             });
+            console.log(this, "cs_updatePlayerAll");
+
+            // queueFile(param, (err, param)=> {
+            //     if (err) {
+            //
+            //     }
+            //     else {
+            //         console.log(this, "load all playerInfo");
+            //         // var data = [];
+            //         for (var i = 0; i < param.length; i++) {
+            //             var obj = param[i];
+            //             obj.playerInfo = obj.data;
+            //             // data.push(obj.data);
+            //             delete obj['data'];
+            //             console.log(this, "load playerInfo id:", obj.playerId, obj.playerInfo);
+            //         }
+            //         appInfo.panel.stage.updatePlayerAll(param);
+            //     }
+            // });
         });
         cmd.on(CommandId.cs_updatePlayer, (param)=> {
             appInfo.panel.stage.updatePlayer(param);

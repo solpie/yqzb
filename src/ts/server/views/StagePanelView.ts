@@ -201,16 +201,15 @@ class StagePanelView extends BaseView {
             var playerData = param.playerInfo;
             this.setPlayer(pos, playerData);
         });
-        cmd.on(CommandId.updatePlayerAll, (playerInfoArr)=> {
+        cmd.on(CommandId.updatePlayerAll, (playerDataArr)=> {
             var tweenCall = (dt, pos, playerData)=> {
                 createjs.Tween.get(this).wait(dt).call(()=> {
                     this.setPlayer(pos, playerData);
                 });
             };
-            for (var i = 0; i < playerInfoArr.length; i++) {
-                var playerInfo = playerInfoArr[i];
-                var pos = playerInfo.pos;
-                var playerData = playerInfo.playerInfo;
+            for (var i = 0; i < playerDataArr.length; i++) {
+                var playerData = playerDataArr[i];
+                var pos = playerData.pos;
                 tweenCall(i * 300, pos, playerData);
             }
         });
@@ -324,7 +323,7 @@ class StagePanelView extends BaseView {
         playerInfo.pos = playerData.pos;
 
         this.playerInfoArr[pos] = playerInfo;
-        console.log("updatePlayer", pos, playerInfo);
+        console.log("updatePlayer", pos, playerInfo,this.eloLabelArr.length);
         this.eloLabelArr[pos].text = playerInfo.eloScore();
         this.nameLabelArr[pos].text = playerInfo.name();
 

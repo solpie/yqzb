@@ -44,6 +44,10 @@ enum CommandId{
     cs_fadeOutPlayerPanel,
     movePlayerPanel,
     cs_movePlayerPanel,
+        //自动三杀事件
+    straightScore3,
+    straightScore5,
+
     initPanel,
 }
 class CommandItem {

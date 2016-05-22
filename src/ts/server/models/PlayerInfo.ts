@@ -1,4 +1,4 @@
-/// <reference path="BaseInfo.ts"/>
+/// <reference path="../../model/BaseInfo.ts"/>
 
 class PlayerData {
     id:number = 0;
@@ -8,9 +8,12 @@ class PlayerData {
     avatar:string = "";
     height:number = 0;
     weight:number = 0;
-    winpercent:number = 0;//  胜率  100/100.0%
-    gameCount:number = 0;//场数
     dtScore:number = 0;
+    winpercent:number = 0;//  胜率  100/100.0%
+
+    gameCount:number = 0;//场数
+    loseGameCount:number = 0;
+    winGameCount:number = 0;
 }
 class PlayerInfo extends BaseInfo {
     playerData:PlayerData = new PlayerData();
@@ -57,18 +60,17 @@ class PlayerInfo extends BaseInfo {
         return prop(this.playerData, "gameCount", val);
     }
 
+    winGameCount(val?) {
+        return prop(this.playerData, "winGameCount", val);
+    }
+
+    loseGameCount(val?) {
+        return prop(this.playerData, "loseGameCount", val);
+    }
+
     getWinPercent() {
         return (this.winpercent() * 100).toFixed(1) + "%";
     }
-
-    // static getPlayerInfo(pid) {
-    //     jsonfile.readFile("data/" + pid + '.player', null, (err, data)=> {
-    //         var playerInfo = new PlayerInfo();
-    //         playerInfo = data;
-    //         return playerInfo
-    //     });
-    // }
-
 
     getStyleIcon() {
         var path = '/img/panel/';
@@ -103,4 +105,57 @@ class PlayerInfo extends BaseInfo {
         }
         return path
     }
+
+    saveScore(dtScore, isWin) {
+        this.dtScore(dtScore);
+        this.eloScore(this.eloScore() + dtScore);
+        // this.ret.push({score: this.eloScore, isWin: isWin});
+        if (isWin) {
+            this.winGameCount(this.winGameCount() + 1);
+        }
+        else
+            this.loseGameCount(this.loseGameCount() + 1);
+
+        this.gameCount(this.gameCount() + 1);
+    }
+
+    getCurWinningPercent():number {
+        return this.winGameCount() / (this.loseGameCount() + this.winGameCount());
+    }
+
+    // id:number;
+    // name:String;
+    // score:number;
+    // initScore:number;
+    // winningPercent:number;//
+    // ret:Array<any>;
+    // countWinGame:number;
+    // countLoseGame:number;
+    // round:number;
 }
+
+
+// class Player {
+//     id:number;
+//     name:String;
+//     score:number;
+//     initScore:number;
+//     winningPercent:number;//
+//     ret:Array<any>;
+//     countWinGame:number;
+//     countLoseGame:number;
+//     round:number;
+//
+//     constructor(id, wp, name?) {
+//         this.id = id;
+//         this.score = EloConf.score;
+//         this.winningPercent = wp;
+//         this.name = name;
+//         this.ret = [];
+//         this.countWinGame = 0;
+//         this.countLoseGame = 0;
+//         this.round = 0;
+//     }
+//
+//
+// }
