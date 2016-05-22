@@ -22,17 +22,19 @@ class BasePanelInfo extends EventDispatcher {
 }
 
 class PlayerPanelInfo extends BasePanelInfo {
-    playerInfo:PlayerInfo = new PlayerInfo();
+    playerData:any;
     // playerInfoArr:Array<PlayerInfo> = [];
 
     getInfo() {
-        this.playerInfo.name("tmac");
         return {
-            playerInfo: this.playerInfo
+            playerInfo: this.playerData
         }
     }
 
-
+    showWinPanel(param:any) {
+        this.playerData = param;
+        cmd.emit(CommandId.fadeInPlayerPanel, param, this.pid);
+    }
 }
 class WinPanelInfo extends BasePanelInfo {
     playerInfoArr:Array<PlayerInfo> = new Array(4);

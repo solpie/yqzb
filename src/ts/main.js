@@ -367,14 +367,16 @@ var PlayerPanelInfo = (function (_super) {
     __extends(PlayerPanelInfo, _super);
     function PlayerPanelInfo() {
         _super.apply(this, arguments);
-        this.playerInfo = new PlayerInfo();
     }
     // playerInfoArr:Array<PlayerInfo> = [];
     PlayerPanelInfo.prototype.getInfo = function () {
-        this.playerInfo.name("tmac");
         return {
-            playerInfo: this.playerInfo
+            playerInfo: this.playerData
         };
+    };
+    PlayerPanelInfo.prototype.showWinPanel = function (param) {
+        this.playerData = param;
+        cmd.emit(CommandId.fadeInPlayerPanel, param, this.pid);
     };
     return PlayerPanelInfo;
 }(BasePanelInfo));
@@ -532,9 +534,13 @@ var CommandId;
     CommandId[CommandId["cs_fadeInWinPanel"] = 100029] = "cs_fadeInWinPanel";
     CommandId[CommandId["fadeOutWinPanel"] = 100030] = "fadeOutWinPanel";
     CommandId[CommandId["cs_fadeOutWinPanel"] = 100031] = "cs_fadeOutWinPanel";
-    //
-    CommandId[CommandId["updateLeftTeam"] = 100032] = "updateLeftTeam";
-    CommandId[CommandId["updateRightTeam"] = 100033] = "updateRightTeam";
+    //---------------- player panel
+    CommandId[CommandId["fadeInPlayerPanel"] = 100032] = "fadeInPlayerPanel";
+    CommandId[CommandId["cs_fadeInPlayerPanel"] = 100033] = "cs_fadeInPlayerPanel";
+    CommandId[CommandId["fadeOutPlayerPanel"] = 100034] = "fadeOutPlayerPanel";
+    CommandId[CommandId["cs_fadeOutPlayerPanel"] = 100035] = "cs_fadeOutPlayerPanel";
+    CommandId[CommandId["updateLeftTeam"] = 100036] = "updateLeftTeam";
+    CommandId[CommandId["updateRightTeam"] = 100037] = "updateRightTeam";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {
@@ -1557,6 +1563,7 @@ var serverConf = {
 var msgpack = require("msgpack-lite");
 var HttpServer = (function () {
     function HttpServer() {
+        var _this = this;
         this.initDB();
         if (serverConf.host == 'localhost')
             serverConf.host = this.getIPAddress();
@@ -1583,18 +1590,18 @@ var HttpServer = (function () {
             res.render('panel', data);
         });
         app.post('/getPlayerInfo/:playerId', function (req, res) {
-            var playerId = req.params.playerId;
-            // var pos = req.params.pos;
+            var playerId = parseInt(req.params.playerId);
             console.log("PlayerInfo ", playerId);
             // var playerInfo = new PlayerInfo();
-            jsonfile.readFile("data/" + playerId + '.player', null, function (err, confData) {
+            _this.dbPlayerInfo().find({ id: playerId }, function (err, doc) {
                 if (err) {
                     console.log(err, "no player");
                     res.send(JSON.stringify({ playerInfo: "" }));
                 }
                 else {
-                    console.log("find player");
-                    res.send(JSON.stringify({ playerInfo: confData }));
+                    var msg = JSON.stringify({ playerInfo: doc[0] });
+                    console.log("find player", doc[0], msg);
+                    res.send(msg);
                 }
             });
         });
@@ -1653,6 +1660,16 @@ var HttpServer = (function () {
     };
     HttpServer.prototype.handleOp = function () {
         var _this = this;
+        cmd.on(CommandId.cs_fadeInPlayerPanel, function (param) {
+            var playerId = parseInt(param);
+            _this.dbPlayerInfo().find({ id: playerId }, function (err, doc) {
+                if (!err)
+                    appInfo.panel.player.showWinPanel(doc);
+            });
+        });
+        cmd.on(CommandId.cs_fadeOutPlayerPanel, function (param) {
+            // appInfo.panel.stage.hideWinPanel(param);
+        });
         cmd.on(CommandId.cs_fadeInWinPanel, function (param) {
             appInfo.panel.stage.showWinPanel(param);
         });
@@ -1717,14 +1734,14 @@ var HttpServer = (function () {
             // you might use location.query.access_token to authenticate or share sessions
             // or ws.upgradeReq.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
             wsClient.on('message', function incoming(message) {
-                console.log('client: ', message);
                 // var req = JSON.parse(message);
-                var req = msgpack.decode(message);
-                if (req.req == "info") {
-                    var pid = req.pid;
+                var msg = msgpack.decode(message);
+                console.log('client: ', msg);
+                if (msg.req == "info") {
+                    var pid = msg.pid;
                     wsClient.pid = pid;
                     var info;
-                    if (req.pid == PanelId.stagePanel)
+                    if (msg.pid == PanelId.stagePanel)
                         info = appInfo.panel.stage.getInfo();
                     else if (pid == PanelId.playerPanel)
                         info = appInfo.panel.player.getInfo();
@@ -1735,8 +1752,8 @@ var HttpServer = (function () {
                         param: info
                     }));
                 }
-                else if (req.req == "op") {
-                    cmd.emit(req.param.type, req.param.param);
+                else if (msg.req == "op") {
+                    cmd.emit(msg.param.type, msg.param.param);
                 }
             });
             wsClient.send(JSON.stringify({ res: "keep" }));

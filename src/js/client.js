@@ -140,9 +140,13 @@ var CommandId;
     CommandId[CommandId["cs_fadeInWinPanel"] = 100029] = "cs_fadeInWinPanel";
     CommandId[CommandId["fadeOutWinPanel"] = 100030] = "fadeOutWinPanel";
     CommandId[CommandId["cs_fadeOutWinPanel"] = 100031] = "cs_fadeOutWinPanel";
-    //
-    CommandId[CommandId["updateLeftTeam"] = 100032] = "updateLeftTeam";
-    CommandId[CommandId["updateRightTeam"] = 100033] = "updateRightTeam";
+    //---------------- player panel
+    CommandId[CommandId["fadeInPlayerPanel"] = 100032] = "fadeInPlayerPanel";
+    CommandId[CommandId["cs_fadeInPlayerPanel"] = 100033] = "cs_fadeInPlayerPanel";
+    CommandId[CommandId["fadeOutPlayerPanel"] = 100034] = "fadeOutPlayerPanel";
+    CommandId[CommandId["cs_fadeOutPlayerPanel"] = 100035] = "cs_fadeOutPlayerPanel";
+    CommandId[CommandId["updateLeftTeam"] = 100036] = "updateLeftTeam";
+    CommandId[CommandId["updateRightTeam"] = 100037] = "updateRightTeam";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {
@@ -355,14 +359,16 @@ var PlayerPanelInfo = (function (_super) {
     __extends(PlayerPanelInfo, _super);
     function PlayerPanelInfo() {
         _super.apply(this, arguments);
-        this.playerInfo = new PlayerInfo();
     }
     // playerInfoArr:Array<PlayerInfo> = [];
     PlayerPanelInfo.prototype.getInfo = function () {
-        this.playerInfo.name("tmac");
         return {
-            playerInfo: this.playerInfo
+            playerInfo: this.playerData
         };
+    };
+    PlayerPanelInfo.prototype.showWinPanel = function (param) {
+        this.playerData = param;
+        cmd.emit(CommandId.fadeInPlayerPanel, param, this.pid);
     };
     return PlayerPanelInfo;
 }(BasePanelInfo));
@@ -1246,23 +1252,6 @@ var PlayerPanelView = (function (_super) {
         var ctn = new createjs.Container();
         this.ctn = ctn;
         this.stage.addChild(ctn);
-        var bg = new createjs.Shape();
-        bg.graphics.beginFill("#ccc").drawRoundRect(0, 0, 520, 180, 10);
-        ctn.addChild(bg);
-        // var playerName =new createjs.Text("0", "30px Arial", "#a2a2a2");
-        // playerName.text = param.playerInfo.name;
-        // ctn.addChild(playerName);
-        var playerInfo = new PlayerInfo();
-        playerInfo.name("tmac");
-        playerInfo.avatar("/img/player/p1.png");
-        playerInfo.eloScore(2431);
-        playerInfo.style(1);
-        var playerView = PlayerView.getPlayerCard(playerInfo);
-        playerView.x = 15;
-        playerView.y = 30;
-        ctn.addChild(playerView);
-        if (this.isOp) {
-        }
     };
     return PlayerPanelView;
 }(BaseView));

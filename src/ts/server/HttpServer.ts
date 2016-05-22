@@ -84,20 +84,19 @@ class HttpServer {
             res.render('panel', data);
         });
 
-        app.post('/getPlayerInfo/:playerId', function (req, res) {
-            var playerId = req.params.playerId;
-            // var pos = req.params.pos;
-
+        app.post('/getPlayerInfo/:playerId', (req, res) => {
+            var playerId:number = parseInt(req.params.playerId);
             console.log("PlayerInfo ", playerId);
             // var playerInfo = new PlayerInfo();
-            jsonfile.readFile("data/" + playerId + '.player', null, (err, confData)=> {
+            this.dbPlayerInfo().find({id: playerId}, function (err, doc) {
                 if (err) {
                     console.log(err, "no player");
                     res.send(JSON.stringify({playerInfo: ""}));
                 }
                 else {
-                    console.log("find player");
-                    res.send(JSON.stringify({playerInfo: confData}));
+                    var msg = JSON.stringify({playerInfo: doc[0]});
+                    console.log("find player", doc[0], msg);
+                    res.send(msg);
                 }
             });
         });
@@ -117,6 +116,17 @@ class HttpServer {
     }
 
     handleOp() {
+        cmd.on(CommandId.cs_fadeInPlayerPanel, (param)=> {
+            var playerId = parseInt(param);
+            this.dbPlayerInfo().find({id: playerId}, function (err, doc) {
+                if (!err)
+                    appInfo.panel.player.showWinPanel(doc);
+            });
+        });
+        cmd.on(CommandId.cs_fadeOutPlayerPanel, (param)=> {
+            // appInfo.panel.stage.hideWinPanel(param);
+        });
+
         cmd.on(CommandId.cs_fadeInWinPanel, (param)=> {
             appInfo.panel.stage.showWinPanel(param);
         });
@@ -186,14 +196,14 @@ class HttpServer {
             // you might use location.query.access_token to authenticate or share sessions
             // or ws.upgradeReq.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
             wsClient.on('message', function incoming(message) {
-                console.log('client: ', message);
                 // var req = JSON.parse(message);
-                var req = msgpack.decode(message);
-                if (req.req == "info") {
-                    var pid = req.pid;
+                var msg = msgpack.decode(message);
+                console.log('client: ', msg);
+                if (msg.req == "info") {
+                    var pid = msg.pid;
                     wsClient.pid = pid;
                     var info;
-                    if (req.pid == PanelId.stagePanel)
+                    if (msg.pid == PanelId.stagePanel)
                         info = appInfo.panel.stage.getInfo();
                     else if (pid == PanelId.playerPanel)
                         info = appInfo.panel.player.getInfo();
@@ -205,8 +215,8 @@ class HttpServer {
                         param: info
                     }));
                 }
-                else if (req.req == "op") {
-                    cmd.emit(req.param.type, req.param.param);
+                else if (msg.req == "op") {
+                    cmd.emit(msg.param.type, msg.param.param);
                 }
             });
             wsClient.send(JSON.stringify({res: "keep"}));

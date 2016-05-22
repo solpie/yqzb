@@ -4,7 +4,7 @@ enum CommandId{
     //
     toggleTracker,
     toggleBallRolling,
-        //stage panel
+    //stage panel
     toggleTimer,
     cs_toggleTimer,
     resetTimer,
@@ -14,12 +14,12 @@ enum CommandId{
     cs_addLeftScore,//1000010
     addRightScore,
     cs_addRightScore,
-        
+
     minLeftScore,
     cs_minLeftScore,//1000010
     minRightScore,
     cs_minRightScore,
-        
+
     stageFadeOut,
     cs_fadeOut,
     playerScore,
@@ -32,12 +32,16 @@ enum CommandId{
     cs_updatePlayer,
     updatePlayerAll,
     cs_updatePlayerAll,
-        //-----------------win panel
+    //-----------------win panel
     fadeInWinPanel,
     cs_fadeInWinPanel,
     fadeOutWinPanel,
     cs_fadeOutWinPanel,
-        //
+    //---------------- player panel
+    fadeInPlayerPanel,
+    cs_fadeInPlayerPanel,
+    fadeOutPlayerPanel,
+    cs_fadeOutPlayerPanel,
     updateLeftTeam,
     updateRightTeam,
 }

@@ -2,28 +2,12 @@
     .inputPanel {
         width: 100%;
         left: 60px;
-        top: 600px;
+        top: 200px;
         position: absolute;
         display: none;
         z-index: 99;
     }
 </style>
-<script>
-    $(function () {
-//        if (isOp) {
-//            $(".inputPanel").show()
-//        }
-        var s = $(e.target).data("pos").toString();
-        var pos = parseInt(s);
-        var playerId = $($(".playerId")[pos]).val();
-        console.log($(e.target).data("pos"), playerId);
-
-        $.post("/getPlayerInfo/" + playerId, null, function (res) {
-            var data = JSON.parse(res);
-            $($(".playerAvatar")[pos]).attr("src", data.playerInfo.avatar);
-        });
-    })
-</script>
 <div class="inputPanel">
     <div class="playerPanel">
         player id:
@@ -32,8 +16,38 @@
             <input class="playerId" type="text" style="width: 75px"/>
             <input class="btnQuery" type="button" value="query" data-pos="0"/>
             <input class="btnUpdate" type="button" value="update↓↓↓" data-pos="0"/><br>
-            <input name="mvp" class="playerMvp" type="radio" value="" data-pos="0"/>MVP
         </div>
     </div>
-
 </div>
+<script>
+    var onServer = function () {
+        cmd.on(CommandId.fadeInPlayerPanel, function (param) {
+            var playerInfo = new PlayerInfo(param);
+            console.log("PlayerInfo:",playerInfo);
+        })
+        cmd.on(CommandId.fadeOutPlayerPanel, function (param) {
+        })
+    }
+</script>
+<script>
+    var playerId;
+    $(function () {
+        $(".btnQuery").click(function (e) {
+            playerId = $($(".playerId")[0]).val();
+            $.post("/getPlayerInfo/" + playerId, null, function (res) {
+                console.log("query player:", res);
+                var data = JSON.parse(res);
+                $($(".playerAvatar")[0]).attr("src", data.playerInfo.avatar);
+            });
+        });
+
+        $(".btnUpdate").click(function (e) {
+            cmd.proxy(CommandId.cs_fadeInPlayerPanel, playerId);
+        });
+        onServer();
+    });
+
+    var fadeInPlayerPanel = function (playerInfo) {
+
+    }
+</script>
