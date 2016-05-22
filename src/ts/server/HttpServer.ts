@@ -166,24 +166,6 @@ class HttpServer {
                 }
             });
             console.log(this, "cs_updatePlayerAll");
-
-            // queueFile(param, (err, param)=> {
-            //     if (err) {
-            //
-            //     }
-            //     else {
-            //         console.log(this, "load all playerInfo");
-            //         // var data = [];
-            //         for (var i = 0; i < param.length; i++) {
-            //             var obj = param[i];
-            //             obj.playerInfo = obj.data;
-            //             // data.push(obj.data);
-            //             delete obj['data'];
-            //             console.log(this, "load playerInfo id:", obj.playerId, obj.playerInfo);
-            //         }
-            //         appInfo.panel.stage.updatePlayerAll(param);
-            //     }
-            // });
         });
         cmd.on(CommandId.cs_updatePlayer, (param)=> {
             appInfo.panel.stage.updatePlayer(param);

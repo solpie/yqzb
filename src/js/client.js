@@ -570,8 +570,10 @@ var StagePanelInfo = (function (_super) {
         this.straightScoreLeft++;
         if (this.leftScore == 0)
             this.straightScoreLeft = 0;
-        if (this.straightScoreLeft == 3)
+        if (this.straightScoreLeft == 3) {
+            console.log("straight score 3");
             cmd.emit(CommandId.straightScore3, { team: "left" }, this.pid);
+        }
         if (this.straightScoreLeft == 5)
             cmd.emit(CommandId.straightScore5, { team: "left" }, this.pid);
     };

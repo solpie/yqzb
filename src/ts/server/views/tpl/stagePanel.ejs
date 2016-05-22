@@ -80,6 +80,13 @@
             console.log("hide win panel", param);
             fadeOutWinPanel();
         });
+        cmd.on(CommandId.straightScore3, function (param) {
+            console.log("straight score 3", param);
+            fadeInStraight3();
+        });
+        cmd.on(CommandId.straightScore5, function (param) {
+            console.log("straight score 5", param);
+        });
     }
 </script>
 <script>
@@ -194,6 +201,23 @@
             alert("球员数据不完整！");
         }
 
+    }
+
+    var isBusy = false;
+
+    var fadeInStraight3 = function () {
+        if (!isBusy) {
+            isBusy = true;
+            createjs.Tween.get(client.panel.fxEventCtn)
+                    .to({x: 1080, alpha: 1}, 100)
+                    .wait(3000)
+                    .to({y: 150, alpha: 0}, 200)
+                    .call(function () {
+                        client.panel.fxEventCtn.x = 800;
+                        client.panel.fxEventCtn.y = 200;
+                        isBusy = false;
+                    });
+        }
     }
 </script>
 <script>
