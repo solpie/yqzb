@@ -77,23 +77,124 @@
             <input class="playerId" type="text" style="width: 75px"/>
             <input class="btnQuery" type="button" value="query" data-pos="0"/>
             <input class="btnUpdate" type="button" value="update↓↓↓" data-pos="0"/><br>
+            <input class="btnFadeOut" type="button" value="fadeOut" data-pos="0"/><br>
+            <label id="moveState"></label>
         </div>
     </div>
 </div>
+<div class="Preloader" style="display: none">
+    <img src="/img/panel/playerPanelBlue.png">
+    <img src="/img/panel/playerPanelRed.png">
+</div>
 <script>
     var onServer = function () {
+        cmd.on(CommandId.initPanel, function (param) {
+            console.log("initPanel::::::::", param);
+            //            console.log(this, "initParam");
+            if (param.playerInfo) {
+                fadeInPlayerPanel(new PlayerInfo(param.playerInfo));
+            }
+            moveCtn(param.position.ctnX, param.position.ctnY);
+        })
         cmd.on(CommandId.fadeInPlayerPanel, function (param) {
             var playerInfo = new PlayerInfo(param);
             console.log("PlayerInfo:", playerInfo);
             fadeInPlayerPanel(playerInfo);
         })
-        cmd.on(CommandId.fadeOutPlayerPanel, function (param) {
-        })
+        cmd.on(CommandId.fadeOutPlayerPanel, function () {
+            fadeOutPlayerPanel();
+        });
+        cmd.on(CommandId.movePlayerPanel, function (param) {
+            moveCtn(param.ctnX, param.ctnY);
+        });
     }
 </script>
 <script>
+    var toggleMove = function () {
+        isMoving = !isMoving;
+        $("#moveState").html(isMoving.toString());
+    }
+    var onKeyPress = function () {
+        document.onkeydown = function (e) {
+            var key = e.keyCode;
+            var isCtrl = e.ctrlKey;
+            var isShift = e.shiftKey;
+            var isAlt = e.altKey;
+            console.log("key:", key);
+//            var isMoving = false;
+            var ctn = client.panel.ctn;
+
+            var ofs = 1;
+            if (isShift)
+                ofs = 10;
+            var cx = ctn.x;
+            var cy = ctn.y;
+            if (key == 38)//up
+            {
+                cy = ctn.y - ofs;
+            }
+            else if (key == 40)//down
+            {
+                cy = ctn.y + ofs;
+            }
+            else if (key == 37)//left
+            {
+                cx = ctn.x - ofs;
+            }
+            else if (key == 39)//right
+            {
+                cx = ctn.x + ofs;
+            }
+            else if (key == 77)//key m :
+            {
+                isMoving = !isMoving;
+            }
+            if (isMoving)
+                cmd.proxy(CommandId.cs_movePlayerPanel,
+                        {
+                            ctnX: cx,
+                            ctnY: cy
+                        });
+        };
+    }
+    document.onmouseup = function () {
+        isMoving = false;
+    }
+    var lastClientX = -1;
+    var lastClientY = -1;
+    document.onmousemove = function (e) {
+
+        if (isMoving) {
+            var dx;
+            var dy;
+            if (lastClientX != -1) {
+                dx = e.clientX - lastClientX;
+            }
+            if (lastClientY != -1) {
+                dy = e.clientY - lastClientY;
+            }
+
+            cmd.proxy(CommandId.cs_movePlayerPanel,
+                    {
+                        ctnX: client.panel.ctn.x + dx,
+                        ctnY: client.panel.ctn.y + dy
+                    });
+//            console.log(e);
+        }
+        lastClientX = e.clientX;
+        lastClientY = e.clientY;
+
+    }
+
+</script>
+<script>
     var playerId;
+    var playerName$;
+    var playerNameShadow$;
+    var isMoving = false;
     $(function () {
+        playerName$ = $('#playerName');
+        playerNameShadow$ = $('#playerNameShadow');
         $(".btnQuery").click(function (e) {
             playerId = $($(".playerId")[0]).val();
             $.post("/getPlayerInfo/" + playerId, null, function (res) {
@@ -107,6 +208,17 @@
             playerId = $($(".playerId")[0]).val();
             cmd.proxy(CommandId.cs_fadeInPlayerPanel, playerId);
         });
+
+        $(".btnFadeOut").click(function (e) {
+            cmd.proxy(CommandId.cs_fadeOutPlayerPanel);
+        });
+
+        $("#btnMove").click(function (e) {
+            isMoving = !isMoving;
+        });
+
+
+        onKeyPress();
         onServer();
     });
 
@@ -125,32 +237,16 @@
 
 
     var fadeInPlayerPanel = function (playerInfo) {
+        playerInfo.isRed = false;
+
         console.log(this, playerInfo, playerInfo.avatar());
         var ctn = client.panel.ctn;
-        if(ctn.numChildren)
+        ctn.alpha = 1;
+        if (ctn.numChildren)
             ctn.removeAllChildren();
         var fxCtn = new createjs.Container()
         ctn.addChild(fxCtn);
 
-        var avatarCtn = new createjs.Container();
-        avatarCtn.x = 83;
-        avatarCtn.y = 82;
-        var mask = new createjs.Shape();
-        mask.graphics.beginFill("#ff0000").drawCircle(0, 0, 45);
-        avatarCtn.addChild(mask);
-        fxCtn.addChild(avatarCtn);
-
-        var img = new Image()
-        img.onload = function () {
-            var avatar = new createjs.Bitmap(playerInfo.avatar());
-            var bound = avatar.getBounds();
-            avatar.scaleX = avatar.scaleY = 90 / bound.height;
-            avatar.x = -bound.width * .5 * avatar.scaleX;
-            avatar.y = -bound.height * .5 * avatar.scaleX;
-            avatar.mask = mask;
-            avatarCtn.addChild(avatar);
-        }
-        img.src = playerInfo.avatar();
 
         var bgPath = '/img/panel/playerPanel';
 
@@ -162,13 +258,37 @@
         var bg = new createjs.Bitmap(bgPath);
         fxCtn.addChild(bg);
 
+        var avatarCtn = new createjs.Container();
+        avatarCtn.x = 83;
+        avatarCtn.y = 82;
+        var mask = new createjs.Shape();
+        mask.graphics.beginFill("#ff0000").drawCircle(0, 0, 45);
+        avatarCtn.addChild(mask);
+        fxCtn.addChildAt(avatarCtn,0);
+
+        var img = new Image()
+        img.onload = function () {
+            var avatar = new createjs.Bitmap(playerInfo.avatar());
+            var bound = avatar.getBounds();
+            avatar.scaleX = avatar.scaleY = 90 / bound.height;
+            avatar.x = -bound.width * .5 * avatar.scaleX;
+            avatar.y = -bound.height * .5 * avatar.scaleX;
+            avatar.mask = mask;
+            avatarCtn.addChild(avatar);
+
+            var bgBound = bg.getBounds();
+            fxCtn.cache(0, 0, bgBound.width, bgBound.height);
+
+        }
+        img.src = playerInfo.avatar();
+
+
+
         var eloScore = new createjs.Text(playerInfo.eloScore(), '30px Microsoft Yahei', '#f2f2f2')
         eloScore.textAlign = 'left';
         eloScore.x = 190;
         eloScore.y = 85;
         fxCtn.addChild(eloScore);
-        var playerName$ = $('#playerName');
-        var playerNameShadow$ = $('#playerNameShadow');
 
         if (playerInfo.isRed) {
             playerName$.addClass('nameRed');
@@ -181,5 +301,14 @@
         movePlayerName(ctn.x, ctn.y);
         playerName$.html(playerInfo.name());
         playerNameShadow$.html(playerInfo.name());
+
     }
+
+    var fadeOutPlayerPanel = function () {
+        var ctn = client.panel.ctn;
+        createjs.Tween.get(ctn).to({alpha: 0}, 100);
+        playerName$.html('');
+        playerNameShadow$.html('');
+    }
+
 </script>

@@ -24,16 +24,27 @@ class BasePanelInfo extends EventDispatcher {
 class PlayerPanelInfo extends BasePanelInfo {
     playerData:any;
     // playerInfoArr:Array<PlayerInfo> = [];
+    position:any = {ctnX: 500, ctnY: 500};
 
     getInfo() {
         return {
-            playerInfo: this.playerData
-        }
+            playerInfo: this.playerData,
+            position: this.position
+        };
     }
 
     showWinPanel(param:any) {
         this.playerData = param;
         cmd.emit(CommandId.fadeInPlayerPanel, param, this.pid);
+    }
+
+    hideWinPanel() {
+        cmd.emit(CommandId.fadeOutPlayerPanel, null, this.pid);
+    }
+
+    movePanel(param:any) {
+        this.position = param;
+        cmd.emit(CommandId.movePlayerPanel, param, this.pid);
     }
 }
 class WinPanelInfo extends BasePanelInfo {

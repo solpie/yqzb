@@ -14,5 +14,6 @@ class PlayerPanelView extends BaseView {
         var ctn = new createjs.Container();
         this.ctn = ctn;
         this.stage.addChild(ctn);
+        cmd.emit(CommandId.initPanel, param);
     }
 }

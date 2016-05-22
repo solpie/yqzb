@@ -42,8 +42,9 @@ enum CommandId{
     cs_fadeInPlayerPanel,
     fadeOutPlayerPanel,
     cs_fadeOutPlayerPanel,
-    updateLeftTeam,
-    updateRightTeam,
+    movePlayerPanel,
+    cs_movePlayerPanel,
+    initPanel,
 }
 class CommandItem {
     id:number;

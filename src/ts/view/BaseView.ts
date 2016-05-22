@@ -11,7 +11,6 @@ class BaseView {
     stage:any;
     isOp:Boolean = false;
     ctn:any;
-
     constructor(stage, isOp) {
         this.stage = stage;
         this.isOp = isOp;

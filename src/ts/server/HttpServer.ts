@@ -124,16 +124,19 @@ class HttpServer {
             });
         });
         cmd.on(CommandId.cs_fadeOutPlayerPanel, (param)=> {
-            // appInfo.panel.stage.hideWinPanel(param);
+            appInfo.panel.player.hideWinPanel();
         });
-
+        cmd.on(CommandId.cs_movePlayerPanel, (param)=> {
+            appInfo.panel.player.movePanel(param);
+        });
+        //======================stage panel ==================
         cmd.on(CommandId.cs_fadeInWinPanel, (param)=> {
             appInfo.panel.stage.showWinPanel(param);
         });
         cmd.on(CommandId.cs_fadeOutWinPanel, (param)=> {
             appInfo.panel.stage.hideWinPanel(param);
         });
-
+        
         cmd.on(CommandId.cs_updatePlayerAll, (param)=> {
             for (var i = 0; i < param.length; i++) {
                 var obj = param[i];

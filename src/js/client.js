@@ -145,8 +145,9 @@ var CommandId;
     CommandId[CommandId["cs_fadeInPlayerPanel"] = 100033] = "cs_fadeInPlayerPanel";
     CommandId[CommandId["fadeOutPlayerPanel"] = 100034] = "fadeOutPlayerPanel";
     CommandId[CommandId["cs_fadeOutPlayerPanel"] = 100035] = "cs_fadeOutPlayerPanel";
-    CommandId[CommandId["updateLeftTeam"] = 100036] = "updateLeftTeam";
-    CommandId[CommandId["updateRightTeam"] = 100037] = "updateRightTeam";
+    CommandId[CommandId["movePlayerPanel"] = 100036] = "movePlayerPanel";
+    CommandId[CommandId["cs_movePlayerPanel"] = 100037] = "cs_movePlayerPanel";
+    CommandId[CommandId["initPanel"] = 100038] = "initPanel";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {
@@ -359,16 +360,25 @@ var PlayerPanelInfo = (function (_super) {
     __extends(PlayerPanelInfo, _super);
     function PlayerPanelInfo() {
         _super.apply(this, arguments);
+        // playerInfoArr:Array<PlayerInfo> = [];
+        this.position = { ctnX: 500, ctnY: 500 };
     }
-    // playerInfoArr:Array<PlayerInfo> = [];
     PlayerPanelInfo.prototype.getInfo = function () {
         return {
-            playerInfo: this.playerData
+            playerInfo: this.playerData,
+            position: this.position
         };
     };
     PlayerPanelInfo.prototype.showWinPanel = function (param) {
         this.playerData = param;
         cmd.emit(CommandId.fadeInPlayerPanel, param, this.pid);
+    };
+    PlayerPanelInfo.prototype.hideWinPanel = function () {
+        cmd.emit(CommandId.fadeOutPlayerPanel, null, this.pid);
+    };
+    PlayerPanelInfo.prototype.movePanel = function (param) {
+        this.position = param;
+        cmd.emit(CommandId.movePlayerPanel, param, this.pid);
     };
     return PlayerPanelInfo;
 }(BasePanelInfo));
@@ -1252,6 +1262,7 @@ var PlayerPanelView = (function (_super) {
         var ctn = new createjs.Container();
         this.ctn = ctn;
         this.stage.addChild(ctn);
+        cmd.emit(CommandId.initPanel, param);
     };
     return PlayerPanelView;
 }(BaseView));
