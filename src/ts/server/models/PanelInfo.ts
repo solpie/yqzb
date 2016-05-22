@@ -160,8 +160,11 @@ class StagePanelInfo extends BasePanelInfo {
     }
 
     showWinPanel(param:any) {
+        console.log("showWinPanel param:", param, param.mvp);
         for (var i = 0; i < this.playerInfoArr.length; i++) {
             var obj = this.playerInfoArr[i];
+            if (obj.pos == param.mvp)
+                obj.isMap = true;
             console.log(JSON.stringify(obj));
         }
         var teamLeft = new TeamInfo();
@@ -170,14 +173,17 @@ class StagePanelInfo extends BasePanelInfo {
         var teamRight = new TeamInfo();
         teamRight.setPlayerArr(appInfo.panel.stage.getRightTeam());
 
-        if (param < 4) {
+        var winTeam;
+        if (param.mvp < 4) {
+            winTeam = teamLeft;
             teamLeft.beat(teamRight);
         }
         else {
+            winTeam = teamRight;
             teamRight.beat(teamLeft);
         }
 
-        cmd.emit(CommandId.fadeInWinPanel, this.playerInfoArr, this.pid);
+        cmd.emit(CommandId.fadeInWinPanel, {mvp: param.mvp, playerDataArr: winTeam.playerArr}, this.pid);
         console.log(this, "after elo");
         for (var i = 0; i < this.playerInfoArr.length; i++) {
             var obj = this.playerInfoArr[i];
@@ -202,7 +208,9 @@ class StagePanelInfo extends BasePanelInfo {
     getLeftTeam(start = 0) {
         var team = [];
         for (var i = start; i < 4 + start; i++) {
-            team.push(new PlayerInfo(this.playerInfoArr[i]));
+            var pInfo = new PlayerInfo(this.playerInfoArr[i]);
+            team.push(pInfo);
+            pInfo.isRed = (start>0)
         }
         return team;
     }

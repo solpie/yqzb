@@ -73,13 +73,13 @@
 <script>
     var onServer = function () {
         cmd.on(CommandId.fadeInWinPanel, function (param) {
-            console.log("show win panel", param);
-            fadeInWinPanel(param.mvp);
-        })
+            console.log("show win panel", param.playerDataArr);
+            fadeInWinPanel(param.playerDataArr, param.mvp);
+        });
         cmd.on(CommandId.fadeOutWinPanel, function (param) {
             console.log("hide win panel", param);
             fadeOutWinPanel();
-        })
+        });
     }
 </script>
 <script>
@@ -126,8 +126,9 @@
                 });
     }
 
-    var fadeInWinPanel = function (mvp) {
-        console.log(this, "show fadeInWinPanel");
+    var fadeInWinPanel = function (paramDataArr, mvp) {
+        console.log(this, "show fadeInWinPanel mvp:", mvp);
+
         var stagePanel = client.panel;
         var ctn = stagePanel.winCtn;
 
@@ -139,8 +140,8 @@
         var playerCtn = new createjs.Container();
         ctn.addChild(playerCtn);
 
-        var playerInfoArr = stagePanel.playerInfoArr;
-        if (verifyWin(playerInfoArr, mvp)) {
+//        var playerInfoArr = stagePanel.playerInfoArr;
+        if (verifyWin(stagePanel.playerInfoArr, mvp)) {
             var isRedWin = (mvp > 3);
 
             var titlePath = "/img/panel/winPanelTitle"
@@ -163,15 +164,12 @@
             console.log(title.getBounds());
 
             var prePlayerIsMvp = false;
-            var start = 0;
-            if (isRedWin)
-                start = 4
-
             playerCtn.x = (stagePanel.stageWidth - 4 * 390) * .5;
             playerCtn.y = 300;
             for (var i = 0; i < 4; i++) {
                 var pInfo;
-                pInfo = playerInfoArr[i + start];
+                pInfo = new PlayerInfo(paramDataArr[i].playerData);
+                pInfo.isRed = paramDataArr[i].playerData.isRed;
                 var playerCard = getWinPlayerCard(pInfo);
                 playerCard.x = i * 390;
                 if (pInfo.isMvp)
@@ -180,7 +178,7 @@
                     playerCard.y = 0;
                 var bound = playerCard.getBounds();
                 playerCard.cache(bound.x, bound.y, bound.width, bound.height);
-                console.log(this, "new player card", playerCard.x, playerCard.y, mvpPos);
+                console.log("new player card", paramDataArr[i], playerCard.x, playerCard.y, mvpPos);
                 playerCard.px = playerCard.x;
                 playerCard.py = playerCard.y;
                 playerCard.x = 500;
@@ -203,6 +201,7 @@
         var isMvp = p.isMvp;
         var ctn = new createjs.Container();
         var avatar = new createjs.Bitmap(p.avatar());
+        console.log("playerCard=======:", p.avatar());
         if (isMvp) {
             avatar.scaleX = avatar.scaleY = 1.5;
             avatar.x = (180 - 180 * 1.2) * .5 + 60;
@@ -265,7 +264,7 @@
             eloScore.y += 30;
         ctn.addChild(eloScore);
 
-        var eloScoreDt = new createjs.Text("+" + p.eloScore(), "12px Arial", col);
+        var eloScoreDt = new createjs.Text("+" + p.dtScore(), "12px Arial", col);
         eloScoreDt.textAlign = 'left';
         eloScoreDt.x = 140 + 60;
         eloScoreDt.y = 260 + 30;

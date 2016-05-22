@@ -25,6 +25,8 @@ class PlayerInfo extends BaseInfo {
         super();
         if (playerData) {
             this.playerData = obj2Class(playerData, PlayerData);
+            if (playerData['isRed'])
+                this.isRed = playerData.isRed;
         }
     }
 
