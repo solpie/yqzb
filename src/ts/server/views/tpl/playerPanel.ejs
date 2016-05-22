@@ -13,6 +13,15 @@
 //        if (isOp) {
 //            $(".inputPanel").show()
 //        }
+        var s = $(e.target).data("pos").toString();
+        var pos = parseInt(s);
+        var playerId = $($(".playerId")[pos]).val();
+        console.log($(e.target).data("pos"), playerId);
+
+        $.post("/getPlayerInfo/" + playerId, null, function (res) {
+            var data = JSON.parse(res);
+            $($(".playerAvatar")[pos]).attr("src", data.playerInfo.avatar);
+        });
     })
 </script>
 <div class="inputPanel">
@@ -26,4 +35,5 @@
             <input name="mvp" class="playerMvp" type="radio" value="" data-pos="0"/>MVP
         </div>
     </div>
+
 </div>
