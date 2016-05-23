@@ -273,8 +273,10 @@ var PlayerInfo = (function (_super) {
         this.isMvp = false;
         if (playerData) {
             this.playerData = obj2Class(playerData, PlayerData);
-            if (playerData['isRed'])
+            if (playerData['isRed'] != null)
                 this.isRed = playerData.isRed;
+            if (playerData['isMvp'] != null)
+                this.isMvp = playerData.isMvp;
         }
     }
     PlayerInfo.prototype.id = function (val) {
@@ -472,7 +474,6 @@ var PlayerPanelInfo = (function (_super) {
     __extends(PlayerPanelInfo, _super);
     function PlayerPanelInfo() {
         _super.apply(this, arguments);
-        // playerInfoArr:Array<PlayerInfo> = [];
         this.position = { ctnX: 500, ctnY: 500 };
     }
     PlayerPanelInfo.prototype.getInfo = function () {
@@ -486,7 +487,7 @@ var PlayerPanelInfo = (function (_super) {
         var playerId = parseInt(param);
         for (var i = 0; i < this.stageInfo.playerInfoArr.length; i++) {
             var obj = this.stageInfo.playerInfoArr[i];
-            if (obj.id == playerId) {
+            if (obj && obj.id == playerId) {
                 this.playerData = obj;
                 cmd.emit(CommandId.fadeInPlayerPanel, obj, this.pid);
             }
@@ -1414,6 +1415,62 @@ var PlayerView = (function () {
         eloScore.y = 95;
         ctn.addChild(eloScore);
         return ctn;
+    };
+    PlayerView.prototype.getLeftStagePlayerCard = function (playerInfo) {
+        // var ctn = new createjs.Container();
+        //
+        // var leftAvatarBg = new createjs.Bitmap("/img/panel/leftAvatarBg.png");//694x132
+        // leftAvatarBg.x = bgLeft.x + 15 + i * 150;
+        // leftAvatarBg.y = bgLeft.y + 6;
+        //
+        // var avatarCtn = new createjs.Container();
+        // avatarCtn.x = leftAvatarBg.x + 25;
+        // avatarCtn.y = leftAvatarBg.y + 9;
+        // var leftMask = new createjs.Shape();
+        // var sx = 44;
+        // leftMask.graphics.beginFill("#000000")
+        //     .moveTo(sx, 0)
+        //     .lineTo(0, 76)
+        //     .lineTo(180 - sx, 76)
+        //     .lineTo(180, 0)
+        //     .lineTo(sx, 0);
+        // var avatarBmp = new createjs.Bitmap("/img/player/p1.png");
+        // avatarBmp.mask = leftMask;
+        // avatarCtn.addChild(leftMask);
+        // avatarCtn.addChild(avatarBmp);
+        // this.avatarArr.push(avatarCtn);
+        // ctnMove.addChild(avatarCtn);
+        // ctnMove.addChild(leftAvatarBg);
+        //
+        // var leftEloBg = new createjs.Bitmap("/img/panel/leftEloBg.png");//694x132
+        // leftEloBg.x = leftAvatarBg.x + 27;
+        // leftEloBg.y = bgLeft.y + 70;
+        // ctnMove.addChild(leftEloBg);
+        //
+        // var leftEloLabel = new createjs.Text("1984", "18px Arial", "#e2e2e2");
+        // leftEloLabel.textAlign = "left";
+        // leftEloLabel.x = leftEloBg.x + 12;
+        // leftEloLabel.y = leftEloBg.y + 3;
+        // this.eloLabelArr.push(leftEloLabel);
+        // ctnMove.addChild(leftEloLabel);
+        //
+        //
+        // var styleCtn = new createjs.Container();
+        // var leftStyleIcon = new createjs.Bitmap("/img/panel/feng.png");//694x132
+        // styleCtn.x = leftAvatarBg.x + 120;
+        // styleCtn.y = leftAvatarBg.y + 80;
+        // styleCtn.addChild(leftStyleIcon);
+        // this.styleArr.push(styleCtn);
+        // ctnMove.addChild(styleCtn);
+        //
+        // var leftNameLabel = new createjs.Text("player", "bold 18px Arial", "#e2e2e2");
+        // leftNameLabel.textAlign = "left";
+        // leftNameLabel.x = leftAvatarBg.x + 20;
+        // leftNameLabel.y = leftAvatarBg.y + 90;
+        // this.nameLabelArr.push(leftNameLabel);
+        // ctnMove.addChild(leftNameLabel);
+        //
+        // return ctn;
     };
     return PlayerView;
 }());

@@ -26,8 +26,10 @@ class PlayerInfo extends BaseInfo {
         super();
         if (playerData) {
             this.playerData = obj2Class(playerData, PlayerData);
-            if (playerData['isRed'])
+            if (playerData['isRed']!=null)
                 this.isRed = playerData.isRed;
+            if (playerData['isMvp']!=null)
+                this.isMvp = playerData.isMvp;
         }
     }
 

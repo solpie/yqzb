@@ -73,12 +73,30 @@ class HttpServer {
             res.render('dashboard');
         });
 
-        app.get('/admin/:id', function (req, res) {
-            var adminId = req.params.id;
-            var data = {adminId: adminId};
+        app.get('/admin/player/:id', function (req, res) {
+            var playerId = req.params.id;
+            var op;
+            if (playerId) {
+                //find player
+                op = 'update';
+            }
+            else {
+                op = 'new';
+            }
+            var data = {adminId: 'player', op: op};
             res.render('baseAdmin', data);
         });
-        
+
+        app.get('/admin/player/', (req, res)=> {
+            this.dbPlayerInfo().find({}, function (err, docs) {
+                var data:any = {adminId: 'playerList'};
+                if (!err)
+                    data.playerDataArr = docs;
+                res.render('playerList', data);
+                console.log("/admin/player/ length:", docs.length,JSON.stringify(data.playerDataArr));
+            });
+        });
+
         app.get('/panel/:id/:op', function (req, res) {
             var pid = req.params.id;
             var op = req.params.op;

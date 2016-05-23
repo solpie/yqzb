@@ -13,44 +13,75 @@
             <img id="image">
         </div>
         <canvas id="avatarPreview"></canvas>
+        <br>
+        <input type="button" value="更新头像" onclick="onUpdateAvatar()">
     </div>
-    <div class="PlayerData">
-        <input id="playerName"/>
-    </div>
+    <form class="PlayerData" action='/admin/player/<%= op %>' method='post'>
+        <img id="playerAvatar" name="avatar" src="">
+        <input id="file1" type="file" value="..." onchange="showFile(this.files);">最小尺寸720x304
+        <br>
+        <br>昵称:<input id="playerName" name="name"/>
+        <br>身高:<input id="playerName" name="height" value="170+"/>
+        <br>体重:<input id="playerName" name="weight"/>
+        <br>天梯分:<input id="playerName" name="score" value="2000"/>
+        <br>球风:<input id="playerName" name="style" value="1"/>
+        <br> <input type='submit' value='Submit'>
+    </form>
 </div>
 
 <script>
     var imagePath = "/img/cache/test.jpg";
     var image = document.getElementById('image');
-    image.src = imagePath;
-    var cropper = new Cropper(image, {
-        aspectRatio: 180 / 76,
-        crop: function (e) {
-            console.log(e.detail.x);
-            console.log(e.detail.y);
-            console.log(e.detail.width);
-            console.log(e.detail.height);
-//            console.log(e.detail.rotate);
-//            console.log(e.detail.scaleX);
-//            console.log(e.detail.scaleY);
-            updateLeftAvatar(e.detail);
+    var playerId = 0;
+    //    image.src = imagePath;
+    var cropper;
+    //    cropper= new Cropper(image, {
+    //        aspectRatio: 180 / 76,
+    //        crop: function (e) {
+    //            console.log(e.detail.x);
+    //            console.log(e.detail.y);
+    //            console.log(e.detail.width);
+    //            console.log(e.detail.height);
+    ////            console.log(e.detail.rotate);
+    ////            console.log(e.detail.scaleX);
+    ////            console.log(e.detail.scaleY);
+    //            updateLeftAvatar(e.detail);
+    //        }
+    //    });
+
+    var onUpdateAvatar = function () {
+        var callback = function (res) {
+            document.getElementById('playerAvatar').src = cropper.getCroppedCanvas().toDataURL();
         }
-    });
+        if (playerId) {
+            $.post("/admin/player/new", null, function (res) {
+            });
+        }
+        else {
+            $.post("/admin/player/update/" + playerId, null, function (res) {
+            });
+        }
+    }
 
 
     var stage;
-    var leftAvatarCtn;
     var leftAvatarBmp;
+    var rightAvatarBmp;
     var updateLeftAvatar = function (cropData) {
 //        leftAvatarCtn.removeChildAt(1);
 //        var avatarBmp = new createjs.Bitmap(imgPath);
 //        avatarBmp.mask = leftAvatarCtn.getChildAt(0);
 //        leftAvatarCtn.addChild(avatarBmp);
 //        leftAvatarBmp.x = ;
-        var scale = cropData.width/180;
-        leftAvatarBmp.x = -cropData.x/scale;
-        leftAvatarBmp.y = -cropData.y/scale;
-        leftAvatarBmp.scaleX = leftAvatarBmp.scaleY = 1/scale;
+        var scale = cropData.width / 180;
+        leftAvatarBmp.x = -cropData.x / scale;
+        leftAvatarBmp.y = -cropData.y / scale;
+        leftAvatarBmp.scaleX = leftAvatarBmp.scaleY = 1 / scale;
+
+        rightAvatarBmp.x = -cropData.x / scale;
+        rightAvatarBmp.y = -cropData.y / scale;
+        rightAvatarBmp.scaleX = rightAvatarBmp.scaleY = 1 / scale;
+
     }
     var getLeftPlayerCard = function (avatarPath) {
         //width 150
@@ -109,9 +140,65 @@
 
         return ctn;
     }
+
+    var getRightPlayerCard = function (avatarPath) {
+        var ctn = new createjs.Container();
+        var rightAvatarBg = new createjs.Bitmap("/img/panel/rightAvatarBg.png");//694x132
+        rightAvatarBg.x = 14;
+        rightAvatarBg.y = 6;
+
+        var rightAvatarCtn = new createjs.Container();
+        rightAvatarCtn.x = rightAvatarBg.x + 11;
+        rightAvatarCtn.y = rightAvatarBg.y + 9;
+        var rightMask = new createjs.Shape();
+        var sx = 44;
+        rightMask.graphics.beginFill("#000000")
+                .moveTo(0, 0)
+                .lineTo(sx, 76)
+                .lineTo(180, 76)
+                .lineTo(180 - sx, 0)
+                .lineTo(0, 0);
+        var avatarBmp = new createjs.Bitmap(avatarPath);
+        avatarBmp.mask = rightMask;
+        rightAvatarCtn.addChild(rightMask);
+        rightAvatarCtn.addChild(avatarBmp);
+        rightAvatarBmp = avatarBmp;
+//        this.avatarArr.push(rightAvatarCtn);
+        ctn.addChild(rightAvatarCtn);
+        ctn.addChild(rightAvatarBg);
+
+        var rightEloBg = new createjs.Bitmap("/img/panel/rightEloBg.png");//694x132
+        rightEloBg.x = rightAvatarBg.x + 125;
+        rightEloBg.y = 70;
+        ctn.addChild(rightEloBg);
+
+        var rightEloLabel = new createjs.Text("99999", "18px Arial", "#e2e2e2");
+        rightEloLabel.textAlign = "right";
+        rightEloLabel.x = rightEloBg.x + 53;
+        rightEloLabel.y = rightEloBg.y + 3;
+//        this.eloLabelArr.push(rightEloLabel);
+        ctn.addChild(rightEloLabel);
+
+
+        var styleCtn = new createjs.Container();
+        var rightStyleIcon = new createjs.Bitmap("/img/panel/huo.png");//694x132
+        styleCtn.x = rightAvatarBg.x + 60;
+        styleCtn.y = rightAvatarBg.y + 80;
+//        this.styleArr.push(styleCtn);
+        styleCtn.addChild(rightStyleIcon);
+        ctn.addChild(styleCtn);
+
+        var rightNameLabel = new createjs.Text("player", "bold 18px Arial", "#e2e2e2");
+        rightNameLabel.textAlign = "right";
+        rightNameLabel.x = rightAvatarBg.x + 195;
+        rightNameLabel.y = rightAvatarBg.y + 90;
+//        this.nameLabelArr.push(rightNameLabel);
+        ctn.addChild(rightNameLabel);
+        return ctn;
+    }
     var initCanvas = function () {
-        var stageWidth = 700;
-        var stageHeight = 360;
+        var stageWidth = 500;
+        var stageHeight = 130;
         var canvas = document.getElementById("avatarPreview");
         canvas.setAttribute("width", stageWidth + "");
         canvas.setAttribute("height", stageHeight + "");
@@ -123,6 +210,42 @@
         });
         return stage;
     }
-    stage = initCanvas();
-    stage.addChild(getLeftPlayerCard(imagePath));
+    //    stage = initCanvas();
+    //    stage.addChild(getLeftPlayerCard(imagePath));
+    //    var rightAvatarCtn = getRightPlayerCard(imagePath);
+    //    rightAvatarCtn.x = 250;
+    //    stage.addChild(rightAvatarCtn);
+</script>
+<script>
+    function showFile(files) {
+        var fr = new FileReader();
+        fr.readAsDataURL(files[0]);
+        fr.onload = function (e) {
+//            document.getElementById("playerAvatar").src = e.target.result;
+
+
+            ///init
+            imagePath = e.target.result;
+            image.src = e.target.result;
+            stage = initCanvas();
+            stage.addChild(getLeftPlayerCard(imagePath));
+            var rightAvatarCtn = getRightPlayerCard(imagePath);
+            rightAvatarCtn.x = 250;
+            stage.addChild(rightAvatarCtn);
+
+            cropper = new Cropper(image, {
+                aspectRatio: 180 / 76,
+                crop: function (e) {
+                    console.log(e.detail.x);
+                    console.log(e.detail.y);
+                    console.log(e.detail.width);
+                    console.log(e.detail.height);
+//            console.log(e.detail.rotate);
+//            console.log(e.detail.scaleX);
+//            console.log(e.detail.scaleY);
+                    updateLeftAvatar(e.detail);
+                }
+            });
+        };
+    }
 </script>

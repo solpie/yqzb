@@ -223,8 +223,8 @@
     });
 
     var movePlayerName = function (x, y) {
-        x += 140;
-        y += 40;
+        x += 290;
+        y += 18;
         $('#playerName').css({left: x, top: y});
         $('#playerNameShadow').css({left: x, top: y});
     }
@@ -271,10 +271,16 @@
         fxCtn.addChild(bg);
 
         var avatarCtn = new createjs.Container();
-        avatarCtn.x = 83;
-        avatarCtn.y = 82;
+        avatarCtn.x = 149;
+        avatarCtn.y = 65;
         var mask = new createjs.Shape();
-        mask.graphics.beginFill("#ff0000").drawCircle(0, 0, 45);
+        var sx = 63;
+        mask.graphics.beginFill("#000000")
+                .moveTo(sx, 0)
+                .lineTo(0, 105)
+                .lineTo(250 - sx, 105)
+                .lineTo(250, 0)
+                .lineTo(sx, 0);
         avatarCtn.addChild(mask);
         fxCtn.addChildAt(avatarCtn, 0);
 
@@ -282,9 +288,11 @@
         img.onload = function () {
             var avatar = new createjs.Bitmap(playerInfo.avatar());
             var bound = avatar.getBounds();
-            avatar.scaleX = avatar.scaleY = 90 / bound.height;
+            avatar.scaleX = avatar.scaleY = 105 / bound.height;
             avatar.x = -bound.width * .5 * avatar.scaleX;
             avatar.y = -bound.height * .5 * avatar.scaleX;
+            mask.x = avatar.x;
+            mask.y = avatar.y;
             avatar.mask = mask;
             avatarCtn.addChild(avatar);
 
@@ -297,8 +305,8 @@
 
         var eloScore = new createjs.Text(playerInfo.eloScore(), '30px Microsoft Yahei', '#f2f2f2')
         eloScore.textAlign = 'left';
-        eloScore.x = 190;
-        eloScore.y = 85;
+        eloScore.x = 285;
+        eloScore.y = 65;
         fxCtn.addChild(eloScore);
 
         if (playerInfo.isRed) {

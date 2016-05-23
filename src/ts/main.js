@@ -277,8 +277,10 @@ var PlayerInfo = (function (_super) {
         this.isMvp = false;
         if (playerData) {
             this.playerData = obj2Class(playerData, PlayerData);
-            if (playerData['isRed'])
+            if (playerData['isRed'] != null)
                 this.isRed = playerData.isRed;
+            if (playerData['isMvp'] != null)
+                this.isMvp = playerData.isMvp;
         }
     }
     PlayerInfo.prototype.id = function (val) {
@@ -476,7 +478,6 @@ var PlayerPanelInfo = (function (_super) {
     __extends(PlayerPanelInfo, _super);
     function PlayerPanelInfo() {
         _super.apply(this, arguments);
-        // playerInfoArr:Array<PlayerInfo> = [];
         this.position = { ctnX: 500, ctnY: 500 };
     }
     PlayerPanelInfo.prototype.getInfo = function () {
@@ -490,7 +491,7 @@ var PlayerPanelInfo = (function (_super) {
         var playerId = parseInt(param);
         for (var i = 0; i < this.stageInfo.playerInfoArr.length; i++) {
             var obj = this.stageInfo.playerInfoArr[i];
-            if (obj.id == playerId) {
+            if (obj && obj.id == playerId) {
                 this.playerData = obj;
                 cmd.emit(CommandId.fadeInPlayerPanel, obj, this.pid);
             }
@@ -1760,10 +1761,27 @@ var HttpServer = (function () {
         app.get('/', function (req, res) {
             res.render('dashboard');
         });
-        app.get('/admin/:id', function (req, res) {
-            var adminId = req.params.id;
-            var data = { adminId: adminId };
+        app.get('/admin/player/:id', function (req, res) {
+            var playerId = req.params.id;
+            var op;
+            if (playerId) {
+                //find player
+                op = 'update';
+            }
+            else {
+                op = 'new';
+            }
+            var data = { adminId: 'player', op: op };
             res.render('baseAdmin', data);
+        });
+        app.get('/admin/player/', function (req, res) {
+            _this.dbPlayerInfo().find({}, function (err, docs) {
+                var data = { adminId: 'playerList' };
+                if (!err)
+                    data.playerDataArr = docs;
+                res.render('playerList', data);
+                console.log("/admin/player/ length:", docs.length, JSON.stringify(data.playerDataArr));
+            });
         });
         app.get('/panel/:id/:op', function (req, res) {
             var pid = req.params.id;

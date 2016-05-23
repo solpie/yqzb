@@ -1,0 +1,7 @@
+球员数据管理
+<div class="PlayerList">
+    <% for(var i = 0; i < playerDataArr.length; i++) { %>
+    <li><a href="/admin/player/<%= playerDataArr[i].id %>"><%= playerDataArr[i].id %></a></li>
+    <% } %>
+</div>
+

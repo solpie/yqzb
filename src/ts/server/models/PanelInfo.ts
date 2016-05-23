@@ -25,7 +25,6 @@ class BasePanelInfo extends EventDispatcher {
 
 class PlayerPanelInfo extends BasePanelInfo {
     playerData:any;
-    // playerInfoArr:Array<PlayerInfo> = [];
     position:any = {ctnX: 500, ctnY: 500};
     stageInfo:StagePanelInfo;
 
@@ -41,7 +40,7 @@ class PlayerPanelInfo extends BasePanelInfo {
         var playerId = parseInt(param);
         for (var i = 0; i < this.stageInfo.playerInfoArr.length; i++) {
             var obj = this.stageInfo.playerInfoArr[i];
-            if (obj.id == playerId) {
+            if (obj&&obj.id == playerId) {
                 this.playerData = obj;
                 cmd.emit(CommandId.fadeInPlayerPanel, obj, this.pid);
             }
