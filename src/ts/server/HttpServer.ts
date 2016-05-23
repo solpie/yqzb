@@ -117,14 +117,6 @@ class HttpServer {
 
     handleOp() {
         cmd.on(CommandId.cs_fadeInPlayerPanel, (param)=> {
-            // this.dbPlayerInfo().find({id: playerId}, function (err, doc) {
-            //     if (!err && doc.length)
-            //         appInfo.panel.player.showWinPanel(doc[0]);
-            // });
-            // for (var i = 0; i < param.length; i++) {
-            //     var obj = param[i];
-            //    
-            // }
             appInfo.panel.player.showWinPanel(param);
         });
         cmd.on(CommandId.cs_fadeOutPlayerPanel, (param)=> {

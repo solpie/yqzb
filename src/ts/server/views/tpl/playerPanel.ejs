@@ -147,44 +147,44 @@
             }
             else if (key == 77)//key m :
             {
+//                toggleMoving();
                 isMoving = !isMoving;
             }
-            if (isMoving)
+            if (isMoving) {
                 cmd.proxy(CommandId.cs_movePlayerPanel,
                         {
                             ctnX: cx,
                             ctnY: cy
                         });
+            }
+            else {
+                mouseOfsX = -1;
+                mouseOfsY = -1;
+            }
+
         };
     }
     document.onmouseup = function () {
         isMoving = false;
     }
-    var lastClientX = -1;
-    var lastClientY = -1;
-    document.onmousemove = function (e) {
-
+    var mouseOfsX = -1;
+    var mouseOfsY = -1;
+    var onMouseMove = function onMouseMove(e) {
         if (isMoving) {
-            var dx;
-            var dy;
-            if (lastClientX != -1) {
-                dx = e.clientX - lastClientX;
+            if (mouseOfsX < 0) {
+                mouseOfsX = e.clientX - client.panel.ctn.x;
+                mouseOfsY = e.clientY - client.panel.ctn.y;
             }
-            if (lastClientY != -1) {
-                dy = e.clientY - lastClientY;
+            else {
+                cmd.proxy(CommandId.cs_movePlayerPanel,
+                        {
+                            ctnX: e.clientX - mouseOfsX,
+                            ctnY: e.clientY - mouseOfsY
+                        });
             }
-
-            cmd.proxy(CommandId.cs_movePlayerPanel,
-                    {
-                        ctnX: client.panel.ctn.x + dx,
-                        ctnY: client.panel.ctn.y + dy
-                    });
-//            console.log(e);
         }
-        lastClientX = e.clientX;
-        lastClientY = e.clientY;
-
     }
+    document.onmousemove = onMouseMove;
 
 </script>
 <script>
@@ -192,6 +192,7 @@
     var playerName$;
     var playerNameShadow$;
     var isMoving = false;
+    var movingTimer = 0;
     $(function () {
         playerName$ = $('#playerName');
         playerNameShadow$ = $('#playerNameShadow');
@@ -217,7 +218,6 @@
             isMoving = !isMoving;
         });
 
-
         onKeyPress();
         onServer();
     });
@@ -233,6 +233,21 @@
         ctn.x = x;
         ctn.y = y;
         movePlayerName(x, y);
+    }
+
+    function getMousePos(event) {
+        var e = event || window.event;
+        return {'x': e.clientX, 'y': clientY}
+    }
+
+    var toggleMoving = function () {
+        if (movingTimer)
+            clearInterval(movingTimer)
+        else {
+            setInterval(function () {
+                console.log("mouse xy:", window.event.clientX, window.event.clientY);
+            }, 10);
+        }
     }
 
 
@@ -261,7 +276,7 @@
         var mask = new createjs.Shape();
         mask.graphics.beginFill("#ff0000").drawCircle(0, 0, 45);
         avatarCtn.addChild(mask);
-        fxCtn.addChildAt(avatarCtn,0);
+        fxCtn.addChildAt(avatarCtn, 0);
 
         var img = new Image()
         img.onload = function () {
@@ -278,7 +293,6 @@
 
         }
         img.src = playerInfo.avatar();
-
 
 
         var eloScore = new createjs.Text(playerInfo.eloScore(), '30px Microsoft Yahei', '#f2f2f2')
