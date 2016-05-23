@@ -1,6 +1,5 @@
 class PlayerView {
     nameLabel:any;
-    
 
 
     constructor() {
@@ -17,13 +16,13 @@ class PlayerView {
         var avatar = new createjs.Bitmap(p.avatar());
         if (isMvp) {
             avatar.scaleX = avatar.scaleY = 1.5;
-            avatar.x = (180 - 180 * 1.2) * .5+60;
-            avatar.y = 45+30;
+            avatar.x = (180 - 180 * 1.2) * .5 + 60;
+            avatar.y = 45 + 30;
         }
         else {
             avatar.scaleX = avatar.scaleY = 1.2;
-            avatar.x = (180 - 180 * 1.2) * .5+60;
-            avatar.y = 50+30;
+            avatar.x = (180 - 180 * 1.2) * .5 + 60;
+            avatar.y = 50 + 30;
         }
         ctn.addChild(avatar);
 
@@ -37,12 +36,12 @@ class PlayerView {
         bgPath += '.png';
         var bg = new createjs.Bitmap(bgPath);
         if (p.isMvp) {
-            bg.x = -192+60;
-            bg.y = -135+30;
+            bg.x = -192 + 60;
+            bg.y = -135 + 30;
         }
         else {
-            bg.x = -176+60;
-            bg.y = -110+30;
+            bg.x = -176 + 60;
+            bg.y = -110 + 30;
         }
         ctn.addChild(bg);
 
@@ -62,10 +61,10 @@ class PlayerView {
         else
             name = new createjs.Text(p.name(), "30px Arial", col);
         name.textAlign = 'center';
-        name.x = 90+60;
+        name.x = 90 + 60;
         if (isMvp)
             name.x += 20;
-        name.y = 185+30;
+        name.y = 185 + 30;
         ctn.addChild(name);
         this.nameLabel = name;
 
@@ -73,15 +72,15 @@ class PlayerView {
         eloScore = new createjs.Text(p.eloScore(), "bold 32px Arial", nameCol);
         eloScore.textAlign = 'center';
         eloScore.x = name.x;
-        eloScore.y = 245+30;
+        eloScore.y = 245 + 30;
         if (isMvp)
             eloScore.y += 30;
         ctn.addChild(eloScore);
 
         var eloScoreDt = new createjs.Text("+" + p.eloScore(), "12px Arial", col);
         eloScoreDt.textAlign = 'left';
-        eloScoreDt.x = 140+60;
-        eloScoreDt.y = 260+30;
+        eloScoreDt.x = 140 + 60;
+        eloScoreDt.y = 260 + 30;
         if (isMvp) {
             eloScoreDt.x += 30;
 
@@ -92,7 +91,7 @@ class PlayerView {
         var winpercent = new createjs.Text("胜率" + p.winpercent().toFixed(3) * 100 + "%", "18px Arial", col);
         winpercent.textAlign = 'center';
         winpercent.x = name.x;
-        winpercent.y = 290+30;
+        winpercent.y = 290 + 30;
         if (isMvp)
             winpercent.y += 35;
         ctn.addChild(winpercent);
@@ -100,14 +99,14 @@ class PlayerView {
         var gameCount = new createjs.Text("总场数" + p.gameCount(), "18px Arial", col);
         gameCount.textAlign = 'center';
         gameCount.x = name.x;
-        gameCount.y = 320+30;
+        gameCount.y = 320 + 30;
         if (isMvp)
             gameCount.y += 35;
         ctn.addChild(gameCount);
 
         var style = new createjs.Bitmap(p.getWinStyleIcon());
-        style.x = 50+60;
-        style.y = 340+30;
+        style.x = 50 + 60;
+        style.y = 340 + 30;
         if (isMvp) {
             style.x += 20;
             style.y += 45;
@@ -145,5 +144,62 @@ class PlayerView {
         ctn.addChild(eloScore);
 
         return ctn;
+    }
+
+    getLeftStagePlayerCard(playerInfo:PlayerInfo) {
+        // var ctn = new createjs.Container();
+        //
+        // var leftAvatarBg = new createjs.Bitmap("/img/panel/leftAvatarBg.png");//694x132
+        // leftAvatarBg.x = bgLeft.x + 15 + i * 150;
+        // leftAvatarBg.y = bgLeft.y + 6;
+        //
+        // var avatarCtn = new createjs.Container();
+        // avatarCtn.x = leftAvatarBg.x + 25;
+        // avatarCtn.y = leftAvatarBg.y + 9;
+        // var leftMask = new createjs.Shape();
+        // var sx = 44;
+        // leftMask.graphics.beginFill("#000000")
+        //     .moveTo(sx, 0)
+        //     .lineTo(0, 76)
+        //     .lineTo(180 - sx, 76)
+        //     .lineTo(180, 0)
+        //     .lineTo(sx, 0);
+        // var avatarBmp = new createjs.Bitmap("/img/player/p1.png");
+        // avatarBmp.mask = leftMask;
+        // avatarCtn.addChild(leftMask);
+        // avatarCtn.addChild(avatarBmp);
+        // this.avatarArr.push(avatarCtn);
+        // ctnMove.addChild(avatarCtn);
+        // ctnMove.addChild(leftAvatarBg);
+        //
+        // var leftEloBg = new createjs.Bitmap("/img/panel/leftEloBg.png");//694x132
+        // leftEloBg.x = leftAvatarBg.x + 27;
+        // leftEloBg.y = bgLeft.y + 70;
+        // ctnMove.addChild(leftEloBg);
+        //
+        // var leftEloLabel = new createjs.Text("1984", "18px Arial", "#e2e2e2");
+        // leftEloLabel.textAlign = "left";
+        // leftEloLabel.x = leftEloBg.x + 12;
+        // leftEloLabel.y = leftEloBg.y + 3;
+        // this.eloLabelArr.push(leftEloLabel);
+        // ctnMove.addChild(leftEloLabel);
+        //
+        //
+        // var styleCtn = new createjs.Container();
+        // var leftStyleIcon = new createjs.Bitmap("/img/panel/feng.png");//694x132
+        // styleCtn.x = leftAvatarBg.x + 120;
+        // styleCtn.y = leftAvatarBg.y + 80;
+        // styleCtn.addChild(leftStyleIcon);
+        // this.styleArr.push(styleCtn);
+        // ctnMove.addChild(styleCtn);
+        //
+        // var leftNameLabel = new createjs.Text("player", "bold 18px Arial", "#e2e2e2");
+        // leftNameLabel.textAlign = "left";
+        // leftNameLabel.x = leftAvatarBg.x + 20;
+        // leftNameLabel.y = leftAvatarBg.y + 90;
+        // this.nameLabelArr.push(leftNameLabel);
+        // ctnMove.addChild(leftNameLabel);
+        //
+        // return ctn;
     }
 }

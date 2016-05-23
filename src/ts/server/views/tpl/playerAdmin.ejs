@@ -1,5 +1,7 @@
 <link href="/js/cropper/cropper.css" rel="stylesheet">
 <script src="/js/cropper/cropper.js"></script>
+<script src="/js/createjs/createjs.min.js"></script>
+<script src="/js/createjs/easeljs.min.js"></script>
 <style>
     img {
         max-width: 100%; /* This rule is very important, please do not ignore this! */
@@ -8,7 +10,7 @@
 <div class="PlayerAdmin">
     <div class="AvatarCrop">
         <div>
-            <img id="image" src="/img/cache/test.jpg">
+            <img id="image">
         </div>
         <canvas id="avatarPreview"></canvas>
     </div>
@@ -18,7 +20,9 @@
 </div>
 
 <script>
+    var imagePath = "/img/cache/test.jpg";
     var image = document.getElementById('image');
+    image.src = imagePath;
     var cropper = new Cropper(image, {
         aspectRatio: 180 / 76,
         crop: function (e) {
@@ -26,14 +30,85 @@
             console.log(e.detail.y);
             console.log(e.detail.width);
             console.log(e.detail.height);
-            console.log(e.detail.rotate);
-            console.log(e.detail.scaleX);
-            console.log(e.detail.scaleY);
+//            console.log(e.detail.rotate);
+//            console.log(e.detail.scaleX);
+//            console.log(e.detail.scaleY);
+            updateLeftAvatar(e.detail);
         }
     });
 
 
     var stage;
+    var leftAvatarCtn;
+    var leftAvatarBmp;
+    var updateLeftAvatar = function (cropData) {
+//        leftAvatarCtn.removeChildAt(1);
+//        var avatarBmp = new createjs.Bitmap(imgPath);
+//        avatarBmp.mask = leftAvatarCtn.getChildAt(0);
+//        leftAvatarCtn.addChild(avatarBmp);
+//        leftAvatarBmp.x = ;
+        var scale = cropData.width/180;
+        leftAvatarBmp.x = -cropData.x/scale;
+        leftAvatarBmp.y = -cropData.y/scale;
+        leftAvatarBmp.scaleX = leftAvatarBmp.scaleY = 1/scale;
+    }
+    var getLeftPlayerCard = function (avatarPath) {
+        //width 150
+        var ctn = new createjs.Container();
+        var leftAvatarBg = new createjs.Bitmap("/img/panel/leftAvatarBg.png");//694x132
+        leftAvatarBg.x = 15;
+        leftAvatarBg.y = 6;
+
+        var avatarCtn = new createjs.Container();
+        avatarCtn.x = leftAvatarBg.x + 25;
+        avatarCtn.y = leftAvatarBg.y + 9;
+        var leftMask = new createjs.Shape();
+        var sx = 44;
+        leftMask.graphics.beginFill("#000000")
+                .moveTo(sx, 0)
+                .lineTo(0, 76)
+                .lineTo(180 - sx, 76)
+                .lineTo(180, 0)
+                .lineTo(sx, 0);
+        var avatarBmp = new createjs.Bitmap(avatarPath);
+        avatarBmp.mask = leftMask;
+        avatarCtn.addChild(leftMask);
+        avatarCtn.addChild(avatarBmp);
+        leftAvatarBmp = avatarBmp;
+//        this.avatarArr.push(avatarCtn);
+        ctn.addChild(avatarCtn);
+        ctn.addChild(leftAvatarBg);
+
+        var leftEloBg = new createjs.Bitmap("/img/panel/leftEloBg.png");//694x132
+        leftEloBg.x = leftAvatarBg.x + 27;
+        leftEloBg.y = 70;
+        ctn.addChild(leftEloBg);
+
+        var leftEloLabel = new createjs.Text("1984", "18px Arial", "#e2e2e2");
+        leftEloLabel.textAlign = "left";
+        leftEloLabel.x = leftEloBg.x + 12;
+        leftEloLabel.y = leftEloBg.y + 3;
+//        this.eloLabelArr.push(leftEloLabel);
+        ctn.addChild(leftEloLabel);
+
+
+        var styleCtn = new createjs.Container();
+        var leftStyleIcon = new createjs.Bitmap("/img/panel/feng.png");//694x132
+        styleCtn.x = leftAvatarBg.x + 120;
+        styleCtn.y = leftAvatarBg.y + 80;
+        styleCtn.addChild(leftStyleIcon);
+//        this.styleArr.push(styleCtn);
+        ctn.addChild(styleCtn);
+
+        var leftNameLabel = new createjs.Text("player", "bold 18px Arial", "#e2e2e2");
+        leftNameLabel.textAlign = "left";
+        leftNameLabel.x = leftAvatarBg.x + 20;
+        leftNameLabel.y = leftAvatarBg.y + 90;
+//        this.nameLabelArr.push(leftNameLabel);
+        ctn.addChild(leftNameLabel);
+
+        return ctn;
+    }
     var initCanvas = function () {
         var stageWidth = 700;
         var stageHeight = 360;
@@ -49,4 +124,5 @@
         return stage;
     }
     stage = initCanvas();
+    stage.addChild(getLeftPlayerCard(imagePath));
 </script>
