@@ -160,7 +160,6 @@ class HttpServer {
                                 obj.playerData = playerData;
                             }
                         }
-                        // playerData.pos = idPosMap[playerData.id];
                     }
                     appInfo.panel.stage.updatePlayerAll(param);
                 }
