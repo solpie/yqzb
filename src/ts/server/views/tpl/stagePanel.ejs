@@ -47,7 +47,7 @@
         <% for(var i = 0; i < 8; i++) { %>
         <div class="pickupPlayer">
             <img class="playerAvatar" src="/img/player/p0.png">
-            <input class="playerId" type="text" style="width: 75px" value="1<%= i + 1 %>"/>
+            <input class="playerId" type="text" style="width: 75px" value="<%= (18-i) %>"/>
             <input class="btnQuery" type="button" value="query" data-pos="<%= i %>"/>
             <input class="btnUpdate" type="button" value="update↓↓↓" data-pos="<%= i %>"/><br>
             <input name="mvp" class="playerMvp" type="radio" value="" data-pos="<%= i %>"/>MVP
