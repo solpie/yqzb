@@ -495,7 +495,6 @@ var PlayerPanelInfo = (function (_super) {
                 cmd.emit(CommandId.fadeInPlayerPanel, obj, this.pid);
             }
         }
-        //
     };
     PlayerPanelInfo.prototype.hideWinPanel = function () {
         cmd.emit(CommandId.fadeOutPlayerPanel, null, this.pid);
@@ -1758,9 +1757,13 @@ var HttpServer = (function () {
         app.set('views', "./ts/server/views/tpl");
         app.set('view engine', 'ejs');
         app.use(express.static("."));
-        // respond with "hello world" when a GET request is made to the homepage
         app.get('/', function (req, res) {
             res.render('dashboard');
+        });
+        app.get('/admin/:id', function (req, res) {
+            var adminId = req.params.id;
+            var data = { adminId: adminId };
+            res.render('baseAdmin', data);
         });
         app.get('/panel/:id/:op', function (req, res) {
             var pid = req.params.id;
@@ -1843,14 +1846,6 @@ var HttpServer = (function () {
     HttpServer.prototype.handleOp = function () {
         var _this = this;
         cmd.on(CommandId.cs_fadeInPlayerPanel, function (param) {
-            // this.dbPlayerInfo().find({id: playerId}, function (err, doc) {
-            //     if (!err && doc.length)
-            //         appInfo.panel.player.showWinPanel(doc[0]);
-            // });
-            // for (var i = 0; i < param.length; i++) {
-            //     var obj = param[i];
-            //    
-            // }
             appInfo.panel.player.showWinPanel(param);
         });
         cmd.on(CommandId.cs_fadeOutPlayerPanel, function (param) {

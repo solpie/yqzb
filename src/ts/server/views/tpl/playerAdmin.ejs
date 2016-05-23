@@ -1,0 +1,52 @@
+<link href="/js/cropper/cropper.css" rel="stylesheet">
+<script src="/js/cropper/cropper.js"></script>
+<style>
+    img {
+        max-width: 100%; /* This rule is very important, please do not ignore this! */
+    }
+</style>
+<div class="PlayerAdmin">
+    <div class="AvatarCrop">
+        <div>
+            <img id="image" src="/img/cache/test.jpg">
+        </div>
+        <canvas id="avatarPreview"></canvas>
+    </div>
+    <div class="PlayerData">
+        <input id="playerName"/>
+    </div>
+</div>
+
+<script>
+    var image = document.getElementById('image');
+    var cropper = new Cropper(image, {
+        aspectRatio: 180 / 76,
+        crop: function (e) {
+            console.log(e.detail.x);
+            console.log(e.detail.y);
+            console.log(e.detail.width);
+            console.log(e.detail.height);
+            console.log(e.detail.rotate);
+            console.log(e.detail.scaleX);
+            console.log(e.detail.scaleY);
+        }
+    });
+
+
+    var stage;
+    var initCanvas = function () {
+        var stageWidth = 700;
+        var stageHeight = 360;
+        var canvas = document.getElementById("avatarPreview");
+        canvas.setAttribute("width", stageWidth + "");
+        canvas.setAttribute("height", stageHeight + "");
+        var stage = new createjs.Stage(canvas);
+        stage.autoClear = true;
+        createjs.Ticker.framerate = 60;
+        createjs.Ticker.addEventListener("tick", function () {
+            stage.update();
+        });
+        return stage;
+    }
+    stage = initCanvas();
+</script>

@@ -69,11 +69,16 @@ class HttpServer {
 
         app.use(express.static("."));
 
-        // respond with "hello world" when a GET request is made to the homepage
         app.get('/', function (req, res) {
             res.render('dashboard');
         });
 
+        app.get('/admin/:id', function (req, res) {
+            var adminId = req.params.id;
+            var data = {adminId: adminId};
+            res.render('baseAdmin', data);
+        });
+        
         app.get('/panel/:id/:op', function (req, res) {
             var pid = req.params.id;
             var op = req.params.op;
