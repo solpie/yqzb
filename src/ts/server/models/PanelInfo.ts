@@ -38,8 +38,14 @@ class PlayerPanelInfo extends BasePanelInfo {
     }
 
     showWinPanel(param:any) {
-        this.playerData = param;
-        cmd.emit(CommandId.fadeInPlayerPanel, param, this.pid);
+        var playerId = parseInt(param);
+        for (var i = 0; i < this.stageInfo.playerInfoArr.length; i++) {
+            var obj = this.stageInfo.playerInfoArr[i];
+            if (obj.id == playerId) {
+                this.playerData = obj;
+                cmd.emit(CommandId.fadeInPlayerPanel, obj, this.pid);
+            }
+        }
     }
 
     hideWinPanel() {
@@ -100,8 +106,7 @@ class StagePanelInfo extends BasePanelInfo {
         this.straightScoreLeft++;
         if (this.leftScore == 0)
             this.straightScoreLeft = 0;
-        if (this.straightScoreLeft == 3)
-        {
+        if (this.straightScoreLeft == 3) {
             console.log("straight score 3");
             cmd.emit(CommandId.straightScore3, {team: "left"}, this.pid);
 
@@ -214,7 +219,7 @@ class StagePanelInfo extends BasePanelInfo {
         for (var i = start; i < 4 + start; i++) {
             var pInfo = new PlayerInfo(this.playerInfoArr[i]);
             team.push(pInfo);
-            pInfo.isRed = (start>0)
+            pInfo.isRed = (start > 0)
         }
         return team;
     }

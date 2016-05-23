@@ -117,11 +117,15 @@ class HttpServer {
 
     handleOp() {
         cmd.on(CommandId.cs_fadeInPlayerPanel, (param)=> {
-            var playerId = parseInt(param);
-            this.dbPlayerInfo().find({id: playerId}, function (err, doc) {
-                if (!err && doc.length)
-                    appInfo.panel.player.showWinPanel(doc[0]);
-            });
+            // this.dbPlayerInfo().find({id: playerId}, function (err, doc) {
+            //     if (!err && doc.length)
+            //         appInfo.panel.player.showWinPanel(doc[0]);
+            // });
+            // for (var i = 0; i < param.length; i++) {
+            //     var obj = param[i];
+            //    
+            // }
+            appInfo.panel.player.showWinPanel(param);
         });
         cmd.on(CommandId.cs_fadeOutPlayerPanel, (param)=> {
             appInfo.panel.player.hideWinPanel();
@@ -139,14 +143,12 @@ class HttpServer {
 
         cmd.on(CommandId.cs_updatePlayerAll, (param)=> {
             var idArr = [];
-
-            var idPosMap = {};
-
+            // var idPosMap = {};
             for (var i = 0; i < param.length; i++) {
                 var obj = param[i];
                 // obj.src = 'data/' + obj.playerId + '.player';
                 idArr.push({id: parseInt(obj.playerId)});
-                idPosMap[obj.playerId] = parseInt(obj.pos);
+                // idPosMap[obj.playerId] = parseInt(obj.pos);
             }
 
             this.dbPlayerInfo().find({$or: idArr}, function (err, playerDataArr) {
@@ -158,6 +160,7 @@ class HttpServer {
                             var obj = param[j];
                             if (obj.playerId == playerData.id) {
                                 obj.playerData = playerData;
+                                playerData.pos = obj.pos;
                             }
                         }
                     }

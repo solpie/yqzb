@@ -1,5 +1,4 @@
 /// <reference path="../../model/BaseInfo.ts"/>
-
 class PlayerData {
     id:number = 0;
     name:string = '';
@@ -15,11 +14,13 @@ class PlayerData {
     loseGameCount:number = 0;
     winGameCount:number = 0;
 }
+
 class PlayerInfo extends BaseInfo {
     playerData:PlayerData = new PlayerData();
     pos:number;
     isRed:Boolean = true;
     isMvp:Boolean = false;
+    backNumber:number;//当场球衣号码
 
     constructor(playerData?) {
         super();
@@ -124,40 +125,4 @@ class PlayerInfo extends BaseInfo {
     getCurWinningPercent():number {
         return this.winGameCount() / (this.loseGameCount() + this.winGameCount());
     }
-
-    // id:number;
-    // name:String;
-    // score:number;
-    // initScore:number;
-    // winningPercent:number;//
-    // ret:Array<any>;
-    // countWinGame:number;
-    // countLoseGame:number;
-    // round:number;
 }
-
-
-// class Player {
-//     id:number;
-//     name:String;
-//     score:number;
-//     initScore:number;
-//     winningPercent:number;//
-//     ret:Array<any>;
-//     countWinGame:number;
-//     countLoseGame:number;
-//     round:number;
-//
-//     constructor(id, wp, name?) {
-//         this.id = id;
-//         this.score = EloConf.score;
-//         this.winningPercent = wp;
-//         this.name = name;
-//         this.ret = [];
-//         this.countWinGame = 0;
-//         this.countLoseGame = 0;
-//         this.round = 0;
-//     }
-//
-//
-// }

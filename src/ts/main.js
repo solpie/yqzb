@@ -362,30 +362,6 @@ var PlayerInfo = (function (_super) {
     };
     return PlayerInfo;
 }(BaseInfo));
-// class Player {
-//     id:number;
-//     name:String;
-//     score:number;
-//     initScore:number;
-//     winningPercent:number;//
-//     ret:Array<any>;
-//     countWinGame:number;
-//     countLoseGame:number;
-//     round:number;
-//
-//     constructor(id, wp, name?) {
-//         this.id = id;
-//         this.score = EloConf.score;
-//         this.winningPercent = wp;
-//         this.name = name;
-//         this.ret = [];
-//         this.countWinGame = 0;
-//         this.countLoseGame = 0;
-//         this.round = 0;
-//     }
-//
-//
-// } 
 var EloConf = {
     score: 2000,
     K: 32
@@ -511,8 +487,15 @@ var PlayerPanelInfo = (function (_super) {
         };
     };
     PlayerPanelInfo.prototype.showWinPanel = function (param) {
-        this.playerData = param;
-        cmd.emit(CommandId.fadeInPlayerPanel, param, this.pid);
+        var playerId = parseInt(param);
+        for (var i = 0; i < this.stageInfo.playerInfoArr.length; i++) {
+            var obj = this.stageInfo.playerInfoArr[i];
+            if (obj.id == playerId) {
+                this.playerData = obj;
+                cmd.emit(CommandId.fadeInPlayerPanel, obj, this.pid);
+            }
+        }
+        //
     };
     PlayerPanelInfo.prototype.hideWinPanel = function () {
         cmd.emit(CommandId.fadeOutPlayerPanel, null, this.pid);
@@ -1258,7 +1241,7 @@ var StagePanelView = (function (_super) {
                 styleCtn.addChild(leftStyleIcon);
                 this.styleArr.push(styleCtn);
                 ctnMove.addChild(styleCtn);
-                var leftNameLabel = new createjs.Text("斯蒂芬库里", "bold 18px Arial", "#e2e2e2");
+                var leftNameLabel = new createjs.Text("player", "bold 18px Arial", "#e2e2e2");
                 leftNameLabel.textAlign = "left";
                 leftNameLabel.x = leftAvatarBg.x + 20;
                 leftNameLabel.y = leftAvatarBg.y + 90;
@@ -1309,7 +1292,7 @@ var StagePanelView = (function (_super) {
                 this.styleArr.push(styleCtn);
                 styleCtn.addChild(rightStyleIcon);
                 ctnMove.addChild(styleCtn);
-                var rightNameLabel = new createjs.Text("斯蒂芬库里", "bold 18px Arial", "#e2e2e2");
+                var rightNameLabel = new createjs.Text("player", "bold 18px Arial", "#e2e2e2");
                 rightNameLabel.textAlign = "right";
                 rightNameLabel.x = rightAvatarBg.x + 195;
                 rightNameLabel.y = rightAvatarBg.y + 90;
@@ -1860,11 +1843,15 @@ var HttpServer = (function () {
     HttpServer.prototype.handleOp = function () {
         var _this = this;
         cmd.on(CommandId.cs_fadeInPlayerPanel, function (param) {
-            var playerId = parseInt(param);
-            _this.dbPlayerInfo().find({ id: playerId }, function (err, doc) {
-                if (!err && doc.length)
-                    appInfo.panel.player.showWinPanel(doc[0]);
-            });
+            // this.dbPlayerInfo().find({id: playerId}, function (err, doc) {
+            //     if (!err && doc.length)
+            //         appInfo.panel.player.showWinPanel(doc[0]);
+            // });
+            // for (var i = 0; i < param.length; i++) {
+            //     var obj = param[i];
+            //    
+            // }
+            appInfo.panel.player.showWinPanel(param);
         });
         cmd.on(CommandId.cs_fadeOutPlayerPanel, function (param) {
             appInfo.panel.player.hideWinPanel();
@@ -1881,12 +1868,11 @@ var HttpServer = (function () {
         });
         cmd.on(CommandId.cs_updatePlayerAll, function (param) {
             var idArr = [];
-            var idPosMap = {};
+            // var idPosMap = {};
             for (var i = 0; i < param.length; i++) {
                 var obj = param[i];
                 // obj.src = 'data/' + obj.playerId + '.player';
                 idArr.push({ id: parseInt(obj.playerId) });
-                idPosMap[obj.playerId] = parseInt(obj.pos);
             }
             _this.dbPlayerInfo().find({ $or: idArr }, function (err, playerDataArr) {
                 console.log('find in db', err, playerDataArr, idArr);
@@ -1897,6 +1883,7 @@ var HttpServer = (function () {
                             var obj = param[j];
                             if (obj.playerId == playerData.id) {
                                 obj.playerData = playerData;
+                                playerData.pos = obj.pos;
                             }
                         }
                     }

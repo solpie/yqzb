@@ -514,7 +514,7 @@ class StagePanelView extends BaseView {
                 this.styleArr.push(styleCtn);
                 ctnMove.addChild(styleCtn);
 
-                var leftNameLabel = new createjs.Text("斯蒂芬库里", "bold 18px Arial", "#e2e2e2");
+                var leftNameLabel = new createjs.Text("player", "bold 18px Arial", "#e2e2e2");
                 leftNameLabel.textAlign = "left";
                 leftNameLabel.x = leftAvatarBg.x + 20;
                 leftNameLabel.y = leftAvatarBg.y + 90;
@@ -572,7 +572,7 @@ class StagePanelView extends BaseView {
                 styleCtn.addChild(rightStyleIcon);
                 ctnMove.addChild(styleCtn);
 
-                var rightNameLabel = new createjs.Text("斯蒂芬库里", "bold 18px Arial", "#e2e2e2");
+                var rightNameLabel = new createjs.Text("player", "bold 18px Arial", "#e2e2e2");
                 rightNameLabel.textAlign = "right";
                 rightNameLabel.x = rightAvatarBg.x + 195;
                 rightNameLabel.y = rightAvatarBg.y + 90;
