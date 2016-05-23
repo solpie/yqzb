@@ -66,8 +66,12 @@ class HttpServer {
         // view engine setup
         app.set('views', "./ts/server/views/tpl");
         app.set('view engine', 'ejs');
-
         app.use(express.static("."));
+
+        var bodyParser = require('body-parser');
+        // create application/x-www-form-urlencoded parser
+        var urlencodedParser = bodyParser.urlencoded({extended: false});
+
 
         app.get('/', function (req, res) {
             res.render('dashboard');
@@ -76,15 +80,17 @@ class HttpServer {
         app.get('/admin/player/:id', function (req, res) {
             var playerId = req.params.id;
             var op;
-            if (playerId) {
+            if (playerId == "new") {
                 //find player
-                op = 'update';
-            }
-            else {
                 op = 'new';
             }
             var data = {adminId: 'player', op: op};
             res.render('baseAdmin', data);
+        });
+
+        app.post('/admin/player/new', urlencodedParser, (req, res) => {
+            if (!req.body) return res.sendStatus(400);
+            console.log('/admin/player/new', req.body.name);
         });
 
         app.get('/admin/player/', (req, res)=> {
@@ -93,7 +99,7 @@ class HttpServer {
                 if (!err)
                     data.playerDataArr = docs;
                 res.render('playerList', data);
-                console.log("/admin/player/ length:", docs.length,JSON.stringify(data.playerDataArr));
+                console.log("/admin/player/ length:", docs.length, JSON.stringify(data.playerDataArr));
             });
         });
 
@@ -127,7 +133,6 @@ class HttpServer {
 //setup the web server
         app.server = http.createServer(app);
         //listen up
-
         app.server.listen(80, ()=> {
             //and... we're live
             console.log("wshost:", serverConf.host, "ws port:", serverConf.port);

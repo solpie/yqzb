@@ -17,6 +17,7 @@
     "nedb": "^1.8.0"
   },
   "dependencies": {
+    "body-parser": "^1.15.1",
     "msgpack-lite": "^0.1.20"
   }
 }

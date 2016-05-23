@@ -1758,21 +1758,26 @@ var HttpServer = (function () {
         app.set('views', "./ts/server/views/tpl");
         app.set('view engine', 'ejs');
         app.use(express.static("."));
+        var bodyParser = require('body-parser');
+        // create application/x-www-form-urlencoded parser
+        var urlencodedParser = bodyParser.urlencoded({ extended: false });
         app.get('/', function (req, res) {
             res.render('dashboard');
         });
         app.get('/admin/player/:id', function (req, res) {
             var playerId = req.params.id;
             var op;
-            if (playerId) {
+            if (playerId == "new") {
                 //find player
-                op = 'update';
-            }
-            else {
                 op = 'new';
             }
             var data = { adminId: 'player', op: op };
             res.render('baseAdmin', data);
+        });
+        app.post('/admin/player/new', urlencodedParser, function (req, res) {
+            if (!req.body)
+                return res.sendStatus(400);
+            console.log('/admin/player/new', req.body.name);
         });
         app.get('/admin/player/', function (req, res) {
             _this.dbPlayerInfo().find({}, function (err, docs) {

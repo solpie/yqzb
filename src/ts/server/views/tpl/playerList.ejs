@@ -1,7 +1,14 @@
-球员数据管理
+<h2>球员数据管理</h2>
+<a href="/admin/player/new">
+    <h1>添加球员</h1>
+</a>
 <div class="PlayerList">
     <% for(var i = 0; i < playerDataArr.length; i++) { %>
-    <li><a href="/admin/player/<%= playerDataArr[i].id %>"><%= playerDataArr[i].id %></a></li>
+    <li>
+        <a href="/admin/player/<%= playerDataArr[i].id %>">
+            <img src="<%= playerDataArr[i].avatar %>" />
+        </a>
+    </li>
     <% } %>
 </div>
 

@@ -50,17 +50,18 @@
     //    });
 
     var onUpdateAvatar = function () {
-        var callback = function (res) {
-            document.getElementById('playerAvatar').src = cropper.getCroppedCanvas().toDataURL();
-        }
-        if (playerId) {
-            $.post("/admin/player/new", null, function (res) {
-            });
-        }
-        else {
-            $.post("/admin/player/update/" + playerId, null, function (res) {
-            });
-        }
+        document.getElementById('playerAvatar').src = cropper.getCroppedCanvas().toDataURL();
+
+//        var callback = function (res) {
+//        }
+//        if (playerId) {
+//            $.post("/admin/player/new", null, function (res) {
+//            });
+//        }
+//        else {
+//            $.post("/admin/player/update/" + playerId, null, function (res) {
+//            });
+//        }
     }
 
 
@@ -68,11 +69,6 @@
     var leftAvatarBmp;
     var rightAvatarBmp;
     var updateLeftAvatar = function (cropData) {
-//        leftAvatarCtn.removeChildAt(1);
-//        var avatarBmp = new createjs.Bitmap(imgPath);
-//        avatarBmp.mask = leftAvatarCtn.getChildAt(0);
-//        leftAvatarCtn.addChild(avatarBmp);
-//        leftAvatarBmp.x = ;
         var scale = cropData.width / 180;
         leftAvatarBmp.x = -cropData.x / scale;
         leftAvatarBmp.y = -cropData.y / scale;
