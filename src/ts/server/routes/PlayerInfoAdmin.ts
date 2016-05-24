@@ -23,7 +23,24 @@ class PlayerAdmin {
     }
 
     static updatePlayer(req, res) {
-
+        if (!req.body) return res.sendStatus(400);
+        var isUpdateImg = req.body.isUpdateImg;
+        console.log('updatePlayer data:', JSON.stringify(req.body));
+        res.send('233');
+        // var playerId = parseInt(req.body.id);
+        // dbPlayerInfo().find({id: playerId}, function (err, doc) {
+        //     if (!err) {
+        //         if (doc.length) {
+        //             res.render()
+        //         }
+        //         else {
+        //             res.send("no id!!!");
+        //         }
+        //     }
+        //     else {
+        //         res.send(err);
+        //     }
+        // });
     }
 
     static newPlayer(req, res) {

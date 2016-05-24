@@ -81,6 +81,7 @@ class HttpServer {
         app.get('/admin/player/:id', PlayerAdmin.showPlayer);
 
         app.post('/admin/player/new', urlencodedParser, PlayerAdmin.newPlayer);
+        app.post('/admin/player/update', urlencodedParser, PlayerAdmin.updatePlayer);
 
         app.get('/admin/player/', (req, res)=> {
             dbPlayerInfo().find({}, function (err, docs) {

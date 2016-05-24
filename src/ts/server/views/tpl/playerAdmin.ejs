@@ -10,7 +10,7 @@
 <div class="PlayerAdmin">
     <div class="AvatarCrop">
         <input id="file1" type="file" value="..." onchange="showFile(this.files);">最小尺寸720x304
-        <input type="button" value="更新头像" onclick="onUpdateAvatar()">
+        <input type="button" value="更新头像" onclick="onClickUpdateAvatar()">
         <div>
             <img id="image">
         </div>
@@ -28,6 +28,7 @@
         <br>天梯分:<input id="playerEloScore" name="eloScore" value="2000"/>
         <br>球风:<input id="playerStyle" name="style" value="1"/>
         <br> <input type='submit' value='提交'>
+        <br> <input type='button' value='更新' onclick="onClickUpdate()">
     </form>
 </div>
 
@@ -37,6 +38,7 @@
     var playerId = 0;
     //    image.src = imagePath;
     var cropper;
+    var isChangeImage = false;
     //    cropper= new Cropper(image, {
     //        aspectRatio: 180 / 76,
     //        crop: function (e) {
@@ -51,12 +53,6 @@
     //        }
     //    });
 
-    var onUpdateAvatar = function () {
-        var playerAvatar = document.getElementById('playerAvatar');
-        playerAvatar.src = cropper.getCroppedCanvas().toDataURL();
-        document.getElementById('playerAvatarData').value = playerAvatar.src;
-        $(".cropper-container").hide();
-    }
 
     var stage;
     var leftAvatarBmp;
@@ -200,7 +196,7 @@
         });
 
         stage.addChild(getLeftPlayerCard(imagePath, scale));
-        var rightAvatarCtn = getRightPlayerCard(imagePath,scale);
+        var rightAvatarCtn = getRightPlayerCard(imagePath, scale);
         rightAvatarCtn.x = 250;
         stage.addChild(rightAvatarCtn);
         return stage;
@@ -211,12 +207,11 @@
         var img = new Image();
         img.onload = function () {
             if (imagePath)
-                initCanvas(imagePath, 180/this.width);
+                initCanvas(imagePath, 180 / this.width);
 //            alert(this.width + 'x' + this.height);
         }
         img.src = imagePath;
         $('#playerAvatar').attr({src: imagePath});
-
         $('#playerPhone').val('<%= playerData.phone %>')
         $('#playerHeight').val('<%= playerData.height %>')
         $('#playerWeight').val('<%= playerData.weight %>')
@@ -225,7 +220,29 @@
     }
     initPlayerData();
 </script>
-<script>
+<script code="event">
+    var onClickUpdateAvatar = function () {
+        var playerAvatar = document.getElementById('playerAvatar');
+        playerAvatar.src = cropper.getCroppedCanvas().toDataURL();
+        document.getElementById('playerAvatarData').value = playerAvatar.src;
+        $(".cropper-container").hide();
+        isChangeImage = true;
+    }
+    function onClickUpdate() {
+        console.log("onClickUpdate");
+        var submitData = {}
+        submitData.id = '<%= playerData.id %>';
+        submitData.phone = $('#playerPhone').val();
+        submitData.height = $('#playerHeight').val()
+        submitData.weight = $('#playerWeight').val()
+        submitData.eloScore = $('#playerEloScore').val()
+        submitData.style = $('#playerStyle').val()
+        if (isChangeImage)
+            submitData.avatar = $('#playeravatardata').val()
+        $.post("/admin/player/update", submitData, function (res) {
+            console.log(res);
+        });
+    }
     function checkUser() {
         function isNull(elemId) {
             return document.getElementById(elemId).value == '';
