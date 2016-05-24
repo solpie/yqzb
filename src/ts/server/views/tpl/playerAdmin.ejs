@@ -239,7 +239,10 @@
         submitData.eloScore = $('#playerEloScore').val()
         submitData.style = $('#playerStyle').val()
         if (isChangeImage)
-            submitData.avatar = $('#playeravatardata').val()
+        {
+            submitData.avatar = $('#playerAvatarData').val()
+            console.log("update player avatar data");
+        }
         $.post("/admin/player/update", submitData, function (res) {
             console.log(res);
         });

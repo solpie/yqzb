@@ -24,6 +24,8 @@ class PlayerAdmin {
 
     static updatePlayerData(req, res) {
         if (!req.body) return res.sendStatus(400);
+        console.log('updatePlayer req:', JSON.stringify(req.body));
+
         var isUpdateImg = req.body.isUpdateImg;
         var playerId = parseInt(req.body.id);
         var updateData:any = {};
