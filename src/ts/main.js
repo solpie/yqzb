@@ -1781,12 +1781,21 @@ var HttpServer = (function () {
             if (!req.body)
                 return res.sendStatus(400);
             var playerInfo = new PlayerInfo(req.body);
+            var imgPath = "img/player/" + playerInfo.id() + '.png';
             console.log('/admin/player/new', req.body.name, req.body.avatar);
-            _this.dbPlayerInfo().insert(playerInfo.playerData, function (err, newDoc) {
-                if (!err)
-                    res.send("sus");
+            var base64Data = playerInfo.avatar().replace(/^data:image\/png;base64,/, "");
+            writeFile(imgPath, base64Data, 'base64', function (err) {
+                if (!err) {
+                    playerInfo.avatar("/" + imgPath);
+                    _this.dbPlayerInfo().insert(playerInfo.playerData, function (err, newDoc) {
+                        if (!err)
+                            res.send("sus");
+                        else
+                            req.send(err);
+                    });
+                }
                 else
-                    req.send(err);
+                    res.send(err);
             });
         });
         app.get('/admin/player/', function (req, res) {
