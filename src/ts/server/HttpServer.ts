@@ -70,7 +70,10 @@ class HttpServer {
 
         var bodyParser = require('body-parser');
         // create application/x-www-form-urlencoded parser
-        var urlencodedParser = bodyParser.urlencoded({extended: false});
+        var urlencodedParser = bodyParser.urlencoded({
+            extended: false
+            , limit: '50mb'
+        });
 
 
         app.get('/', function (req, res) {
@@ -84,13 +87,22 @@ class HttpServer {
                 //find player
                 op = 'new';
             }
+
             var data = {adminId: 'player', op: op};
             res.render('baseAdmin', data);
         });
 
         app.post('/admin/player/new', urlencodedParser, (req, res) => {
             if (!req.body) return res.sendStatus(400);
-            console.log('/admin/player/new', req.body.name);
+            var playerInfo = new PlayerInfo(req.body);
+            console.log('/admin/player/new', req.body.name, req.body.avatar);
+
+            this.dbPlayerInfo().insert(playerInfo.playerData, function (err, newDoc) {
+                if (!err)
+                    res.send("sus");
+                else
+                    req.send(err);
+            });
         });
 
         app.get('/admin/player/', (req, res)=> {

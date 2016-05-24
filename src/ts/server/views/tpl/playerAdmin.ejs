@@ -16,15 +16,16 @@
         <br>
         <input type="button" value="更新头像" onclick="onUpdateAvatar()">
     </div>
-    <form class="PlayerData" action='/admin/player/<%= op %>' method='post'>
-        <img id="playerAvatar" name="avatar" src="">
+    <form class="PlayerData" action='/admin/player/<%= op %>' method='post' onsubmit="return checkUser();">
+        <img id="playerAvatar"  src="">
         <input id="file1" type="file" value="..." onchange="showFile(this.files);">最小尺寸720x304
         <br>
-        <br>昵称:<input id="playerName" name="name"/>
-        <br>身高:<input id="playerName" name="height" value="170+"/>
-        <br>体重:<input id="playerName" name="weight"/>
-        <br>天梯分:<input id="playerName" name="score" value="2000"/>
-        <br>球风:<input id="playerName" name="style" value="1"/>
+        <input id="playerAvatarData" name="avatar" value="" style="display: none"/>
+        <br>昵称:<input id="playerName" name="name" value="newPlayerTest"/>
+        <br>身高:<input id="playerHeight" name="height" value="170+"/>
+        <br>体重:<input id="playerWeight" name="weight" value="70"/>
+        <br>天梯分:<input id="playerEloScore" name="eloScore" value="2000"/>
+        <br>球风:<input id="playerStyle" name="style" value="1"/>
         <br> <input type='submit' value='Submit'>
     </form>
 </div>
@@ -50,8 +51,10 @@
     //    });
 
     var onUpdateAvatar = function () {
-        document.getElementById('playerAvatar').src = cropper.getCroppedCanvas().toDataURL();
+        var playerAvatar = document.getElementById('playerAvatar');
 
+        playerAvatar.src = cropper.getCroppedCanvas().toDataURL();
+        document.getElementById('playerAvatarData').value = playerAvatar.src;
 //        var callback = function (res) {
 //        }
 //        if (playerId) {
@@ -213,6 +216,17 @@
     //    stage.addChild(rightAvatarCtn);
 </script>
 <script>
+
+    function checkUser() {
+        function isNull(elemId) {
+            return document.getElementById(elemId).value == '';
+        }
+
+//        if (isNull("playerName"))return false;
+//        if (isNull("playerAvatarData"))return false;
+//        if (isNull("playerStyle"))return false;
+        return true;
+    }
     function showFile(files) {
         var fr = new FileReader();
         fr.readAsDataURL(files[0]);

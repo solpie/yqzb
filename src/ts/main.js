@@ -1760,7 +1760,10 @@ var HttpServer = (function () {
         app.use(express.static("."));
         var bodyParser = require('body-parser');
         // create application/x-www-form-urlencoded parser
-        var urlencodedParser = bodyParser.urlencoded({ extended: false });
+        var urlencodedParser = bodyParser.urlencoded({
+            extended: false,
+            limit: '50mb'
+        });
         app.get('/', function (req, res) {
             res.render('dashboard');
         });
@@ -1777,7 +1780,14 @@ var HttpServer = (function () {
         app.post('/admin/player/new', urlencodedParser, function (req, res) {
             if (!req.body)
                 return res.sendStatus(400);
-            console.log('/admin/player/new', req.body.name);
+            var playerInfo = new PlayerInfo(req.body);
+            console.log('/admin/player/new', req.body.name, req.body.avatar);
+            _this.dbPlayerInfo().insert(playerInfo.playerData, function (err, newDoc) {
+                if (!err)
+                    res.send("sus");
+                else
+                    req.send(err);
+            });
         });
         app.get('/admin/player/', function (req, res) {
             _this.dbPlayerInfo().find({}, function (err, docs) {
