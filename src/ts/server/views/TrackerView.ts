@@ -1,9 +1,8 @@
-import Container = createjs.Container;
 
 
 class TrackerView extends BaseView {
-    tracker:Container;
-    ballCtn:Container;
+    tracker:any;
+    ballCtn:any;
     constructor(stage,isClient) {
         super(stage,false);
         this.init();

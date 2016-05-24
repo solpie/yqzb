@@ -2,10 +2,16 @@
  * Created by toramisu on 2016/5/13.
  */
 /// <reference path="Config.ts"/>
-var msgpack = require("msgpack-lite");
-class HttpServer {
-    db:any;
+/// <reference path="routes/PlayerInfoAdmin.ts"/>
 
+var msgpack = require("msgpack-lite");
+var debug = require('debug')('express2:server');
+var db:any;
+function dbPlayerInfo() {
+    return db.player;
+}
+
+class HttpServer {
     getIPAddress() {
         var interfaces = require('os').networkInterfaces();
         for (var devName in interfaces) {
@@ -19,19 +25,12 @@ class HttpServer {
         }
     }
 
-    dbPlayerInfo() {
-        return this.db.player;
-    }
 
     initDB() {
-        // var Engine = require('tingodb')().Db,
-        //     assert = require('assert');
-        // var db = new Engine('db/tingodb', {});
-
         var Datastore = require('nedb');
 // Fetch a collection to insert document into
-        this.db = {};
-        this.db.player = new Datastore({filename: 'db/player.db', autoload: true});
+        db = {};
+        db.player = new Datastore({filename: 'db/player.db', autoload: true});
         // this.playerInfoCollection = db.collection("player_info");
         // this.playerInfoCollection.insert([{playerId: 1,name:"tmac"}, {playerId: 2,name:"curry"}]);
         // this.playerInfoCollection.findOne({playerId: 2}, function (err, playerInfo) {
@@ -60,7 +59,6 @@ class HttpServer {
         ///server
         var http = require('http');
         var path = require('path');
-
         var express = require('express');
         var app = express();
         // view engine setup
@@ -92,32 +90,10 @@ class HttpServer {
             res.render('baseAdmin', data);
         });
 
-        app.post('/admin/player/new', urlencodedParser, (req, res) => {
-            if (!req.body) return res.sendStatus(400);
-            var playerInfo = new PlayerInfo(req.body);
-            var imgPath = "img/player/" + playerInfo.id() + '.png';
-            console.log('/admin/player/new', req.body.name, req.body.avatar);
-
-            var base64Data = playerInfo.avatar().replace(/^data:image\/png;base64,/, "");
-
-            writeFile(imgPath, base64Data, 'base64', (err)=> {
-                if (!err) {
-                    playerInfo.avatar("/" + imgPath);
-                    this.dbPlayerInfo().insert(playerInfo.playerData, function (err, newDoc) {
-                        if (!err)
-                            res.send("sus");
-                        else
-                            req.send(err);
-                    });
-                }
-                else
-                    res.send(err);
-            });
-
-        });
+        app.post('/admin/player/new', urlencodedParser, PlayerAdmin.newPlayer);
 
         app.get('/admin/player/', (req, res)=> {
-            this.dbPlayerInfo().find({}, function (err, docs) {
+            dbPlayerInfo().find({}, function (err, docs) {
                 var data:any = {adminId: 'playerList'};
                 if (!err)
                     data.playerDataArr = docs;
@@ -140,7 +116,7 @@ class HttpServer {
             var playerId:number = parseInt(req.params.playerId);
             console.log("PlayerInfo ", playerId);
             // var playerInfo = new PlayerInfo();
-            this.dbPlayerInfo().find({id: playerId}, function (err, doc) {
+            dbPlayerInfo().find({id: playerId}, function (err, doc) {
                 if (err) {
                     console.log(err, "no player");
                     res.send(JSON.stringify({playerInfo: ""}));
@@ -194,7 +170,7 @@ class HttpServer {
                 // idPosMap[obj.playerId] = parseInt(obj.pos);
             }
 
-            this.dbPlayerInfo().find({$or: idArr}, function (err, playerDataArr) {
+            dbPlayerInfo().find({$or: idArr}, function (err, playerDataArr) {
                 console.log('find in db', err, playerDataArr, idArr);
                 if (!err && playerDataArr.length) {
                     for (var i = 0; i < playerDataArr.length; i++) {

@@ -4,9 +4,13 @@
 </a>
 <div class="PlayerList">
     <% for(var i = 0; i < playerDataArr.length; i++) { %>
+    <% var playerData = playerDataArr[i] %>
     <li>
+        <h3><%= playerData.name %></h3>
         <a href="/admin/player/<%= playerDataArr[i].id %>">
-            <img src="<%= playerDataArr[i].avatar %>" />
+            <div class="" style="width: 180px">
+                <img src="<%= playerData.avatar %>" style="width: 100%"/>
+            </div>
         </a>
     </li>
     <% } %>

@@ -4,12 +4,11 @@
 /// <reference path="../lib.ts"/>
 /// <reference path="../server/views/StagePanelView.ts"/>
 /// <reference path="../server/views/TrackerView.ts"/>
-import Stage = createjs.Stage;
 
 class ServerView {
     canvasEl:HTMLElement;
     canvas:HTMLElement;
-    stage:Stage;
+    stage:any;
     ctx:any;
     stageWidth:number = 1200;
     stageHeight:number = 800;

@@ -9,16 +9,16 @@
 </style>
 <div class="PlayerAdmin">
     <div class="AvatarCrop">
+        <input id="file1" type="file" value="..." onchange="showFile(this.files);">最小尺寸720x304
+        <input type="button" value="更新头像" onclick="onUpdateAvatar()">
         <div>
             <img id="image">
         </div>
         <canvas id="avatarPreview"></canvas>
         <br>
-        <input type="button" value="更新头像" onclick="onUpdateAvatar()">
     </div>
     <form class="PlayerData" action='/admin/player/<%= op %>' method='post' onsubmit="return checkUser();">
-        <img id="playerAvatar"  src="">
-        <input id="file1" type="file" value="..." onchange="showFile(this.files);">最小尺寸720x304
+        <img id="playerAvatar" src="">
         <br>
         <input id="playerAvatarData" name="avatar" value="" style="display: none"/>
         <br>昵称:<input id="playerName" name="name" value="newPlayerTest"/>
@@ -52,19 +52,9 @@
 
     var onUpdateAvatar = function () {
         var playerAvatar = document.getElementById('playerAvatar');
-
         playerAvatar.src = cropper.getCroppedCanvas().toDataURL();
         document.getElementById('playerAvatarData').value = playerAvatar.src;
-//        var callback = function (res) {
-//        }
-//        if (playerId) {
-//            $.post("/admin/player/new", null, function (res) {
-//            });
-//        }
-//        else {
-//            $.post("/admin/player/update/" + playerId, null, function (res) {
-//            });
-//        }
+        $(".cropper-container").hide();
     }
 
 
@@ -208,7 +198,7 @@
             stage.update();
         });
         return stage;
-    }
+    };
     //    stage = initCanvas();
     //    stage.addChild(getLeftPlayerCard(imagePath));
     //    var rightAvatarCtn = getRightPlayerCard(imagePath);

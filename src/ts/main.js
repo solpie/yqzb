@@ -1380,7 +1380,6 @@ var StagePanelView = (function (_super) {
     };
     return StagePanelView;
 }(BaseView));
-var Container = createjs.Container;
 var TrackerView = (function (_super) {
     __extends(TrackerView, _super);
     function TrackerView(stage, isClient) {
@@ -1466,7 +1465,6 @@ var TrackerView = (function (_super) {
 /// <reference path="../lib.ts"/>
 /// <reference path="../server/views/StagePanelView.ts"/>
 /// <reference path="../server/views/TrackerView.ts"/>
-var Stage = createjs.Stage;
 var ServerView = (function () {
     function ServerView() {
         //this.canvasEl = document.getElementById("stage");
@@ -1738,14 +1736,45 @@ var serverConf = {
     host: "localhost",
     port: 8086
 };
+var PlayerAdmin = (function () {
+    function PlayerAdmin() {
+    }
+    PlayerAdmin.newPlayer = function (req, res) {
+        if (!req.body)
+            return res.sendStatus(400);
+        var playerInfo = new PlayerInfo(req.body);
+        var imgPath = "img/player/" + playerInfo.id() + '.png';
+        console.log('/admin/player/new', req.body.name, req.body.avatar);
+        var base64Data = playerInfo.avatar().replace(/^data:image\/png;base64,/, "");
+        writeFile(imgPath, base64Data, 'base64', function (err) {
+            if (!err) {
+                playerInfo.avatar("/" + imgPath);
+                dbPlayerInfo().insert(playerInfo.playerData, function (err, newDoc) {
+                    if (!err)
+                        res.send("sus");
+                    else
+                        req.send(err);
+                });
+            }
+            else
+                res.send(err);
+        });
+    };
+    return PlayerAdmin;
+}());
 /**
  * Created by toramisu on 2016/5/13.
  */
 /// <reference path="Config.ts"/>
+/// <reference path="routes/PlayerAdmin.ts"/>
 var msgpack = require("msgpack-lite");
+var debug = require('debug')('express2:server');
+var db;
+function dbPlayerInfo() {
+    return db.player;
+}
 var HttpServer = (function () {
     function HttpServer() {
-        var _this = this;
         this.initDB();
         if (serverConf.host == 'localhost')
             serverConf.host = this.getIPAddress();
@@ -1777,29 +1806,9 @@ var HttpServer = (function () {
             var data = { adminId: 'player', op: op };
             res.render('baseAdmin', data);
         });
-        app.post('/admin/player/new', urlencodedParser, function (req, res) {
-            if (!req.body)
-                return res.sendStatus(400);
-            var playerInfo = new PlayerInfo(req.body);
-            var imgPath = "img/player/" + playerInfo.id() + '.png';
-            console.log('/admin/player/new', req.body.name, req.body.avatar);
-            var base64Data = playerInfo.avatar().replace(/^data:image\/png;base64,/, "");
-            writeFile(imgPath, base64Data, 'base64', function (err) {
-                if (!err) {
-                    playerInfo.avatar("/" + imgPath);
-                    _this.dbPlayerInfo().insert(playerInfo.playerData, function (err, newDoc) {
-                        if (!err)
-                            res.send("sus");
-                        else
-                            req.send(err);
-                    });
-                }
-                else
-                    res.send(err);
-            });
-        });
+        app.post('/admin/player/new', urlencodedParser, PlayerAdmin.newPlayer);
         app.get('/admin/player/', function (req, res) {
-            _this.dbPlayerInfo().find({}, function (err, docs) {
+            dbPlayerInfo().find({}, function (err, docs) {
                 var data = { adminId: 'playerList' };
                 if (!err)
                     data.playerDataArr = docs;
@@ -1820,7 +1829,7 @@ var HttpServer = (function () {
             var playerId = parseInt(req.params.playerId);
             console.log("PlayerInfo ", playerId);
             // var playerInfo = new PlayerInfo();
-            _this.dbPlayerInfo().find({ id: playerId }, function (err, doc) {
+            dbPlayerInfo().find({ id: playerId }, function (err, doc) {
                 if (err) {
                     console.log(err, "no player");
                     res.send(JSON.stringify({ playerInfo: "" }));
@@ -1854,17 +1863,11 @@ var HttpServer = (function () {
             }
         }
     };
-    HttpServer.prototype.dbPlayerInfo = function () {
-        return this.db.player;
-    };
     HttpServer.prototype.initDB = function () {
-        // var Engine = require('tingodb')().Db,
-        //     assert = require('assert');
-        // var db = new Engine('db/tingodb', {});
         var Datastore = require('nedb');
         // Fetch a collection to insert document into
-        this.db = {};
-        this.db.player = new Datastore({ filename: 'db/player.db', autoload: true });
+        db = {};
+        db.player = new Datastore({ filename: 'db/player.db', autoload: true });
         // this.playerInfoCollection = db.collection("player_info");
         // this.playerInfoCollection.insert([{playerId: 1,name:"tmac"}, {playerId: 2,name:"curry"}]);
         // this.playerInfoCollection.findOne({playerId: 2}, function (err, playerInfo) {
@@ -1911,7 +1914,7 @@ var HttpServer = (function () {
                 // obj.src = 'data/' + obj.playerId + '.player';
                 idArr.push({ id: parseInt(obj.playerId) });
             }
-            _this.dbPlayerInfo().find({ $or: idArr }, function (err, playerDataArr) {
+            dbPlayerInfo().find({ $or: idArr }, function (err, playerDataArr) {
                 console.log('find in db', err, playerDataArr, idArr);
                 if (!err && playerDataArr.length) {
                     for (var i = 0; i < playerDataArr.length; i++) {
