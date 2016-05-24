@@ -22,25 +22,35 @@ class PlayerAdmin {
         }
     }
 
-    static updatePlayer(req, res) {
+    static updatePlayerData(req, res) {
         if (!req.body) return res.sendStatus(400);
         var isUpdateImg = req.body.isUpdateImg;
-        console.log('updatePlayer data:', JSON.stringify(req.body));
-        res.send('233');
-        // var playerId = parseInt(req.body.id);
-        // dbPlayerInfo().find({id: playerId}, function (err, doc) {
-        //     if (!err) {
-        //         if (doc.length) {
-        //             res.render()
-        //         }
-        //         else {
-        //             res.send("no id!!!");
-        //         }
-        //     }
-        //     else {
-        //         res.send(err);
-        //     }
-        // });
+        var playerId = parseInt(req.body.id);
+        var updateData:any = {};
+        updateData.phone = parseInt(req.body.phone);
+        updateData.weight = parseInt(req.body.weight);
+        updateData.height = parseInt(req.body.height);
+        updateData.eloScore = parseInt(req.body.eloScore);
+        updateData.style = parseInt(req.body.style);
+        updateData.name = req.body.name;
+        if (isUpdateImg) {
+            updateData.avatar = req.body.avatar;
+        }
+        console.log('updatePlayer data:', JSON.stringify(updateData));
+
+        dbPlayerInfo().update({id: playerId}, {$set: updateData}, {}, function (err, doc) {
+            if (!err) {
+                if (doc.length) {
+                    return res.send("sus");
+                }
+                else {
+                    return res.send("no id!!!");
+                }
+            }
+            else {
+                return res.send(err);
+            }
+        });
     }
 
     static newPlayer(req, res) {
