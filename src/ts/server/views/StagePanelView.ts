@@ -1,4 +1,5 @@
 /// <reference path="../../view/BaseView.ts"/>
+/// <reference path="PlayerView.ts"/>
 
 class StagePanelView extends BaseView {
     // time:number = 0;
@@ -323,7 +324,7 @@ class StagePanelView extends BaseView {
         playerInfo.pos = playerData.pos;
 
         this.playerInfoArr[pos] = playerInfo;
-        console.log("updatePlayer", pos, playerInfo,this.eloLabelArr.length);
+        console.log("updatePlayer", pos, playerInfo, this.eloLabelArr.length);
         this.eloLabelArr[pos].text = playerInfo.eloScore();
         this.nameLabelArr[pos].text = playerInfo.name();
 
@@ -337,9 +338,16 @@ class StagePanelView extends BaseView {
         var avatarCtn = this.avatarArr[pos];
         avatarCtn.removeChildAt(1);
         var mask = avatarCtn.getChildAt(0);
+
+
         var avatar = new createjs.Bitmap(playerInfo.avatar());
         avatarCtn.addChild(avatar);
         avatar.mask = mask;
+        var img = new Image();
+        img.onload = function () {
+            avatar.scaleX = avatar.scaleY = 180 / this.width;
+        };
+        img.src = playerInfo.avatar();
     }
 
     setCtnXY(param) {
@@ -470,6 +478,8 @@ class StagePanelView extends BaseView {
             ctnMove.addChild(bgLeft);
 
             for (var i = 0; i < 4; i++) {
+
+                // PlayerView.getLeftStagePlayerCard();
                 var leftAvatarBg = new createjs.Bitmap("/img/panel/leftAvatarBg.png");//694x132
                 leftAvatarBg.x = bgLeft.x + 15 + i * 150;
                 leftAvatarBg.y = bgLeft.y + 6;

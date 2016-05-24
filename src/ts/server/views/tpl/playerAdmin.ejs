@@ -22,11 +22,12 @@
         <br>
         <input id="playerAvatarData" name="avatar" value="" style="display: none"/>
         <br>昵称:<input id="playerName" name="name" value="newPlayerTest"/>
+        <br>手机号:<input id="playerPhone" name="phone" value="13654872698"/>
         <br>身高:<input id="playerHeight" name="height" value="170+"/>
         <br>体重:<input id="playerWeight" name="weight" value="70"/>
         <br>天梯分:<input id="playerEloScore" name="eloScore" value="2000"/>
         <br>球风:<input id="playerStyle" name="style" value="1"/>
-        <br> <input type='submit' value='Submit'>
+        <br> <input type='submit' value='提交'>
     </form>
 </div>
 
@@ -46,7 +47,7 @@
     ////            console.log(e.detail.rotate);
     ////            console.log(e.detail.scaleX);
     ////            console.log(e.detail.scaleY);
-    //            updateLeftAvatar(e.detail);
+    //            onUpdateCropPreview(e.detail);
     //        }
     //    });
 
@@ -57,11 +58,10 @@
         $(".cropper-container").hide();
     }
 
-
     var stage;
     var leftAvatarBmp;
     var rightAvatarBmp;
-    var updateLeftAvatar = function (cropData) {
+    var onUpdateCropPreview = function (cropData) {
         var scale = cropData.width / 180;
         leftAvatarBmp.x = -cropData.x / scale;
         leftAvatarBmp.y = -cropData.y / scale;
@@ -70,9 +70,8 @@
         rightAvatarBmp.x = -cropData.x / scale;
         rightAvatarBmp.y = -cropData.y / scale;
         rightAvatarBmp.scaleX = rightAvatarBmp.scaleY = 1 / scale;
-
     }
-    var getLeftPlayerCard = function (avatarPath) {
+    var getLeftPlayerCard = function (avatarPath, scale) {
         //width 150
         var ctn = new createjs.Container();
         var leftAvatarBg = new createjs.Bitmap("/img/panel/leftAvatarBg.png");//694x132
@@ -95,6 +94,7 @@
         avatarCtn.addChild(leftMask);
         avatarCtn.addChild(avatarBmp);
         leftAvatarBmp = avatarBmp;
+        avatarBmp.scaleX = avatarBmp.scaleY = scale;
 //        this.avatarArr.push(avatarCtn);
         ctn.addChild(avatarCtn);
         ctn.addChild(leftAvatarBg);
@@ -130,7 +130,7 @@
         return ctn;
     }
 
-    var getRightPlayerCard = function (avatarPath) {
+    var getRightPlayerCard = function (avatarPath, scale) {
         var ctn = new createjs.Container();
         var rightAvatarBg = new createjs.Bitmap("/img/panel/rightAvatarBg.png");//694x132
         rightAvatarBg.x = 14;
@@ -152,6 +152,7 @@
         rightAvatarCtn.addChild(rightMask);
         rightAvatarCtn.addChild(avatarBmp);
         rightAvatarBmp = avatarBmp;
+        avatarBmp.scaleX = avatarBmp.scaleY = scale;
 //        this.avatarArr.push(rightAvatarCtn);
         ctn.addChild(rightAvatarCtn);
         ctn.addChild(rightAvatarBg);
@@ -185,7 +186,7 @@
         ctn.addChild(rightNameLabel);
         return ctn;
     }
-    var initCanvas = function () {
+    var initCanvas = function (imagePath, scale) {
         var stageWidth = 500;
         var stageHeight = 130;
         var canvas = document.getElementById("avatarPreview");
@@ -197,16 +198,34 @@
         createjs.Ticker.addEventListener("tick", function () {
             stage.update();
         });
+
+        stage.addChild(getLeftPlayerCard(imagePath, scale));
+        var rightAvatarCtn = getRightPlayerCard(imagePath,scale);
+        rightAvatarCtn.x = 250;
+        stage.addChild(rightAvatarCtn);
         return stage;
     };
-    //    stage = initCanvas();
-    //    stage.addChild(getLeftPlayerCard(imagePath));
-    //    var rightAvatarCtn = getRightPlayerCard(imagePath);
-    //    rightAvatarCtn.x = 250;
-    //    stage.addChild(rightAvatarCtn);
+    function initPlayerData() {
+        $('#playerName').val('<%= playerData.name %>');
+        imagePath = '<%= playerData.avatar %>';
+        var img = new Image();
+        img.onload = function () {
+            if (imagePath)
+                initCanvas(imagePath, 180/this.width);
+//            alert(this.width + 'x' + this.height);
+        }
+        img.src = imagePath;
+        $('#playerAvatar').attr({src: imagePath});
+
+        $('#playerPhone').val('<%= playerData.phone %>')
+        $('#playerHeight').val('<%= playerData.height %>')
+        $('#playerWeight').val('<%= playerData.weight %>')
+        $('#playerEloScore').val('<%= playerData.eloScore %>')
+        $('#playerStyle').val('<%= playerData.style %>')
+    }
+    initPlayerData();
 </script>
 <script>
-
     function checkUser() {
         function isNull(elemId) {
             return document.getElementById(elemId).value == '';
@@ -222,16 +241,11 @@
         fr.readAsDataURL(files[0]);
         fr.onload = function (e) {
 //            document.getElementById("playerAvatar").src = e.target.result;
-
-
             ///init
             imagePath = e.target.result;
             image.src = e.target.result;
-            stage = initCanvas();
-            stage.addChild(getLeftPlayerCard(imagePath));
-            var rightAvatarCtn = getRightPlayerCard(imagePath);
-            rightAvatarCtn.x = 250;
-            stage.addChild(rightAvatarCtn);
+
+            stage = initCanvas(imagePath, 1);
 
             cropper = new Cropper(image, {
                 aspectRatio: 180 / 76,
@@ -243,7 +257,7 @@
 //            console.log(e.detail.rotate);
 //            console.log(e.detail.scaleX);
 //            console.log(e.detail.scaleY);
-                    updateLeftAvatar(e.detail);
+                    onUpdateCropPreview(e.detail);
                 }
             });
         };

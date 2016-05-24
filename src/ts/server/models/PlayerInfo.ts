@@ -2,6 +2,7 @@
 class PlayerData {
     id:number = 0;
     name:string = '';
+    phone:number = 0;
     eloScore:number = 0;
     style:number = 0;//风林火山 1 2 3 4
     avatar:string = "";
@@ -26,15 +27,21 @@ class PlayerInfo extends BaseInfo {
         super();
         if (playerData) {
             this.playerData = obj2Class(playerData, PlayerData);
-            if (playerData['isRed']!=null)
+            if (playerData['isRed'] != null)
                 this.isRed = playerData.isRed;
-            if (playerData['isMvp']!=null)
+            if (playerData['isMvp'] != null)
                 this.isMvp = playerData.isMvp;
+            if (playerData['backNumber'] != null)
+                this.backNumber = playerData.backNumber;
         }
     }
 
     id(val?) {
         return prop(this.playerData, "id", val);
+    }
+
+    phone(val?) {
+        return prop(this.playerData, "phone", val);
     }
 
     name(val?) {

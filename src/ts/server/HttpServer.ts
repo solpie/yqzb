@@ -78,17 +78,7 @@ class HttpServer {
             res.render('dashboard');
         });
 
-        app.get('/admin/player/:id', function (req, res) {
-            var playerId = req.params.id;
-            var op;
-            if (playerId == "new") {
-                //find player
-                op = 'new';
-            }
-
-            var data = {adminId: 'player', op: op};
-            res.render('baseAdmin', data);
-        });
+        app.get('/admin/player/:id', PlayerAdmin.showPlayer);
 
         app.post('/admin/player/new', urlencodedParser, PlayerAdmin.newPlayer);
 
