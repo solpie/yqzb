@@ -1117,7 +1117,7 @@ var StagePanelView = (function (_super) {
                     .lineTo(180 - sx, 76)
                     .lineTo(180, 0)
                     .lineTo(sx, 0);
-                var avatarBmp = new createjs.Bitmap("/img/player/p1.png");
+                var avatarBmp = new createjs.Bitmap("/img/player/p11.png");
                 avatarBmp.mask = leftMask;
                 avatarCtn.addChild(leftMask);
                 avatarCtn.addChild(avatarBmp);
@@ -1168,7 +1168,7 @@ var StagePanelView = (function (_super) {
                     .lineTo(180, 76)
                     .lineTo(180 - sx, 0)
                     .lineTo(0, 0);
-                var avatarBmp = new createjs.Bitmap("/img/player/p3.png");
+                var avatarBmp = new createjs.Bitmap("/img/player/p13.png");
                 avatarBmp.mask = rightMask;
                 rightAvatarCtn.addChild(rightMask);
                 rightAvatarCtn.addChild(avatarBmp);
@@ -1221,7 +1221,7 @@ var StagePanelView = (function (_super) {
             box.alpha = .8;
             this.fxEventCtn.addChild(box);
             // this.fxEventCtn.addChild(bg1);
-            var avatar = new createjs.Bitmap("/img/player/p1.png");
+            var avatar = new createjs.Bitmap("/img/player/p11.png");
             avatar.x = 130;
             avatar.y = 5;
             this.fxEventCtn.addChild(avatar);
@@ -1251,7 +1251,7 @@ var StagePanelView = (function (_super) {
             if (param.ctnXY)
                 this.setCtnXY(param.ctnXY);
         }
-        // var bmp = new createjs.Bitmap("/img/player/p1.png");
+        // var bmp = new createjs.Bitmap("/img/player/p11.png");
         // bmp.x = 0;
         // bmp.y = 0;
         // //创建遮罩
@@ -1657,7 +1657,7 @@ var PlayerAdmin = (function () {
             var data = { adminId: 'playerList' };
             if (!err)
                 data.playerDataArr = docs;
-            res.render('playerList', data);
+            res.render('playerAdminIndex', data);
             console.log("/admin/player/ length:", docs.length, JSON.stringify(data.playerDataArr));
         });
     };
@@ -1756,6 +1756,15 @@ var PlayerAdmin = (function () {
         console.log('/admin/player/new', req.body.name);
     };
     return PlayerAdmin;
+}());
+var GameInfoAdmin = (function () {
+    function GameInfoAdmin() {
+    }
+    GameInfoAdmin.index = function (req, res) {
+        var data;
+        res.render('game/gameAdmin', data);
+    };
+    return GameInfoAdmin;
 }());
 /// <reference path="../../Node.ts"/>
 var appExecPath = M_path.dirname(process.execPath);
@@ -2161,6 +2170,7 @@ var StagePanelInfo = (function (_super) {
  */
 /// <reference path="Config.ts"/>
 /// <reference path="routes/PlayerInfoAdmin.ts"/>
+/// <reference path="routes/GameInfoAdmin.ts"/>
 /// <reference path="models/DbInfo.ts"/>
 /// <reference path="models/PanelInfo.ts"/>
 var msgpack = require("msgpack-lite");
@@ -2230,10 +2240,12 @@ var HttpServer = (function () {
             res.render('dashboard');
         });
         app.get('/admin/player/:id', PlayerAdmin.showPlayerById);
+        app.get('/admin/player/', PlayerAdmin.index);
         app.post('/admin/player/new', urlencodedParser, PlayerAdmin.newPlayer);
         app.post('/admin/player/update', urlencodedParser, PlayerAdmin.updatePlayerData);
         app.post('/admin/player/delete', urlencodedParser, PlayerAdmin.deletePlayerData);
-        app.get('/admin/player/', PlayerAdmin.index);
+        //game admin
+        app.get('/admin/game/', GameInfoAdmin.index);
         app.get('/panel/:id/:op', function (req, res) {
             var pid = req.params.id;
             var op = req.params.op;
@@ -2361,8 +2373,6 @@ var HttpServer = (function () {
                         info = _this.panel.stage.getInfo();
                     else if (pid == PanelId.playerPanel)
                         info = _this.panel.player.getInfo();
-                    else if (pid == PanelId.winPanel)
-                        info = _this.panel.win.getInfo();
                     wsClient.send(JSON.stringify({
                         res: "init",
                         param: info

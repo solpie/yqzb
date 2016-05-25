@@ -1,17 +1,27 @@
+<style>
+    li {
+        width: 200px;
+        min-height: 150px;
+        border: 1px solid #ddd;
+        display: inline-block;
+        margin: 5px;
+    }
+</style>
 <h2>球员数据管理</h2>
 <a href="/admin/player/new">
     <h1>添加球员</h1>
 </a>
 <div class="PlayerList">
     <% for(var i = 0; i < playerDataArr.length; i++) { %>
-    <% var playerData = playerDataArr[i];if(!playerData.id)continue; %>
+    <% var playerData = playerDataArr[i];if (!playerData.id)continue; %>
     <li>
-        <h3><%= playerData.name %></h3>
+       <h3><%= playerData.name %></h3>
         <a href="/admin/player/<%= playerDataArr[i].id %>">
             <div class="" style="width: 180px">
                 <img src="<%= playerData.avatar %>" style="width: 100%"/>
             </div>
         </a>
+       id:<%= playerData.id %>    天梯分：<%= playerData.eloScore %>
     </li>
     <% } %>
 </div>

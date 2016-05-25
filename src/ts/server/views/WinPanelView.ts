@@ -21,7 +21,7 @@ class WinPanelView extends BaseView {
 
         var playerInfo = new PlayerInfo();
         playerInfo.name("tmac");
-        playerInfo.avatar("/img/player/p1.png");
+        playerInfo.avatar("/img/player/p11.png");
         playerInfo.eloScore(2431);
         playerInfo.style(1);
         playerInfo.winpercent(.9501);
@@ -29,7 +29,7 @@ class WinPanelView extends BaseView {
 
         var playerInfo = new PlayerInfo();
         playerInfo.name("tmac");
-        playerInfo.avatar("/img/player/p1.png");
+        playerInfo.avatar("/img/player/p11.png");
         playerInfo.eloScore(2431);
         playerInfo.style(2);
         playerInfo.winpercent(.9501);
@@ -38,7 +38,7 @@ class WinPanelView extends BaseView {
 
         var playerInfo = new PlayerInfo();
         playerInfo.name("tmac");
-        playerInfo.avatar("/img/player/p1.png");
+        playerInfo.avatar("/img/player/p11.png");
         playerInfo.eloScore(2431);
         playerInfo.style(3);
         playerInfo.winpercent(.9501);
@@ -46,7 +46,7 @@ class WinPanelView extends BaseView {
 
         var playerInfo = new PlayerInfo();
         playerInfo.name("tmac");
-        playerInfo.avatar("/img/player/p1.png");
+        playerInfo.avatar("/img/player/p11.png");
         playerInfo.eloScore(2431);
         playerInfo.style(4);
         playerInfo.winpercent(.9501);

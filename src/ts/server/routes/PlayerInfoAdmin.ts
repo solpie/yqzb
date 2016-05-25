@@ -18,7 +18,7 @@ class PlayerAdmin {
             var data:any = {adminId: 'playerList'};
             if (!err)
                 data.playerDataArr = docs;
-            res.render('playerList', data);
+            res.render('playerAdminIndex', data);
             console.log("/admin/player/ length:", docs.length, JSON.stringify(data.playerDataArr));
         });
     }

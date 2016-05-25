@@ -3,9 +3,9 @@
  */
 /// <reference path="Config.ts"/>
 /// <reference path="routes/PlayerInfoAdmin.ts"/>
+/// <reference path="routes/GameInfoAdmin.ts"/>
 /// <reference path="models/DbInfo.ts"/>
 /// <reference path="models/PanelInfo.ts"/>
-
 var msgpack = require("msgpack-lite");
 var debug = require('debug')('express2:server');
 
@@ -80,12 +80,14 @@ class HttpServer {
         });
 
         app.get('/admin/player/:id', PlayerAdmin.showPlayerById);
+        app.get('/admin/player/', PlayerAdmin.index);
 
         app.post('/admin/player/new', urlencodedParser, PlayerAdmin.newPlayer);
         app.post('/admin/player/update', urlencodedParser, PlayerAdmin.updatePlayerData);
         app.post('/admin/player/delete', urlencodedParser, PlayerAdmin.deletePlayerData);
 
-        app.get('/admin/player/', PlayerAdmin.index);
+        //game admin
+        app.get('/admin/game/', GameInfoAdmin.index);
 
 
         app.get('/panel/:id/:op', function (req, res) {
@@ -230,9 +232,6 @@ class HttpServer {
                         info = this.panel.stage.getInfo();
                     else if (pid == PanelId.playerPanel)
                         info = this.panel.player.getInfo();
-                    else if (pid == PanelId.winPanel)
-                        info = this.panel.win.getInfo();
-
                     wsClient.send(JSON.stringify({
                         res: "init",
                         param: info
