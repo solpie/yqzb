@@ -26,7 +26,13 @@
         <br>身高:<input id="playerHeight" name="height" value="170"/>
         <br>体重:<input id="playerWeight" name="weight" value="70"/>
         <br>天梯分:<input id="playerEloScore" name="eloScore" value="2000"/>
-        <br>球风:<input id="playerStyle" name="style" value="1"/>
+        <br>球风:
+        <!--<input id="playerStyle" name="style" value="1"/>-->
+        <input name="style" class="playerMvp" type="radio" value="1"/>风
+        <input name="style" class="playerMvp" type="radio" value="2"/>林
+        <input name="style" class="playerMvp" type="radio" value="3"/>火
+        <input name="style" class="playerMvp" type="radio" value="4"/>山
+
         <br>赛事:<input id="playerActivityId" name="activityId" value="1"/>
         <br> <input id="btnAdd" type='submit' value='提交'>
         <input id="btnUpdate" type='button' value='更新' onclick="onClickUpdate()">
@@ -224,7 +230,7 @@
         $('#playerHeight').val('<%= playerData.height %>');
         $('#playerWeight').val('<%= playerData.weight %>');
         $('#playerEloScore').val('<%= playerData.eloScore %>');
-        $('#playerStyle').val('<%= playerData.style %>');
+        $('input:radio[name="style"][value="<%= playerData.style %>"]').attr('checked', true);
         $('#playerActivityId').val('<%= playerData.activityId %>');
         <% } %>
     }
@@ -249,7 +255,7 @@
         });
     }
     function onClickUpdate() {
-        console.log("onClickUpdate");
+        console.log("onClickUpdate", $('input[name="style"]:checked').val());
         var submitData = {}
         submitData.id = '<%= playerData.id %>';
         submitData.name = $('#playerName').val();
@@ -257,7 +263,7 @@
         submitData.height = $('#playerHeight').val();
         submitData.weight = $('#playerWeight').val();
         submitData.eloScore = $('#playerEloScore').val();
-        submitData.style = $('#playerStyle').val();
+        submitData.style = $('input[name="style"]:checked').val();
         submitData.activityId = $('#playerActivityId').val();
         if (isChangeImage) {
             submitData.avatar = $('#playerAvatarData').val()

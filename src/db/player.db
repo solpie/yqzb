@@ -7,3 +7,8 @@
 {"id":12,"name":"james","eloScore":2631,"style":1,"avatar":"/img/player/p22.png","height":0,"weight":0,"winpercent":0.9501,"gameCount":0,"dtScore":0,"pos":1,"_id":"kYhEPh55m96F86SX"}
 {"id":14,"name":"durant","eloScore":2731,"style":4,"avatar":"/img/player/p24.png","height":0,"weight":0,"winpercent":0.9501,"gameCount":0,"dtScore":0,"pos":3,"_id":"msmET6PyuYZbHHCl"}
 {"id":11,"name":"wade","eloScore":2831,"style":2,"avatar":"/img/player/p21.png","height":0,"weight":0,"winpercent":0.9501,"gameCount":0,"dtScore":0,"pos":0,"_id":"o4pc0WnxW9XaHWNs"}
+{"id":15,"name":"thompson","eloScore":2131,"style":null,"avatar":"/img/player/p25.png","height":12,"weight":0,"winpercent":0.9501,"gameCount":0,"dtScore":0,"pos":4,"_id":"3btsTuGx0g2zWQ2f","phone":null,"activityId":null}
+{"id":15,"name":"thompson","eloScore":2131,"style":2,"avatar":"/img/player/p25.png","height":12,"weight":0,"winpercent":0.9501,"gameCount":0,"dtScore":0,"pos":4,"_id":"3btsTuGx0g2zWQ2f","phone":null,"activityId":null}
+{"id":15,"name":"thompson","eloScore":2131,"style":3,"avatar":"/img/player/p25.png","height":12,"weight":0,"winpercent":0.9501,"gameCount":0,"dtScore":0,"pos":4,"_id":"3btsTuGx0g2zWQ2f","phone":null,"activityId":null}
+{"id":15,"name":"thompson","eloScore":2131,"style":4,"avatar":"/img/player/p25.png","height":12,"weight":0,"winpercent":0.9501,"gameCount":0,"dtScore":0,"pos":4,"_id":"3btsTuGx0g2zWQ2f","phone":null,"activityId":null}
+{"id":10009,"name":"miliya","phone":"13654872698","eloScore":"2000","style":"2","avatar":"/img/player/10009.png","height":"170","weight":"70","dtScore":0,"winpercent":0,"activityId":"1","gameCount":0,"loseGameCount":0,"winGameCount":0,"_id":"NxnECGM2TVZVpCCP"}
