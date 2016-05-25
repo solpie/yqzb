@@ -1,13 +1,9 @@
 {"id":15,"name":"thompson","eloScore":2131,"style":2,"avatar":"/img/player/p25.png","height":0,"weight":0,"winpercent":0.9501,"gameCount":0,"dtScore":0,"pos":4,"_id":"3btsTuGx0g2zWQ2f"}
 {"id":18,"name":"kobe","eloScore":2231,"style":1,"avatar":"/img/player/p28.png","height":0,"weight":0,"winpercent":0.9501,"gameCount":0,"dtScore":0,"pos":7,"_id":"Cep5LvDaTnu5GIZh"}
-{"id":10010,"name":"sad","phone":"12345678901","eloScore":"2000","style":"1","avatar":"/img/player/10010.png","height":"168","weight":"80","dtScore":0,"winpercent":0,"activityId":"1","gameCount":0,"loseGameCount":0,"winGameCount":0,"_id":"FQdJgTh2tYJK515y"}
 {"id":10008,"name":"curry","phone":13654872698,"eloScore":2000,"style":1,"avatar":"/img/player/10008.png","height":172,"weight":71,"dtScore":0,"winpercent":0,"gameCount":0,"loseGameCount":0,"winGameCount":0,"_id":"IVayXLaMTNqRVPX4","activityId":1}
 {"id":16,"name":"tmac","eloScore":2331,"style":2,"avatar":"/img/player/p26.png","height":0,"weight":0,"winpercent":0.9501,"gameCount":0,"dtScore":0,"pos":5,"_id":"LXOWjafTuoHhfyi1"}
 {"id":13,"name":"irving","eloScore":2431,"style":3,"avatar":"/img/player/p23.png","height":0,"weight":0,"winpercent":0.9501,"gameCount":0,"dtScore":0,"pos":2,"_id":"MkdN2kAMVKLUUpyE"}
-{"id":10009,"name":"ll","phone":12345678901,"eloScore":2000,"style":1,"avatar":"/img/player/10009.png","height":168,"weight":70,"dtScore":0,"winpercent":0,"activityId":1,"gameCount":0,"loseGameCount":0,"winGameCount":0,"_id":"VGEbsX7N5VI5Lemp"}
 {"id":17,"name":"paul","eloScore":2531,"style":2,"avatar":"/img/player/p27.png","height":0,"weight":0,"winpercent":0.9501,"gameCount":0,"dtScore":0,"pos":6,"_id":"VMhPt2a4yRzPFyS8"}
 {"id":12,"name":"james","eloScore":2631,"style":1,"avatar":"/img/player/p22.png","height":0,"weight":0,"winpercent":0.9501,"gameCount":0,"dtScore":0,"pos":1,"_id":"kYhEPh55m96F86SX"}
 {"id":14,"name":"durant","eloScore":2731,"style":4,"avatar":"/img/player/p24.png","height":0,"weight":0,"winpercent":0.9501,"gameCount":0,"dtScore":0,"pos":3,"_id":"msmET6PyuYZbHHCl"}
 {"id":11,"name":"wade","eloScore":2831,"style":2,"avatar":"/img/player/p21.png","height":0,"weight":0,"winpercent":0.9501,"gameCount":0,"dtScore":0,"pos":0,"_id":"o4pc0WnxW9XaHWNs"}
-{"$$deleted":true,"_id":"FQdJgTh2tYJK515y"}
-{"$$deleted":true,"_id":"VGEbsX7N5VI5Lemp"}
