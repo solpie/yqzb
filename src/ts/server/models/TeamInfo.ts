@@ -4,10 +4,10 @@
 class TeamInfo {
     name:string;
     score:number;
-    playerArr:Array<PlayerInfo>;
+    playerInfoArr:Array<PlayerInfo>;
 
     constructor() {
-        this.playerArr = [];
+        this.playerInfoArr = [];
     }
 
     setPlayer(player:PlayerInfo, pos?:number) {
@@ -46,14 +46,14 @@ class TeamInfo {
     // }
 
     setPlayerArr(playerArr:Array<PlayerInfo>) {
-        this.playerArr.length = 0;
-        this.playerArr = this.playerArr.concat(playerArr);
+        this.playerInfoArr.length = 0;
+        this.playerInfoArr = this.playerInfoArr.concat(playerArr);
         this.score = 0;
-        for (var i = 0; i < this.playerArr.length; i++) {
-            var player = this.playerArr[i];
+        for (var i = 0; i < this.playerInfoArr.length; i++) {
+            var player = this.playerInfoArr[i];
             this.score += player.eloScore();
         }
-        this.score /= this.playerArr.length;
+        this.score /= this.playerInfoArr.length;
         console.log(this, "player score:", this.score);
     }
 
@@ -91,19 +91,28 @@ class TeamInfo {
 
     saveScore(score, isWin) {
         this.score += score;
-        for (var i = 0; i < this.playerArr.length; i++) {
-            var player = this.playerArr[i];
+        for (var i = 0; i < this.playerInfoArr.length; i++) {
+            var player = this.playerInfoArr[i];
             player.saveScore(score, isWin);
         }
     }
 
+    getPlayerDataArr() {
+        var a = [];
+        for (var i = 0; i < this.playerInfoArr.length; i++) {
+            var playerInfo:PlayerInfo = this.playerInfoArr[i];
+            a.push(playerInfo.getPlayerData());
+        }
+        return a;
+    }
+
     getWinningPercent():number {
         var wp;
-        for (var i = 0; i < this.playerArr.length; i++) {
-            var player = this.playerArr[i];
+        for (var i = 0; i < this.playerInfoArr.length; i++) {
+            var player = this.playerInfoArr[i];
             wp += player.getCurWinningPercent();
         }
-        wp /= this.playerArr.length;
+        wp /= this.playerInfoArr.length;
         return wp;
     }
 }

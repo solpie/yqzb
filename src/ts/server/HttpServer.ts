@@ -6,12 +6,16 @@
 /// <reference path="routes/GameInfoAdmin.ts"/>
 /// <reference path="models/DbInfo.ts"/>
 /// <reference path="models/PanelInfo.ts"/>
+/// <reference path="models/ActivityInfo.ts"/>
+
+
 var msgpack = require("msgpack-lite");
 var debug = require('debug')('express2:server');
 
 
 class HttpServer {
     panel:PanelInfo;
+    activityInfo:ActivityInfo;
 
     getIPAddress() {
         var interfaces = require('os').networkInterfaces();
@@ -28,6 +32,7 @@ class HttpServer {
 
     initPanelInfo() {
         this.panel = new PanelInfo();
+        this.activityInfo = new ActivityInfo();
         console.log("init panel info", this.panel);
     }
 
@@ -88,6 +93,7 @@ class HttpServer {
 
         //game admin
         app.get('/admin/game/', GameInfoAdmin.index);
+        app.post('/admin/game/genRound', urlencodedParser, GameInfoAdmin.genRound);
 
 
         app.get('/panel/:id/:op', function (req, res) {
@@ -137,11 +143,14 @@ class HttpServer {
     }
 
     handleOp() {
+        cmd.on(CommandId.cs_saveGameRec, (param)=> {
+            this.panel.stage.gameInfo.saveGameRec();
+        });
         cmd.on(CommandId.cs_fadeInPlayerPanel, (param)=> {
-            this.panel.player.showWinPanel(param);
+            this.panel.player.showPlayerPanel(param);
         });
         cmd.on(CommandId.cs_fadeOutPlayerPanel, (param)=> {
-            this.panel.player.hideWinPanel();
+            this.panel.player.hidePlayerPanel();
         });
         cmd.on(CommandId.cs_movePlayerPanel, (param)=> {
             this.panel.player.movePanel(param);

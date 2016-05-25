@@ -277,17 +277,19 @@ var CommandId;
     CommandId[CommandId["cs_fadeInWinPanel"] = 100029] = "cs_fadeInWinPanel";
     CommandId[CommandId["fadeOutWinPanel"] = 100030] = "fadeOutWinPanel";
     CommandId[CommandId["cs_fadeOutWinPanel"] = 100031] = "cs_fadeOutWinPanel";
+    CommandId[CommandId["saveGameRec"] = 100032] = "saveGameRec";
+    CommandId[CommandId["cs_saveGameRec"] = 100033] = "cs_saveGameRec";
     //---------------- player panel
-    CommandId[CommandId["fadeInPlayerPanel"] = 100032] = "fadeInPlayerPanel";
-    CommandId[CommandId["cs_fadeInPlayerPanel"] = 100033] = "cs_fadeInPlayerPanel";
-    CommandId[CommandId["fadeOutPlayerPanel"] = 100034] = "fadeOutPlayerPanel";
-    CommandId[CommandId["cs_fadeOutPlayerPanel"] = 100035] = "cs_fadeOutPlayerPanel";
-    CommandId[CommandId["movePlayerPanel"] = 100036] = "movePlayerPanel";
-    CommandId[CommandId["cs_movePlayerPanel"] = 100037] = "cs_movePlayerPanel";
+    CommandId[CommandId["fadeInPlayerPanel"] = 100034] = "fadeInPlayerPanel";
+    CommandId[CommandId["cs_fadeInPlayerPanel"] = 100035] = "cs_fadeInPlayerPanel";
+    CommandId[CommandId["fadeOutPlayerPanel"] = 100036] = "fadeOutPlayerPanel";
+    CommandId[CommandId["cs_fadeOutPlayerPanel"] = 100037] = "cs_fadeOutPlayerPanel";
+    CommandId[CommandId["movePlayerPanel"] = 100038] = "movePlayerPanel";
+    CommandId[CommandId["cs_movePlayerPanel"] = 100039] = "cs_movePlayerPanel";
     //自动三杀事件
-    CommandId[CommandId["straightScore3"] = 100038] = "straightScore3";
-    CommandId[CommandId["straightScore5"] = 100039] = "straightScore5";
-    CommandId[CommandId["initPanel"] = 100040] = "initPanel";
+    CommandId[CommandId["straightScore3"] = 100040] = "straightScore3";
+    CommandId[CommandId["straightScore5"] = 100041] = "straightScore5";
+    CommandId[CommandId["initPanel"] = 100042] = "initPanel";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {
@@ -408,6 +410,7 @@ var PlayerData = (function () {
         this.dtScore = 0; //最近一场天梯分变化
         this.winpercent = 0; //  胜率  100/100.0%
         this.activityId = 0; //赛事id
+        this.gameRec = []; //比赛记录
         this.gameCount = 0; //场数
         this.loseGameCount = 0;
         this.winGameCount = 0;
@@ -431,6 +434,11 @@ var PlayerInfo = (function (_super) {
                 this.backNumber = playerData.backNumber;
         }
     }
+    PlayerInfo.prototype.getPlayerData = function () {
+        this.playerData['isRed'] = this.isRed;
+        this.playerData['isMvp'] = this.isMvp;
+        this.playerData['backNumber'] = this.backNumber;
+    };
     PlayerInfo.prototype.id = function (val) {
         return prop(this.playerData, "id", val);
     };
@@ -454,6 +462,9 @@ var PlayerInfo = (function (_super) {
     };
     PlayerInfo.prototype.avatar = function (val) {
         return prop(this.playerData, "avatar", val);
+    };
+    PlayerInfo.prototype.gameRec = function (val) {
+        return prop(this.playerData, "gameRec", val);
     };
     PlayerInfo.prototype.winpercent = function (val) {
         return prop(this.playerData, "winpercent", val);
@@ -1761,8 +1772,20 @@ var GameInfoAdmin = (function () {
     function GameInfoAdmin() {
     }
     GameInfoAdmin.index = function (req, res) {
-        var data;
+        var data = { gameDataArr: [] };
         res.render('game/gameAdmin', data);
+    };
+    GameInfoAdmin.genRound = function (req, res) {
+        // if (!req.body) return res.sendStatus(400);
+        var playerDataArr;
+        var actId = parseInt(req.body.id);
+        dbPlayerInfo().getActivityPlayerDataArr(actId, function (err, docs) {
+            console.log("get Activity player arr", JSON.stringify(docs));
+            for (var i = 0; i < res.length; i++) {
+                var obj = res[i];
+            }
+            res.send(docs.length);
+        });
     };
     return GameInfoAdmin;
 }());
@@ -1772,6 +1795,9 @@ var isDev;
 var db;
 function dbPlayerInfo() {
     return db.player;
+}
+function dbActivityInfo() {
+    return db.activity;
 }
 function initDB() {
     var Datastore = require('nedb');
@@ -1795,6 +1821,14 @@ function initDB() {
     db.player.getNewId = function () {
         return db.player.config.playerIdUsed;
     };
+    db.player.getActivityPlayerDataArr = function (actId, callback) {
+        db.player.find({ $not: { id: 0 }, activityId: actId }, function (err, docs) {
+            callback(err, docs);
+        });
+    };
+    // db.player.getActivityPlayerDataArr(1, function (err, docs) {
+    //     console.log("actPlayer:", JSON.stringify(docs));
+    // });
     // var playerDb:string = M_path.join(appPath, 'db/player.db');
     // var activityDb:string = M_path.join(appPath, 'db/activity.db');
     console.log(process.cwd());
@@ -1809,7 +1843,7 @@ var EloConf = {
 /// <reference path="./EloInfo.ts"/>
 var TeamInfo = (function () {
     function TeamInfo() {
-        this.playerArr = [];
+        this.playerInfoArr = [];
     }
     TeamInfo.prototype.setPlayer = function (player, pos) {
         // if (pos) {
@@ -1839,14 +1873,14 @@ var TeamInfo = (function () {
     //     this.playerArr = [];
     // }
     TeamInfo.prototype.setPlayerArr = function (playerArr) {
-        this.playerArr.length = 0;
-        this.playerArr = this.playerArr.concat(playerArr);
+        this.playerInfoArr.length = 0;
+        this.playerInfoArr = this.playerInfoArr.concat(playerArr);
         this.score = 0;
-        for (var i = 0; i < this.playerArr.length; i++) {
-            var player = this.playerArr[i];
+        for (var i = 0; i < this.playerInfoArr.length; i++) {
+            var player = this.playerInfoArr[i];
             this.score += player.eloScore();
         }
-        this.score /= this.playerArr.length;
+        this.score /= this.playerInfoArr.length;
         console.log(this, "player score:", this.score);
     };
     TeamInfo.prototype.beat = function (loserTeam) {
@@ -1875,24 +1909,33 @@ var TeamInfo = (function () {
     };
     TeamInfo.prototype.saveScore = function (score, isWin) {
         this.score += score;
-        for (var i = 0; i < this.playerArr.length; i++) {
-            var player = this.playerArr[i];
+        for (var i = 0; i < this.playerInfoArr.length; i++) {
+            var player = this.playerInfoArr[i];
             player.saveScore(score, isWin);
         }
     };
+    TeamInfo.prototype.getPlayerDataArr = function () {
+        var a = [];
+        for (var i = 0; i < this.playerInfoArr.length; i++) {
+            var playerInfo = this.playerInfoArr[i];
+            a.push(playerInfo.getPlayerData());
+        }
+        return a;
+    };
     TeamInfo.prototype.getWinningPercent = function () {
         var wp;
-        for (var i = 0; i < this.playerArr.length; i++) {
-            var player = this.playerArr[i];
+        for (var i = 0; i < this.playerInfoArr.length; i++) {
+            var player = this.playerInfoArr[i];
             wp += player.getCurWinningPercent();
         }
-        wp /= this.playerArr.length;
+        wp /= this.playerInfoArr.length;
         return wp;
     };
     return TeamInfo;
 }());
 var GameInfo = (function () {
     function GameInfo() {
+        this.gameId = 0;
         this.winScore = 7;
         this.leftScore = 0;
         this.rightScore = 0;
@@ -1902,6 +1945,7 @@ var GameInfo = (function () {
         this.straightScoreRight = 0; //连杀判定
         this.playerInfoArr = new Array(8);
         this._timer = 0;
+        this._isUnsaved = false; //未保存状态
     }
     GameInfo.prototype.toggleTimer = function () {
         var _this = this;
@@ -1916,11 +1960,31 @@ var GameInfo = (function () {
             this.timerState = 1;
         }
     };
-    GameInfo.prototype.save = function () {
-        for (var i = 0; i < this.playerInfoArr.length; i++) {
-            var playerData = this.playerInfoArr[i];
-            this.playerDb.update({ id: playerData.id }, { $set: playerData }, {}, function (err, doc) {
-            });
+    GameInfo.prototype.saveGameRec = function () {
+        if (this._isUnsaved) {
+            this._isUnsaved = false;
+            for (var i = 0; i < this._winTeam.playerInfoArr.length; i++) {
+                var playerInfo = this._winTeam.playerInfoArr[i];
+                console.log("playerData", JSON.stringify(playerInfo));
+                if (!playerInfo.gameRec())
+                    playerInfo.gameRec([]);
+                playerInfo.gameRec().push(this.gameId);
+                console.log(playerInfo.name(), " cur player score:", playerInfo.eloScore(), playerInfo.dtScore());
+                this.playerDb.update({ id: playerInfo.id() }, { $set: playerInfo.playerData }, {}, function (err, doc) {
+                    console.log("saveGameRec: game rec saved");
+                });
+            }
+            for (var i = 0; i < this._loseTeam.playerInfoArr.length; i++) {
+                var playerInfo = this._loseTeam.playerInfoArr[i];
+                console.log("playerData", JSON.stringify(playerInfo));
+                if (!playerInfo.gameRec())
+                    playerInfo.gameRec([]);
+                playerInfo.gameRec().push(this.gameId);
+                console.log(playerInfo.name(), " cur player score:", playerInfo.eloScore(), playerInfo.dtScore());
+                this.playerDb.update({ id: playerInfo.id() }, { $set: playerInfo.playerData }, {}, function (err, doc) {
+                    console.log("lose saveGameRec: game rec saved");
+                });
+            }
         }
     };
     GameInfo.prototype.resetTimer = function () {
@@ -1932,17 +1996,26 @@ var GameInfo = (function () {
         this.playerInfoArr[pos] = playerInfo;
     };
     GameInfo.prototype._setGameResult = function (isLeftWin) {
-        var teamLeft = new TeamInfo();
-        teamLeft.setPlayerArr(this.getLeftTeam());
-        var teamRight = new TeamInfo();
-        teamRight.setPlayerArr(this.getRightTeam());
-        if (isLeftWin) {
-            teamLeft.beat(teamRight);
-            return teamLeft;
-        }
-        else {
-            teamRight.beat(teamLeft);
-            return teamRight;
+        if (!this._isUnsaved) {
+            console.log("setGameResult: game rec unsaved");
+            var teamLeft = new TeamInfo();
+            teamLeft.setPlayerArr(this.getLeftTeam());
+            var teamRight = new TeamInfo();
+            teamRight.setPlayerArr(this.getRightTeam());
+            if (isLeftWin) {
+                teamLeft.beat(teamRight);
+                this._winTeam = teamLeft;
+                this._loseTeam = teamRight;
+            }
+            else {
+                teamRight.beat(teamLeft);
+                this._winTeam = teamRight;
+                this._loseTeam = teamLeft;
+            }
+            this.playerInfoArr = teamLeft.getPlayerDataArr().concat(teamRight.getPlayerDataArr());
+            console.log("playerData", JSON.stringify(this.playerInfoArr));
+            this._isUnsaved = true;
+            return this._winTeam;
         }
     };
     GameInfo.prototype.setLeftTeamWin = function () {
@@ -2004,7 +2077,7 @@ var PlayerPanelInfo = (function (_super) {
             position: this.position
         };
     };
-    PlayerPanelInfo.prototype.showWinPanel = function (param) {
+    PlayerPanelInfo.prototype.showPlayerPanel = function (param) {
         var playerId = parseInt(param);
         for (var i = 0; i < this.stageInfo.getPlayerInfoArr().length; i++) {
             var obj = this.stageInfo.getPlayerInfoArr()[i];
@@ -2014,7 +2087,7 @@ var PlayerPanelInfo = (function (_super) {
             }
         }
     };
-    PlayerPanelInfo.prototype.hideWinPanel = function () {
+    PlayerPanelInfo.prototype.hidePlayerPanel = function () {
         cmd.emit(CommandId.fadeOutPlayerPanel, null, this.pid);
     };
     PlayerPanelInfo.prototype.movePanel = function (param) {
@@ -2133,11 +2206,6 @@ var StagePanelInfo = (function (_super) {
                 obj.isMap = true;
             console.log(JSON.stringify(obj));
         }
-        // var teamLeft = new TeamInfo();
-        // teamLeft.setPlayerArr(appInfo.panel.stage.getLeftTeam());
-        //
-        // var teamRight = new TeamInfo();
-        // teamRight.setPlayerArr(appInfo.panel.stage.getRightTeam());
         var winTeam;
         if (param.mvp < 4) {
             winTeam = this.gameInfo.setLeftTeamWin();
@@ -2145,7 +2213,7 @@ var StagePanelInfo = (function (_super) {
         else {
             winTeam = this.gameInfo.setRightTeamWin();
         }
-        cmd.emit(CommandId.fadeInWinPanel, { mvp: param.mvp, playerDataArr: winTeam.playerArr }, this.pid);
+        cmd.emit(CommandId.fadeInWinPanel, { mvp: param.mvp, playerDataArr: winTeam.playerInfoArr }, this.pid);
         console.log(this, "after elo");
         for (var i = 0; i < this.getPlayerInfoArr().length; i++) {
             var obj = this.getPlayerInfoArr()[i];
@@ -2165,6 +2233,18 @@ var StagePanelInfo = (function (_super) {
     };
     return StagePanelInfo;
 }(BasePanelInfo));
+/// <reference path="./DbInfo.ts"/>
+var ActivityInfo = (function () {
+    function ActivityInfo() {
+    }
+    ActivityInfo.prototype.round = function () {
+        var playerDataArr;
+        dbPlayerInfo().getActivityPlayerDataArr(1, function (err, docs) {
+            console.log("get Activity player arr", JSON.stringify(docs));
+        });
+    };
+    return ActivityInfo;
+}());
 /**
  * Created by toramisu on 2016/5/13.
  */
@@ -2173,6 +2253,7 @@ var StagePanelInfo = (function (_super) {
 /// <reference path="routes/GameInfoAdmin.ts"/>
 /// <reference path="models/DbInfo.ts"/>
 /// <reference path="models/PanelInfo.ts"/>
+/// <reference path="models/ActivityInfo.ts"/>
 var msgpack = require("msgpack-lite");
 var debug = require('debug')('express2:server');
 var HttpServer = (function () {
@@ -2196,6 +2277,7 @@ var HttpServer = (function () {
     };
     HttpServer.prototype.initPanelInfo = function () {
         this.panel = new PanelInfo();
+        this.activityInfo = new ActivityInfo();
         console.log("init panel info", this.panel);
     };
     HttpServer.prototype.initEnv = function (callback) {
@@ -2246,6 +2328,7 @@ var HttpServer = (function () {
         app.post('/admin/player/delete', urlencodedParser, PlayerAdmin.deletePlayerData);
         //game admin
         app.get('/admin/game/', GameInfoAdmin.index);
+        app.post('/admin/game/genRound', urlencodedParser, GameInfoAdmin.genRound);
         app.get('/panel/:id/:op', function (req, res) {
             var pid = req.params.id;
             var op = req.params.op;
@@ -2283,11 +2366,14 @@ var HttpServer = (function () {
     };
     HttpServer.prototype.handleOp = function () {
         var _this = this;
+        cmd.on(CommandId.cs_saveGameRec, function (param) {
+            _this.panel.stage.gameInfo.saveGameRec();
+        });
         cmd.on(CommandId.cs_fadeInPlayerPanel, function (param) {
-            _this.panel.player.showWinPanel(param);
+            _this.panel.player.showPlayerPanel(param);
         });
         cmd.on(CommandId.cs_fadeOutPlayerPanel, function (param) {
-            _this.panel.player.hideWinPanel();
+            _this.panel.player.hidePlayerPanel();
         });
         cmd.on(CommandId.cs_movePlayerPanel, function (param) {
             _this.panel.player.movePanel(param);

@@ -37,6 +37,8 @@ enum CommandId{
     cs_fadeInWinPanel,
     fadeOutWinPanel,
     cs_fadeOutWinPanel,
+    saveGameRec,
+    cs_saveGameRec,
     //---------------- player panel
     fadeInPlayerPanel,
     cs_fadeInPlayerPanel,
@@ -44,7 +46,7 @@ enum CommandId{
     cs_fadeOutPlayerPanel,
     movePlayerPanel,
     cs_movePlayerPanel,
-        //自动三杀事件
+    //自动三杀事件
     straightScore3,
     straightScore5,
 

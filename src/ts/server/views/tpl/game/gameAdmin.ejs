@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>dashboard</title>
-    <link rel="stylesheet" type="text/css" href="bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/style.css">
     <style>
         a {
             font-size: 60pt;
@@ -12,7 +12,23 @@
     </style>
 </head>
 <body>
-<input type="button" value="生成">
+<% for(var i = 0; i < gameDataArr.length; i++) { var gameData = gameDataArr[i]; %>
+
+<% } %>
+<input id="btnGen" type="button" value="生成">
 <input type="button" value="打印">
+
+<script src="/js/jquery-2.1.4.min.js"></script>
+<script>
+    $('#btnGen').click(function () {
+        var data = {}
+        data.id = 1;
+        $.post("/admin/game/genRound", data, function (res) {
+            console.log(res);
+        });
+    });
+
+</script>
 </body>
 </html>
+

@@ -5,6 +5,9 @@ var db:any;
 function dbPlayerInfo() {
     return db.player;
 }
+function dbActivityInfo() {
+    return db.activity;
+}
 function initDB() {
     var Datastore = require('nedb');
 // Fetch a collection to insert document into
@@ -29,6 +32,14 @@ function initDB() {
     db.player.getNewId = function () {
         return db.player.config.playerIdUsed;
     };
+    db.player.getActivityPlayerDataArr = function (actId, callback) {
+        db.player.find({$not: {id: 0}, activityId: actId}, function (err, docs) {
+            callback(err, docs);
+        })
+    };
+    // db.player.getActivityPlayerDataArr(1, function (err, docs) {
+    //     console.log("actPlayer:", JSON.stringify(docs));
+    // });
     // var playerDb:string = M_path.join(appPath, 'db/player.db');
     // var activityDb:string = M_path.join(appPath, 'db/activity.db');
     console.log(process.cwd());

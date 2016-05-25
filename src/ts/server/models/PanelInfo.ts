@@ -39,7 +39,7 @@ class PlayerPanelInfo extends BasePanelInfo {
         };
     }
 
-    showWinPanel(param:any) {
+    showPlayerPanel(param:any) {
         var playerId = parseInt(param);
         for (var i = 0; i < this.stageInfo.getPlayerInfoArr().length; i++) {
             var obj = this.stageInfo.getPlayerInfoArr()[i];
@@ -50,7 +50,7 @@ class PlayerPanelInfo extends BasePanelInfo {
         }
     }
 
-    hideWinPanel() {
+    hidePlayerPanel() {
         cmd.emit(CommandId.fadeOutPlayerPanel, null, this.pid);
     }
 
@@ -184,13 +184,8 @@ class StagePanelInfo extends BasePanelInfo {
                 obj.isMap = true;
             console.log(JSON.stringify(obj));
         }
-        // var teamLeft = new TeamInfo();
-        // teamLeft.setPlayerArr(appInfo.panel.stage.getLeftTeam());
-        //
-        // var teamRight = new TeamInfo();
-        // teamRight.setPlayerArr(appInfo.panel.stage.getRightTeam());
 
-        var winTeam;
+        var winTeam:TeamInfo;
         if (param.mvp < 4) {
             winTeam = this.gameInfo.setLeftTeamWin();
             // teamLeft.beat(teamRight);
@@ -200,7 +195,7 @@ class StagePanelInfo extends BasePanelInfo {
             // teamRight.beat(teamLeft);
         }
 
-        cmd.emit(CommandId.fadeInWinPanel, {mvp: param.mvp, playerDataArr: winTeam.playerArr}, this.pid);
+        cmd.emit(CommandId.fadeInWinPanel, {mvp: param.mvp, playerDataArr: winTeam.playerInfoArr}, this.pid);
         console.log(this, "after elo");
         for (var i = 0; i < this.getPlayerInfoArr().length; i++) {
             var obj = this.getPlayerInfoArr()[i];
@@ -213,7 +208,6 @@ class StagePanelInfo extends BasePanelInfo {
     }
 
     updatePlayerAll(playerDataArr:any) {
-
         for (var i = 0; i < playerDataArr.length; i++) {
             var obj = playerDataArr[i];
             this.gameInfo.setPlayerInfoByPos(obj.pos, obj.playerData);

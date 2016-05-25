@@ -7,27 +7,27 @@
         display: none;
         z-index: 99;
     }
-
+    
     .stagePanel {
         background: #ccc;
         width: 100%;
         height: 160px;
     }
-
+    
     .playerPanel {
         display: inline-flex;
         width: 1000px;
         background: #ccc;
     }
-
+    
     .playerAvatar {
         width: 100%;
     }
-
+    
     .pickupPlayer {
         width: 150px;
     }
-
+    
     .WinPanelButton {
         width: 160px;
         height: 65px;
@@ -45,23 +45,23 @@
     <div class="playerPanel">
         player id:
         <% for(var i = 0; i < 8; i++) { %>
-        <div class="pickupPlayer">
-            <img class="playerAvatar" src="/img/player/p0.png">
-            <input class="playerId" type="text" style="width: 75px" value="<%= (18-i) %>"/>
-            <input class="btnQuery" type="button" value="query" data-pos="<%= i %>"/>
-            <input class="btnUpdate" type="button" value="update↓↓↓" data-pos="<%= i %>"/><br>
-            <input name="mvp" class="playerMvp" type="radio" value="" data-pos="<%= i %>"/>MVP
-        </div>
-        <% } %>
-        <input id="btnUpdateAll" type="button" value="updateAll"/>
+            <div class="pickupPlayer">
+                <img class="playerAvatar" src="/img/player/p0.png">
+                <input class="playerId" type="text" style="width: 75px" value="<%= (18-i) %>" />
+                <input class="btnQuery" type="button" value="query" data-pos="<%= i %>" />
+                <input class="btnUpdate" type="button" value="update↓↓↓" data-pos="<%= i %>" /><br>
+                <input name="mvp" class="playerMvp" type="radio" value="" data-pos="<%= i %>" />MVP
+            </div>
+            <% } %>
+                <input id="btnUpdateAll" type="button" value="updateAll" />
 
     </div>
+    <br> Mvp pos:<label id="txtMvpPos">0</label>
     <br>
-    Mvp pos:<label id="txtMvpPos">0</label>
-    <br>
-    <input id="btnShowWin" class="WinPanelButton" type="button" value="Show Win"/>
-    <input id="btnHideWin" class="WinPanelButton" type="button" value="Hide Win"/>
-    <input id="btnStraight3" class="WinPanelButton" type="button" value="test straight3" onclick="fadeInStraight3()"/>
+    <input id="btnShowWin" class="WinPanelButton" type="button" value="Show Win" />
+    <input id="btnHideWin" class="WinPanelButton" type="button" value="Hide Win" />
+    <input id="btnSaveGame" class="WinPanelButton" type="button" value="Save Game" />
+    <input id="btnStraight3" class="WinPanelButton" type="button" value="test straight3" onclick="fadeInStraight3()" />
 </div>
 <div class="Preloader" style="display: none">
     <img src="/img/panel/winPanelTitleBlue.png">
@@ -93,6 +93,7 @@
     var onInit = function () {
 //        console.log(client.panel.stage);
     }
+
 </script>
 <script>
     var mvpPos = 0;
@@ -113,6 +114,9 @@
 
         $("#btnHideWin").click(function () {
             cmd.proxy(CommandId.cs_fadeOutWinPanel);
+        });
+        $("#btnSaveGame").click(function () {
+            cmd.proxy(CommandId.cs_saveGameRec);
         });
 
         onServer();
@@ -360,4 +364,5 @@
 
         return ctn;
     }
+
 </script>

@@ -11,6 +11,7 @@ class PlayerData {
     dtScore:number = 0;//最近一场天梯分变化
     winpercent:number = 0;//  胜率  100/100.0%
     activityId:number = 0;//赛事id
+    gameRec:Array<number> = [];//比赛记录
     gameCount:number = 0;//场数
     loseGameCount:number = 0;
     winGameCount:number = 0;
@@ -34,6 +35,12 @@ class PlayerInfo extends BaseInfo {
             if (playerData['backNumber'] != null)
                 this.backNumber = playerData.backNumber;
         }
+    }
+    
+    getPlayerData(){
+        this.playerData['isRed'] = this.isRed;
+        this.playerData['isMvp'] = this.isMvp;
+        this.playerData['backNumber'] = this.backNumber;
     }
 
     id(val?) {
@@ -66,6 +73,10 @@ class PlayerInfo extends BaseInfo {
 
     avatar(val?) {
         return prop(this.playerData, "avatar", val);
+    }
+
+    gameRec(val?) {
+        return prop(this.playerData, "gameRec", val);
     }
 
     winpercent(val?) {

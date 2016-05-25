@@ -141,17 +141,19 @@ var CommandId;
     CommandId[CommandId["cs_fadeInWinPanel"] = 100029] = "cs_fadeInWinPanel";
     CommandId[CommandId["fadeOutWinPanel"] = 100030] = "fadeOutWinPanel";
     CommandId[CommandId["cs_fadeOutWinPanel"] = 100031] = "cs_fadeOutWinPanel";
+    CommandId[CommandId["saveGameRec"] = 100032] = "saveGameRec";
+    CommandId[CommandId["cs_saveGameRec"] = 100033] = "cs_saveGameRec";
     //---------------- player panel
-    CommandId[CommandId["fadeInPlayerPanel"] = 100032] = "fadeInPlayerPanel";
-    CommandId[CommandId["cs_fadeInPlayerPanel"] = 100033] = "cs_fadeInPlayerPanel";
-    CommandId[CommandId["fadeOutPlayerPanel"] = 100034] = "fadeOutPlayerPanel";
-    CommandId[CommandId["cs_fadeOutPlayerPanel"] = 100035] = "cs_fadeOutPlayerPanel";
-    CommandId[CommandId["movePlayerPanel"] = 100036] = "movePlayerPanel";
-    CommandId[CommandId["cs_movePlayerPanel"] = 100037] = "cs_movePlayerPanel";
+    CommandId[CommandId["fadeInPlayerPanel"] = 100034] = "fadeInPlayerPanel";
+    CommandId[CommandId["cs_fadeInPlayerPanel"] = 100035] = "cs_fadeInPlayerPanel";
+    CommandId[CommandId["fadeOutPlayerPanel"] = 100036] = "fadeOutPlayerPanel";
+    CommandId[CommandId["cs_fadeOutPlayerPanel"] = 100037] = "cs_fadeOutPlayerPanel";
+    CommandId[CommandId["movePlayerPanel"] = 100038] = "movePlayerPanel";
+    CommandId[CommandId["cs_movePlayerPanel"] = 100039] = "cs_movePlayerPanel";
     //自动三杀事件
-    CommandId[CommandId["straightScore3"] = 100038] = "straightScore3";
-    CommandId[CommandId["straightScore5"] = 100039] = "straightScore5";
-    CommandId[CommandId["initPanel"] = 100040] = "initPanel";
+    CommandId[CommandId["straightScore3"] = 100040] = "straightScore3";
+    CommandId[CommandId["straightScore5"] = 100041] = "straightScore5";
+    CommandId[CommandId["initPanel"] = 100042] = "initPanel";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {
@@ -267,6 +269,7 @@ var PlayerData = (function () {
         this.dtScore = 0; //最近一场天梯分变化
         this.winpercent = 0; //  胜率  100/100.0%
         this.activityId = 0; //赛事id
+        this.gameRec = []; //比赛记录
         this.gameCount = 0; //场数
         this.loseGameCount = 0;
         this.winGameCount = 0;
@@ -290,6 +293,11 @@ var PlayerInfo = (function (_super) {
                 this.backNumber = playerData.backNumber;
         }
     }
+    PlayerInfo.prototype.getPlayerData = function () {
+        this.playerData['isRed'] = this.isRed;
+        this.playerData['isMvp'] = this.isMvp;
+        this.playerData['backNumber'] = this.backNumber;
+    };
     PlayerInfo.prototype.id = function (val) {
         return prop(this.playerData, "id", val);
     };
@@ -313,6 +321,9 @@ var PlayerInfo = (function (_super) {
     };
     PlayerInfo.prototype.avatar = function (val) {
         return prop(this.playerData, "avatar", val);
+    };
+    PlayerInfo.prototype.gameRec = function (val) {
+        return prop(this.playerData, "gameRec", val);
     };
     PlayerInfo.prototype.winpercent = function (val) {
         return prop(this.playerData, "winpercent", val);
