@@ -1,4 +1,4 @@
-var playerIdBase = 10000;
+// var playerIdBase = 10000;
 class PlayerAdmin {
     static base64ToPng(imgPath, base64Data, callback) {
         var base64Data = base64Data.replace(/^data:image\/png;base64,/, "");
@@ -89,20 +89,23 @@ class PlayerAdmin {
     static newPlayer(req, res) {
         if (!req.body) return res.sendStatus(400);
         var playerInfo = new PlayerInfo(req.body);
-        dbPlayerInfo().count({}, function (err, count) {
-            playerInfo.id(playerIdBase + count);
-            var imgPath = "img/player/" + playerInfo.id() + '.png';
-            PlayerAdmin.base64ToPng(imgPath, req.body.avatar, function (imgPath) {
-                playerInfo.avatar(imgPath);
-                dbPlayerInfo().insert(playerInfo.playerData, function (err, newDoc) {
-                    if (!err)
-                        res.redirect("/admin/player/");
-                    else
-                        req.send(err);
-                });
+        playerInfo.id(dbPlayerInfo().getNewId());
+        var imgPath = "img/player/" + playerInfo.id() + '.png';
+        PlayerAdmin.base64ToPng(imgPath, req.body.avatar, function (imgPath) {
+            playerInfo.avatar(imgPath);
+            dbPlayerInfo().insert(playerInfo.playerData, function (err, newDoc) {
+                if (!err) {
+                    dbPlayerInfo().saveIdUsed();
+                    res.redirect("/admin/player/");
+                }
+                else
+                    req.send(err);
             });
-            console.log('/admin/player/new', req.body.name);
         });
+        console.log('/admin/player/new', req.body.name);
+        // dbPlayerInfo().count({}, function (err, count) {
+        //
+        // });
 
 
     }

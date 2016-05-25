@@ -4,7 +4,7 @@
 </a>
 <div class="PlayerList">
     <% for(var i = 0; i < playerDataArr.length; i++) { %>
-    <% var playerData = playerDataArr[i] %>
+    <% var playerData = playerDataArr[i];if(!playerData.id)continue; %>
     <li>
         <h3><%= playerData.name %></h3>
         <a href="/admin/player/<%= playerDataArr[i].id %>">

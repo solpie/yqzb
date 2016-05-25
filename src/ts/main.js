@@ -1933,7 +1933,7 @@ var serverConf = {
     host: "localhost",
     port: 8086
 };
-var playerIdBase = 10000;
+// var playerIdBase = 10000;
 var PlayerAdmin = (function () {
     function PlayerAdmin() {
     }
@@ -2024,20 +2024,23 @@ var PlayerAdmin = (function () {
         if (!req.body)
             return res.sendStatus(400);
         var playerInfo = new PlayerInfo(req.body);
-        dbPlayerInfo().count({}, function (err, count) {
-            playerInfo.id(playerIdBase + count);
-            var imgPath = "img/player/" + playerInfo.id() + '.png';
-            PlayerAdmin.base64ToPng(imgPath, req.body.avatar, function (imgPath) {
-                playerInfo.avatar(imgPath);
-                dbPlayerInfo().insert(playerInfo.playerData, function (err, newDoc) {
-                    if (!err)
-                        res.redirect("/admin/player/");
-                    else
-                        req.send(err);
-                });
+        playerInfo.id(dbPlayerInfo().config.playerIdUsed);
+        var imgPath = "img/player/" + playerInfo.id() + '.png';
+        PlayerAdmin.base64ToPng(imgPath, req.body.avatar, function (imgPath) {
+            playerInfo.avatar(imgPath);
+            dbPlayerInfo().insert(playerInfo.playerData, function (err, newDoc) {
+                if (!err) {
+                    dbPlayerInfo().saveIdUsed();
+                    res.redirect("/admin/player/");
+                }
+                else
+                    req.send(err);
             });
-            console.log('/admin/player/new', req.body.name);
         });
+        console.log('/admin/player/new', req.body.name);
+        // dbPlayerInfo().count({}, function (err, count) {
+        //
+        // });
     };
     return PlayerAdmin;
 }());
@@ -2141,6 +2144,13 @@ var HttpServer = (function () {
         db = {};
         db.player = new Datastore({ filename: 'db/player.db', autoload: true });
         db.activity = new Datastore({ filename: 'db/activity.db', autoload: true });
+        db.player.find({ id: 0 }, function (err, doc) {
+            db.player.config = doc[0];
+        });
+        db.player.saveIdUsed = function () {
+            db.player.config.playerIdUsed++;
+            db.player.update({ id: 0 }, { $set: db.player.config });
+        };
     };
     HttpServer.prototype.handleOp = function () {
         var _this = this;

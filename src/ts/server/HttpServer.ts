@@ -32,6 +32,17 @@ class HttpServer {
         db = {};
         db.player = new Datastore({filename: 'db/player.db', autoload: true});
         db.activity = new Datastore({filename: 'db/activity.db', autoload: true});
+
+        db.player.find({id: 0}, function (err, doc) {
+            db.player.config = doc[0];
+        });
+        db.player.saveIdUsed = function () {
+            db.player.config.playerIdUsed++;
+            db.player.update({id: 0}, {$set: db.player.config})
+        };
+        db.player.getNewId = function () {
+            return db.player.config.playerIdUsed;
+        };
     }
 
     constructor() {
