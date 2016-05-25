@@ -41,6 +41,7 @@ class PlayerInfo extends BaseInfo {
         this.playerData['isRed'] = this.isRed;
         this.playerData['isMvp'] = this.isMvp;
         this.playerData['backNumber'] = this.backNumber;
+        return this.playerData;
     }
 
     id(val?) {

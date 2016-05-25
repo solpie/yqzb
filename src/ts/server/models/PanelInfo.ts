@@ -9,7 +9,7 @@ class PanelInfo {
     stage:StagePanelInfo;
     player:PlayerPanelInfo;
     win:WinPanelInfo;
-    
+
     constructor() {
         this.stage = new StagePanelInfo(PanelId.stagePanel);
         this.player = new PlayerPanelInfo(PanelId.playerPanel);
@@ -175,32 +175,40 @@ class StagePanelInfo extends BasePanelInfo {
     // }
 
     showWinPanel(param:any) {
-        console.log("showWinPanel param:", param, param.mvp, this.getPlayerInfoArr());
-        for (var i = 0; i < this.getPlayerInfoArr().length; i++) {
-            var obj = this.getPlayerInfoArr()[i];
-            if (!obj)
-                return;
-            if (obj.pos == param.mvp)
-                obj.isMap = true;
-            console.log(JSON.stringify(obj));
-        }
+
 
         var winTeam:TeamInfo;
         if (param.mvp < 4) {
             winTeam = this.gameInfo.setLeftTeamWin();
-            // teamLeft.beat(teamRight);
         }
         else {
             winTeam = this.gameInfo.setRightTeamWin();
-            // teamRight.beat(teamLeft);
+        }
+        console.log("showWinPanel param:", param, "mvp:", param.mvp, this.getPlayerInfoArr());
+        // console.log("win team:", JSON.stringify(winTeam.playerInfoArr));
+
+        if (winTeam)//!winTeam means unsaved
+        {
+            for (var i = 0; i < winTeam.playerInfoArr.length; i++) {
+                var obj:PlayerInfo = winTeam.playerInfoArr[i];
+                if (!obj)
+                    return;
+                if (obj.pos == param.mvp)
+                    obj.isMvp = true;
+                console.log(JSON.stringify(obj));
+            }
+            cmd.emit(CommandId.fadeInWinPanel, {mvp: param.mvp, playerDataArr: winTeam.playerInfoArr}, this.pid);
+        }
+        else
+        {
+            //todo unsaved alert in front end;
         }
 
-        cmd.emit(CommandId.fadeInWinPanel, {mvp: param.mvp, playerDataArr: winTeam.playerInfoArr}, this.pid);
-        console.log(this, "after elo");
-        for (var i = 0; i < this.getPlayerInfoArr().length; i++) {
-            var obj = this.getPlayerInfoArr()[i];
-            console.log(JSON.stringify(obj));
-        }
+        // console.log(this, "after elo");
+        // for (var i = 0; i < this.getPlayerInfoArr().length; i++) {
+        //     var obj = this.getPlayerInfoArr()[i];
+        //     console.log(JSON.stringify(obj));
+        // }
     }
 
     hideWinPanel(param:any) {

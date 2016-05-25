@@ -91,9 +91,8 @@ class GameInfo {
                 this._winTeam = teamRight;
                 this._loseTeam = teamLeft;
             }
-            this.playerInfoArr = teamLeft.getPlayerDataArr().concat(teamRight.getPlayerDataArr());
+            this.playerInfoArr = teamLeft.getNewPlayerDataArr().concat(teamRight.getNewPlayerDataArr());
             console.log("playerData", JSON.stringify(this.playerInfoArr));
-
             this._isUnsaved = true;
             return this._winTeam;
         }

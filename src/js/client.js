@@ -297,6 +297,7 @@ var PlayerInfo = (function (_super) {
         this.playerData['isRed'] = this.isRed;
         this.playerData['isMvp'] = this.isMvp;
         this.playerData['backNumber'] = this.backNumber;
+        return this.playerData;
     };
     PlayerInfo.prototype.id = function (val) {
         return prop(this.playerData, "id", val);

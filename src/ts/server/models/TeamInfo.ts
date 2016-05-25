@@ -97,7 +97,7 @@ class TeamInfo {
         }
     }
 
-    getPlayerDataArr() {
+    getNewPlayerDataArr() {
         var a = [];
         for (var i = 0; i < this.playerInfoArr.length; i++) {
             var playerInfo:PlayerInfo = this.playerInfoArr[i];

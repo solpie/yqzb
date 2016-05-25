@@ -438,6 +438,7 @@ var PlayerInfo = (function (_super) {
         this.playerData['isRed'] = this.isRed;
         this.playerData['isMvp'] = this.isMvp;
         this.playerData['backNumber'] = this.backNumber;
+        return this.playerData;
     };
     PlayerInfo.prototype.id = function (val) {
         return prop(this.playerData, "id", val);
@@ -1914,7 +1915,7 @@ var TeamInfo = (function () {
             player.saveScore(score, isWin);
         }
     };
-    TeamInfo.prototype.getPlayerDataArr = function () {
+    TeamInfo.prototype.getNewPlayerDataArr = function () {
         var a = [];
         for (var i = 0; i < this.playerInfoArr.length; i++) {
             var playerInfo = this.playerInfoArr[i];
@@ -2012,7 +2013,7 @@ var GameInfo = (function () {
                 this._winTeam = teamRight;
                 this._loseTeam = teamLeft;
             }
-            this.playerInfoArr = teamLeft.getPlayerDataArr().concat(teamRight.getPlayerDataArr());
+            this.playerInfoArr = teamLeft.getNewPlayerDataArr().concat(teamRight.getNewPlayerDataArr());
             console.log("playerData", JSON.stringify(this.playerInfoArr));
             this._isUnsaved = true;
             return this._winTeam;
@@ -2197,15 +2198,6 @@ var StagePanelInfo = (function (_super) {
     //     this.playerInfoArr[pos] = playerInfo;
     // }
     StagePanelInfo.prototype.showWinPanel = function (param) {
-        console.log("showWinPanel param:", param, param.mvp, this.getPlayerInfoArr());
-        for (var i = 0; i < this.getPlayerInfoArr().length; i++) {
-            var obj = this.getPlayerInfoArr()[i];
-            if (!obj)
-                return;
-            if (obj.pos == param.mvp)
-                obj.isMap = true;
-            console.log(JSON.stringify(obj));
-        }
         var winTeam;
         if (param.mvp < 4) {
             winTeam = this.gameInfo.setLeftTeamWin();
@@ -2213,12 +2205,24 @@ var StagePanelInfo = (function (_super) {
         else {
             winTeam = this.gameInfo.setRightTeamWin();
         }
-        cmd.emit(CommandId.fadeInWinPanel, { mvp: param.mvp, playerDataArr: winTeam.playerInfoArr }, this.pid);
-        console.log(this, "after elo");
-        for (var i = 0; i < this.getPlayerInfoArr().length; i++) {
-            var obj = this.getPlayerInfoArr()[i];
-            console.log(JSON.stringify(obj));
+        console.log("showWinPanel param:", param, "mvp:", param.mvp, this.getPlayerInfoArr());
+        // console.log("win team:", JSON.stringify(winTeam.playerInfoArr));
+        if (winTeam) {
+            for (var i = 0; i < winTeam.playerInfoArr.length; i++) {
+                var obj = winTeam.playerInfoArr[i];
+                if (!obj)
+                    return;
+                if (obj.pos == param.mvp)
+                    obj.isMvp = true;
+                console.log(JSON.stringify(obj));
+            }
+            cmd.emit(CommandId.fadeInWinPanel, { mvp: param.mvp, playerDataArr: winTeam.playerInfoArr }, this.pid);
         }
+        // console.log(this, "after elo");
+        // for (var i = 0; i < this.getPlayerInfoArr().length; i++) {
+        //     var obj = this.getPlayerInfoArr()[i];
+        //     console.log(JSON.stringify(obj));
+        // }
     };
     StagePanelInfo.prototype.hideWinPanel = function (param) {
         cmd.emit(CommandId.fadeOutWinPanel, param, this.pid);
