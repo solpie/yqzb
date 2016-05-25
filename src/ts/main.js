@@ -2024,7 +2024,7 @@ var PlayerAdmin = (function () {
         if (!req.body)
             return res.sendStatus(400);
         var playerInfo = new PlayerInfo(req.body);
-        playerInfo.id(dbPlayerInfo().config.playerIdUsed);
+        playerInfo.id(dbPlayerInfo().getNewId());
         var imgPath = "img/player/" + playerInfo.id() + '.png';
         PlayerAdmin.base64ToPng(imgPath, req.body.avatar, function (imgPath) {
             playerInfo.avatar(imgPath);
@@ -2038,9 +2038,6 @@ var PlayerAdmin = (function () {
             });
         });
         console.log('/admin/player/new', req.body.name);
-        // dbPlayerInfo().count({}, function (err, count) {
-        //
-        // });
     };
     return PlayerAdmin;
 }());
@@ -2150,6 +2147,9 @@ var HttpServer = (function () {
         db.player.saveIdUsed = function () {
             db.player.config.playerIdUsed++;
             db.player.update({ id: 0 }, { $set: db.player.config });
+        };
+        db.player.getNewId = function () {
+            return db.player.config.playerIdUsed;
         };
     };
     HttpServer.prototype.handleOp = function () {

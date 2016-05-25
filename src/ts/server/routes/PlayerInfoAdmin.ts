@@ -103,10 +103,5 @@ class PlayerAdmin {
             });
         });
         console.log('/admin/player/new', req.body.name);
-        // dbPlayerInfo().count({}, function (err, count) {
-        //
-        // });
-
-
     }
 }
