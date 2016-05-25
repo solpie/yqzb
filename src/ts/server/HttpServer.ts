@@ -6,6 +6,8 @@
 
 var msgpack = require("msgpack-lite");
 var debug = require('debug')('express2:server');
+var appExecPath = M_path.dirname(process.execPath);
+var isDev;
 var db:any;
 function dbPlayerInfo() {
     return db.player;
@@ -29,9 +31,16 @@ class HttpServer {
     initDB() {
         var Datastore = require('nedb');
 // Fetch a collection to insert document into
+        var playerDb:string = 'db/player.db';
+        var activityDb:string = 'db/activity.db';
+
+        if (!isDev) {
+            playerDb = M_path.join(appExecPath, playerDb);
+            activityDb = M_path.join(appExecPath, activityDb);
+        }
         db = {};
-        db.player = new Datastore({filename: 'db/player.db', autoload: true});
-        db.activity = new Datastore({filename: 'db/activity.db', autoload: true});
+        db.player = new Datastore({filename: playerDb, autoload: true});
+        db.activity = new Datastore({filename: activityDb, autoload: true});
 
         db.player.find({id: 0}, function (err, doc) {
             db.player.config = doc[0];
@@ -43,9 +52,28 @@ class HttpServer {
         db.player.getNewId = function () {
             return db.player.config.playerIdUsed;
         };
+        // var playerDb:string = M_path.join(appPath, 'db/player.db');
+        // var activityDb:string = M_path.join(appPath, 'db/activity.db');
+        console.log(process.cwd());
+        // Get path of project binary:
+        console.log(M_path.dirname(process.execPath));
     }
 
-    constructor() {
+    initEnv(callback) {
+        fs.exists(M_path.join(appExecPath, 'nw.exe'), function (exists) {
+            // handle result
+            if (exists) {
+                // dev env
+                isDev = true;
+            }
+            else {
+                isDev = false;
+            }
+            callback();
+        });
+    }
+
+    initWebServer() {
         this.initDB();
         if (serverConf.host == 'localhost')
             serverConf.host = this.getIPAddress();
@@ -57,7 +85,13 @@ class HttpServer {
         // view engine setup
         app.set('views', "./ts/server/views/tpl");
         app.set('view engine', 'ejs');
-        app.use(express.static("."));
+
+        if (isDev) {
+            app.use(express.static("."));
+        }
+        else {
+            app.use(express.static(appExecPath));
+        }
 
         var bodyParser = require('body-parser');
         // create application/x-www-form-urlencoded parser
@@ -125,6 +159,12 @@ class HttpServer {
 
         this.initWebSocket();
         this.handleOp();
+    }
+
+    constructor() {
+        this.initEnv(()=>{
+            this.initWebServer();
+        });
     }
 
     handleOp() {

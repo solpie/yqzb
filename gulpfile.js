@@ -38,8 +38,8 @@ gulp.task("less", function () {
 gulp.task("nwjs", function () {
     var nw = new NwBuilder({
         files: [
-            './src/**/*.png',
-            './src/**/*.db',
+            // './src/**/*.png',
+            // './src/**/*.db',
             './src/**/*.gif',
             './src/**/*.json',
             './src/**/*.ejs',
@@ -57,10 +57,20 @@ gulp.task("nwjs", function () {
 
 // Build returns a promise
     nw.build().then(function () {
+        var destPath = 'build/YuanQiTv/win64';
         console.log('all done!');
+        gulp.src('./src/js/**/*.js')
+            .pipe(gulp.dest(destPath+"/js"));
+        gulp.src('./src/**/*.png')
+            .pipe(gulp.dest(destPath));
+        gulp.src('./src/**/*.db')
+            .pipe(gulp.dest(destPath));
+        gulp.src('./src/**/*.css')
+            .pipe(gulp.dest(destPath));
     }).catch(function (error) {
         console.error(error);
     });
+
 });
 gulp.task("run", function () {
     run(path.join('cache', nwjsVersion, "win64", "nw.exe") + " src").exec();

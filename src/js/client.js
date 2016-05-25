@@ -36,7 +36,8 @@ var sortCompare = function (prop) {
 /// <reference path="libs/createjs/tweenjs.d.ts"/>
 var serverConf = {
     host: "localhost",
-    port: 8086
+    port: 8086,
+    staticPath: "."
 };
 var EventDispatcher = (function () {
     function EventDispatcher() {

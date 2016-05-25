@@ -4,7 +4,7 @@ declare var require:{
 var fs = require('fs');
 var Stream = require('stream');
 var zlib = require('zlib');
-//var data = fs.read('c:/test.xml');
+var process = require('process');
 function walk(path):Array<string> {
     var fileArr = [];
     var dirArr = fs.readdirSync(path);

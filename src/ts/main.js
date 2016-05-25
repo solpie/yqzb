@@ -1719,7 +1719,7 @@ var ServerView = (function () {
 var fs = require('fs');
 var Stream = require('stream');
 var zlib = require('zlib');
-//var data = fs.read('c:/test.xml');
+var process = require('process');
 function walk(path) {
     var fileArr = [];
     var dirArr = fs.readdirSync(path);
@@ -1931,7 +1931,8 @@ var YuanqiTvView = (function () {
 }());
 var serverConf = {
     host: "localhost",
-    port: 8086
+    port: 8086,
+    staticPath: "."
 };
 // var playerIdBase = 10000;
 var PlayerAdmin = (function () {
@@ -1939,7 +1940,10 @@ var PlayerAdmin = (function () {
     }
     PlayerAdmin.base64ToPng = function (imgPath, base64Data, callback) {
         var base64Data = base64Data.replace(/^data:image\/png;base64,/, "");
-        writeFile(imgPath, base64Data, 'base64', function (err) {
+        var writePath = imgPath;
+        if (!isDev)
+            writePath = M_path.join(appExecPath, imgPath);
+        writeFile(writePath, base64Data, 'base64', function (err) {
             if (!err) {
                 callback('/' + imgPath);
             }
@@ -2048,12 +2052,73 @@ var PlayerAdmin = (function () {
 /// <reference path="routes/PlayerInfoAdmin.ts"/>
 var msgpack = require("msgpack-lite");
 var debug = require('debug')('express2:server');
+var appExecPath = M_path.dirname(process.execPath);
+var isDev;
 var db;
 function dbPlayerInfo() {
     return db.player;
 }
 var HttpServer = (function () {
     function HttpServer() {
+        var _this = this;
+        this.initEnv(function () {
+            _this.initWebServer();
+        });
+    }
+    HttpServer.prototype.getIPAddress = function () {
+        var interfaces = require('os').networkInterfaces();
+        for (var devName in interfaces) {
+            var iface = interfaces[devName];
+            for (var i = 0; i < iface.length; i++) {
+                var alias = iface[i];
+                if (alias.family === 'IPv4' && alias.address !== '127.0.0.1' && !alias.internal) {
+                    return alias.address;
+                }
+            }
+        }
+    };
+    HttpServer.prototype.initDB = function () {
+        var Datastore = require('nedb');
+        // Fetch a collection to insert document into
+        var playerDb = 'db/player.db';
+        var activityDb = 'db/activity.db';
+        if (!isDev) {
+            playerDb = M_path.join(appExecPath, playerDb);
+            activityDb = M_path.join(appExecPath, activityDb);
+        }
+        db = {};
+        db.player = new Datastore({ filename: playerDb, autoload: true });
+        db.activity = new Datastore({ filename: activityDb, autoload: true });
+        db.player.find({ id: 0 }, function (err, doc) {
+            db.player.config = doc[0];
+        });
+        db.player.saveIdUsed = function () {
+            db.player.config.playerIdUsed++;
+            db.player.update({ id: 0 }, { $set: db.player.config });
+        };
+        db.player.getNewId = function () {
+            return db.player.config.playerIdUsed;
+        };
+        // var playerDb:string = M_path.join(appPath, 'db/player.db');
+        // var activityDb:string = M_path.join(appPath, 'db/activity.db');
+        console.log(process.cwd());
+        // Get path of project binary:
+        console.log(M_path.dirname(process.execPath));
+    };
+    HttpServer.prototype.initEnv = function (callback) {
+        fs.exists(M_path.join(appExecPath, 'nw.exe'), function (exists) {
+            // handle result
+            if (exists) {
+                // dev env
+                isDev = true;
+            }
+            else {
+                isDev = false;
+            }
+            callback();
+        });
+    };
+    HttpServer.prototype.initWebServer = function () {
         this.initDB();
         if (serverConf.host == 'localhost')
             serverConf.host = this.getIPAddress();
@@ -2065,7 +2130,12 @@ var HttpServer = (function () {
         // view engine setup
         app.set('views', "./ts/server/views/tpl");
         app.set('view engine', 'ejs');
-        app.use(express.static("."));
+        if (isDev) {
+            app.use(express.static("."));
+        }
+        else {
+            app.use(express.static(appExecPath));
+        }
         var bodyParser = require('body-parser');
         // create application/x-www-form-urlencoded parser
         var urlencodedParser = bodyParser.urlencoded({
@@ -2122,35 +2192,6 @@ var HttpServer = (function () {
         });
         this.initWebSocket();
         this.handleOp();
-    }
-    HttpServer.prototype.getIPAddress = function () {
-        var interfaces = require('os').networkInterfaces();
-        for (var devName in interfaces) {
-            var iface = interfaces[devName];
-            for (var i = 0; i < iface.length; i++) {
-                var alias = iface[i];
-                if (alias.family === 'IPv4' && alias.address !== '127.0.0.1' && !alias.internal) {
-                    return alias.address;
-                }
-            }
-        }
-    };
-    HttpServer.prototype.initDB = function () {
-        var Datastore = require('nedb');
-        // Fetch a collection to insert document into
-        db = {};
-        db.player = new Datastore({ filename: 'db/player.db', autoload: true });
-        db.activity = new Datastore({ filename: 'db/activity.db', autoload: true });
-        db.player.find({ id: 0 }, function (err, doc) {
-            db.player.config = doc[0];
-        });
-        db.player.saveIdUsed = function () {
-            db.player.config.playerIdUsed++;
-            db.player.update({ id: 0 }, { $set: db.player.config });
-        };
-        db.player.getNewId = function () {
-            return db.player.config.playerIdUsed;
-        };
     };
     HttpServer.prototype.handleOp = function () {
         var _this = this;

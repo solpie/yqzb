@@ -1,7 +1,5 @@
-{"id":10013,"name":"rtyr","phone":"13654872698","eloScore":"2000","style":"1","avatar":"/img/player/10013.png","height":"170","weight":"70","dtScore":0,"winpercent":0,"activityId":"1","gameCount":0,"loseGameCount":0,"winGameCount":0,"_id":"33FPUXbCI6ewyPCw"}
-{"id":0,"playerIdUsed":10014,"_id":"37LEJfADIO5o2Fxd"}
+{"id":0,"playerIdUsed":10015,"_id":"37LEJfADIO5o2Fxd"}
 {"id":15,"name":"thompson","eloScore":2131,"style":4,"avatar":"/img/player/p25.png","height":12,"weight":0,"winpercent":0.9501,"gameCount":0,"dtScore":0,"pos":4,"_id":"3btsTuGx0g2zWQ2f","phone":null,"activityId":null}
-{"id":10012,"name":"dsfsd","phone":"13654872698","eloScore":"2000","style":"2","avatar":"/img/player/10012.png","height":"170","weight":"70","dtScore":0,"winpercent":0,"activityId":"1","gameCount":0,"loseGameCount":0,"winGameCount":0,"_id":"5qfOP3O8FdwsuoKH"}
 {"id":18,"name":"kobe","eloScore":2231,"style":1,"avatar":"/img/player/p28.png","height":0,"weight":0,"winpercent":0.9501,"gameCount":0,"dtScore":0,"pos":7,"_id":"Cep5LvDaTnu5GIZh"}
 {"id":10008,"name":"curry","phone":13654872698,"eloScore":2000,"style":1,"avatar":"/img/player/10008.png","height":172,"weight":71,"dtScore":0,"winpercent":0,"gameCount":0,"loseGameCount":0,"winGameCount":0,"_id":"IVayXLaMTNqRVPX4","activityId":1}
 {"id":16,"name":"tmac","eloScore":2331,"style":2,"avatar":"/img/player/p26.png","height":0,"weight":0,"winpercent":0.9501,"gameCount":0,"dtScore":0,"pos":5,"_id":"LXOWjafTuoHhfyi1"}
@@ -11,8 +9,4 @@
 {"id":12,"name":"james","eloScore":2631,"style":1,"avatar":"/img/player/p22.png","height":0,"weight":0,"winpercent":0.9501,"gameCount":0,"dtScore":0,"pos":1,"_id":"kYhEPh55m96F86SX"}
 {"id":14,"name":"durant","eloScore":2731,"style":4,"avatar":"/img/player/p24.png","height":0,"weight":0,"winpercent":0.9501,"gameCount":0,"dtScore":0,"pos":3,"_id":"msmET6PyuYZbHHCl"}
 {"id":11,"name":"wade","eloScore":2831,"style":2,"avatar":"/img/player/p21.png","height":0,"weight":0,"winpercent":0.9501,"gameCount":0,"dtScore":0,"pos":0,"_id":"o4pc0WnxW9XaHWNs"}
-{"$$deleted":true,"_id":"33FPUXbCI6ewyPCw"}
-{"$$deleted":true,"_id":"5qfOP3O8FdwsuoKH"}
-{"id":10014,"name":"test","phone":"13654872698","eloScore":"2000","style":"1","avatar":"/img/player/10014.png","height":"170","weight":"70","dtScore":0,"winpercent":0,"activityId":"1","gameCount":0,"loseGameCount":0,"winGameCount":0,"_id":"8LP6wgQLtUZir7AX"}
-{"id":0,"playerIdUsed":10015,"_id":"37LEJfADIO5o2Fxd"}
-{"$$deleted":true,"_id":"8LP6wgQLtUZir7AX"}
+{"id":10008,"name":"curry","phone":13654872698,"eloScore":2000,"style":1,"avatar":"/img/player/10008.png","height":172,"weight":71,"dtScore":0,"winpercent":0,"gameCount":0,"loseGameCount":0,"winGameCount":0,"_id":"IVayXLaMTNqRVPX4","activityId":1}
