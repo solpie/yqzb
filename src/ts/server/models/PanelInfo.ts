@@ -1,6 +1,7 @@
 /// <reference path="../../event/ActEvent.ts"/>
 /// <reference path="./PlayerInfo.ts"/>
 /// <reference path="./TeamInfo.ts"/>
+/// <reference path="./GameInfo.ts"/>
 class PanelInfo {
     //for localhost/panel/pid/
     stage:StagePanelInfo;
@@ -30,7 +31,7 @@ class PlayerPanelInfo extends BasePanelInfo {
 
     getInfo() {
         return {
-            playerInfoArr: this.stageInfo.playerInfoArr,
+            playerInfoArr: this.stageInfo.getPlayerInfoArr(),
             playerInfo: this.playerData,
             position: this.position
         };
@@ -38,9 +39,9 @@ class PlayerPanelInfo extends BasePanelInfo {
 
     showWinPanel(param:any) {
         var playerId = parseInt(param);
-        for (var i = 0; i < this.stageInfo.playerInfoArr.length; i++) {
-            var obj = this.stageInfo.playerInfoArr[i];
-            if (obj&&obj.id == playerId) {
+        for (var i = 0; i < this.stageInfo.getPlayerInfoArr().length; i++) {
+            var obj = this.stageInfo.getPlayerInfoArr()[i];
+            if (obj && obj.id == playerId) {
                 this.playerData = obj;
                 cmd.emit(CommandId.fadeInPlayerPanel, obj, this.pid);
             }
@@ -76,55 +77,56 @@ class WinPanelInfo extends BasePanelInfo {
 }
 
 class StagePanelInfo extends BasePanelInfo {
-    winScore:number = 7;
-    leftScore:number = 0;
-    rightScore:number = 0;
-    time:number = 0;
-    timerState:number = 0;
     ctnXY:any;
-    playerInfoArr:any = new Array(8);
-    straightScoreLeft:number = 0;//连杀判定
-    straightScoreRight:number = 0;//连杀判定
+    gameInfo:GameInfo;
+
+    constructor(pid) {
+        super(pid);
+        this.gameInfo = new GameInfo();
+    }
 
     getInfo() {
         return {
-            leftScore: this.leftScore,
-            rightScore: this.rightScore,
-            time: this.time,
-            state: this.timerState,
+            leftScore: this.gameInfo.leftScore,
+            rightScore: this.gameInfo.rightScore,
+            time: this.gameInfo.time,
+            state: this.gameInfo.timerState,
             ctnXY: this.ctnXY,
-            playerInfoArr: this.playerInfoArr
+            playerInfoArr: this.getPlayerInfoArr()
         }
     }
 
-    addLeftScore() {
-        this.leftScore = (this.leftScore + 1) % (this.winScore + 1);
-        cmd.emit(CommandId.addLeftScore, this.leftScore, this.pid);
+    getPlayerInfoArr():Array<any> {
+        return this.gameInfo.getPlayerInfoArr();
+    }
 
-        this.straightScoreRight = 0;
-        this.straightScoreLeft++;
-        if (this.leftScore == 0)
-            this.straightScoreLeft = 0;
-        if (this.straightScoreLeft == 3) {
+    addLeftScore() {
+        this.gameInfo.leftScore = (this.gameInfo.leftScore + 1) % (this.gameInfo.winScore + 1);
+        cmd.emit(CommandId.addLeftScore, this.gameInfo.leftScore, this.pid);
+
+        this.gameInfo.straightScoreRight = 0;
+        this.gameInfo.straightScoreLeft++;
+        if (this.gameInfo.leftScore == 0)
+            this.gameInfo.straightScoreLeft = 0;
+        if (this.gameInfo.straightScoreLeft == 3) {
             console.log("straight score 3");
             cmd.emit(CommandId.straightScore3, {team: "left"}, this.pid);
-
         }
-        if (this.straightScoreLeft == 5)
+        if (this.gameInfo.straightScoreLeft == 5)
             cmd.emit(CommandId.straightScore5, {team: "left"}, this.pid);
     }
 
     addRightScore() {
-        this.rightScore = (this.rightScore + 1) % (this.winScore + 1);
-        cmd.emit(CommandId.addRightScore, this.rightScore, this.pid);
+        this.gameInfo.rightScore = (this.gameInfo.rightScore + 1) % (this.gameInfo.winScore + 1);
+        cmd.emit(CommandId.addRightScore, this.gameInfo.rightScore, this.pid);
 
-        this.straightScoreLeft = 0;
-        this.straightScoreRight++;
-        if (this.rightScore == 0)
-            this.straightScoreRight = 0;
-        if (this.straightScoreRight == 3)
+        this.gameInfo.straightScoreLeft = 0;
+        this.gameInfo.straightScoreRight++;
+        if (this.gameInfo.rightScore == 0)
+            this.gameInfo.straightScoreRight = 0;
+        if (this.gameInfo.straightScoreRight == 3)
             cmd.emit(CommandId.straightScore3, {team: "right"}, this.pid);
-        if (this.straightScoreRight == 5)
+        if (this.gameInfo.straightScoreRight == 5)
             cmd.emit(CommandId.straightScore5, {team: "right"}, this.pid);
     }
 
@@ -157,44 +159,46 @@ class StagePanelInfo extends BasePanelInfo {
         var pos = param.pos;
         param.playerInfo.pos = pos;
         // this.playerInfoArr[pos] = param.playerInfo;
-        this._setPlayerPos(pos, param.playerInfo);
+        this.gameInfo.setPlayerInfoByPos(pos, param.playerInfo);
         console.log(this, "updatePlayer", JSON.stringify(param.playerInfo), param.playerInfo.pos);
         cmd.emit(CommandId.updatePlayer, param, this.pid);
     }
 
-    _setPlayerPos(pos, playerInfo) {
-        playerInfo.isRed = (pos > 3);
-        this.playerInfoArr[pos] = playerInfo;
-    }
+    // _setPlayerPos(pos, playerInfo) {
+    //     playerInfo.isRed = (pos > 3);
+    //     this.playerInfoArr[pos] = playerInfo;
+    // }
 
     showWinPanel(param:any) {
-        console.log("showWinPanel param:", param, param.mvp);
-        for (var i = 0; i < this.playerInfoArr.length; i++) {
-            var obj = this.playerInfoArr[i];
+        console.log("showWinPanel param:", param, param.mvp, this.getPlayerInfoArr());
+        for (var i = 0; i < this.getPlayerInfoArr().length; i++) {
+            var obj = this.getPlayerInfoArr()[i];
+            if (!obj)
+                return;
             if (obj.pos == param.mvp)
                 obj.isMap = true;
             console.log(JSON.stringify(obj));
         }
-        var teamLeft = new TeamInfo();
-        teamLeft.setPlayerArr(appInfo.panel.stage.getLeftTeam());
-
-        var teamRight = new TeamInfo();
-        teamRight.setPlayerArr(appInfo.panel.stage.getRightTeam());
+        // var teamLeft = new TeamInfo();
+        // teamLeft.setPlayerArr(appInfo.panel.stage.getLeftTeam());
+        //
+        // var teamRight = new TeamInfo();
+        // teamRight.setPlayerArr(appInfo.panel.stage.getRightTeam());
 
         var winTeam;
         if (param.mvp < 4) {
-            winTeam = teamLeft;
-            teamLeft.beat(teamRight);
+            winTeam = this.gameInfo.setLeftTeamWin();
+            // teamLeft.beat(teamRight);
         }
         else {
-            winTeam = teamRight;
-            teamRight.beat(teamLeft);
+            winTeam = this.gameInfo.setRightTeamWin();
+            // teamRight.beat(teamLeft);
         }
 
         cmd.emit(CommandId.fadeInWinPanel, {mvp: param.mvp, playerDataArr: winTeam.playerArr}, this.pid);
         console.log(this, "after elo");
-        for (var i = 0; i < this.playerInfoArr.length; i++) {
-            var obj = this.playerInfoArr[i];
+        for (var i = 0; i < this.getPlayerInfoArr().length; i++) {
+            var obj = this.getPlayerInfoArr()[i];
             console.log(JSON.stringify(obj));
         }
     }
@@ -207,23 +211,9 @@ class StagePanelInfo extends BasePanelInfo {
 
         for (var i = 0; i < playerDataArr.length; i++) {
             var obj = playerDataArr[i];
-            this._setPlayerPos(obj.pos, obj.playerData);
+            this.gameInfo.setPlayerInfoByPos(obj.pos, obj.playerData);
             console.log(this, "updatePlayer", JSON.stringify(obj.playerData), obj.pos);
         }
-        cmd.emit(CommandId.updatePlayerAll, this.playerInfoArr, this.pid);
-    }
-
-    getLeftTeam(start = 0) {
-        var team = [];
-        for (var i = start; i < 4 + start; i++) {
-            var pInfo = new PlayerInfo(this.playerInfoArr[i]);
-            team.push(pInfo);
-            pInfo.isRed = (start > 0)
-        }
-        return team;
-    }
-
-    getRightTeam() {
-        return this.getLeftTeam(4);
+        cmd.emit(CommandId.updatePlayerAll, this.getPlayerInfoArr(), this.pid);
     }
 }

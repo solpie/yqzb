@@ -3,7 +3,7 @@ class PlayerAdmin {
     static base64ToPng(imgPath, base64Data, callback) {
         var base64Data = base64Data.replace(/^data:image\/png;base64,/, "");
         var writePath = imgPath;
-        if(!isDev)
+        if (!isDev)
             writePath = M_path.join(appExecPath, imgPath);
         writeFile(writePath, base64Data, 'base64', (err)=> {
             if (!err) {

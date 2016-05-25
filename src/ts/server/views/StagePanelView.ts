@@ -228,21 +228,21 @@ class StagePanelView extends BaseView {
             if (this.timerId) {
                 clearInterval(this.timerId);
                 this.timerId = 0;
-                appInfo.panel.stage.timerState = 0;
+                appInfo.panel.stage.gameInfo.timerState = 0;
             }
             else {
                 this.timerId = setInterval(()=> {
-                    appInfo.panel.stage.time++;
-                    this.timeLabel.text = this.formatSecond(appInfo.panel.stage.time);
+                    appInfo.panel.stage.gameInfo.time++;
+                    this.timeLabel.text = this.formatSecond(appInfo.panel.stage.gameInfo.time);
                 }, 1000);
-                appInfo.panel.stage.timerState = 1;
+                appInfo.panel.stage.gameInfo.timerState = 1;
             }
         });
 
         cmd.on(CommandId.resetTimer, ()=> {
             //$("#btnResetTime").on(MouseEvt.CLICK, ()=> {
-            appInfo.panel.stage.time = 0;
-            this.timeLabel.text = this.formatSecond(appInfo.panel.stage.time);
+            appInfo.panel.stage.gameInfo.time = 0;
+            this.timeLabel.text = this.formatSecond(appInfo.panel.stage.gameInfo.time);
         });
 
         cmd.on(CommandId.stageFadeOut, ()=> {
@@ -359,7 +359,7 @@ class StagePanelView extends BaseView {
 
     setTime(time, state) {
         this.timeLabel.text = this.formatSecond(time);
-        appInfo.panel.stage.time = time;
+        appInfo.panel.stage.gameInfo.time = time;
         if (state) {
             cmd.emit(CommandId.toggleTimer);
         }

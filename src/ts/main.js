@@ -464,9 +464,63 @@ var TeamInfo = (function () {
     };
     return TeamInfo;
 }());
+var GameInfo = (function () {
+    function GameInfo() {
+        this.winScore = 7;
+        this.leftScore = 0;
+        this.rightScore = 0;
+        this.time = 0;
+        this.timerState = 0;
+        this.straightScoreLeft = 0; //连杀判定
+        this.straightScoreRight = 0; //连杀判定
+        this.playerInfoArr = new Array(8);
+    }
+    GameInfo.prototype.setPlayerInfoByPos = function (pos, playerInfo) {
+        playerInfo.isRed = (pos > 3);
+        this.playerInfoArr[pos] = playerInfo;
+    };
+    GameInfo.prototype._setGameResult = function (isLeftWin) {
+        var teamLeft = new TeamInfo();
+        teamLeft.setPlayerArr(this.getLeftTeam());
+        var teamRight = new TeamInfo();
+        teamRight.setPlayerArr(this.getRightTeam());
+        if (isLeftWin) {
+            teamLeft.beat(teamRight);
+            return teamLeft;
+        }
+        else {
+            teamRight.beat(teamLeft);
+            return teamRight;
+        }
+    };
+    GameInfo.prototype.setLeftTeamWin = function () {
+        return this._setGameResult(true);
+    };
+    GameInfo.prototype.setRightTeamWin = function () {
+        return this._setGameResult(false);
+    };
+    GameInfo.prototype.getPlayerInfoArr = function () {
+        return this.playerInfoArr;
+    };
+    GameInfo.prototype.getLeftTeam = function (start) {
+        if (start === void 0) { start = 0; }
+        var team = [];
+        for (var i = start; i < 4 + start; i++) {
+            var pInfo = new PlayerInfo(this.playerInfoArr[i]);
+            team.push(pInfo);
+            pInfo.isRed = (start > 0);
+        }
+        return team;
+    };
+    GameInfo.prototype.getRightTeam = function () {
+        return this.getLeftTeam(4);
+    };
+    return GameInfo;
+}());
 /// <reference path="../../event/ActEvent.ts"/>
 /// <reference path="./PlayerInfo.ts"/>
 /// <reference path="./TeamInfo.ts"/>
+/// <reference path="./GameInfo.ts"/>
 var PanelInfo = (function () {
     function PanelInfo() {
         this.stage = new StagePanelInfo(PanelId.stagePanel);
@@ -492,15 +546,15 @@ var PlayerPanelInfo = (function (_super) {
     }
     PlayerPanelInfo.prototype.getInfo = function () {
         return {
-            playerInfoArr: this.stageInfo.playerInfoArr,
+            playerInfoArr: this.stageInfo.getPlayerInfoArr(),
             playerInfo: this.playerData,
             position: this.position
         };
     };
     PlayerPanelInfo.prototype.showWinPanel = function (param) {
         var playerId = parseInt(param);
-        for (var i = 0; i < this.stageInfo.playerInfoArr.length; i++) {
-            var obj = this.stageInfo.playerInfoArr[i];
+        for (var i = 0; i < this.stageInfo.getPlayerInfoArr().length; i++) {
+            var obj = this.stageInfo.getPlayerInfoArr()[i];
             if (obj && obj.id == playerId) {
                 this.playerData = obj;
                 cmd.emit(CommandId.fadeInPlayerPanel, obj, this.pid);
@@ -539,51 +593,47 @@ var WinPanelInfo = (function (_super) {
 }(BasePanelInfo));
 var StagePanelInfo = (function (_super) {
     __extends(StagePanelInfo, _super);
-    function StagePanelInfo() {
-        _super.apply(this, arguments);
-        this.winScore = 7;
-        this.leftScore = 0;
-        this.rightScore = 0;
-        this.time = 0;
-        this.timerState = 0;
-        this.playerInfoArr = new Array(8);
-        this.straightScoreLeft = 0; //连杀判定
-        this.straightScoreRight = 0; //连杀判定
+    function StagePanelInfo(pid) {
+        _super.call(this, pid);
+        this.gameInfo = new GameInfo();
     }
     StagePanelInfo.prototype.getInfo = function () {
         return {
-            leftScore: this.leftScore,
-            rightScore: this.rightScore,
-            time: this.time,
-            state: this.timerState,
+            leftScore: this.gameInfo.leftScore,
+            rightScore: this.gameInfo.rightScore,
+            time: this.gameInfo.time,
+            state: this.gameInfo.timerState,
             ctnXY: this.ctnXY,
-            playerInfoArr: this.playerInfoArr
+            playerInfoArr: this.getPlayerInfoArr()
         };
     };
+    StagePanelInfo.prototype.getPlayerInfoArr = function () {
+        return this.gameInfo.getPlayerInfoArr();
+    };
     StagePanelInfo.prototype.addLeftScore = function () {
-        this.leftScore = (this.leftScore + 1) % (this.winScore + 1);
-        cmd.emit(CommandId.addLeftScore, this.leftScore, this.pid);
-        this.straightScoreRight = 0;
-        this.straightScoreLeft++;
-        if (this.leftScore == 0)
-            this.straightScoreLeft = 0;
-        if (this.straightScoreLeft == 3) {
+        this.gameInfo.leftScore = (this.gameInfo.leftScore + 1) % (this.gameInfo.winScore + 1);
+        cmd.emit(CommandId.addLeftScore, this.gameInfo.leftScore, this.pid);
+        this.gameInfo.straightScoreRight = 0;
+        this.gameInfo.straightScoreLeft++;
+        if (this.gameInfo.leftScore == 0)
+            this.gameInfo.straightScoreLeft = 0;
+        if (this.gameInfo.straightScoreLeft == 3) {
             console.log("straight score 3");
             cmd.emit(CommandId.straightScore3, { team: "left" }, this.pid);
         }
-        if (this.straightScoreLeft == 5)
+        if (this.gameInfo.straightScoreLeft == 5)
             cmd.emit(CommandId.straightScore5, { team: "left" }, this.pid);
     };
     StagePanelInfo.prototype.addRightScore = function () {
-        this.rightScore = (this.rightScore + 1) % (this.winScore + 1);
-        cmd.emit(CommandId.addRightScore, this.rightScore, this.pid);
-        this.straightScoreLeft = 0;
-        this.straightScoreRight++;
-        if (this.rightScore == 0)
-            this.straightScoreRight = 0;
-        if (this.straightScoreRight == 3)
+        this.gameInfo.rightScore = (this.gameInfo.rightScore + 1) % (this.gameInfo.winScore + 1);
+        cmd.emit(CommandId.addRightScore, this.gameInfo.rightScore, this.pid);
+        this.gameInfo.straightScoreLeft = 0;
+        this.gameInfo.straightScoreRight++;
+        if (this.gameInfo.rightScore == 0)
+            this.gameInfo.straightScoreRight = 0;
+        if (this.gameInfo.straightScoreRight == 3)
             cmd.emit(CommandId.straightScore3, { team: "right" }, this.pid);
-        if (this.straightScoreRight == 5)
+        if (this.gameInfo.straightScoreRight == 5)
             cmd.emit(CommandId.straightScore5, { team: "right" }, this.pid);
     };
     StagePanelInfo.prototype.toggleTimer = function () {
@@ -609,39 +659,40 @@ var StagePanelInfo = (function (_super) {
         var pos = param.pos;
         param.playerInfo.pos = pos;
         // this.playerInfoArr[pos] = param.playerInfo;
-        this._setPlayerPos(pos, param.playerInfo);
+        this.gameInfo.setPlayerInfoByPos(pos, param.playerInfo);
         console.log(this, "updatePlayer", JSON.stringify(param.playerInfo), param.playerInfo.pos);
         cmd.emit(CommandId.updatePlayer, param, this.pid);
     };
-    StagePanelInfo.prototype._setPlayerPos = function (pos, playerInfo) {
-        playerInfo.isRed = (pos > 3);
-        this.playerInfoArr[pos] = playerInfo;
-    };
+    // _setPlayerPos(pos, playerInfo) {
+    //     playerInfo.isRed = (pos > 3);
+    //     this.playerInfoArr[pos] = playerInfo;
+    // }
     StagePanelInfo.prototype.showWinPanel = function (param) {
-        console.log("showWinPanel param:", param, param.mvp);
-        for (var i = 0; i < this.playerInfoArr.length; i++) {
-            var obj = this.playerInfoArr[i];
+        console.log("showWinPanel param:", param, param.mvp, this.getPlayerInfoArr());
+        for (var i = 0; i < this.getPlayerInfoArr().length; i++) {
+            var obj = this.getPlayerInfoArr()[i];
+            if (!obj)
+                return;
             if (obj.pos == param.mvp)
                 obj.isMap = true;
             console.log(JSON.stringify(obj));
         }
-        var teamLeft = new TeamInfo();
-        teamLeft.setPlayerArr(appInfo.panel.stage.getLeftTeam());
-        var teamRight = new TeamInfo();
-        teamRight.setPlayerArr(appInfo.panel.stage.getRightTeam());
+        // var teamLeft = new TeamInfo();
+        // teamLeft.setPlayerArr(appInfo.panel.stage.getLeftTeam());
+        //
+        // var teamRight = new TeamInfo();
+        // teamRight.setPlayerArr(appInfo.panel.stage.getRightTeam());
         var winTeam;
         if (param.mvp < 4) {
-            winTeam = teamLeft;
-            teamLeft.beat(teamRight);
+            winTeam = this.gameInfo.setLeftTeamWin();
         }
         else {
-            winTeam = teamRight;
-            teamRight.beat(teamLeft);
+            winTeam = this.gameInfo.setRightTeamWin();
         }
         cmd.emit(CommandId.fadeInWinPanel, { mvp: param.mvp, playerDataArr: winTeam.playerArr }, this.pid);
         console.log(this, "after elo");
-        for (var i = 0; i < this.playerInfoArr.length; i++) {
-            var obj = this.playerInfoArr[i];
+        for (var i = 0; i < this.getPlayerInfoArr().length; i++) {
+            var obj = this.getPlayerInfoArr()[i];
             console.log(JSON.stringify(obj));
         }
     };
@@ -651,23 +702,10 @@ var StagePanelInfo = (function (_super) {
     StagePanelInfo.prototype.updatePlayerAll = function (playerDataArr) {
         for (var i = 0; i < playerDataArr.length; i++) {
             var obj = playerDataArr[i];
-            this._setPlayerPos(obj.pos, obj.playerData);
+            this.gameInfo.setPlayerInfoByPos(obj.pos, obj.playerData);
             console.log(this, "updatePlayer", JSON.stringify(obj.playerData), obj.pos);
         }
-        cmd.emit(CommandId.updatePlayerAll, this.playerInfoArr, this.pid);
-    };
-    StagePanelInfo.prototype.getLeftTeam = function (start) {
-        if (start === void 0) { start = 0; }
-        var team = [];
-        for (var i = start; i < 4 + start; i++) {
-            var pInfo = new PlayerInfo(this.playerInfoArr[i]);
-            team.push(pInfo);
-            pInfo.isRed = (start > 0);
-        }
-        return team;
-    };
-    StagePanelInfo.prototype.getRightTeam = function () {
-        return this.getLeftTeam(4);
+        cmd.emit(CommandId.updatePlayerAll, this.getPlayerInfoArr(), this.pid);
     };
     return StagePanelInfo;
 }(BasePanelInfo));
@@ -1182,20 +1220,20 @@ var StagePanelView = (function (_super) {
             if (_this.timerId) {
                 clearInterval(_this.timerId);
                 _this.timerId = 0;
-                appInfo.panel.stage.timerState = 0;
+                appInfo.panel.stage.gameInfo.timerState = 0;
             }
             else {
                 _this.timerId = setInterval(function () {
-                    appInfo.panel.stage.time++;
-                    _this.timeLabel.text = _this.formatSecond(appInfo.panel.stage.time);
+                    appInfo.panel.stage.gameInfo.time++;
+                    _this.timeLabel.text = _this.formatSecond(appInfo.panel.stage.gameInfo.time);
                 }, 1000);
-                appInfo.panel.stage.timerState = 1;
+                appInfo.panel.stage.gameInfo.timerState = 1;
             }
         });
         cmd.on(CommandId.resetTimer, function () {
             //$("#btnResetTime").on(MouseEvt.CLICK, ()=> {
-            appInfo.panel.stage.time = 0;
-            _this.timeLabel.text = _this.formatSecond(appInfo.panel.stage.time);
+            appInfo.panel.stage.gameInfo.time = 0;
+            _this.timeLabel.text = _this.formatSecond(appInfo.panel.stage.gameInfo.time);
         });
         cmd.on(CommandId.stageFadeOut, function () {
             createjs.Tween.get(_this.fxCtn).to({ y: 140, alpha: .2 }, 200);
@@ -1293,7 +1331,7 @@ var StagePanelView = (function (_super) {
     };
     StagePanelView.prototype.setTime = function (time, state) {
         this.timeLabel.text = this.formatSecond(time);
-        appInfo.panel.stage.time = time;
+        appInfo.panel.stage.gameInfo.time = time;
         if (state) {
             cmd.emit(CommandId.toggleTimer);
         }
