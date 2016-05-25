@@ -3,17 +3,16 @@
  */
 /// <reference path="Config.ts"/>
 /// <reference path="routes/PlayerInfoAdmin.ts"/>
+/// <reference path="models/DbInfo.ts"/>
+/// <reference path="models/PanelInfo.ts"/>
 
 var msgpack = require("msgpack-lite");
 var debug = require('debug')('express2:server');
-var appExecPath = M_path.dirname(process.execPath);
-var isDev;
-var db:any;
-function dbPlayerInfo() {
-    return db.player;
-}
+
 
 class HttpServer {
+    panel:PanelInfo;
+
     getIPAddress() {
         var interfaces = require('os').networkInterfaces();
         for (var devName in interfaces) {
@@ -27,37 +26,11 @@ class HttpServer {
         }
     }
 
-
-    initDB() {
-        var Datastore = require('nedb');
-// Fetch a collection to insert document into
-        var playerDb:string = 'db/player.db';
-        var activityDb:string = 'db/activity.db';
-
-        if (!isDev) {
-            playerDb = M_path.join(appExecPath, playerDb);
-            activityDb = M_path.join(appExecPath, activityDb);
-        }
-        db = {};
-        db.player = new Datastore({filename: playerDb, autoload: true});
-        db.activity = new Datastore({filename: activityDb, autoload: true});
-
-        db.player.find({id: 0}, function (err, doc) {
-            db.player.config = doc[0];
-        });
-        db.player.saveIdUsed = function () {
-            db.player.config.playerIdUsed++;
-            db.player.update({id: 0}, {$set: db.player.config})
-        };
-        db.player.getNewId = function () {
-            return db.player.config.playerIdUsed;
-        };
-        // var playerDb:string = M_path.join(appPath, 'db/player.db');
-        // var activityDb:string = M_path.join(appPath, 'db/activity.db');
-        console.log(process.cwd());
-        // Get path of project binary:
-        console.log(M_path.dirname(process.execPath));
+    initPanelInfo() {
+        this.panel = new PanelInfo();
+        console.log("init panel info", this.panel);
     }
+
 
     initEnv(callback) {
         fs.exists(M_path.join(appExecPath, 'nw.exe'), function (exists) {
@@ -74,7 +47,8 @@ class HttpServer {
     }
 
     initWebServer() {
-        this.initDB();
+        initDB();
+        this.initPanelInfo();
         if (serverConf.host == 'localhost')
             serverConf.host = this.getIPAddress();
         ///server
@@ -105,21 +79,14 @@ class HttpServer {
             res.render('dashboard');
         });
 
-        app.get('/admin/player/:id', PlayerAdmin.showPlayer);
+        app.get('/admin/player/:id', PlayerAdmin.showPlayerById);
 
         app.post('/admin/player/new', urlencodedParser, PlayerAdmin.newPlayer);
         app.post('/admin/player/update', urlencodedParser, PlayerAdmin.updatePlayerData);
         app.post('/admin/player/delete', urlencodedParser, PlayerAdmin.deletePlayerData);
 
-        app.get('/admin/player/', (req, res)=> {
-            dbPlayerInfo().find({}, function (err, docs) {
-                var data:any = {adminId: 'playerList'};
-                if (!err)
-                    data.playerDataArr = docs;
-                res.render('playerList', data);
-                console.log("/admin/player/ length:", docs.length, JSON.stringify(data.playerDataArr));
-            });
-        });
+        app.get('/admin/player/', PlayerAdmin.index);
+
 
         app.get('/panel/:id/:op', function (req, res) {
             var pid = req.params.id;
@@ -162,27 +129,27 @@ class HttpServer {
     }
 
     constructor() {
-        this.initEnv(()=>{
+        this.initEnv(()=> {
             this.initWebServer();
         });
     }
 
     handleOp() {
         cmd.on(CommandId.cs_fadeInPlayerPanel, (param)=> {
-            appInfo.panel.player.showWinPanel(param);
+            this.panel.player.showWinPanel(param);
         });
         cmd.on(CommandId.cs_fadeOutPlayerPanel, (param)=> {
-            appInfo.panel.player.hideWinPanel();
+            this.panel.player.hideWinPanel();
         });
         cmd.on(CommandId.cs_movePlayerPanel, (param)=> {
-            appInfo.panel.player.movePanel(param);
+            this.panel.player.movePanel(param);
         });
         //======================stage panel ==================
         cmd.on(CommandId.cs_fadeInWinPanel, (param)=> {
-            appInfo.panel.stage.showWinPanel(param);
+            this.panel.stage.showWinPanel(param);
         });
         cmd.on(CommandId.cs_fadeOutWinPanel, (param)=> {
-            appInfo.panel.stage.hideWinPanel(param);
+            this.panel.stage.hideWinPanel(param);
         });
 
         cmd.on(CommandId.cs_updatePlayerAll, (param)=> {
@@ -195,7 +162,7 @@ class HttpServer {
                 // idPosMap[obj.playerId] = parseInt(obj.pos);
             }
 
-            dbPlayerInfo().find({$or: idArr}, function (err, playerDataArr) {
+            dbPlayerInfo().find({$or: idArr}, (err, playerDataArr)=> {
                 console.log('find in db', err, playerDataArr, idArr);
                 if (!err && playerDataArr.length) {
                     for (var i = 0; i < playerDataArr.length; i++) {
@@ -208,37 +175,37 @@ class HttpServer {
                             }
                         }
                     }
-                    appInfo.panel.stage.updatePlayerAll(param);
+                    this.panel.stage.updatePlayerAll(param);
                 }
             });
             console.log(this, "cs_updatePlayerAll");
         });
         cmd.on(CommandId.cs_updatePlayer, (param)=> {
-            appInfo.panel.stage.updatePlayer(param);
+            this.panel.stage.updatePlayer(param);
         });
         cmd.on(CommandId.cs_addLeftScore, ()=> {
-            appInfo.panel.stage.addLeftScore();
+            this.panel.stage.addLeftScore();
         });
         cmd.on(CommandId.cs_addRightScore, ()=> {
-            appInfo.panel.stage.addRightScore();
+            this.panel.stage.addRightScore();
         });
         cmd.on(CommandId.cs_toggleTimer, ()=> {
-            appInfo.panel.stage.toggleTimer();
+            this.panel.stage.toggleTimer();
         });
         cmd.on(CommandId.cs_resetTimer, ()=> {
-            appInfo.panel.stage.resetTimer();
+            this.panel.stage.resetTimer();
         });
         cmd.on(CommandId.cs_fadeOut, ()=> {
-            appInfo.panel.stage.fadeOut();
+            this.panel.stage.fadeOut();
         });
         cmd.on(CommandId.cs_stageFadeIn, ()=> {
-            appInfo.panel.stage.fadeIn();
+            this.panel.stage.fadeIn();
         });
         cmd.on(CommandId.cs_playerScore, ()=> {
-            appInfo.panel.stage.playerScore();
+            this.panel.stage.playerScore();
         });
         cmd.on(CommandId.cs_moveStagePanel, (param)=> {
-            appInfo.panel.stage.movePanel(param);
+            this.panel.stage.movePanel(param);
         });
     }
 
@@ -247,11 +214,11 @@ class HttpServer {
         var WebSocketServer = require('ws').Server
             , wss = new WebSocketServer({port: serverConf.port});
 
-        wss.on('connection', function connection(wsClient) {
+        wss.on('connection', (wsClient)=> {
             // var location = url.parse(wsClient.upgradeReq.url, true);
             // you might use location.query.access_token to authenticate or share sessions
             // or ws.upgradeReq.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
-            wsClient.on('message', function incoming(message) {
+            wsClient.on('message', (message)=> {
                 // var req = JSON.parse(message);
                 var msg = msgpack.decode(message);
                 console.log('client: ', msg);
@@ -260,11 +227,11 @@ class HttpServer {
                     wsClient.pid = pid;
                     var info;
                     if (msg.pid == PanelId.stagePanel)
-                        info = appInfo.panel.stage.getInfo();
+                        info = this.panel.stage.getInfo();
                     else if (pid == PanelId.playerPanel)
-                        info = appInfo.panel.player.getInfo();
+                        info = this.panel.player.getInfo();
                     else if (pid == PanelId.winPanel)
-                        info = appInfo.panel.win.getInfo();
+                        info = this.panel.win.getInfo();
 
                     wsClient.send(JSON.stringify({
                         res: "init",

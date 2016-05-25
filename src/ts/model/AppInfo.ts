@@ -2,12 +2,12 @@
  * Created by toramisu on 2016/5/9.
  */
 /// <reference path="../event/ActEvent.ts"/>
-/// <reference path="../server/models/PanelInfo.ts"/>
+
 
 class AppInfo extends EventDispatcher {
     mouseX:number;
     mouseY:number;
-    panel:PanelInfo;
+    // panel:PanelInfo;
     isServer:boolean;
     savePlayerInfo:(playerInfo)=>any;
     parsePlayerInfo:(playerInfo)=>any;
@@ -15,6 +15,6 @@ class AppInfo extends EventDispatcher {
 
     constructor() {
         super();
-        this.panel = new PanelInfo();
+        // this.panel = new PanelInfo();
     }
 }

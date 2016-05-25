@@ -2,7 +2,8 @@
 /// <reference path="PlayerView.ts"/>
 
 class StagePanelView extends BaseView {
-    // time:number = 0;
+    time:number = 0;
+    timerState:number = 0;
     timerId:number;
     leftCircleArr:any;
     rightCircleArr:any;
@@ -228,21 +229,21 @@ class StagePanelView extends BaseView {
             if (this.timerId) {
                 clearInterval(this.timerId);
                 this.timerId = 0;
-                appInfo.panel.stage.gameInfo.timerState = 0;
+                this.timerState = 0;
             }
             else {
                 this.timerId = setInterval(()=> {
-                    appInfo.panel.stage.gameInfo.time++;
-                    this.timeLabel.text = this.formatSecond(appInfo.panel.stage.gameInfo.time);
+                   this.time++;
+                    this.timeLabel.text = this.formatSecond(this.time);
                 }, 1000);
-                appInfo.panel.stage.gameInfo.timerState = 1;
+               this.timerState = 1;
             }
         });
 
         cmd.on(CommandId.resetTimer, ()=> {
             //$("#btnResetTime").on(MouseEvt.CLICK, ()=> {
-            appInfo.panel.stage.gameInfo.time = 0;
-            this.timeLabel.text = this.formatSecond(appInfo.panel.stage.gameInfo.time);
+            this.time = 0;
+            this.timeLabel.text = this.formatSecond(this.time);
         });
 
         cmd.on(CommandId.stageFadeOut, ()=> {
@@ -359,7 +360,7 @@ class StagePanelView extends BaseView {
 
     setTime(time, state) {
         this.timeLabel.text = this.formatSecond(time);
-        appInfo.panel.stage.gameInfo.time = time;
+        this.time = time;
         if (state) {
             cmd.emit(CommandId.toggleTimer);
         }

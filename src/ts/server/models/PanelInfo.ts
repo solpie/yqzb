@@ -2,12 +2,14 @@
 /// <reference path="./PlayerInfo.ts"/>
 /// <reference path="./TeamInfo.ts"/>
 /// <reference path="./GameInfo.ts"/>
+/// <reference path="./DbInfo.ts"/>
+
 class PanelInfo {
     //for localhost/panel/pid/
     stage:StagePanelInfo;
     player:PlayerPanelInfo;
     win:WinPanelInfo;
-
+    
     constructor() {
         this.stage = new StagePanelInfo(PanelId.stagePanel);
         this.player = new PlayerPanelInfo(PanelId.playerPanel);
@@ -83,6 +85,7 @@ class StagePanelInfo extends BasePanelInfo {
     constructor(pid) {
         super(pid);
         this.gameInfo = new GameInfo();
+        this.gameInfo.playerDb = dbPlayerInfo();
     }
 
     getInfo() {

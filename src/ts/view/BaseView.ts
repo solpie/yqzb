@@ -1,7 +1,5 @@
-/// <reference path="../Model/appInfo.ts"/>
 /// <reference path="../Model/Command.ts"/>
 /// <reference path="../Model/ElemID.ts"/>
-/// <reference path="../JQuery.ts"/>
 /// <reference path="../lib.ts"/>
 
 

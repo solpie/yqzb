@@ -1,4 +1,5 @@
-// var playerIdBase = 10000;
+/// <reference path="../../utils/JSONFile.ts"/>
+
 class PlayerAdmin {
     static base64ToPng(imgPath, base64Data, callback) {
         var base64Data = base64Data.replace(/^data:image\/png;base64,/, "");
@@ -12,7 +13,17 @@ class PlayerAdmin {
         });
     }
 
-    static showPlayer(req, res) {
+    static  index(req, res) {
+        dbPlayerInfo().find({}, function (err, docs) {
+            var data:any = {adminId: 'playerList'};
+            if (!err)
+                data.playerDataArr = docs;
+            res.render('playerList', data);
+            console.log("/admin/player/ length:", docs.length, JSON.stringify(data.playerDataArr));
+        });
+    }
+
+    static showPlayerById(req, res) {
         var playerId = req.params.id;
         var data = {adminId: 'player', op: '', playerData: {}};
         if (playerId == "new") {

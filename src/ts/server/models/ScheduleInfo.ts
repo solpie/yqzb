@@ -4,4 +4,7 @@ class ScheduleInfo {
     constructor() {
 
     }
+
+    round() {
+    }
 }

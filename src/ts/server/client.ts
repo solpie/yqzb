@@ -1,12 +1,13 @@
 /// <reference path="../lib.ts"/>
 /// <reference path="Config.ts"/>
+/// <reference path="views/StagePanelView.ts"/>
+/// <reference path="views/PlayerPanelView.ts"/>
+/// <reference path="../view/BaseView.ts"/>
 /// <reference path="../model/Command.ts"/>
-/// <reference path="./views/StagePanelView.ts"/>
-/// <reference path="./views/PlayerPanelView.ts"/>
-/// <reference path="./views/WinPanelView.ts"/>
+/// <reference path="../model/ElemID.ts"/>
 var cmd:Command = new Command();
-var appInfo = new AppInfo();
-appInfo.isServer = false;
+// var appInfo = new AppInfo();
+// appInfo.isServer = false;
 declare var msgpack:{
     encode(obj:any):any;
     decode(obj:any):any;
@@ -68,7 +69,6 @@ class Client {
         var viewMap = {};
         viewMap[PanelId.stagePanel] = StagePanelView;
         viewMap[PanelId.playerPanel] = PlayerPanelView;
-        viewMap[PanelId.winPanel] = WinPanelView;
         this.panel = new viewMap[pid](stage, this.isOB);
         this.panel.init(param);
     }

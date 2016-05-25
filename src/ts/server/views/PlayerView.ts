@@ -1,3 +1,5 @@
+/// <reference path="../models/PlayerInfo.ts"/>
+
 class PlayerView {
     nameLabel:any;
 

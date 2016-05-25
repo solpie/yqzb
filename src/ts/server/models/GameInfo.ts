@@ -10,25 +10,33 @@ class GameInfo {
     playerInfoArr:any = new Array(8);
 
     _timer:number = 0;
+    playerDb:any;
 
     constructor() {
 
     }
 
     toggleTimer() {
-
         if (this._timer) {
             this.resetTimer();
             this.timerState = 0;
         }
-        else
-        {
+        else {
             this._timer = setInterval(()=> {
                 this.time++;
             }, 1000);
             this.timerState = 1;
         }
-        
+
+    }
+
+    save() {
+        for (var i = 0; i < this.playerInfoArr.length; i++) {
+            var playerData = this.playerInfoArr[i];
+            this.playerDb.update({id: playerData.id}, {$set: playerData}, {}, function (err, doc) {
+
+            })
+        }
     }
 
     resetTimer() {
