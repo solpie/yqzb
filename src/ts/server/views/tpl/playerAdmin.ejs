@@ -27,6 +27,7 @@
         <br>体重:<input id="playerWeight" name="weight" value="70"/>
         <br>天梯分:<input id="playerEloScore" name="eloScore" value="2000"/>
         <br>球风:<input id="playerStyle" name="style" value="1"/>
+        <br>赛事:<input id="playerActivityId" name="activityId" value="1"/>
         <br> <input type='submit' value='提交'>
         <br> <input type='button' value='更新' onclick="onClickUpdate()">
     </form>
@@ -212,11 +213,12 @@
         }
         img.src = imagePath;
         $('#playerAvatar').attr({src: imagePath});
-        $('#playerPhone').val('<%= playerData.phone %>')
-        $('#playerHeight').val('<%= playerData.height %>')
-        $('#playerWeight').val('<%= playerData.weight %>')
-        $('#playerEloScore').val('<%= playerData.eloScore %>')
-        $('#playerStyle').val('<%= playerData.style %>')
+        $('#playerPhone').val('<%= playerData.phone %>');
+        $('#playerHeight').val('<%= playerData.height %>');
+        $('#playerWeight').val('<%= playerData.weight %>');
+        $('#playerEloScore').val('<%= playerData.eloScore %>');
+        $('#playerStyle').val('<%= playerData.style %>');
+        $('#playerActivityId').val('<%= playerData.activityId %>');
     }
     initPlayerData();
 </script>
@@ -234,16 +236,19 @@
         submitData.id = '<%= playerData.id %>';
         submitData.name = $('#playerName').val();
         submitData.phone = $('#playerPhone').val();
-        submitData.height = $('#playerHeight').val()
-        submitData.weight = $('#playerWeight').val()
-        submitData.eloScore = $('#playerEloScore').val()
-        submitData.style = $('#playerStyle').val()
-        if (isChangeImage)
-        {
+        submitData.height = $('#playerHeight').val();
+        submitData.weight = $('#playerWeight').val();
+        submitData.eloScore = $('#playerEloScore').val();
+        submitData.style = $('#playerStyle').val();
+        submitData.activityId = $('#playerActivityId').val();
+        if (isChangeImage) {
             submitData.avatar = $('#playerAvatarData').val()
             console.log("update player avatar data");
         }
         $.post("/admin/player/update", submitData, function (res) {
+            if (res == 'sus') {
+                window.location.href = "/admin/player";
+            }
             console.log(res);
         });
     }

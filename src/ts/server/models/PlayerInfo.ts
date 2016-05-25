@@ -8,9 +8,9 @@ class PlayerData {
     avatar:string = "";
     height:number = 0;
     weight:number = 0;
-    dtScore:number = 0;
+    dtScore:number = 0;//最近一场天梯分变化
     winpercent:number = 0;//  胜率  100/100.0%
-
+    activityId:number = 0;//赛事id
     gameCount:number = 0;//场数
     loseGameCount:number = 0;
     winGameCount:number = 0;
@@ -46,6 +46,10 @@ class PlayerInfo extends BaseInfo {
 
     name(val?) {
         return prop(this.playerData, "name", val);
+    }
+
+    activityId(val?) {
+        return prop(this.playerData, "activityId", val);
     }
 
     eloScore(val?) {

@@ -261,8 +261,9 @@ var PlayerData = (function () {
         this.avatar = "";
         this.height = 0;
         this.weight = 0;
-        this.dtScore = 0;
+        this.dtScore = 0; //最近一场天梯分变化
         this.winpercent = 0; //  胜率  100/100.0%
+        this.activityId = 0; //赛事id
         this.gameCount = 0; //场数
         this.loseGameCount = 0;
         this.winGameCount = 0;
@@ -294,6 +295,9 @@ var PlayerInfo = (function (_super) {
     };
     PlayerInfo.prototype.name = function (val) {
         return prop(this.playerData, "name", val);
+    };
+    PlayerInfo.prototype.activityId = function (val) {
+        return prop(this.playerData, "activityId", val);
     };
     PlayerInfo.prototype.eloScore = function (val) {
         return prop(this.playerData, "eloScore", val);
@@ -1933,6 +1937,14 @@ var playerIdBase = 10000;
 var PlayerAdmin = (function () {
     function PlayerAdmin() {
     }
+    PlayerAdmin.base64ToPng = function (imgPath, base64Data, callback) {
+        var base64Data = base64Data.replace(/^data:image\/png;base64,/, "");
+        writeFile(imgPath, base64Data, 'base64', function (err) {
+            if (!err) {
+                callback('/' + imgPath);
+            }
+        });
+    };
     PlayerAdmin.showPlayer = function (req, res) {
         var playerId = req.params.id;
         var data = { adminId: 'player', op: '', playerData: {} };
@@ -1957,7 +1969,6 @@ var PlayerAdmin = (function () {
         if (!req.body)
             return res.sendStatus(400);
         console.log('updatePlayer req:', JSON.stringify(req.body));
-        var isUpdateImg = req.body.isUpdateImg;
         var playerId = parseInt(req.body.id);
         var updateData = {};
         updateData.phone = parseInt(req.body.phone);
@@ -1966,23 +1977,34 @@ var PlayerAdmin = (function () {
         updateData.eloScore = parseInt(req.body.eloScore);
         updateData.style = parseInt(req.body.style);
         updateData.name = req.body.name;
-        if (isUpdateImg) {
-            updateData.avatar = req.body.avatar;
-        }
-        console.log('updatePlayer data:', JSON.stringify(updateData));
-        dbPlayerInfo().update({ id: playerId }, { $set: updateData }, {}, function (err, doc) {
-            if (!err) {
-                if (doc.length) {
-                    return res.send("sus");
+        updateData.activityId = parseInt(req.body.activityId);
+        function updateToDb(data) {
+            console.log('updatePlayer data:', JSON.stringify(data));
+            dbPlayerInfo().update({ id: playerId }, { $set: data }, {}, function (err, doc) {
+                if (!err) {
+                    console.log('db data:', JSON.stringify(doc));
+                    if (doc) {
+                        res.send("sus");
+                    }
+                    else {
+                        res.send("no id!!!");
+                    }
                 }
                 else {
-                    return res.send("no id!!!");
+                    res.send(err);
                 }
-            }
-            else {
-                return res.send(err);
-            }
-        });
+            });
+        }
+        if (req.body.avatar) {
+            var imgPath = "img/player/" + playerId + '.png';
+            PlayerAdmin.base64ToPng(imgPath, req.body.avatar, function (imgPath) {
+                updateData.avatar = imgPath;
+                updateToDb(updateData);
+            });
+        }
+        else {
+            updateToDb(updateData);
+        }
     };
     PlayerAdmin.newPlayer = function (req, res) {
         if (!req.body)
@@ -2108,25 +2130,7 @@ var HttpServer = (function () {
         // Fetch a collection to insert document into
         db = {};
         db.player = new Datastore({ filename: 'db/player.db', autoload: true });
-        // this.playerInfoCollection = db.collection("player_info");
-        // this.playerInfoCollection.insert([{playerId: 1,name:"tmac"}, {playerId: 2,name:"curry"}]);
-        // this.playerInfoCollection.findOne({playerId: 2}, function (err, playerInfo) {
-        //     assert.equal(null, err);
-        //     assert.equal('2', playerInfo.playerId);
-        // });
-        // console.log(this, "init db", this.playerInfoCollection);
-        ///
-        // Insert a single document
-        //         collection.insert([{hello: 'world_safe1'}
-        //             , {hello: 'world_safe2'}], {w: 1}, function (err, result) {
-        //             assert.equal(null, err);
-        //
-        //             // Fetch the document
-        //             collection.findOne({hello: 'world_safe2'}, function (err, item) {
-        //                 assert.equal(null, err);
-        //                 assert.equal('world_safe2', item.hello);
-        //             })
-        //         });
+        db.activity = new Datastore({ filename: 'db/activity.db', autoload: true });
     };
     HttpServer.prototype.handleOp = function () {
         var _this = this;

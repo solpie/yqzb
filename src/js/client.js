@@ -257,8 +257,9 @@ var PlayerData = (function () {
         this.avatar = "";
         this.height = 0;
         this.weight = 0;
-        this.dtScore = 0;
+        this.dtScore = 0; //最近一场天梯分变化
         this.winpercent = 0; //  胜率  100/100.0%
+        this.activityId = 0; //赛事id
         this.gameCount = 0; //场数
         this.loseGameCount = 0;
         this.winGameCount = 0;
@@ -290,6 +291,9 @@ var PlayerInfo = (function (_super) {
     };
     PlayerInfo.prototype.name = function (val) {
         return prop(this.playerData, "name", val);
+    };
+    PlayerInfo.prototype.activityId = function (val) {
+        return prop(this.playerData, "activityId", val);
     };
     PlayerInfo.prototype.eloScore = function (val) {
         return prop(this.playerData, "eloScore", val);
