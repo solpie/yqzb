@@ -30,6 +30,20 @@ class PlayerAdmin {
         }
     }
 
+    static deletePlayerData(req, res) {
+        if (!req.body) return res.sendStatus(400);
+        var playerId = parseInt(req.body.id);
+        dbPlayerInfo().remove({id: playerId}, {}, function (err, numRemoved) {
+            // numRemoved = 1
+            if (!err) {
+                res.send("sus");
+            }
+            else {
+                res.send(err);
+            }
+        });
+    }
+
     static updatePlayerData(req, res) {
         if (!req.body) return res.sendStatus(400);
         console.log('updatePlayer req:', JSON.stringify(req.body));
@@ -49,7 +63,6 @@ class PlayerAdmin {
                     console.log('db data:', JSON.stringify(doc));
                     if (doc) {
                         res.send("sus");
-                        // res.redirect("playerAdminConfirm", {playerId: playerId});
                     }
                     else {
                         res.send("no id!!!");
@@ -70,23 +83,7 @@ class PlayerAdmin {
         }
         else {
             updateToDb(updateData);
-            // dbPlayerInfo().update({id: playerId}, {$set: updateData}, {}, function (err, doc) {
-            //     if (!err) {
-            //         if (doc.length) {
-            //             res.redirect("/admin/player/");
-            //             // res.redirect("playerAdminConfirm", {playerId: playerId});
-            //         }
-            //         else {
-            //             res.send("no id!!!");
-            //         }
-            //     }
-            //     else {
-            //         res.send(err);
-            //     }
-            // });
         }
-
-
     }
 
     static newPlayer(req, res) {
@@ -95,21 +92,16 @@ class PlayerAdmin {
         dbPlayerInfo().count({}, function (err, count) {
             playerInfo.id(playerIdBase + count);
             var imgPath = "img/player/" + playerInfo.id() + '.png';
-            console.log('/admin/player/new', req.body.name);
-            var base64Data = playerInfo.avatar().replace(/^data:image\/png;base64,/, "");
-            writeFile(imgPath, base64Data, 'base64', (err)=> {
-                if (!err) {
-                    playerInfo.avatar("/" + imgPath);
-                    dbPlayerInfo().insert(playerInfo.playerData, function (err, newDoc) {
-                        if (!err)
-                            res.redirect("/admin/player/" + playerInfo.id());
-                        else
-                            req.send(err);
-                    });
-                }
-                else
-                    res.send(err);
+            PlayerAdmin.base64ToPng(imgPath, req.body.avatar, function (imgPath) {
+                playerInfo.avatar(imgPath);
+                dbPlayerInfo().insert(playerInfo.playerData, function (err, newDoc) {
+                    if (!err)
+                        res.redirect("/admin/player/");
+                    else
+                        req.send(err);
+                });
             });
+            console.log('/admin/player/new', req.body.name);
         });
 
 

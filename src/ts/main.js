@@ -1965,6 +1965,20 @@ var PlayerAdmin = (function () {
             });
         }
     };
+    PlayerAdmin.deletePlayerData = function (req, res) {
+        if (!req.body)
+            return res.sendStatus(400);
+        var playerId = parseInt(req.body.id);
+        dbPlayerInfo().remove({ id: playerId }, {}, function (err, numRemoved) {
+            // numRemoved = 1
+            if (!err) {
+                res.send("sus");
+            }
+            else {
+                res.send(err);
+            }
+        });
+    };
     PlayerAdmin.updatePlayerData = function (req, res) {
         if (!req.body)
             return res.sendStatus(400);
@@ -2013,21 +2027,16 @@ var PlayerAdmin = (function () {
         dbPlayerInfo().count({}, function (err, count) {
             playerInfo.id(playerIdBase + count);
             var imgPath = "img/player/" + playerInfo.id() + '.png';
-            console.log('/admin/player/new', req.body.name);
-            var base64Data = playerInfo.avatar().replace(/^data:image\/png;base64,/, "");
-            writeFile(imgPath, base64Data, 'base64', function (err) {
-                if (!err) {
-                    playerInfo.avatar("/" + imgPath);
-                    dbPlayerInfo().insert(playerInfo.playerData, function (err, newDoc) {
-                        if (!err)
-                            res.redirect("/admin/player/" + playerInfo.id());
-                        else
-                            req.send(err);
-                    });
-                }
-                else
-                    res.send(err);
+            PlayerAdmin.base64ToPng(imgPath, req.body.avatar, function (imgPath) {
+                playerInfo.avatar(imgPath);
+                dbPlayerInfo().insert(playerInfo.playerData, function (err, newDoc) {
+                    if (!err)
+                        res.redirect("/admin/player/");
+                    else
+                        req.send(err);
+                });
             });
+            console.log('/admin/player/new', req.body.name);
         });
     };
     return PlayerAdmin;
@@ -2069,6 +2078,7 @@ var HttpServer = (function () {
         app.get('/admin/player/:id', PlayerAdmin.showPlayer);
         app.post('/admin/player/new', urlencodedParser, PlayerAdmin.newPlayer);
         app.post('/admin/player/update', urlencodedParser, PlayerAdmin.updatePlayerData);
+        app.post('/admin/player/delete', urlencodedParser, PlayerAdmin.deletePlayerData);
         app.get('/admin/player/', function (req, res) {
             dbPlayerInfo().find({}, function (err, docs) {
                 var data = { adminId: 'playerList' };

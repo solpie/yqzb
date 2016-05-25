@@ -28,8 +28,9 @@
         <br>天梯分:<input id="playerEloScore" name="eloScore" value="2000"/>
         <br>球风:<input id="playerStyle" name="style" value="1"/>
         <br>赛事:<input id="playerActivityId" name="activityId" value="1"/>
-        <br> <input type='submit' value='提交'>
-        <br> <input type='button' value='更新' onclick="onClickUpdate()">
+        <br> <input id="btnAdd" type='submit' value='提交'>
+        <input id="btnUpdate" type='button' value='更新' onclick="onClickUpdate()">
+        <input id="btnDelete" type='button' value='删除' onclick="onClickDelete()">
     </form>
 </div>
 
@@ -203,6 +204,12 @@
         return stage;
     };
     function initPlayerData() {
+        <% if(op == "new"){ %>
+        $("#btnUpdate").hide();
+        $("#btnDelete").hide();
+        <% } %>
+        <% if(op == "update"){ %>
+        $("#btnAdd").hide();
         $('#playerName').val('<%= playerData.name %>');
         imagePath = '<%= playerData.avatar %>';
         var img = new Image();
@@ -219,6 +226,7 @@
         $('#playerEloScore').val('<%= playerData.eloScore %>');
         $('#playerStyle').val('<%= playerData.style %>');
         $('#playerActivityId').val('<%= playerData.activityId %>');
+        <% } %>
     }
     initPlayerData();
 </script>
@@ -229,6 +237,16 @@
         document.getElementById('playerAvatarData').value = playerAvatar.src;
         $(".cropper-container").hide();
         isChangeImage = true;
+    }
+    function onClickDelete() {
+        var req = {};
+        req.id = '<%= playerData.id %>';
+        $.post("/admin/player/delete", req, function (res) {
+            if (res == 'sus') {
+                window.location.href = "/admin/player";
+            }
+            console.log(res);
+        });
     }
     function onClickUpdate() {
         console.log("onClickUpdate");
