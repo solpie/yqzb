@@ -9,8 +9,31 @@ class GameInfo {
     straightScoreRight:number = 0;//连杀判定
     playerInfoArr:any = new Array(8);
 
+    _timer:number = 0;
+
     constructor() {
 
+    }
+
+    toggleTimer() {
+
+        if (this._timer) {
+            this.resetTimer();
+            this.timerState = 0;
+        }
+        else
+        {
+            this._timer = setInterval(()=> {
+                this.time++;
+            }, 1000);
+            this.timerState = 1;
+        }
+        
+    }
+
+    resetTimer() {
+        clearInterval(this._timer);
+        this._timer = 0;
     }
 
     setPlayerInfoByPos(pos, playerInfo) {

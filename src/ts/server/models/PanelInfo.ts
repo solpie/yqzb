@@ -131,10 +131,12 @@ class StagePanelInfo extends BasePanelInfo {
     }
 
     toggleTimer() {
+        this.gameInfo.toggleTimer();
         cmd.emit(CommandId.toggleTimer, null, this.pid);
     }
 
     resetTimer() {
+        this.gameInfo.resetTimer();
         cmd.emit(CommandId.resetTimer, null, this.pid);
     }
 

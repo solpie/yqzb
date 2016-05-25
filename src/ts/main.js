@@ -474,7 +474,25 @@ var GameInfo = (function () {
         this.straightScoreLeft = 0; //连杀判定
         this.straightScoreRight = 0; //连杀判定
         this.playerInfoArr = new Array(8);
+        this._timer = 0;
     }
+    GameInfo.prototype.toggleTimer = function () {
+        var _this = this;
+        if (this._timer) {
+            this.resetTimer();
+            this.timerState = 0;
+        }
+        else {
+            this._timer = setInterval(function () {
+                _this.time++;
+            }, 1000);
+            this.timerState = 1;
+        }
+    };
+    GameInfo.prototype.resetTimer = function () {
+        clearInterval(this._timer);
+        this._timer = 0;
+    };
     GameInfo.prototype.setPlayerInfoByPos = function (pos, playerInfo) {
         playerInfo.isRed = (pos > 3);
         this.playerInfoArr[pos] = playerInfo;
@@ -637,9 +655,12 @@ var StagePanelInfo = (function (_super) {
             cmd.emit(CommandId.straightScore5, { team: "right" }, this.pid);
     };
     StagePanelInfo.prototype.toggleTimer = function () {
+        this.gameInfo.toggleTimer();
         cmd.emit(CommandId.toggleTimer, null, this.pid);
     };
     StagePanelInfo.prototype.resetTimer = function () {
+        this.gameInfo.resetTimer();
+        // this.gameInfo.timerState = 0;
         cmd.emit(CommandId.resetTimer, null, this.pid);
     };
     StagePanelInfo.prototype.fadeOut = function () {
