@@ -92,7 +92,7 @@ class StagePanelInfo extends BasePanelInfo {
     }
 
     initCanvasNotice() {
-        var stageWidth = 5000;
+        var stageWidth = 8000;
         var stageHeight = 60;
         var canvas = document.getElementById("canvasNotice");
         canvas.setAttribute("width", stageWidth + "");

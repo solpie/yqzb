@@ -64,6 +64,8 @@ function sendNotice() {
     cmd.proxy(CommandId.cs_notice, {notice: txt})
 }
 function fadeInNoticePanel(imgData) {
+    var stagePanelCtn  =client.panel.ctn;
+    stagePanelCtn.alpha= 0;
     var noticePanelView = client.panel.noticePanelView;
     var ctn = noticePanelView.getCtn();
     ctn.x = (1920 - 1070) * .5;
@@ -73,12 +75,23 @@ function fadeInNoticePanel(imgData) {
     var noticeImg = noticePanelView.noticeImg;
     noticeImg.x = 800;
     var noticeImgWidth = noticeImg.getBounds().width;
-    var showSec = 5000;
+    var showSec = noticeImgWidth / 100 * 1000;
+
+    function fadeOutNotice() {
+        createjs.Tween.get(ctn)
+            .wait(500)
+            .to({alpha: 0}, 200)
+            .call(function () {
+                stagePanelCtn.alpha= 1;
+            });
+    }
+
     createjs.Tween.get(ctn)
         .to({alpha: 1}, 200)
         .call(function () {
             createjs.Tween.get(noticeImg)
-                .to({x: -noticeImgWidth}, showSec);
+                .to({x: -noticeImgWidth}, showSec)
+                .call(fadeOutNotice);
         });
 }
 var verifyWin = function (playerInfoArr, mvp) {
