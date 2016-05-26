@@ -32,6 +32,8 @@ enum CommandId{
     cs_updatePlayer,
     updatePlayerAll,
     cs_updatePlayerAll,
+    notice,//小喇叭
+    cs_notice,
     //-----------------win panel
     fadeInWinPanel,
     cs_fadeInWinPanel,

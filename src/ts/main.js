@@ -272,24 +272,26 @@ var CommandId;
     CommandId[CommandId["cs_updatePlayer"] = 100025] = "cs_updatePlayer";
     CommandId[CommandId["updatePlayerAll"] = 100026] = "updatePlayerAll";
     CommandId[CommandId["cs_updatePlayerAll"] = 100027] = "cs_updatePlayerAll";
+    CommandId[CommandId["notice"] = 100028] = "notice";
+    CommandId[CommandId["cs_notice"] = 100029] = "cs_notice";
     //-----------------win panel
-    CommandId[CommandId["fadeInWinPanel"] = 100028] = "fadeInWinPanel";
-    CommandId[CommandId["cs_fadeInWinPanel"] = 100029] = "cs_fadeInWinPanel";
-    CommandId[CommandId["fadeOutWinPanel"] = 100030] = "fadeOutWinPanel";
-    CommandId[CommandId["cs_fadeOutWinPanel"] = 100031] = "cs_fadeOutWinPanel";
-    CommandId[CommandId["saveGameRec"] = 100032] = "saveGameRec";
-    CommandId[CommandId["cs_saveGameRec"] = 100033] = "cs_saveGameRec";
+    CommandId[CommandId["fadeInWinPanel"] = 100030] = "fadeInWinPanel";
+    CommandId[CommandId["cs_fadeInWinPanel"] = 100031] = "cs_fadeInWinPanel";
+    CommandId[CommandId["fadeOutWinPanel"] = 100032] = "fadeOutWinPanel";
+    CommandId[CommandId["cs_fadeOutWinPanel"] = 100033] = "cs_fadeOutWinPanel";
+    CommandId[CommandId["saveGameRec"] = 100034] = "saveGameRec";
+    CommandId[CommandId["cs_saveGameRec"] = 100035] = "cs_saveGameRec";
     //---------------- player panel
-    CommandId[CommandId["fadeInPlayerPanel"] = 100034] = "fadeInPlayerPanel";
-    CommandId[CommandId["cs_fadeInPlayerPanel"] = 100035] = "cs_fadeInPlayerPanel";
-    CommandId[CommandId["fadeOutPlayerPanel"] = 100036] = "fadeOutPlayerPanel";
-    CommandId[CommandId["cs_fadeOutPlayerPanel"] = 100037] = "cs_fadeOutPlayerPanel";
-    CommandId[CommandId["movePlayerPanel"] = 100038] = "movePlayerPanel";
-    CommandId[CommandId["cs_movePlayerPanel"] = 100039] = "cs_movePlayerPanel";
+    CommandId[CommandId["fadeInPlayerPanel"] = 100036] = "fadeInPlayerPanel";
+    CommandId[CommandId["cs_fadeInPlayerPanel"] = 100037] = "cs_fadeInPlayerPanel";
+    CommandId[CommandId["fadeOutPlayerPanel"] = 100038] = "fadeOutPlayerPanel";
+    CommandId[CommandId["cs_fadeOutPlayerPanel"] = 100039] = "cs_fadeOutPlayerPanel";
+    CommandId[CommandId["movePlayerPanel"] = 100040] = "movePlayerPanel";
+    CommandId[CommandId["cs_movePlayerPanel"] = 100041] = "cs_movePlayerPanel";
     //自动三杀事件
-    CommandId[CommandId["straightScore3"] = 100040] = "straightScore3";
-    CommandId[CommandId["straightScore5"] = 100041] = "straightScore5";
-    CommandId[CommandId["initPanel"] = 100042] = "initPanel";
+    CommandId[CommandId["straightScore3"] = 100042] = "straightScore3";
+    CommandId[CommandId["straightScore5"] = 100043] = "straightScore5";
+    CommandId[CommandId["initPanel"] = 100044] = "initPanel";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {
@@ -319,11 +321,119 @@ var Command = (function (_super) {
     };
     return Command;
 }(EventDispatcher));
-/// <reference path="JQuery.ts"/>
-/// <reference path="libs/createjs/easeljs.d.ts"/>
-/// <reference path="libs/createjs/createjs.d.ts"/>
-/// <reference path="libs/createjs/createjs-lib.d.ts"/>
-/// <reference path="libs/createjs/tweenjs.d.ts"/>
+var fs = require('fs');
+var Stream = require('stream');
+var zlib = require('zlib');
+var process = require('process');
+function walk(path) {
+    var fileArr = [];
+    var dirArr = fs.readdirSync(path);
+    dirArr.forEach(function (item) {
+        if (fs.statSync(path + '/' + item).isDirectory()) {
+        }
+        else {
+            var filename = path + '/' + item;
+            fileArr.push({ filename: filename });
+            console.log("file:", filename);
+        }
+    });
+    return fileArr;
+}
+//walk('D:/projects/linAnil/test/test10');
+//fs.mkdir("c:a", function (err) {
+//    if (!err) {
+//        console.log("sus");
+//    } else {
+//        console.log("err");
+//    }
+//});
+//console.log('main',data);
+////////////// path
+var M_path = require("path");
+////////////// macro
+var writeBuffer = function (path, buffer, callback) {
+    fs.open(path, 'w', null, function (err, fd) {
+        if (err) {
+            throw err;
+        }
+        fs.write(fd, buffer, 0, buffer.length, null, function (err) {
+            if (err) {
+                throw err;
+            }
+            fs.close(fd, function () {
+                callback();
+            });
+        });
+    });
+};
+/// <reference path="../Node.ts"/>
+/// <reference path="../event/ActEvent.ts"/>
+/// <reference path="../JQuery.ts"/>
+var gui = require('nw.gui');
+var win = gui.Window.get();
+var WindowView = (function () {
+    function WindowView() {
+        // $("#btnClose").on(MouseEvt.CLICK, function () {
+        //     win.close();
+        // });
+        // $("#btnDbg").on(MouseEvt.CLICK, function () {
+        //     win.showDevTools('', true);
+        // });
+        ///dashboard
+        //var win = gui.Window.open ('panel.html', {
+        //    position: 'center',
+        //    toolbar: false,
+        //    width: 901,
+        //    height: 523
+        //});
+        //
+        //default op
+        // var op = gui.Window.open ('http://localhost/panel/stage/op', {
+        //    position: 'center',
+        //    toolbar: false,
+        //    width: 1920,
+        //    height: 1200
+        // });
+        this.isMaximize = false;
+        //win.on ('loaded', function () {
+        //    // the native onload event has just occurred
+        //    var doc = win.window.document;
+        //    var getElmById = function (elmId) {
+        //        return doc.getElementById(elmId);
+        //    };
+        //    var addBtnClick = function (elmId,func) {
+        //        getElmById(elmId).onclick = func;
+        //    };
+        //    ///
+        //    addBtnClick("btnAddLeftScore", () => {
+        //        cmd.emit(CommandId.addLeftScore);
+        //    });
+        //    addBtnClick("btnAddRightScore", () => {
+        //        cmd.emit(CommandId.addRightScore);
+        //    });
+        //    addBtnClick("btnToggleTime", () => {
+        //        cmd.emit(CommandId.toggleTimer);
+        //    });
+        //    addBtnClick("btnResetTime", () => {
+        //        cmd.emit(CommandId.resetTimer);
+        //    });
+        //});
+        //$("#btnMin").on(MouseEvt.CLICK, function () {
+        //    win.minimize();
+        //});
+        //$("#btnMax").on(MouseEvt.CLICK, function () {
+        //    if (this.isMaximize) {
+        //        win.unmaximize();
+        //        this.isMaximize = false;
+        //    }
+        //    else {
+        //        win.maximize();
+        //        this.isMaximize = true;
+        //    }
+        //});
+    }
+    return WindowView;
+}());
 var ElmId$ = {
     buttonAddLeftScore: "#btnAddLeftScore",
     buttonAddRightScore: "#btnAddRightScore"
@@ -333,6 +443,11 @@ var PanelId = {
     winPanel: 'win',
     playerPanel: 'player'
 };
+/// <reference path="JQuery.ts"/>
+/// <reference path="libs/createjs/easeljs.d.ts"/>
+/// <reference path="libs/createjs/createjs.d.ts"/>
+/// <reference path="libs/createjs/createjs-lib.d.ts"/>
+/// <reference path="libs/createjs/tweenjs.d.ts"/>
 /// <reference path="../Model/Command.ts"/>
 /// <reference path="../Model/ElemID.ts"/>
 /// <reference path="../lib.ts"/>
@@ -1292,258 +1407,6 @@ var StagePanelView = (function (_super) {
     };
     return StagePanelView;
 }(BaseView));
-var TrackerView = (function (_super) {
-    __extends(TrackerView, _super);
-    function TrackerView(stage, isClient) {
-        var _this = this;
-        _super.call(this, stage, false);
-        this.init();
-        cmd.on(CommandId.toggleTracker, function () {
-            if (_this.tracker.parent)
-                _this.tracker.parent.removeChild(_this.tracker);
-            else
-                _this.stage.addChildAt(_this.tracker, 1);
-        });
-        appInfo.on(MouseEvt.MOVE, function () {
-            if (_this.tracker.visible) {
-                _this.tracker.x = appInfo.mouseX - 100;
-                _this.tracker.y = appInfo.mouseY - 300;
-            }
-            else {
-            }
-        });
-        var isRolling = false;
-        cmd.on(CommandId.toggleBallRolling, function () {
-            if (!isRolling) {
-                isRolling = true;
-                createjs.Tween.get(_this.ballCtn, { loop: false }, true)
-                    .to({ rotation: 5 * 360 }, 200, createjs.Ease.circInOut)
-                    .call(function () {
-                    _this.ballCtn.rotation = 0;
-                    isRolling = false;
-                });
-            }
-        });
-    }
-    TrackerView.prototype.init = function () {
-        //var sp = new createjs.
-        var tracker = new createjs.Container();
-        this.tracker = tracker;
-        //this.stage.addChild(tracker);
-        var bg = new createjs.Bitmap("img/trackBg.png");
-        tracker.addChild(bg);
-        tracker.x = 300;
-        tracker.y = 300;
-        tracker.scaleX = tracker.scaleY = .5;
-        var ballCtn = new createjs.Container();
-        ballCtn.x = 80 + 29 * 2;
-        ballCtn.y = 80 + 116 * 2;
-        tracker.addChild(ballCtn);
-        var ball = new createjs.Bitmap("img/trackBall.png");
-        ball.x = -39;
-        ball.y = -35;
-        ballCtn.addChild(ball);
-        this.ballCtn = ballCtn;
-        ////
-        // var video = document.getElementById('camFeed');
-        // var canvas = document.getElementById('camCanvas');
-        // var context = canvas.getContext('2d');
-        //
-        // var tracker1 = new tracking.ObjectTracker('face');
-        // tracker1.setInitialScale(4);
-        // tracker1.setStepSize(2);
-        // tracker1.setEdgesDensity(0.1);
-        //
-        // tracking.track('#camFeed', tracker1, { camera: true });
-        //
-        // tracker1.on('track', function(event) {
-        //     context.clearRect(0, 0, canvas.width, canvas.height);
-        //
-        //     event.data.forEach(function(rect) {
-        //         context.strokeStyle = '#a64ceb';
-        //         context.strokeRect(rect.x, rect.y, rect.width, rect.height);
-        //         context.font = '11px Helvetica';
-        //         context.fillStyle = "#fff";
-        //         context.fillText('x: ' + rect.x + 'px', rect.x + rect.width + 5, rect.y + 11);
-        //         context.fillText('y: ' + rect.y + 'px', rect.x + rect.width + 5, rect.y + 22);
-        //     });
-        // });
-    };
-    return TrackerView;
-}(BaseView));
-/**
- * Created by toramisu on 2016/5/9.
- */
-/// <reference path="../lib.ts"/>
-/// <reference path="../server/views/StagePanelView.ts"/>
-/// <reference path="../server/views/TrackerView.ts"/>
-var ServerView = (function () {
-    function ServerView() {
-        //this.canvasEl = document.getElementById("stage");
-        //this.canvasEl.setAttribute("width", 800 + "");
-        //this.canvasEl.setAttribute("height", 300 + "");
-        //this.ctx = this.canvasEl.getContext("2d");
-        /////////draw bar
-        //this._fillRect("#ffff00", 0, 0, 800, 300);
-        //this.test()
-        this.stageWidth = 1200;
-        this.stageHeight = 800;
-        ////createjs
-        // this.canvas = document.getElementById("stage");
-        // this.canvas.setAttribute("width", this.stageWidth + "");
-        // this.canvas.setAttribute("height", this.stageHeight + "");
-        // this.stage = new createjs.Stage(this.canvas);
-        // this.stage.autoClear = true;
-        //stage bg
-        //var bgRed = new createjs.Shape();
-        //bgRed.graphics.beginFill("#ff0000");
-        //bgRed.graphics.beginFill("#2b2b2b");
-        //bgRed.graphics.drawRect(0, 0, this.stageWidth, this.stageHeight);
-        //bgRed.graphics.endFill();
-        //this.stage.addChild(bgRed);
-        //add mod
-        // this.panelView = new StagePanelView(this.stage, false, true);
-        // this.trackerView = new TrackerView(this.stage, false,true);
-        ////avatar panel
-        //var bgAvatar = new createjs.Shape();
-        //bgAvatar.graphics.beginFill("#cccccc");
-        //bgAvatar.graphics.drawRect(5, 50, 115, 580);
-        //bgAvatar.graphics.endFill();
-        //this.stage.addChild(bgAvatar);
-        //var images = [];
-        //for (var i = 1; i <= 14; i++) {
-        //    images.push("img/grossini_dance_" + (i < 10 ? ("0" + i) : i) + ".png");
-        //}
-        ////
-        //var sheet = new createjs.SpriteSheet({
-        //    images: images,
-        //    frames: {width: 85, height: 121, regX: 42, regY: 60}
-        //});
-        ////需要设置每帧的宽高，注册点信息
-        //var man = new createjs.Sprite(sheet);
-        //man.framerate = 60 / 7;
-        //man.x = 300;
-        //man.y = 400;
-        //man.play();
-        //this.stage.addChild(man);
-        ////  }
-        //this.stage.update();
-    }
-    return ServerView;
-}());
-var fs = require('fs');
-var Stream = require('stream');
-var zlib = require('zlib');
-var process = require('process');
-function walk(path) {
-    var fileArr = [];
-    var dirArr = fs.readdirSync(path);
-    dirArr.forEach(function (item) {
-        if (fs.statSync(path + '/' + item).isDirectory()) {
-        }
-        else {
-            var filename = path + '/' + item;
-            fileArr.push({ filename: filename });
-            console.log("file:", filename);
-        }
-    });
-    return fileArr;
-}
-//walk('D:/projects/linAnil/test/test10');
-//fs.mkdir("c:a", function (err) {
-//    if (!err) {
-//        console.log("sus");
-//    } else {
-//        console.log("err");
-//    }
-//});
-//console.log('main',data);
-////////////// path
-var M_path = require("path");
-////////////// macro
-var writeBuffer = function (path, buffer, callback) {
-    fs.open(path, 'w', null, function (err, fd) {
-        if (err) {
-            throw err;
-        }
-        fs.write(fd, buffer, 0, buffer.length, null, function (err) {
-            if (err) {
-                throw err;
-            }
-            fs.close(fd, function () {
-                callback();
-            });
-        });
-    });
-};
-/// <reference path="../Node.ts"/>
-/// <reference path="../event/ActEvent.ts"/>
-/// <reference path="../JQuery.ts"/>
-var gui = require('nw.gui');
-var win = gui.Window.get();
-var WindowView = (function () {
-    function WindowView() {
-        // $("#btnClose").on(MouseEvt.CLICK, function () {
-        //     win.close();
-        // });
-        // $("#btnDbg").on(MouseEvt.CLICK, function () {
-        //     win.showDevTools('', true);
-        // });
-        ///dashboard
-        //var win = gui.Window.open ('panel.html', {
-        //    position: 'center',
-        //    toolbar: false,
-        //    width: 901,
-        //    height: 523
-        //});
-        //
-        //default op
-        // var op = gui.Window.open ('http://localhost/panel/stage/op', {
-        //    position: 'center',
-        //    toolbar: false,
-        //    width: 1920,
-        //    height: 1200
-        // });
-        this.isMaximize = false;
-        //win.on ('loaded', function () {
-        //    // the native onload event has just occurred
-        //    var doc = win.window.document;
-        //    var getElmById = function (elmId) {
-        //        return doc.getElementById(elmId);
-        //    };
-        //    var addBtnClick = function (elmId,func) {
-        //        getElmById(elmId).onclick = func;
-        //    };
-        //    ///
-        //    addBtnClick("btnAddLeftScore", () => {
-        //        cmd.emit(CommandId.addLeftScore);
-        //    });
-        //    addBtnClick("btnAddRightScore", () => {
-        //        cmd.emit(CommandId.addRightScore);
-        //    });
-        //    addBtnClick("btnToggleTime", () => {
-        //        cmd.emit(CommandId.toggleTimer);
-        //    });
-        //    addBtnClick("btnResetTime", () => {
-        //        cmd.emit(CommandId.resetTimer);
-        //    });
-        //});
-        //$("#btnMin").on(MouseEvt.CLICK, function () {
-        //    win.minimize();
-        //});
-        //$("#btnMax").on(MouseEvt.CLICK, function () {
-        //    if (this.isMaximize) {
-        //        win.unmaximize();
-        //        this.isMaximize = false;
-        //    }
-        //    else {
-        //        win.maximize();
-        //        this.isMaximize = true;
-        //    }
-        //});
-    }
-    return WindowView;
-}());
 var KeyInput = (function () {
     function KeyInput() {
     }
@@ -1588,7 +1451,6 @@ var KeyInput = (function () {
 /**
  * Created by toramisu on 2016/5/9.
  */
-/// <reference path="ServerView.ts"/>
 /// <reference path="WinView.ts"/>
 /// <reference path="../server/views/StagePanelView.ts"/>
 /// <reference path="KeyInput.ts"/>
@@ -1611,11 +1473,11 @@ var YuanqiTvView = (function () {
     function YuanqiTvView(appModel) {
         var _this = this;
         this.appInfo = appModel;
-        document.onmousemove = function (e) {
-            _this.appInfo.mouseX = e.clientX;
-            _this.appInfo.mouseY = e.clientY;
-            _this.appInfo.emit(MouseEvt.MOVE);
-        };
+        // document.onmousemove = (e)=> {
+        //     this.appInfo.mouseX = e.clientX;
+        //     this.appInfo.mouseY = e.clientY;
+        //     this.appInfo.emit(MouseEvt.MOVE);
+        // };
         document.onmouseup = function () {
             _this.appInfo.emit(MouseEvt.UP);
         };
@@ -2218,6 +2080,8 @@ var StagePanelInfo = (function (_super) {
             }
             cmd.emit(CommandId.fadeInWinPanel, { mvp: param.mvp, playerDataArr: winTeam.playerInfoArr }, this.pid);
         }
+        else {
+        }
         // console.log(this, "after elo");
         // for (var i = 0; i < this.getPlayerInfoArr().length; i++) {
         //     var obj = this.getPlayerInfoArr()[i];
@@ -2234,6 +2098,9 @@ var StagePanelInfo = (function (_super) {
             console.log(this, "updatePlayer", JSON.stringify(obj.playerData), obj.pos);
         }
         cmd.emit(CommandId.updatePlayerAll, this.getPlayerInfoArr(), this.pid);
+    };
+    StagePanelInfo.prototype.notice = function (param) {
+        cmd.emit(CommandId.notice, param, this.pid);
     };
     return StagePanelInfo;
 }(BasePanelInfo));
@@ -2383,6 +2250,9 @@ var HttpServer = (function () {
             _this.panel.player.movePanel(param);
         });
         //======================stage panel ==================
+        cmd.on(CommandId.cs_notice, function (param) {
+            _this.panel.stage.notice(param);
+        });
         cmd.on(CommandId.cs_fadeInWinPanel, function (param) {
             _this.panel.stage.showWinPanel(param);
         });

@@ -136,24 +136,26 @@ var CommandId;
     CommandId[CommandId["cs_updatePlayer"] = 100025] = "cs_updatePlayer";
     CommandId[CommandId["updatePlayerAll"] = 100026] = "updatePlayerAll";
     CommandId[CommandId["cs_updatePlayerAll"] = 100027] = "cs_updatePlayerAll";
+    CommandId[CommandId["notice"] = 100028] = "notice";
+    CommandId[CommandId["cs_notice"] = 100029] = "cs_notice";
     //-----------------win panel
-    CommandId[CommandId["fadeInWinPanel"] = 100028] = "fadeInWinPanel";
-    CommandId[CommandId["cs_fadeInWinPanel"] = 100029] = "cs_fadeInWinPanel";
-    CommandId[CommandId["fadeOutWinPanel"] = 100030] = "fadeOutWinPanel";
-    CommandId[CommandId["cs_fadeOutWinPanel"] = 100031] = "cs_fadeOutWinPanel";
-    CommandId[CommandId["saveGameRec"] = 100032] = "saveGameRec";
-    CommandId[CommandId["cs_saveGameRec"] = 100033] = "cs_saveGameRec";
+    CommandId[CommandId["fadeInWinPanel"] = 100030] = "fadeInWinPanel";
+    CommandId[CommandId["cs_fadeInWinPanel"] = 100031] = "cs_fadeInWinPanel";
+    CommandId[CommandId["fadeOutWinPanel"] = 100032] = "fadeOutWinPanel";
+    CommandId[CommandId["cs_fadeOutWinPanel"] = 100033] = "cs_fadeOutWinPanel";
+    CommandId[CommandId["saveGameRec"] = 100034] = "saveGameRec";
+    CommandId[CommandId["cs_saveGameRec"] = 100035] = "cs_saveGameRec";
     //---------------- player panel
-    CommandId[CommandId["fadeInPlayerPanel"] = 100034] = "fadeInPlayerPanel";
-    CommandId[CommandId["cs_fadeInPlayerPanel"] = 100035] = "cs_fadeInPlayerPanel";
-    CommandId[CommandId["fadeOutPlayerPanel"] = 100036] = "fadeOutPlayerPanel";
-    CommandId[CommandId["cs_fadeOutPlayerPanel"] = 100037] = "cs_fadeOutPlayerPanel";
-    CommandId[CommandId["movePlayerPanel"] = 100038] = "movePlayerPanel";
-    CommandId[CommandId["cs_movePlayerPanel"] = 100039] = "cs_movePlayerPanel";
+    CommandId[CommandId["fadeInPlayerPanel"] = 100036] = "fadeInPlayerPanel";
+    CommandId[CommandId["cs_fadeInPlayerPanel"] = 100037] = "cs_fadeInPlayerPanel";
+    CommandId[CommandId["fadeOutPlayerPanel"] = 100038] = "fadeOutPlayerPanel";
+    CommandId[CommandId["cs_fadeOutPlayerPanel"] = 100039] = "cs_fadeOutPlayerPanel";
+    CommandId[CommandId["movePlayerPanel"] = 100040] = "movePlayerPanel";
+    CommandId[CommandId["cs_movePlayerPanel"] = 100041] = "cs_movePlayerPanel";
     //自动三杀事件
-    CommandId[CommandId["straightScore3"] = 100040] = "straightScore3";
-    CommandId[CommandId["straightScore5"] = 100041] = "straightScore5";
-    CommandId[CommandId["initPanel"] = 100042] = "initPanel";
+    CommandId[CommandId["straightScore3"] = 100042] = "straightScore3";
+    CommandId[CommandId["straightScore5"] = 100043] = "straightScore5";
+    CommandId[CommandId["initPanel"] = 100044] = "initPanel";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {

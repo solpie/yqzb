@@ -156,6 +156,10 @@ class HttpServer {
             this.panel.player.movePanel(param);
         });
         //======================stage panel ==================
+        cmd.on(CommandId.cs_notice, (param)=> {
+            this.panel.stage.notice(param);
+        });
+
         cmd.on(CommandId.cs_fadeInWinPanel, (param)=> {
             this.panel.stage.showWinPanel(param);
         });

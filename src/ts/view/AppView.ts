@@ -1,7 +1,6 @@
 /**
  * Created by toramisu on 2016/5/9.
  */
-/// <reference path="ServerView.ts"/>
 /// <reference path="WinView.ts"/>
 /// <reference path="../server/views/StagePanelView.ts"/>
 /// <reference path="KeyInput.ts"/>
@@ -22,18 +21,17 @@ var Keys = {
 };
 class YuanqiTvView {
     appInfo:any;
-    serverView:ServerView;
     winView:WindowView;
 
     constructor(appModel) {
         this.appInfo = appModel;
 
 
-        document.onmousemove = (e)=> {
-            this.appInfo.mouseX = e.clientX;
-            this.appInfo.mouseY = e.clientY;
-            this.appInfo.emit(MouseEvt.MOVE);
-        };
+        // document.onmousemove = (e)=> {
+        //     this.appInfo.mouseX = e.clientX;
+        //     this.appInfo.mouseY = e.clientY;
+        //     this.appInfo.emit(MouseEvt.MOVE);
+        // };
         document.onmouseup = ()=> {
             this.appInfo.emit(MouseEvt.UP);
         };

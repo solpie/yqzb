@@ -199,8 +199,7 @@ class StagePanelInfo extends BasePanelInfo {
             }
             cmd.emit(CommandId.fadeInWinPanel, {mvp: param.mvp, playerDataArr: winTeam.playerInfoArr}, this.pid);
         }
-        else
-        {
+        else {
             //todo unsaved alert in front end;
         }
 
@@ -222,5 +221,9 @@ class StagePanelInfo extends BasePanelInfo {
             console.log(this, "updatePlayer", JSON.stringify(obj.playerData), obj.pos);
         }
         cmd.emit(CommandId.updatePlayerAll, this.getPlayerInfoArr(), this.pid);
+    }
+
+    notice(param:any) {
+        cmd.emit(CommandId.notice, param, this.pid);
     }
 }
