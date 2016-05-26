@@ -1,26 +1,22 @@
-/// <reference path="../Model/Command.ts"/>
-/// <reference path="../Model/ElemID.ts"/>
-/// <reference path="../lib.ts"/>
-
-class BaseView {
+/// <reference path="../clientDef.ts"/>
+class BaseView2 {
     stageWidth = 1920;
     stageHeight = 1080;
     stage:any;
     isOp:Boolean = false;
     ctn:any;
-    constructor(stage, isOp) {
-        this.stage = stage;
-        this.isOp = isOp;
+    constructor() {
+      
     }
-
-    init(param) {
-        console.log("init panel");
-        this.ctn = new createjs.Container();
-    }
-    
-    initOp(){
-        $(".inputPanel").show();
-    }
+    //
+    // init(param) {
+    //     console.log("init panel");
+    //     this.ctn = new createjs.Container();
+    // }
+    //
+    // initOp(){
+    //     $(".inputPanel").show();
+    // }
 
     newBtn(func, text?) {
         var ctn = new createjs.Container();
