@@ -1138,16 +1138,35 @@ var GameInfoAdmin = (function () {
     };
     GameInfoAdmin.genRound = function (req, res) {
         // if (!req.body) return res.sendStatus(400);
-        var playerDataArr;
         var actId = parseInt(req.body.id);
         dbPlayerInfo().getActivityPlayerDataArr(actId, function (err, docs) {
             if (!err) {
                 console.log('getActivityPlayerDataArr: ', docs.length);
-                for (var i = 0; i < docs.length; i++) {
-                    var playerData = docs[i];
-                    console.log(playerData.name, 'elo score:', playerData.eloScore);
+                function getSection(playerDataArr, start) {
+                    if (start === void 0) { start = 0; }
+                    var playerData;
+                    var section = [];
+                    // var team = [];
+                    var teamInfo = new TeamInfo();
+                    //low section
+                    for (var i = start; i < start + 16; i++) {
+                        playerData = playerDataArr[i];
+                        if (teamInfo.length() == 4) {
+                            section.push(teamInfo);
+                            teamInfo = new TeamInfo();
+                        }
+                        teamInfo.push(new PlayerInfo(playerData));
+                        console.log(playerData.name, 'elo score:', playerData.eloScore);
+                    }
+                    // for (var i = 0; i < section.length; i++) {
+                    //     var t:TeamInfo = section[i];
+                    //     console.log('low section team:', t.length(), JSON.stringify(t));
+                    // }
+                    return section;
                 }
-                res.send(docs.length);
+                var lowSection = getSection(docs, 0);
+                var highSection = getSection(docs, 16);
+                res.send(new Buffer(msgpack.encode({ test: "sss" })));
             }
             else {
                 res.send(err);
@@ -1220,6 +1239,12 @@ var TeamInfo = (function () {
         //     this.playerArr.push(player);
         // }
     };
+    TeamInfo.prototype.length = function () {
+        return this.playerInfoArr.length;
+    };
+    TeamInfo.prototype.push = function (playerInfo) {
+        this.playerInfoArr.push(playerInfo);
+    };
     TeamInfo.prototype.setScore = function (score) {
         this.score = score;
     };
@@ -1262,6 +1287,16 @@ var TeamInfo = (function () {
         loserTeam.saveScore(-win, false);
         //loserTeam.score -= win;
         // this.getWinningPercent() = Math.round(percentage * 100);
+    };
+    //交换两队中的随机两人
+    TeamInfo.prototype.mix2 = function (teamInfo) {
+        var tmp;
+        tmp = this.playerInfoArr[1];
+        this.playerInfoArr[1] = teamInfo.playerInfoArr[3];
+        teamInfo.playerInfoArr[3] = tmp;
+        tmp = this.playerInfoArr[3];
+        this.playerInfoArr[3] = teamInfo.playerInfoArr[2];
+        teamInfo.playerInfoArr[2] = tmp;
     };
     TeamInfo.prototype.getPercentage = function () {
         //var Elo1 = this.score;

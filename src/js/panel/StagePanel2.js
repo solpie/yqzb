@@ -54,13 +54,13 @@ var StagePanel2 = (function (_super) {
     StagePanel2.prototype.fadeInNoticePanel = function (imgData) {
         var stagePanelCtn = client.panel.ctn;
         stagePanelCtn.alpha = 0;
-        var noticePanelView = client.panel.noticePanelView;
-        var ctn = noticePanelView.getCtn();
+        // var noticePanelView = client.panel.noticePanelView;
+        var ctn = this.noticePanelView.getCtn();
         ctn.x = (1920 - 1070) * .5;
         ctn.y = 1080 - 130;
         ctn.alpha = 0;
-        noticePanelView.fadeInNotice(imgData);
-        var noticeImg = noticePanelView.noticeImg;
+        this.noticePanelView.fadeInNotice(imgData);
+        var noticeImg = this.noticePanelView.noticeImg;
         noticeImg.x = 800;
         var noticeImgWidth = noticeImg.getBounds().width;
         var showSec = noticeImgWidth / 100 * 1000;

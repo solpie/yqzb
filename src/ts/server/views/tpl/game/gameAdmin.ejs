@@ -24,11 +24,12 @@
         var data = {}
         data.id = 1;
         $.post("/admin/game/genRound", data, function (res) {
-            console.log(res);
+            console.log(msgpack.decode(res));
         });
     });
 
 </script>
+<script src="/js/msgpack.min.js"></script>
 </body>
 </html>
 

@@ -18,6 +18,12 @@ class TeamInfo {
         //     this.playerArr.push(player);
         // }
     }
+    length(){
+        return this.playerInfoArr.length;
+    }
+    push(playerInfo:PlayerInfo) {
+        this.playerInfoArr.push(playerInfo);
+    }
 
     setScore(score) {
         this.score = score;
@@ -75,6 +81,19 @@ class TeamInfo {
         loserTeam.saveScore(-win, false);
         //loserTeam.score -= win;
         // this.getWinningPercent() = Math.round(percentage * 100);
+    }
+
+    //交换两队中的随机两人
+    mix2(teamInfo:TeamInfo) {
+
+        var tmp;
+        tmp = this.playerInfoArr[1];
+        this.playerInfoArr[1] = teamInfo.playerInfoArr[3];
+        teamInfo.playerInfoArr[3] = tmp;
+
+        tmp = this.playerInfoArr[3];
+        this.playerInfoArr[3] = teamInfo.playerInfoArr[2];
+        teamInfo.playerInfoArr[2] = tmp;
     }
 
     getPercentage() {
