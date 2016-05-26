@@ -12,24 +12,53 @@
     </style>
 </head>
 <body>
-<% for(var i = 0; i < gameDataArr.length; i++) { var gameData = gameDataArr[i]; %>
 
-<% } %>
-<input id="btnGen" type="button" value="生成">
-<input type="button" value="打印">
+<div id="app">
+    <input id="btnGen" type="button" value="生成" @click="onGen">
+    <input type="button" value="打印" @click="onPrint">
+    <ul>
+        <li v-for="todo in todos">
+            {{ todo.text }}
+        </li>
+    </ul>
+</div>
 
 <script src="/js/jquery-2.1.4.min.js"></script>
+<script src="/js/vue.min.js"></script>
+<script src="/js/vue-resource.min.js"></script>
 <script>
-    $('#btnGen').click(function () {
-        var data = {}
-        data.id = 1;
-        $.post("/admin/game/genRound", data, function (res) {
-            console.log(msgpack.decode(res));
-        });
-    });
-
+    var vue = new Vue({
+        el: '#app',
+        data: {
+            message: 'Hello Vue.js!'
+        },
+        methods: {
+            onPrint: function () {
+                console.log('todo print!!!');
+            },
+            onGen: function () {
+                this.$http.post("/admin/game/genRound", {id:1}).then(function (res) {
+                    var param = res.data;
+                    console.log(res);
+                    var lowSection = param.low;
+                    var highSection = param.high;
+                    var $section = $('#section');
+                    $section.html("");
+                    for (var i = 0; i < highSection.length; i++) {
+                        var highPlayerData = highSection[i];
+                        $section.append('<label>')
+                        console.log("high player", highPlayerData);
+                    }
+                    for (var i = 0; i < lowSection.length; i++) {
+                        var lowPlayerData = lowSection[i];
+                        console.log("low player", lowPlayerData);
+                    }
+//            console.log(res);
+                });
+            }
+        }
+    })
 </script>
-<script src="/js/msgpack.min.js"></script>
 </body>
 </html>
 

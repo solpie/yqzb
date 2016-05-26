@@ -5,15 +5,15 @@ class GameInfoAdmin {
     }
 
     static genRound(req, res) {
-        // if (!req.body) return res.sendStatus(400);
+        if (!req.body) return res.sendStatus(400);
         var actId = parseInt(req.body.id);
+
         dbPlayerInfo().getActivityPlayerDataArr(actId, function (err, docs) {
             if (!err) {
                 console.log('getActivityPlayerDataArr: ', docs.length);
                 function getSection(playerDataArr, start = 0) {
                     var playerData;
                     var section = [];
-                    // var team = [];
                     var teamInfo:TeamInfo = new TeamInfo();
                     //low section
                     for (var i = start; i < start + 16; i++) {
@@ -25,6 +25,7 @@ class GameInfoAdmin {
                         teamInfo.push(new PlayerInfo(playerData));
                         console.log(playerData.name, 'elo score:', playerData.eloScore);
                     }
+                    section.push(teamInfo);
                     // for (var i = 0; i < section.length; i++) {
                     //     var t:TeamInfo = section[i];
                     //     console.log('low section team:', t.length(), JSON.stringify(t));
@@ -34,8 +35,9 @@ class GameInfoAdmin {
 
                 var lowSection = getSection(docs, 0);
                 var highSection = getSection(docs, 16);
-                res.send(new Buffer(msgpack.encode({test:"sss"})));
-                // res.send(msgpack.encode({low: lowSection, high: highSection}));
+                // console.log("pack:", msgpack.encode({test: "sss"}));
+                // res.send(new Buffer(msgpack.encode({test:"sss"})));
+                res.send(JSON.stringify({low: lowSection, high: highSection}));
             }
             else {
                 res.send(err);

@@ -1137,7 +1137,9 @@ var GameInfoAdmin = (function () {
         res.render('game/gameAdmin', data);
     };
     GameInfoAdmin.genRound = function (req, res) {
-        // if (!req.body) return res.sendStatus(400);
+        if (!req.body)
+            return res.sendStatus(400);
+        console.log('post body ', JSON.stringify(req.body));
         var actId = parseInt(req.body.id);
         dbPlayerInfo().getActivityPlayerDataArr(actId, function (err, docs) {
             if (!err) {
@@ -1146,7 +1148,6 @@ var GameInfoAdmin = (function () {
                     if (start === void 0) { start = 0; }
                     var playerData;
                     var section = [];
-                    // var team = [];
                     var teamInfo = new TeamInfo();
                     //low section
                     for (var i = start; i < start + 16; i++) {
@@ -1158,6 +1159,7 @@ var GameInfoAdmin = (function () {
                         teamInfo.push(new PlayerInfo(playerData));
                         console.log(playerData.name, 'elo score:', playerData.eloScore);
                     }
+                    section.push(teamInfo);
                     // for (var i = 0; i < section.length; i++) {
                     //     var t:TeamInfo = section[i];
                     //     console.log('low section team:', t.length(), JSON.stringify(t));
@@ -1166,7 +1168,9 @@ var GameInfoAdmin = (function () {
                 }
                 var lowSection = getSection(docs, 0);
                 var highSection = getSection(docs, 16);
-                res.send(new Buffer(msgpack.encode({ test: "sss" })));
+                // console.log("pack:", msgpack.encode({test: "sss"}));
+                // res.send(new Buffer(msgpack.encode({test:"sss"})));
+                res.send(JSON.stringify({ low: lowSection, high: highSection }));
             }
             else {
                 res.send(err);
@@ -1750,6 +1754,18 @@ var HttpServer = (function () {
         var urlencodedParser = bodyParser.urlencoded({
             extended: false,
             limit: '50mb'
+        });
+        app.use(bodyParser.json());
+        app.all("*", function (req, res, next) {
+            res.header('Access-Control-Allow-Origin', '*');
+            res.header("Access-Control-Allow-Headers", "Content-Type,Content-Length, Authorization, Accept,X-Requested-With");
+            res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
+            if (req.method == 'OPTIONS') {
+                res.send(200);
+            }
+            else {
+                next();
+            }
         });
         app.get('/', function (req, res) {
             res.render('dashboard');
