@@ -27,7 +27,7 @@ class StagePanelView extends BaseView {
 
     //
     winCtn:any;
-    noticePanel:any;
+    noticePanelView:any;
 
     constructor(stage, isOp) {
         super(stage, isOp);
@@ -382,7 +382,7 @@ class StagePanelView extends BaseView {
         this.winCtn = new createjs.Container();
         this.stage.addChild(this.winCtn);
 
-        this.noticePanel = new NoticePanelView(this.stage);
+        this.noticePanelView = new NoticePanelView(this.stage);
 
         var bg = new createjs.Bitmap("/img/panel/stagescore.png");
         bg.x = (stageWidth - 658) * .5;

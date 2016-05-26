@@ -842,7 +842,6 @@ var NoticePanelView = (function () {
     function NoticePanelView(parent) {
         this.isInit = false;
         this.parent = parent;
-        this.init();
     }
     NoticePanelView.prototype.init = function () {
         this.ctn = new createjs.Container();
@@ -864,6 +863,8 @@ var NoticePanelView = (function () {
         this.isInit = true;
     };
     NoticePanelView.prototype.getCtn = function () {
+        if (!this.isInit)
+            this.init();
         return this.ctn;
     };
     NoticePanelView.prototype.fadeInNotice = function (imgData) {
@@ -1191,7 +1192,7 @@ var StagePanelView = (function (_super) {
         this.ctn.addChild(ctnMove);
         this.winCtn = new createjs.Container();
         this.stage.addChild(this.winCtn);
-        this.noticePanel = new NoticePanelView(this.stage);
+        this.noticePanelView = new NoticePanelView(this.stage);
         var bg = new createjs.Bitmap("/img/panel/stagescore.png");
         bg.x = (stageWidth - 658) * .5;
         bg.y = stageHeight - 107;
@@ -2043,17 +2044,12 @@ var StagePanelInfo = (function (_super) {
         this.initCanvasNotice();
     }
     StagePanelInfo.prototype.initCanvasNotice = function () {
-        var stageWidth = 930;
+        var stageWidth = 5000;
         var stageHeight = 60;
         var canvas = document.getElementById("canvasNotice");
         canvas.setAttribute("width", stageWidth + "");
         canvas.setAttribute("height", stageHeight + "");
         var stage = new createjs.Stage(canvas);
-        // stage.autoClear = true;
-        // createjs.Ticker.framerate = 60;
-        // createjs.Ticker.addEventListener("tick", function () {
-        //     stage.update();
-        // });
         this.stageNotice = stage;
         return stage;
     };
@@ -2061,10 +2057,12 @@ var StagePanelInfo = (function (_super) {
         this.stageNotice.removeAllChildren();
         var noticeLabel = new createjs.Text(content, "35px Arial", "#fff");
         this.stageNotice.addChild(noticeLabel);
-        this.stageNotice.cache(0, 0, 930, 60);
+        var canvas = document.getElementById("canvasNotice");
+        canvas.setAttribute("width", noticeLabel.getBounds().width + "");
+        this.stageNotice.cache(0, 0, noticeLabel.getBounds().width, 60);
         this.stageNotice.update();
         var data = this.stageNotice.toDataURL('rgba(0,0,0,0)', "image/png");
-        // base64ToPng('img/text.png', data);
+        base64ToPng('img/text.png', data);
         return data;
     };
     StagePanelInfo.prototype.getInfo = function () {
@@ -2135,10 +2133,6 @@ var StagePanelInfo = (function (_super) {
         console.log(this, "updatePlayer", JSON.stringify(param.playerInfo), param.playerInfo.pos);
         cmd.emit(CommandId.updatePlayer, param, this.pid);
     };
-    // _setPlayerPos(pos, playerInfo) {
-    //     playerInfo.isRed = (pos > 3);
-    //     this.playerInfoArr[pos] = playerInfo;
-    // }
     StagePanelInfo.prototype.showWinPanel = function (param) {
         var winTeam;
         if (param.mvp < 4) {

@@ -92,18 +92,12 @@ class StagePanelInfo extends BasePanelInfo {
     }
 
     initCanvasNotice() {
-        var stageWidth = 930;
+        var stageWidth = 5000;
         var stageHeight = 60;
         var canvas = document.getElementById("canvasNotice");
         canvas.setAttribute("width", stageWidth + "");
         canvas.setAttribute("height", stageHeight + "");
         var stage = new createjs.Stage(canvas);
-        // stage.autoClear = true;
-        // createjs.Ticker.framerate = 60;
-        // createjs.Ticker.addEventListener("tick", function () {
-        //     stage.update();
-        // });
-
 
         this.stageNotice = stage;
         return stage;
@@ -113,7 +107,9 @@ class StagePanelInfo extends BasePanelInfo {
         this.stageNotice.removeAllChildren();
         var noticeLabel = new createjs.Text(content, "35px Arial", "#fff");
         this.stageNotice.addChild(noticeLabel);
-        this.stageNotice.cache(0, 0, 930, 60);
+        var canvas = document.getElementById("canvasNotice");
+        canvas.setAttribute("width", noticeLabel.getBounds().width + "");
+        this.stageNotice.cache(0, 0, noticeLabel.getBounds().width, 60);
         this.stageNotice.update();
         var data = this.stageNotice.toDataURL('rgba(0,0,0,0)', "image/png");
         // base64ToPng('img/text.png', data);
@@ -201,11 +197,6 @@ class StagePanelInfo extends BasePanelInfo {
         console.log(this, "updatePlayer", JSON.stringify(param.playerInfo), param.playerInfo.pos);
         cmd.emit(CommandId.updatePlayer, param, this.pid);
     }
-
-    // _setPlayerPos(pos, playerInfo) {
-    //     playerInfo.isRed = (pos > 3);
-    //     this.playerInfoArr[pos] = playerInfo;
-    // }
 
     showWinPanel(param:any) {
         var winTeam:TeamInfo;

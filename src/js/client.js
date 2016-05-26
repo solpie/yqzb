@@ -576,7 +576,6 @@ var NoticePanelView = (function () {
     function NoticePanelView(parent) {
         this.isInit = false;
         this.parent = parent;
-        this.init();
     }
     NoticePanelView.prototype.init = function () {
         this.ctn = new createjs.Container();
@@ -598,6 +597,8 @@ var NoticePanelView = (function () {
         this.isInit = true;
     };
     NoticePanelView.prototype.getCtn = function () {
+        if (!this.isInit)
+            this.init();
         return this.ctn;
     };
     NoticePanelView.prototype.fadeInNotice = function (imgData) {
@@ -925,7 +926,7 @@ var StagePanelView = (function (_super) {
         this.ctn.addChild(ctnMove);
         this.winCtn = new createjs.Container();
         this.stage.addChild(this.winCtn);
-        this.noticePanel = new NoticePanelView(this.stage);
+        this.noticePanelView = new NoticePanelView(this.stage);
         var bg = new createjs.Bitmap("/img/panel/stagescore.png");
         bg.x = (stageWidth - 658) * .5;
         bg.y = stageHeight - 107;

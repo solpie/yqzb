@@ -10,7 +10,6 @@ class NoticePanelView {
 
     constructor(parent) {
         this.parent = parent;
-        this.init();
     }
 
     init() {
@@ -35,6 +34,8 @@ class NoticePanelView {
     }
 
     getCtn() {
+        if (!this.isInit)
+            this.init();
         return this.ctn;
     }
 
@@ -43,7 +44,6 @@ class NoticePanelView {
             this.init();
         if (this.noticeImg)
             this.contentCtn.removeChild(this.noticeImg);
-
         this.noticeImg = new createjs.Bitmap(imgData);
         this.noticeImg.mask = this.mask;
         this.contentCtn.addChild(this.noticeImg);
