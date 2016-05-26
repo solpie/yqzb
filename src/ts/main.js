@@ -119,7 +119,19 @@ var jsonfile = {
     writeFile: writeFile,
     writeFileSync: writeFileSync
 };
-//module.exports = jsonfile; 
+//module.exports = jsonfile;
+function base64ToPng(imgPath, base64Data, callback) {
+    var base64Data = base64Data.replace(/^data:image\/png;base64,/, "");
+    var writePath = imgPath;
+    if (!isDev)
+        writePath = M_path.join(appExecPath, imgPath);
+    writeFile(writePath, base64Data, 'base64', function (err) {
+        if (!err) {
+            if (callback)
+                callback('/' + imgPath);
+        }
+    });
+}
 var EventDispatcher = (function () {
     function EventDispatcher() {
         this._func = {};
@@ -826,8 +838,48 @@ var PlayerView = (function () {
     };
     return PlayerView;
 }());
+var NoticePanelView = (function () {
+    function NoticePanelView(parent) {
+        this.isInit = false;
+        this.parent = parent;
+        this.init();
+    }
+    NoticePanelView.prototype.init = function () {
+        this.ctn = new createjs.Container();
+        var bg = new createjs.Bitmap('/img/panel/noticeBg.png');
+        this.ctn.addChild(bg);
+        // this.noticeLabel = new createjs.Text("手动风尚大奖哦手动风尚大奖哦手动风尚大奖哦手动风尚大奖哦手动风尚大奖哦手动风尚大奖哦手动风尚大奖哦手动风尚大奖哦手动风尚大奖哦手动风尚大奖哦手动风尚大奖哦手动风尚大奖哦手动风尚大奖哦手动风尚大奖哦手动风尚大奖哦手动风尚大奖哦手动风尚大奖哦手动风尚大奖哦手动风尚大奖哦", "28px Arial", "#e2e2e2");
+        // this.ctn.addChild(this.noticeLabel);
+        this.contentCtn = new createjs.Container();
+        this.contentCtn.x = 72;
+        this.contentCtn.y = 26;
+        this.ctn.addChild(this.contentCtn);
+        this.mask = new createjs.Shape();
+        this.mask.graphics.beginFill("#eee")
+            .drawRect(0, 0, 930, 50);
+        // this.ctn.addChild(mask);
+        // this.contentCtn.addChild(mask);
+        // this.noticeLabel.mask = mask;
+        this.parent.addChild(this.ctn);
+        this.isInit = true;
+    };
+    NoticePanelView.prototype.getCtn = function () {
+        return this.ctn;
+    };
+    NoticePanelView.prototype.fadeInNotice = function (imgData) {
+        if (!this.isInit)
+            this.init();
+        if (this.noticeImg)
+            this.contentCtn.removeChild(this.noticeImg);
+        this.noticeImg = new createjs.Bitmap(imgData);
+        this.noticeImg.mask = this.mask;
+        this.contentCtn.addChild(this.noticeImg);
+    };
+    return NoticePanelView;
+}());
 /// <reference path="../../view/BaseView.ts"/>
 /// <reference path="PlayerView.ts"/>
+/// <reference path="NoticePanelView.ts"/>
 var StagePanelView = (function (_super) {
     __extends(StagePanelView, _super);
     function StagePanelView(stage, isOp) {
@@ -1139,6 +1191,7 @@ var StagePanelView = (function (_super) {
         this.ctn.addChild(ctnMove);
         this.winCtn = new createjs.Container();
         this.stage.addChild(this.winCtn);
+        this.noticePanel = new NoticePanelView(this.stage);
         var bg = new createjs.Bitmap("/img/panel/stagescore.png");
         bg.x = (stageWidth - 658) * .5;
         bg.y = stageHeight - 107;
@@ -1515,17 +1568,17 @@ var serverConf = {
 var PlayerAdmin = (function () {
     function PlayerAdmin() {
     }
-    PlayerAdmin.base64ToPng = function (imgPath, base64Data, callback) {
-        var base64Data = base64Data.replace(/^data:image\/png;base64,/, "");
-        var writePath = imgPath;
-        if (!isDev)
-            writePath = M_path.join(appExecPath, imgPath);
-        writeFile(writePath, base64Data, 'base64', function (err) {
-            if (!err) {
-                callback('/' + imgPath);
-            }
-        });
-    };
+    // static base64ToPng(imgPath, base64Data, callback) {
+    //     var base64Data = base64Data.replace(/^data:image\/png;base64,/, "");
+    //     var writePath = imgPath;
+    //     if (!isDev)
+    //         writePath = M_path.join(appExecPath, imgPath);
+    //     writeFile(writePath, base64Data, 'base64', (err)=> {
+    //         if (!err) {
+    //             callback('/' + imgPath);
+    //         }
+    //     });
+    // }
     PlayerAdmin.index = function (req, res) {
         dbPlayerInfo().find({}, function (err, docs) {
             var data = { adminId: 'playerList' };
@@ -1601,7 +1654,7 @@ var PlayerAdmin = (function () {
         }
         if (req.body.avatar) {
             var imgPath = "img/player/" + playerId + '.png';
-            PlayerAdmin.base64ToPng(imgPath, req.body.avatar, function (imgPath) {
+            base64ToPng(imgPath, req.body.avatar, function (imgPath) {
                 updateData.avatar = imgPath;
                 updateToDb(updateData);
             });
@@ -1616,7 +1669,7 @@ var PlayerAdmin = (function () {
         var playerInfo = new PlayerInfo(req.body);
         playerInfo.id(dbPlayerInfo().getNewId());
         var imgPath = "img/player/" + playerInfo.id() + '.png';
-        PlayerAdmin.base64ToPng(imgPath, req.body.avatar, function (imgPath) {
+        base64ToPng(imgPath, req.body.avatar, function (imgPath) {
             playerInfo.avatar(imgPath);
             dbPlayerInfo().insert(playerInfo.playerData, function (err, newDoc) {
                 if (!err) {
@@ -1910,6 +1963,7 @@ var GameInfo = (function () {
 /// <reference path="./TeamInfo.ts"/>
 /// <reference path="./GameInfo.ts"/>
 /// <reference path="./DbInfo.ts"/>
+/// <reference path="../../utils/JSONFile.ts"/>
 var PanelInfo = (function () {
     function PanelInfo() {
         this.stage = new StagePanelInfo(PanelId.stagePanel);
@@ -1986,7 +2040,33 @@ var StagePanelInfo = (function (_super) {
         _super.call(this, pid);
         this.gameInfo = new GameInfo();
         this.gameInfo.playerDb = dbPlayerInfo();
+        this.initCanvasNotice();
     }
+    StagePanelInfo.prototype.initCanvasNotice = function () {
+        var stageWidth = 930;
+        var stageHeight = 60;
+        var canvas = document.getElementById("canvasNotice");
+        canvas.setAttribute("width", stageWidth + "");
+        canvas.setAttribute("height", stageHeight + "");
+        var stage = new createjs.Stage(canvas);
+        // stage.autoClear = true;
+        // createjs.Ticker.framerate = 60;
+        // createjs.Ticker.addEventListener("tick", function () {
+        //     stage.update();
+        // });
+        this.stageNotice = stage;
+        return stage;
+    };
+    StagePanelInfo.prototype.getNoticeImg = function (content) {
+        this.stageNotice.removeAllChildren();
+        var noticeLabel = new createjs.Text(content, "35px Arial", "#fff");
+        this.stageNotice.addChild(noticeLabel);
+        this.stageNotice.cache(0, 0, 930, 60);
+        this.stageNotice.update();
+        var data = this.stageNotice.toDataURL('rgba(0,0,0,0)', "image/png");
+        // base64ToPng('img/text.png', data);
+        return data;
+    };
     StagePanelInfo.prototype.getInfo = function () {
         return {
             leftScore: this.gameInfo.leftScore,
@@ -2100,6 +2180,7 @@ var StagePanelInfo = (function (_super) {
         cmd.emit(CommandId.updatePlayerAll, this.getPlayerInfoArr(), this.pid);
     };
     StagePanelInfo.prototype.notice = function (param) {
+        param.img = this.getNoticeImg(param.notice);
         cmd.emit(CommandId.notice, param, this.pid);
     };
     return StagePanelInfo;

@@ -1,5 +1,6 @@
 /// <reference path="../../view/BaseView.ts"/>
 /// <reference path="PlayerView.ts"/>
+/// <reference path="NoticePanelView.ts"/>
 
 class StagePanelView extends BaseView {
     time:number = 0;
@@ -26,6 +27,7 @@ class StagePanelView extends BaseView {
 
     //
     winCtn:any;
+    noticePanel:any;
 
     constructor(stage, isOp) {
         super(stage, isOp);
@@ -233,10 +235,10 @@ class StagePanelView extends BaseView {
             }
             else {
                 this.timerId = setInterval(()=> {
-                   this.time++;
+                    this.time++;
                     this.timeLabel.text = this.formatSecond(this.time);
                 }, 1000);
-               this.timerState = 1;
+                this.timerState = 1;
             }
         });
 
@@ -380,13 +382,14 @@ class StagePanelView extends BaseView {
         this.winCtn = new createjs.Container();
         this.stage.addChild(this.winCtn);
 
+        this.noticePanel = new NoticePanelView(this.stage);
+
         var bg = new createjs.Bitmap("/img/panel/stagescore.png");
         bg.x = (stageWidth - 658) * .5;
         bg.y = stageHeight - 107;
         ctnMove.addChild(bg);
 
         {//score point
-
             //left score---------------------
             this.leftCircleArr = [];
             this.rightCircleArr = [];

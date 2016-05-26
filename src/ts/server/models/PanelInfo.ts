@@ -3,6 +3,7 @@
 /// <reference path="./TeamInfo.ts"/>
 /// <reference path="./GameInfo.ts"/>
 /// <reference path="./DbInfo.ts"/>
+/// <reference path="../../utils/JSONFile.ts"/>
 
 class PanelInfo {
     //for localhost/panel/pid/
@@ -81,12 +82,44 @@ class WinPanelInfo extends BasePanelInfo {
 class StagePanelInfo extends BasePanelInfo {
     ctnXY:any;
     gameInfo:GameInfo;
+    stageNotice:any;
 
     constructor(pid) {
         super(pid);
         this.gameInfo = new GameInfo();
         this.gameInfo.playerDb = dbPlayerInfo();
+        this.initCanvasNotice();
     }
+
+    initCanvasNotice() {
+        var stageWidth = 930;
+        var stageHeight = 60;
+        var canvas = document.getElementById("canvasNotice");
+        canvas.setAttribute("width", stageWidth + "");
+        canvas.setAttribute("height", stageHeight + "");
+        var stage = new createjs.Stage(canvas);
+        // stage.autoClear = true;
+        // createjs.Ticker.framerate = 60;
+        // createjs.Ticker.addEventListener("tick", function () {
+        //     stage.update();
+        // });
+
+
+        this.stageNotice = stage;
+        return stage;
+    }
+
+    getNoticeImg(content) {
+        this.stageNotice.removeAllChildren();
+        var noticeLabel = new createjs.Text(content, "35px Arial", "#fff");
+        this.stageNotice.addChild(noticeLabel);
+        this.stageNotice.cache(0, 0, 930, 60);
+        this.stageNotice.update();
+        var data = this.stageNotice.toDataURL('rgba(0,0,0,0)', "image/png");
+        // base64ToPng('img/text.png', data);
+        return data;
+    }
+
 
     getInfo() {
         return {
@@ -175,8 +208,6 @@ class StagePanelInfo extends BasePanelInfo {
     // }
 
     showWinPanel(param:any) {
-
-
         var winTeam:TeamInfo;
         if (param.mvp < 4) {
             winTeam = this.gameInfo.setLeftTeamWin();
@@ -224,6 +255,7 @@ class StagePanelInfo extends BasePanelInfo {
     }
 
     notice(param:any) {
+        param.img = this.getNoticeImg(param.notice);
         cmd.emit(CommandId.notice, param, this.pid);
     }
 }

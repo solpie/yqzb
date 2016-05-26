@@ -15,6 +15,7 @@ function onServer() {
     });
     cmd.on(CommandId.notice, function (param) {
         var notice = param.notice;
+        fadeInNoticePanel(param.img);
         console.log('on notice ', notice);
     });
 }
@@ -60,7 +61,11 @@ function main() {
 }
 function sendNotice() {
     var txt = $('#notice').val();
-    cmd.proxy(CommandId.cs_notice, { notice: txt })
+    cmd.proxy(CommandId.cs_notice, {notice: txt})
+}
+function fadeInNoticePanel(imgData) {
+    var noticePanel = client.panel.noticePanel;
+    noticePanel.fadeInNotice(imgData);
 }
 var verifyWin = function (playerInfoArr, mvp) {
     for (var i = 0; i < playerInfoArr.length; i++) {
@@ -70,20 +75,20 @@ var verifyWin = function (playerInfoArr, mvp) {
         playerInfo.isMvp = (i == mvp);
     }
     return true;
-}
+};
 
 var fadeOutWinPanel = function () {
     console.log(this, "show fade Out WinPanel");
     var stagePanel = client.panel;
     var ctn = stagePanel.winCtn;
-    createjs.Tween.get(ctn).to({ alpha: 0 }, 200)
+    createjs.Tween.get(ctn).to({alpha: 0}, 200)
         .call(function () {
             ctn.alpha = 1;
             ctn.removeAllChildren();
         });
 }
 
-var fadeInWinPanel = function (paramDataArr, mvp) {
+function fadeInWinPanel(paramDataArr, mvp) {
     console.log(this, "show fadeInWinPanel mvp:", mvp);
 
     var stagePanel = client.panel;
@@ -115,7 +120,7 @@ var fadeInWinPanel = function (paramDataArr, mvp) {
         titleCtn.y = 198;
         titleCtn.scaleX = titleCtn.scaleY = 5;
         titleCtn.alpha = 0;
-        createjs.Tween.get(titleCtn).to({ scaleX: 1, scaleY: 1, alpha: 1 }, 150);
+        createjs.Tween.get(titleCtn).to({scaleX: 1, scaleY: 1, alpha: 1}, 150);
         titleCtn.addChild(title);
         ctn.addChild(titleCtn);
         console.log(title.getBounds());
@@ -142,8 +147,8 @@ var fadeInWinPanel = function (paramDataArr, mvp) {
             playerCard.x = 500;
             playerCard.scaleX = playerCard.scaleY = 0.01;
             createjs.Tween.get(playerCard)
-                .to({ x: playerCard.px, scaleX: 1.1, scaleY: 1.1 }, 200)
-                .to({ scaleX: 1, scaleY: 1 }, 60);
+                .to({x: playerCard.px, scaleX: 1.1, scaleY: 1.1}, 200)
+                .to({scaleX: 1, scaleY: 1}, 60);
             playerCtn.addChild(playerCard);
             prePlayerIsMvp = pInfo.isMvp;
         }
@@ -179,11 +184,11 @@ var fadeInStraight3 = function () {
         ctn.scaleX = ctn.scaleY = 5;
 
         createjs.Tween.get(ctn)
-            .to({ scaleX: 1, scaleY: 1 }, 150)
+            .to({scaleX: 1, scaleY: 1}, 150)
             .wait(3000)
-            .to({ alpha: 0 }, 200).call(function () {
-                isBusy = false;
-            });
+            .to({alpha: 0}, 200).call(function () {
+            isBusy = false;
+        });
 
 
         //            createjs.Tween.get(client.panel.fxEventCtn)

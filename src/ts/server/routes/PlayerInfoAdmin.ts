@@ -1,17 +1,17 @@
 /// <reference path="../../utils/JSONFile.ts"/>
 
 class PlayerAdmin {
-    static base64ToPng(imgPath, base64Data, callback) {
-        var base64Data = base64Data.replace(/^data:image\/png;base64,/, "");
-        var writePath = imgPath;
-        if (!isDev)
-            writePath = M_path.join(appExecPath, imgPath);
-        writeFile(writePath, base64Data, 'base64', (err)=> {
-            if (!err) {
-                callback('/' + imgPath);
-            }
-        });
-    }
+    // static base64ToPng(imgPath, base64Data, callback) {
+    //     var base64Data = base64Data.replace(/^data:image\/png;base64,/, "");
+    //     var writePath = imgPath;
+    //     if (!isDev)
+    //         writePath = M_path.join(appExecPath, imgPath);
+    //     writeFile(writePath, base64Data, 'base64', (err)=> {
+    //         if (!err) {
+    //             callback('/' + imgPath);
+    //         }
+    //     });
+    // }
 
     static  index(req, res) {
         dbPlayerInfo().find({}, function (err, docs) {
@@ -90,7 +90,7 @@ class PlayerAdmin {
 
         if (req.body.avatar) {
             var imgPath = "img/player/" + playerId + '.png';
-            PlayerAdmin.base64ToPng(imgPath, req.body.avatar, function (imgPath) {
+            base64ToPng(imgPath, req.body.avatar, function (imgPath) {
                 updateData.avatar = imgPath;
                 updateToDb(updateData);
             });
@@ -105,7 +105,7 @@ class PlayerAdmin {
         var playerInfo = new PlayerInfo(req.body);
         playerInfo.id(dbPlayerInfo().getNewId());
         var imgPath = "img/player/" + playerInfo.id() + '.png';
-        PlayerAdmin.base64ToPng(imgPath, req.body.avatar, function (imgPath) {
+        base64ToPng(imgPath, req.body.avatar, function (imgPath) {
             playerInfo.avatar(imgPath);
             dbPlayerInfo().insert(playerInfo.playerData, function (err, newDoc) {
                 if (!err) {

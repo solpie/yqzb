@@ -99,3 +99,16 @@ var jsonfile = {
     writeFileSync: writeFileSync
 };
 //module.exports = jsonfile;
+
+function base64ToPng(imgPath, base64Data, callback?) {
+    var base64Data = base64Data.replace(/^data:image\/png;base64,/, "");
+    var writePath = imgPath;
+    if (!isDev)
+        writePath = M_path.join(appExecPath, imgPath);
+    writeFile(writePath, base64Data, 'base64', (err)=> {
+        if (!err) {
+            if (callback)
+                callback('/' + imgPath);
+        }
+    });
+}
