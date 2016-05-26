@@ -11,6 +11,33 @@ class StagePanel2 extends BaseView2 {
     mvpPos:any = 0;
     isBusy = false;
     straight3Ctn;
+    timeOnSec:number = 0;
+    timerState:number = 0;
+    timerId:number;
+    leftCircleArr:any;
+    rightCircleArr:any;
+    leftScoreLabel:any;
+    rightScoreLabel:any;
+    curSelectCtn:any;
+    // time = 0;
+    timeLabel:any;
+    ctn:any;
+    fxCtn:any;
+    eventCtn:any;
+    fxEventCtn:any;
+
+    //playerInfo array
+    playerInfoArr:any = new Array(8);
+    eloLabelArr:any;
+    nameLabelArr:any;
+    avatarArr:any;
+    styleArr:any;
+
+    //
+    winCtn:any;
+    noticePanelView:any;
+    leftAvgEloScoreLabel:any;
+    rightAvgEloScoreLabel:any;
 
     constructor() {
         super();
@@ -100,7 +127,6 @@ class StagePanel2 extends BaseView2 {
 
     onInit(param) {
         this.stage = client.panel.stage;
-        //        console.log(client.panel.stage);
         var stageWidth = 1920;
         var stageHeight = 1080;
         var ctn = this.ctn = client.panel.ctn;
@@ -120,8 +146,24 @@ class StagePanel2 extends BaseView2 {
         bg.y = stageHeight - 118;
         ctnMove.addChild(bg);
 
+        var lTxt = new createjs.Text("", "28px Arial", "#fff");
+        lTxt.textAlign = 'center';
+        lTxt.x = bg.x + 137;
+        lTxt.y = bg.y + 7;
+        this.leftAvgEloScoreLabel = lTxt;
+        ctnMove.addChild(lTxt);
+
+        var rTxt = new createjs.Text("", "28px Arial", "#fff");
+        rTxt.textAlign = 'center';
+        rTxt.x = bg.x + 522;
+        rTxt.y = lTxt.y;
+        this.rightAvgEloScoreLabel = rTxt;
+        ctnMove.addChild(rTxt);
+
         {//score point
             //left score---------------------
+
+
             this.leftCircleArr = [];
             this.rightCircleArr = [];
             var px = 205 + 470;
@@ -380,22 +422,6 @@ class StagePanel2 extends BaseView2 {
             if (param.ctnXY)
                 this.setCtnXY(param.ctnXY);
         }
-
-        // var bmp = new createjs.Bitmap("/img/player/p11.png");
-        // bmp.x = 0;
-        // bmp.y = 0;
-        // //创建遮罩
-        // var leftMask = new createjs.Shape();
-        // leftMask.graphics.beginFill("#000000")
-        //     .moveTo(48, 0)
-        //     .lineTo(0, 76)
-        //     .lineTo(180 - 48, 76)
-        //     .lineTo(180, 0)
-        //     .lineTo(48, 0);
-        // leftMask.x = 0;
-        // leftMask.y = 0;
-        // this.stage.addChild(bmp);
-        // bmp.mask = leftMask;
     }
 
     verifyWin(playerInfoArr, mvp):Boolean {
@@ -484,7 +510,6 @@ class StagePanel2 extends BaseView2 {
         else {
             alert("球员数据不完整！");
         }
-
     }
 
     fadeInStraight3() {
@@ -634,31 +659,6 @@ class StagePanel2 extends BaseView2 {
         return ctn;
     }
 
-    time:number = 0;
-    timerState:number = 0;
-    timerId:number;
-    leftCircleArr:any;
-    rightCircleArr:any;
-    leftScoreLabel:any;
-    rightScoreLabel:any;
-    curSelectCtn:any;
-    // time = 0;
-    timeLabel:any;
-    ctn:any;
-    fxCtn:any;
-    eventCtn:any;
-    fxEventCtn:any;
-
-    //playerInfo array
-    playerInfoArr:any = new Array(8);
-    eloLabelArr:any;
-    nameLabelArr:any;
-    avatarArr:any;
-    styleArr:any;
-
-    //
-    winCtn:any;
-    noticePanelView:any;
 
     // constructor(stage, isOp) {
     //     super(stage, isOp);
@@ -875,17 +875,16 @@ class StagePanel2 extends BaseView2 {
             }
             else {
                 this.timerId = setInterval(()=> {
-                    this.time++;
-                    this.timeLabel.text = this.formatSecond(this.time);
+                    this.timeOnSec++;
+                    this.timeLabel.text = this.formatSecond(this.timeOnSec);
                 }, 1000);
                 this.timerState = 1;
             }
         });
 
         cmd.on(CommandId.resetTimer, ()=> {
-            //$("#btnResetTime").on(MouseEvt.CLICK, ()=> {
-            this.time = 0;
-            this.timeLabel.text = this.formatSecond(this.time);
+            this.timeOnSec = 0;
+            this.timeLabel.text = this.formatSecond(this.timeOnSec);
         });
 
         cmd.on(CommandId.stageFadeOut, ()=> {
@@ -960,6 +959,25 @@ class StagePanel2 extends BaseView2 {
         }
     }
 
+    //计算队伍天梯平均分
+    setAvgEloScore() {
+        function getAvgRight(start, playerInfoArr) {
+            var sum = 0;
+            var count = 0;
+            for (var i = start; i < start + 4; i++) {
+                var playerInfo:PlayerInfo = playerInfoArr[i];
+                if (playerInfo) {
+                    count++;
+                    sum += playerInfo.eloScore();
+                }
+            }
+            return sum / count
+        }
+
+        this.leftAvgEloScoreLabel.text = getAvgRight(0, this.playerInfoArr) + "";
+        this.rightAvgEloScoreLabel.text = getAvgRight(4, this.playerInfoArr) + "";
+    }
+
     setPlayer(pos, playerData) {
         var playerInfo = new PlayerInfo(playerData);
         playerInfo.isRed = playerData.isRed;
@@ -991,6 +1009,8 @@ class StagePanel2 extends BaseView2 {
             avatar.scaleX = avatar.scaleY = 180 / this.width;
         };
         img.src = playerInfo.avatar();
+
+        this.setAvgEloScore();
     }
 
     setCtnXY(param) {
@@ -1002,7 +1022,7 @@ class StagePanel2 extends BaseView2 {
 
     setTime(time, state:number) {
         this.timeLabel.text = this.formatSecond(time);
-        this.time = time;
+        this.timeOnSec = time;
         if (state) {
             cmd.emit(CommandId.toggleTimer);
         }

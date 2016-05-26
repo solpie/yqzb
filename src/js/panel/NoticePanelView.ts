@@ -1,3 +1,4 @@
+/// <reference path="../clientDef.ts"/>
 class NoticePanelView {
     notice:string;
     ctn:any;

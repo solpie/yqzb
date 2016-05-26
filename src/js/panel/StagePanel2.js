@@ -13,7 +13,7 @@ var StagePanel2 = (function (_super) {
         _super.call(this);
         this.mvpPos = 0;
         this.isBusy = false;
-        this.time = 0;
+        this.timeOnSec = 0;
         this.timerState = 0;
         //playerInfo array
         this.playerInfoArr = new Array(8);
@@ -93,7 +93,6 @@ var StagePanel2 = (function (_super) {
     };
     StagePanel2.prototype.onInit = function (param) {
         this.stage = client.panel.stage;
-        //        console.log(client.panel.stage);
         var stageWidth = 1920;
         var stageHeight = 1080;
         var ctn = this.ctn = client.panel.ctn;
@@ -108,6 +107,18 @@ var StagePanel2 = (function (_super) {
         bg.x = (stageWidth - 658) * .5;
         bg.y = stageHeight - 118;
         ctnMove.addChild(bg);
+        var lTxt = new createjs.Text("", "28px Arial", "#fff");
+        lTxt.textAlign = 'center';
+        lTxt.x = bg.x + 137;
+        lTxt.y = bg.y + 7;
+        this.leftAvgEloScoreLabel = lTxt;
+        ctnMove.addChild(lTxt);
+        var rTxt = new createjs.Text("", "28px Arial", "#fff");
+        rTxt.textAlign = 'center';
+        rTxt.x = bg.x + 522;
+        rTxt.y = lTxt.y;
+        this.rightAvgEloScoreLabel = rTxt;
+        ctnMove.addChild(rTxt);
         {
             //left score---------------------
             this.leftCircleArr = [];
@@ -343,21 +354,6 @@ var StagePanel2 = (function (_super) {
             if (param.ctnXY)
                 this.setCtnXY(param.ctnXY);
         }
-        // var bmp = new createjs.Bitmap("/img/player/p11.png");
-        // bmp.x = 0;
-        // bmp.y = 0;
-        // //创建遮罩
-        // var leftMask = new createjs.Shape();
-        // leftMask.graphics.beginFill("#000000")
-        //     .moveTo(48, 0)
-        //     .lineTo(0, 76)
-        //     .lineTo(180 - 48, 76)
-        //     .lineTo(180, 0)
-        //     .lineTo(48, 0);
-        // leftMask.x = 0;
-        // leftMask.y = 0;
-        // this.stage.addChild(bmp);
-        // bmp.mask = leftMask;
     };
     StagePanel2.prototype.verifyWin = function (playerInfoArr, mvp) {
         for (var i = 0; i < playerInfoArr.length; i++) {
@@ -751,16 +747,15 @@ var StagePanel2 = (function (_super) {
             }
             else {
                 _this.timerId = setInterval(function () {
-                    _this.time++;
-                    _this.timeLabel.text = _this.formatSecond(_this.time);
+                    _this.timeOnSec++;
+                    _this.timeLabel.text = _this.formatSecond(_this.timeOnSec);
                 }, 1000);
                 _this.timerState = 1;
             }
         });
         cmd.on(CommandId.resetTimer, function () {
-            //$("#btnResetTime").on(MouseEvt.CLICK, ()=> {
-            _this.time = 0;
-            _this.timeLabel.text = _this.formatSecond(_this.time);
+            _this.timeOnSec = 0;
+            _this.timeLabel.text = _this.formatSecond(_this.timeOnSec);
         });
         cmd.on(CommandId.stageFadeOut, function () {
             createjs.Tween.get(_this.fxCtn).to({ y: 140, alpha: .2 }, 200);
@@ -823,6 +818,23 @@ var StagePanel2 = (function (_super) {
             }
         }
     };
+    //计算队伍天梯平均分
+    StagePanel2.prototype.setAvgEloScore = function () {
+        function getAvgRight(start, playerInfoArr) {
+            var sum = 0;
+            var count = 0;
+            for (var i = start; i < start + 4; i++) {
+                var playerInfo = playerInfoArr[i];
+                if (playerInfo) {
+                    count++;
+                    sum += playerInfo.eloScore();
+                }
+            }
+            return sum / count;
+        }
+        this.leftAvgEloScoreLabel.text = getAvgRight(0, this.playerInfoArr) + "";
+        this.rightAvgEloScoreLabel.text = getAvgRight(4, this.playerInfoArr) + "";
+    };
     StagePanel2.prototype.setPlayer = function (pos, playerData) {
         var playerInfo = new PlayerInfo(playerData);
         playerInfo.isRed = playerData.isRed;
@@ -849,6 +861,7 @@ var StagePanel2 = (function (_super) {
             avatar.scaleX = avatar.scaleY = 180 / this.width;
         };
         img.src = playerInfo.avatar();
+        this.setAvgEloScore();
     };
     StagePanel2.prototype.setCtnXY = function (param) {
         this.ctn.x = param.ctnX;
@@ -858,7 +871,7 @@ var StagePanel2 = (function (_super) {
     };
     StagePanel2.prototype.setTime = function (time, state) {
         this.timeLabel.text = this.formatSecond(time);
-        this.time = time;
+        this.timeOnSec = time;
         if (state) {
             cmd.emit(CommandId.toggleTimer);
         }
