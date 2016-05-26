@@ -120,15 +120,15 @@ var jsonfile = {
     writeFileSync: writeFileSync
 };
 //module.exports = jsonfile;
-function base64ToPng(imgPath, base64Data, callback) {
+function base64ToPng(imgPath2, base64Data, callback) {
     var base64Data = base64Data.replace(/^data:image\/png;base64,/, "");
-    var writePath = imgPath;
+    var writePath = imgPath2;
     if (!isDev)
-        writePath = M_path.join(appExecPath, imgPath);
+        writePath = M_path.join(appExecPath, imgPath2);
     writeFile(writePath, base64Data, 'base64', function (err) {
         if (!err) {
             if (callback)
-                callback('/' + imgPath);
+                callback('/' + imgPath2);
         }
     });
 }
@@ -1057,32 +1057,40 @@ var PlayerAdmin = (function () {
             }
         });
     };
+    PlayerAdmin.makeRightType = function (data) {
+        var newData = {};
+        newData.id = parseInt(data.id);
+        newData.phone = parseInt(data.phone);
+        newData.weight = parseInt(data.weight);
+        newData.height = parseInt(data.height);
+        newData.eloScore = parseInt(data.eloScore);
+        newData.style = parseInt(data.style);
+        newData.name = data.name;
+        newData.activityId = parseInt(data.activityId);
+        return newData;
+    };
     PlayerAdmin.updatePlayerData = function (req, res) {
         if (!req.body)
             return res.sendStatus(400);
         console.log('updatePlayer req:', JSON.stringify(req.body));
         var playerId = parseInt(req.body.id);
-        var updateData = {};
-        updateData.phone = parseInt(req.body.phone);
-        updateData.weight = parseInt(req.body.weight);
-        updateData.height = parseInt(req.body.height);
-        updateData.eloScore = parseInt(req.body.eloScore);
-        updateData.style = parseInt(req.body.style);
-        updateData.name = req.body.name;
-        updateData.activityId = parseInt(req.body.activityId);
+        var updateData = PlayerAdmin.makeRightType(req.body);
+        // updateData.phone = parseInt(req.body.phone);
+        // updateData.weight = parseInt(req.body.weight);
+        // updateData.height = parseInt(req.body.height);
+        // updateData.eloScore = parseInt(req.body.eloScore);
+        // updateData.style = parseInt(req.body.style);
+        // updateData.name = req.body.name;
+        // updateData.activityId = parseInt(req.body.activityId);
         function updateToDb(data) {
             console.log('updatePlayer data:', JSON.stringify(data));
             dbPlayerInfo().update({ id: playerId }, { $set: data }, {}, function (err, doc) {
                 if (!err) {
                     console.log('db data:', JSON.stringify(doc));
-                    if (doc) {
-                        res.send("sus");
-                    }
-                    else {
-                        res.send("no id!!!");
-                    }
+                    res.send("sus");
                 }
                 else {
+                    console.log('updateToDb err', JSON.stringify(err));
                     res.send(err);
                 }
             });
@@ -1103,10 +1111,12 @@ var PlayerAdmin = (function () {
             return res.sendStatus(400);
         var playerInfo = new PlayerInfo(req.body);
         playerInfo.id(dbPlayerInfo().getNewId());
-        var imgPath = "img/player/" + playerInfo.id() + '.png';
-        base64ToPng(imgPath, req.body.avatar, function (imgPath) {
+        var imgPath1 = "img/player/" + playerInfo.id() + '.png';
+        base64ToPng(imgPath1, req.body.avatar, function (imgPath) {
             playerInfo.avatar(imgPath);
-            dbPlayerInfo().insert(playerInfo.playerData, function (err, newDoc) {
+            var data = PlayerAdmin.makeRightType(playerInfo.playerData);
+            data.avatar = imgPath;
+            dbPlayerInfo().insert(data, function (err, newDoc) {
                 if (!err) {
                     dbPlayerInfo().saveIdUsed();
                     res.redirect("/admin/player/");
@@ -1131,11 +1141,17 @@ var GameInfoAdmin = (function () {
         var playerDataArr;
         var actId = parseInt(req.body.id);
         dbPlayerInfo().getActivityPlayerDataArr(actId, function (err, docs) {
-            console.log("get Activity player arr", JSON.stringify(docs));
-            for (var i = 0; i < res.length; i++) {
-                var obj = res[i];
+            if (!err) {
+                console.log('getActivityPlayerDataArr: ', docs.length);
+                for (var i = 0; i < docs.length; i++) {
+                    var playerData = docs[i];
+                    console.log(playerData.name, 'elo score:', playerData.eloScore);
+                }
+                res.send(docs.length);
             }
-            res.send(docs.length);
+            else {
+                res.send(err);
+            }
         });
     };
     return GameInfoAdmin;
@@ -1173,7 +1189,7 @@ function initDB() {
         return db.player.config.playerIdUsed;
     };
     db.player.getActivityPlayerDataArr = function (actId, callback) {
-        db.player.find({ $not: { id: 0 }, activityId: actId }, function (err, docs) {
+        db.player.find({ $not: { id: 0 }, activityId: actId }).sort({ eloScore: 1 }).exec(function (err, docs) {
             callback(err, docs);
         });
     };
@@ -1644,11 +1660,13 @@ var HttpServer = (function () {
         });
     }
     HttpServer.prototype.getIPAddress = function () {
-        var interfaces = require('os').networkInterfaces();
+        var interfaces = require('os').networkInterfaces({ all: true });
         for (var devName in interfaces) {
+            // console.log("interfaces:", devName);
             var iface = interfaces[devName];
             for (var i = 0; i < iface.length; i++) {
                 var alias = iface[i];
+                // console.log("ip:", JSON.stringify(alias));
                 if (alias.family === 'IPv4' && alias.address !== '127.0.0.1' && !alias.internal) {
                     return alias.address;
                 }

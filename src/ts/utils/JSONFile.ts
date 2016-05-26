@@ -100,15 +100,15 @@ var jsonfile = {
 };
 //module.exports = jsonfile;
 
-function base64ToPng(imgPath, base64Data, callback?) {
+function base64ToPng(imgPath2, base64Data, callback?) {
     var base64Data = base64Data.replace(/^data:image\/png;base64,/, "");
-    var writePath = imgPath;
+    var writePath = imgPath2;
     if (!isDev)
-        writePath = M_path.join(appExecPath, imgPath);
+        writePath = M_path.join(appExecPath, imgPath2);
     writeFile(writePath, base64Data, 'base64', (err)=> {
         if (!err) {
             if (callback)
-                callback('/' + imgPath);
+                callback('/' + imgPath2);
         }
     });
 }

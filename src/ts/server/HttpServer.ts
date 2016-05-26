@@ -8,7 +8,6 @@
 /// <reference path="models/PanelInfo.ts"/>
 /// <reference path="models/ActivityInfo.ts"/>
 
-
 var msgpack = require("msgpack-lite");
 var debug = require('debug')('express2:server');
 
@@ -18,11 +17,13 @@ class HttpServer {
     activityInfo:ActivityInfo;
 
     getIPAddress() {
-        var interfaces = require('os').networkInterfaces();
+        var interfaces = require('os').networkInterfaces({ all: true });
         for (var devName in interfaces) {
+            // console.log("interfaces:", devName);
             var iface = interfaces[devName];
             for (var i = 0; i < iface.length; i++) {
                 var alias = iface[i];
+                // console.log("ip:", JSON.stringify(alias));
                 if (alias.family === 'IPv4' && alias.address !== '127.0.0.1' && !alias.internal) {
                     return alias.address;
                 }

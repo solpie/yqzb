@@ -6,15 +6,20 @@ class GameInfoAdmin {
 
     static genRound(req, res) {
         // if (!req.body) return res.sendStatus(400);
-        var playerDataArr;
         var actId = parseInt(req.body.id);
         dbPlayerInfo().getActivityPlayerDataArr(actId, function (err, docs) {
-            console.log("get Activity player arr", JSON.stringify(docs));
-            for (var i = 0; i < res.length; i++) {
-                var obj = res[i];
-
+            if (!err) {
+                console.log('getActivityPlayerDataArr: ', docs.length);
+                for (var i = 0; i < docs.length; i++) {
+                    var playerData = docs[i];
+                    console.log(playerData.name, 'elo score:', playerData.eloScore);
+                }
+                res.send(docs.length);
             }
-            res.send(docs.length);
+            else {
+                res.send(err);
+            }
+
         });
     }
 }

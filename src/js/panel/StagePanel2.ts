@@ -781,7 +781,6 @@ class StagePanel2 extends BaseView2 {
             var isCtrl = e.ctrlKey;
             var isShift = e.shiftKey;
             var isAlt = e.altKey;
-            console.log("key:", key);
             var isMove = false;
             if (key == 38)//up
             {
@@ -971,7 +970,8 @@ class StagePanel2 extends BaseView2 {
                     sum += playerInfo.eloScore();
                 }
             }
-            return sum / count
+            var ret = Math.floor(sum / count);
+            return ret?ret:0;
         }
 
         this.leftAvgEloScoreLabel.text = getAvgRight(0, this.playerInfoArr) + "";

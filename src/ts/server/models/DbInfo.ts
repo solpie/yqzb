@@ -33,9 +33,9 @@ function initDB() {
         return db.player.config.playerIdUsed;
     };
     db.player.getActivityPlayerDataArr = function (actId, callback) {
-        db.player.find({$not: {id: 0}, activityId: actId}, function (err, docs) {
+        db.player.find({$not: {id: 0}, activityId: actId}).sort({eloScore: 1}).exec(function (err, docs) {
             callback(err, docs);
-        })
+        });
     };
     // db.player.getActivityPlayerDataArr(1, function (err, docs) {
     //     console.log("actPlayer:", JSON.stringify(docs));

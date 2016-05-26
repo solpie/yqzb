@@ -663,7 +663,6 @@ var StagePanel2 = (function (_super) {
             var isCtrl = e.ctrlKey;
             var isShift = e.shiftKey;
             var isAlt = e.altKey;
-            console.log("key:", key);
             var isMove = false;
             if (key == 38) {
                 _this.curSelectCtn.y -= 1;
@@ -830,7 +829,8 @@ var StagePanel2 = (function (_super) {
                     sum += playerInfo.eloScore();
                 }
             }
-            return sum / count;
+            var ret = Math.floor(sum / count);
+            return ret ? ret : 0;
         }
         this.leftAvgEloScoreLabel.text = getAvgRight(0, this.playerInfoArr) + "";
         this.rightAvgEloScoreLabel.text = getAvgRight(4, this.playerInfoArr) + "";
