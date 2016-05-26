@@ -105,20 +105,6 @@ class StagePanelView extends BaseView {
         btnLeft.y = 500;
         fxCtn.addChild(btnLeft);
 
-        var btn = this.newBtn(()=> {
-            cmd.proxy(CommandId.cs_minLeftScore);
-        }, "minLeft");
-        btn.x = 300;
-        btn.y = 500;
-        fxCtn.addChild(btn);
-
-        var btn = this.newBtn(()=> {
-            cmd.proxy(CommandId.cs_minRightScore);
-        }, 'minRight');
-        btn.x = 590;
-        btn.y = 500;
-        fxCtn.addChild(btn);
-
         var btnRight = this.newBtn(()=> {
             cmd.proxy(CommandId.cs_addRightScore);
         }, 'addRight');
@@ -384,9 +370,9 @@ class StagePanelView extends BaseView {
 
         this.noticePanelView = new NoticePanelView(this.stage);
 
-        var bg = new createjs.Bitmap("/img/panel/stagescore.png");
+        var bg = new createjs.Bitmap("/img/panel/stageScoreBg.png");
         bg.x = (stageWidth - 658) * .5;
-        bg.y = stageHeight - 107;
+        bg.y = stageHeight - 118;
         ctnMove.addChild(bg);
 
         {//score point
@@ -449,7 +435,7 @@ class StagePanelView extends BaseView {
             var leftScoreNum = new createjs.BitmapText("0", sheet);
             leftScoreNum.letterSpacing = -2;
             leftScoreNum.x = bg.x + 230;
-            leftScoreNum.y = bg.y + 37;
+            leftScoreNum.y = bg.y + 48;
             this.leftScoreLabel = leftScoreNum;
             ctnMove.addChild(leftScoreNum);
 

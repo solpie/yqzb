@@ -954,18 +954,6 @@ var StagePanelView = (function (_super) {
         btnLeft.x = 20;
         btnLeft.y = 500;
         fxCtn.addChild(btnLeft);
-        var btn = this.newBtn(function () {
-            cmd.proxy(CommandId.cs_minLeftScore);
-        }, "minLeft");
-        btn.x = 300;
-        btn.y = 500;
-        fxCtn.addChild(btn);
-        var btn = this.newBtn(function () {
-            cmd.proxy(CommandId.cs_minRightScore);
-        }, 'minRight');
-        btn.x = 590;
-        btn.y = 500;
-        fxCtn.addChild(btn);
         var btnRight = this.newBtn(function () {
             cmd.proxy(CommandId.cs_addRightScore);
         }, 'addRight');
@@ -1193,9 +1181,9 @@ var StagePanelView = (function (_super) {
         this.winCtn = new createjs.Container();
         this.stage.addChild(this.winCtn);
         this.noticePanelView = new NoticePanelView(this.stage);
-        var bg = new createjs.Bitmap("/img/panel/stagescore.png");
+        var bg = new createjs.Bitmap("/img/panel/stageScoreBg.png");
         bg.x = (stageWidth - 658) * .5;
-        bg.y = stageHeight - 107;
+        bg.y = stageHeight - 118;
         ctnMove.addChild(bg);
         {
             //left score---------------------
@@ -1255,7 +1243,7 @@ var StagePanelView = (function (_super) {
             var leftScoreNum = new createjs.BitmapText("0", sheet);
             leftScoreNum.letterSpacing = -2;
             leftScoreNum.x = bg.x + 230;
-            leftScoreNum.y = bg.y + 37;
+            leftScoreNum.y = bg.y + 48;
             this.leftScoreLabel = leftScoreNum;
             ctnMove.addChild(leftScoreNum);
             var rightScoreNum = new createjs.BitmapText("0", sheet);
@@ -2044,7 +2032,7 @@ var StagePanelInfo = (function (_super) {
         this.initCanvasNotice();
     }
     StagePanelInfo.prototype.initCanvasNotice = function () {
-        var stageWidth = 5000;
+        var stageWidth = 8000;
         var stageHeight = 60;
         var canvas = document.getElementById("canvasNotice");
         canvas.setAttribute("width", stageWidth + "");
@@ -2062,7 +2050,7 @@ var StagePanelInfo = (function (_super) {
         this.stageNotice.cache(0, 0, noticeLabel.getBounds().width, 60);
         this.stageNotice.update();
         var data = this.stageNotice.toDataURL('rgba(0,0,0,0)', "image/png");
-        base64ToPng('img/text.png', data);
+        // base64ToPng('img/text.png', data);
         return data;
     };
     StagePanelInfo.prototype.getInfo = function () {

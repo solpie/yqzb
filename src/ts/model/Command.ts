@@ -87,3 +87,4 @@ class Command extends EventDispatcher {
         this.cmdArr.push(ci);
     }
 }
+
