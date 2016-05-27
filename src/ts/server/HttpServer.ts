@@ -72,14 +72,13 @@ class HttpServer {
         else {
             app.use(express.static(appExecPath));
         }
-
         var bodyParser = require('body-parser');
         // create application/x-www-form-urlencoded parser
         var urlencodedParser = bodyParser.urlencoded({
             extended: false
             , limit: '50mb'
         });
-        app.use(bodyParser.json());
+        app.use(bodyParser.json({limit: '50mb'}));
 
         app.all("*", function (req, res, next) {
             res.header('Access-Control-Allow-Origin', '*');
@@ -106,6 +105,7 @@ class HttpServer {
         //game admin
         app.get('/admin/game/', GameInfoAdmin.index);
         app.post('/admin/game/genRound', urlencodedParser, GameInfoAdmin.genRound);
+        app.post('/admin/game/genPrintPng', urlencodedParser, GameInfoAdmin.genPrintPng);
 
 
         app.get('/panel/:id/:op', function (req, res) {

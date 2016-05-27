@@ -679,16 +679,6 @@ var TeamInfo = (function () {
     TeamInfo.prototype.clear = function () {
         this.score = 0;
     };
-    // winningPercent:number;
-    // score:number;
-    // name:string;
-    // playerArr:Array<PlayerInfo>;
-    // ret:Array<any>;
-    // constructor(winPercentage?:number, scoreAvg?:number) {
-    //     // this.winningPercent = winPercentage;
-    //     this.score = scoreAvg;
-    //     this.playerArr = [];
-    // }
     TeamInfo.prototype.setPlayerArr = function (playerArr) {
         this.playerInfoArr.length = 0;
         this.playerInfoArr = this.playerInfoArr.concat(playerArr);

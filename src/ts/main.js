@@ -1136,34 +1136,17 @@ var GameInfoAdmin = (function () {
         var data = { gameDataArr: [] };
         res.render('game/gameAdmin', data);
     };
+    GameInfoAdmin.genPrintPng = function (req, res) {
+        base64ToPng('img/cache/game.png', req.body.base64, function () {
+            res.send('/img/cache/game.png');
+        });
+    };
     GameInfoAdmin.genRound = function (req, res) {
         if (!req.body)
             return res.sendStatus(400);
         var actId = parseInt(req.body.id);
         dbPlayerInfo().getActivityPlayerDataArr(actId, function (err, docs) {
             if (!err) {
-                // console.log('getActivityPlayerDataArr: ', docs.length);
-                // function getSection(playerDataArr, start = 0) {
-                //     var playerData;
-                //     var section = [];
-                //     var teamInfo:TeamInfo = new TeamInfo();
-                //     //low section
-                //     for (var i = start; i < start + 16; i++) {
-                //         playerData = playerDataArr[i];
-                //         if (teamInfo.length() == 4) {
-                //             section.push(teamInfo);
-                //             teamInfo = new TeamInfo();
-                //         }
-                //         teamInfo.push(new PlayerInfo(playerData));
-                //         console.log(playerData.name, 'elo score:', playerData.eloScore);
-                //     }
-                //     section.push(teamInfo);
-                //     return section;
-                // }
-                //
-                // var lowSection = getSection(docs, 0);
-                // var highSection = getSection(docs, 16);
-                // res.send(JSON.stringify({low: lowSection, high: highSection}));
                 res.send(docs);
             }
             else {
@@ -1252,16 +1235,6 @@ var TeamInfo = (function () {
     TeamInfo.prototype.clear = function () {
         this.score = 0;
     };
-    // winningPercent:number;
-    // score:number;
-    // name:string;
-    // playerArr:Array<PlayerInfo>;
-    // ret:Array<any>;
-    // constructor(winPercentage?:number, scoreAvg?:number) {
-    //     // this.winningPercent = winPercentage;
-    //     this.score = scoreAvg;
-    //     this.playerArr = [];
-    // }
     TeamInfo.prototype.setPlayerArr = function (playerArr) {
         this.playerInfoArr.length = 0;
         this.playerInfoArr = this.playerInfoArr.concat(playerArr);
@@ -1743,13 +1716,15 @@ var HttpServer = (function () {
         else {
             app.use(express.static(appExecPath));
         }
+        //request  size
+        // app.use(express.limit(100000000));
         var bodyParser = require('body-parser');
         // create application/x-www-form-urlencoded parser
         var urlencodedParser = bodyParser.urlencoded({
             extended: false,
             limit: '50mb'
         });
-        app.use(bodyParser.json());
+        app.use(bodyParser.json({ limit: '50mb' }));
         app.all("*", function (req, res, next) {
             res.header('Access-Control-Allow-Origin', '*');
             res.header("Access-Control-Allow-Headers", "Content-Type,Content-Length, Authorization, Accept,X-Requested-With");
@@ -1772,6 +1747,7 @@ var HttpServer = (function () {
         //game admin
         app.get('/admin/game/', GameInfoAdmin.index);
         app.post('/admin/game/genRound', urlencodedParser, GameInfoAdmin.genRound);
+        app.post('/admin/game/genPrintPng', urlencodedParser, GameInfoAdmin.genPrintPng);
         app.get('/panel/:id/:op', function (req, res) {
             var pid = req.params.id;
             var op = req.params.op;

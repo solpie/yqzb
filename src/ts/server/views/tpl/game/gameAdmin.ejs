@@ -134,13 +134,13 @@
         function addName(start, posY) {
             for (var i = start; i < start + 4; i++) {
                 var player = playerDataArr[i];
-                var label = new createjs.Text(player.name, "24px Arial", "#000");
-                label.x = 140;
-                label.y = posY + i * 60
+                var label = new createjs.Text(player.name, "40px Arial", "#000");
+                label.x = 220;
+                label.y = posY + i * 95
                 stage.addChild(label)
-                var style = new createjs.Text("/" + map[player.style], "20px Arial", "#000");
-                style.x = 370;
-                style.y = posY + i * 60
+                var style = new createjs.Text("/" + map[player.style], "38px Arial", "#000");
+                style.x = 570;
+                style.y = posY + i * 95
                 stage.addChild(style)
             }
         }
@@ -193,34 +193,35 @@
                     var player = playerArr[i];
                     playerDataArr.push(player);
                 }
-                genPrint(playerDataArr, 345, 375);
+                genPrint(playerDataArr, 515, 555);
 
                 console.log('onGameChanged', e.target.value, game);
             },
             onPrint: function () {
-                console.log('todo print!!!');
+                this.$http.post("/admin/game/genPrintPng", {base64: stage.toDataURL('rgba(0,0,0,0)', "image/png")}).then(function (res) {
+                    console.log('todo print!!!', res.data);
+                });
             },
             onGenGames: function (e) {
-                console.log('onGenGames', e.target, e.target.idx);
-                var btnId = e.target.id;
-                if (btnId == this.sectionArr[0].btnId) {
-                    //high  C2/4
-//                    var sectionArr1 = this.sectionArr;
-//                    var c24 =
-//                    this.highSectionC = this.combineTeam(this.sectionArr[0].teamArr, 2);
-                    var gameArr = this.combineTeam(this.sectionArr[0].teamArr, 2);
-                    gameArr.swap(1, 5);
-                    this.sectionArr[0].gameArr = gameArr;
-//                    this.sectionArr = sectionArr1;
-//                    vue.sectionArr.$set(0, {childMsg: 'Changed!'});
-                    console.log('gen high');
-
-                }
-                else {
-                    this.sectionArr[1].gameArr = this.combineTeam(this.sectionArr[1].teamArr, 2);
-                    console.log('gen low');
-
-                }
+//                console.log('onGenGames', e.target, e.target.idx);
+//                var btnId = e.target.id;
+//                if (btnId == this.sectionArr[0].btnId) {
+//                    //high  C2/4
+////                    var sectionArr1 = this.sectionArr;
+////                    var c24 =
+////                    this.highSectionC = this.combineTeam(this.sectionArr[0].teamArr, 2);
+//                    var gameArr = this.combineTeam(this.sectionArr[0].teamArr, 2);
+//                    gameArr.swap(1, 5);
+//                    this.sectionArr[0].gameArr = gameArr;
+////                    this.sectionArr = sectionArr1;
+////                    vue.sectionArr.$set(0, {childMsg: 'Changed!'});
+//                    console.log('gen high');
+//
+//                }
+//                else {
+//                    this.sectionArr[1].gameArr = this.combineTeam(this.sectionArr[1].teamArr, 2);
+//                    console.log('gen low');
+//                }
             },
             onGen: function () {
                 this.$http.post("/admin/game/genRound", {id: 1}).then(function (res) {
@@ -253,7 +254,18 @@
 //                    this.highSection = highSection;
                     this.sectionArr = [{idx: 0, name: '上半区：', teamArr: highSection, btnId: 'onGenHigh', gameArr: []},
                         {idx: 1, name: '下半区：', teamArr: lowSection, btnId: 'onGenLow', gameArr: []}]
+
+
+                    //gen combine
+                    var gameArr = this.combineTeam(this.sectionArr[0].teamArr, 2);
+                    gameArr.swap(1, 5);
+                    this.sectionArr[0].gameArr = gameArr;
+                    gameArr = this.combineTeam(this.sectionArr[1].teamArr, 2);
+                    gameArr.swap(1, 5);
+                    this.sectionArr[1].gameArr = gameArr;
                 });
+
+
             }
         }
     });
@@ -262,8 +274,9 @@
     PDFJS.getDocument('/img/gameSheet.pdf').then(function (pdf) {
         // Fetch the page.
         pdf.getPage(1).then(function (page) {
-            var scale = 1.33;
+            var scale;
             scale = 1.48;
+            scale = 2;
             var viewport = page.getViewport(scale);
             var canvas = document.getElementById('the-canvas');
             var context = canvas.getContext('2d');
