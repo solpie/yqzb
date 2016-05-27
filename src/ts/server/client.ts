@@ -5,6 +5,7 @@
 /// <reference path="../view/BaseView.ts"/>
 /// <reference path="../model/Command.ts"/>
 /// <reference path="../model/ElemID.ts"/>
+/// <reference path="models/TeamInfo.ts"/>
 var cmd:Command = new Command();
 // var appInfo = new AppInfo();
 // appInfo.isServer = false;
@@ -16,7 +17,7 @@ class Client {
     panel:BaseView;
     pid:number;
     isOB:boolean;
-
+    teamInfo:TeamInfo;
     constructor(pid, isOB, host, port) {
         this.pid = pid;
         this.initWsClient(pid, host, port);

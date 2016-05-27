@@ -6,58 +6,228 @@
     <link rel="stylesheet" type="text/css" href="/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="/style.css">
     <style>
-        a {
-            font-size: 60pt;
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            list-style: none;
+        }
+
+        ul:after {
+            display: block;
+            clear: both;
+            visibility: hidden;
+            height: 0;
+            overflow: hidden;
+            content: ".";
+        }
+
+        ul {
+            zoom: 1;
+        }
+
+        nav > ul > li {
+            float: left;
+            width: 80px;
+            height: 40px;
+            border: 1px solid #ccc;
+            text-align: center;
+            margin: 20px 5px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        nav > ul > li > ul {
+            position: absolute;
+            display: none;
+            top: 20px;
+            left: 0px;
+        }
+
+        nav > ul > li:hover > ul {
+            display: block;
+        }
+
+        nav > ul > li > ul > li {
+            width: 160px;
+            height: 30px;
+            border: 1px solid #ccc;
+            text-align: left;
+            position: relative;
+            margin-bottom: -1px;
+            margin-left: -1px;
+            cursor: pointer;
+        }
+
+        nav > ul li:hover {
+            background-color: #bbb;
         }
     </style>
 </head>
 <body>
 
 <div id="app">
-    <input id="btnGen" type="button" value="生成" @click="onGen">
-    <input type="button" value="打印" @click="onPrint">
-    <ul>
-        <li v-for="todo in todos">
-            {{ todo.text }}
+    <input id="btnGen" type="button" value="分区" @click="onGen">
+    <input type="button" value="打印game球员" @click="onPrint">
+    <div>
+        <li v-for="section in sectionArr">
+            {{section.name}}
+            <input id="{{section.btnId}}" type="button" value="组合比赛" @click="onGenGames">
+            <nav>
+                <ul>
+                    <li v-for="team in section.teamArr">
+                        {{ team.name }}
+                        <ul>
+                            <li v-for="playerInfo in team.playerInfoArr">
+                                <img src='{{playerInfo.avatar()}}' style="width: 40px">
+                                {{ playerInfo.name() }}:{{ playerInfo.eloScore() }}
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            <ul>
+                <!--<div v-if="!section.idx">-->
+                <!--high games-->
+                <!--<li v-for="game in highSectionC">-->
+                <!--{{game[0].name}} vs {{game[1].name}}-->
+                <!--</li>-->
+                <!--</div>-->
+                <!--<div v-if="section.idx">-->
+                <!--<li v-for="game in lowSectionC">-->
+                <!--{{game[0].name}} vs {{game[1].name}}-->
+                <!--</li>-->
+                <!--</div>-->
+                <li v-for="game in section.gameArr">
+                    {{game[0].name}} vs {{game[1].name}}
+                </li>
+            </ul>
+            <br>
+            <br>
+            <br>
+            <br>
         </li>
-    </ul>
+    </div>
 </div>
+<canvas id="the-canvas"></canvas>
 
 <script src="/js/jquery-2.1.4.min.js"></script>
 <script src="/js/vue.min.js"></script>
 <script src="/js/vue-resource.min.js"></script>
+<script src="/js/client.js"></script>
+<script src="/js/pdf.js"></script>
 <script>
+
+    Array.prototype.swap = function (x, y) {
+        var b = this[x];
+        this[x] = this[y];
+        this[y] = b;
+        return this;
+    }
     var vue = new Vue({
         el: '#app',
         data: {
+            lowSectionC: [],
+            highSectionC: [],
+            sectionArr: [],
             message: 'Hello Vue.js!'
         },
         methods: {
+            combineTeam: function (arr, num) {
+                var r = [];
+                (function f(t, a, n) {
+                    if (n == 0) {
+                        return r.push(t);
+                    }
+                    for (var i = 0, l = a.length; i <= l - n; i++) {
+                        f(t.concat(a[i]), a.slice(i + 1), n - 1);
+                    }
+                })([], arr, num);
+                return r;
+            },
             onPrint: function () {
                 console.log('todo print!!!');
             },
+            onGenGames: function (e) {
+                console.log('onGenGames', e.target, e.target.idx);
+                var btnId = e.target.id;
+                if (btnId == this.sectionArr[0].btnId) {
+                    //high  C2/4
+//                    var sectionArr1 = this.sectionArr;
+//                    var c24 =
+//                    this.highSectionC = this.combineTeam(this.sectionArr[0].teamArr, 2);
+                    var gameArr = this.combineTeam(this.sectionArr[0].teamArr, 2);
+                    gameArr.swap(1, 5);
+                    this.sectionArr[0].gameArr = gameArr;
+//                    this.sectionArr = sectionArr1;
+//                    vue.sectionArr.$set(0, {childMsg: 'Changed!'});
+                    console.log('gen high');
+
+                }
+                else {
+                    this.sectionArr[1].gameArr = this.combineTeam(this.sectionArr[1].teamArr, 2);
+                    console.log('gen low');
+
+                }
+            },
             onGen: function () {
-                this.$http.post("/admin/game/genRound", {id:1}).then(function (res) {
-                    var param = res.data;
-                    console.log(res);
-                    var lowSection = param.low;
-                    var highSection = param.high;
-                    var $section = $('#section');
-                    $section.html("");
-                    for (var i = 0; i < highSection.length; i++) {
-                        var highPlayerData = highSection[i];
-                        $section.append('<label>')
-                        console.log("high player", highPlayerData);
+                this.$http.post("/admin/game/genRound", {id: 1}).then(function (res) {
+                    var playerDataArr = res.data;
+//                    console.log(res);
+                    function getSection(playerDataArr, start) {
+                        var playerData;
+                        var section = [];
+                        var teamInfo = new TeamInfo();
+                        teamInfo.name = "team" + (section.length + 1);
+
+                        //low section
+                        for (var i = start; i < start + 16; i++) {
+                            playerData = playerDataArr[i];
+                            if (teamInfo.length() == 4) {
+                                section.push(teamInfo);
+                                teamInfo = new TeamInfo();
+                                teamInfo.name = "team" + (section.length + 1);
+                            }
+                            teamInfo.push(new PlayerInfo(playerData));
+//                            console.log(playerData.name, 'elo score:', playerData.eloScore);
+                        }
+                        section.push(teamInfo);
+                        return section;
                     }
-                    for (var i = 0; i < lowSection.length; i++) {
-                        var lowPlayerData = lowSection[i];
-                        console.log("low player", lowPlayerData);
-                    }
-//            console.log(res);
+
+                    var lowSection = getSection(playerDataArr, 0);
+                    var highSection = getSection(playerDataArr, 16);
+//                    this.lowSection = lowSection;
+//                    this.highSection = highSection;
+                    this.sectionArr = [{idx: 0, name: '上半区：', teamArr: highSection, btnId: 'onGenHigh', gameArr: []},
+                        {idx: 1, name: '下半区：', teamArr: lowSection, btnId: 'onGenLow', gameArr: []}]
                 });
             }
         }
-    })
+    });
+
+    PDFJS.getDocument('/img/demo.pdf').then(function (pdf) {
+        // Fetch the page.
+        pdf.getPage(1).then(function (page) {
+            var scale = 1.5;
+            var viewport = page.getViewport(scale);
+
+            // Prepare canvas using PDF page dimensions.
+            var canvas = document.getElementById('the-canvas');
+            var context = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            // Render PDF page into canvas context.
+            var renderContext = {
+                canvasContext: context,
+                viewport: viewport
+            };
+            page.render(renderContext);
+        });
+    });
 </script>
 </body>
 </html>

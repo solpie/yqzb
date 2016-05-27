@@ -646,6 +646,120 @@ var PlayerPanelView = (function (_super) {
     };
     return PlayerPanelView;
 }(BaseView));
+var EloConf = {
+    score: 2000,
+    K: 32
+};
+/// <reference path="./PlayerInfo.ts"/>
+/// <reference path="./EloInfo.ts"/>
+var TeamInfo = (function () {
+    function TeamInfo() {
+        this.playerInfoArr = [];
+    }
+    TeamInfo.prototype.setPlayer = function (player, pos) {
+        // if (pos) {
+        //     this.playerArr.splice(player,0,pos)
+        // }
+        // else {
+        //     this.playerArr.push(player);
+        // }
+    };
+    TeamInfo.prototype.length = function () {
+        return this.playerInfoArr.length;
+    };
+    TeamInfo.prototype.push = function (playerInfo) {
+        this.playerInfoArr.push(playerInfo);
+    };
+    TeamInfo.prototype.setScore = function (score) {
+        this.score = score;
+    };
+    TeamInfo.prototype.setName = function (name) {
+        this.name = name;
+    };
+    TeamInfo.prototype.clear = function () {
+        this.score = 0;
+    };
+    // winningPercent:number;
+    // score:number;
+    // name:string;
+    // playerArr:Array<PlayerInfo>;
+    // ret:Array<any>;
+    // constructor(winPercentage?:number, scoreAvg?:number) {
+    //     // this.winningPercent = winPercentage;
+    //     this.score = scoreAvg;
+    //     this.playerArr = [];
+    // }
+    TeamInfo.prototype.setPlayerArr = function (playerArr) {
+        this.playerInfoArr.length = 0;
+        this.playerInfoArr = this.playerInfoArr.concat(playerArr);
+        this.score = 0;
+        for (var i = 0; i < this.playerInfoArr.length; i++) {
+            var player = this.playerInfoArr[i];
+            this.score += player.eloScore();
+        }
+        this.score /= this.playerInfoArr.length;
+        console.log(this, "player score:", this.score);
+    };
+    TeamInfo.prototype.beat = function (loserTeam) {
+        var Elo1 = this.score;
+        var Elo2 = loserTeam.score;
+        var K = EloConf.K;
+        var EloDifference = Elo2 - Elo1;
+        var percentage = 1 / (1 + Math.pow(10, EloDifference / 400));
+        var win = Math.round(K * (1 - percentage));
+        //this.score += win;
+        this.saveScore(win, true);
+        loserTeam.saveScore(-win, false);
+        //loserTeam.score -= win;
+        // this.getWinningPercent() = Math.round(percentage * 100);
+    };
+    //交换两队中的随机两人
+    TeamInfo.prototype.mix2 = function (teamInfo) {
+        var tmp;
+        tmp = this.playerInfoArr[1];
+        this.playerInfoArr[1] = teamInfo.playerInfoArr[3];
+        teamInfo.playerInfoArr[3] = tmp;
+        tmp = this.playerInfoArr[3];
+        this.playerInfoArr[3] = teamInfo.playerInfoArr[2];
+        teamInfo.playerInfoArr[2] = tmp;
+    };
+    TeamInfo.prototype.getPercentage = function () {
+        //var Elo1 = this.score;
+        //
+        //var Elo2 = loserTeam.score;
+        //
+        //var K = EloConf.K;
+        //
+        //var EloDifference = Elo2 - Elo1;
+        //
+        //var percentage = 1 / ( 1 + Math.pow(10, EloDifference / 400) );
+    };
+    TeamInfo.prototype.saveScore = function (score, isWin) {
+        this.score += score;
+        for (var i = 0; i < this.playerInfoArr.length; i++) {
+            var player = this.playerInfoArr[i];
+            player.saveScore(score, isWin);
+        }
+    };
+    TeamInfo.prototype.getNewPlayerDataArr = function () {
+        var a = [];
+        for (var i = 0; i < this.playerInfoArr.length; i++) {
+            var playerInfo = this.playerInfoArr[i];
+            a.push(playerInfo.getPlayerData());
+        }
+        return a;
+    };
+    TeamInfo.prototype.getWinningPercent = function () {
+        var wp;
+        for (var i = 0; i < this.playerInfoArr.length; i++) {
+            var player = this.playerInfoArr[i];
+            wp += player.getCurWinningPercent();
+        }
+        wp /= this.playerInfoArr.length;
+        return wp;
+    };
+    return TeamInfo;
+}());
 /// <reference path="../lib.ts"/>
 /// <reference path="Config.ts"/>
 /// <reference path="views/StagePanelView.ts"/>
@@ -653,6 +767,7 @@ var PlayerPanelView = (function (_super) {
 /// <reference path="../view/BaseView.ts"/>
 /// <reference path="../model/Command.ts"/>
 /// <reference path="../model/ElemID.ts"/>
+/// <reference path="models/TeamInfo.ts"/>
 var cmd = new Command();
 var Client = (function () {
     function Client(pid, isOB, host, port) {
