@@ -31,3 +31,4 @@
 {"id":10024,"name":"路人4","phone":13654872698,"eloScore":1423,"style":2,"avatar":"/img/player/10024.png","height":170,"weight":70,"dtScore":0,"winpercent":0,"activityId":1,"gameCount":0,"loseGameCount":0,"winGameCount":0,"_id":"xeCaJeAdS86lDVLZ"}
 {"id":10036,"phone":13654872698,"weight":70,"height":170,"eloScore":2000,"style":1,"name":"ccc","activityId":1,"avatar":"/img/player/10036.png","_id":"xiwZgVfbEYcOzRB4"}
 {"id":10026,"name":"路人6","phone":13654872698,"eloScore":1953,"style":4,"avatar":"/img/player/10026.png","height":170,"weight":70,"dtScore":0,"winpercent":0,"activityId":1,"gameCount":0,"loseGameCount":0,"winGameCount":0,"_id":"y3CyvsvRa9SCG0uC"}
+{"id":10030,"phone":13654872698,"weight":70,"height":170,"eloScore":2000,"style":2,"name":"8c","activityId":1,"_id":"uvFyt9sRTkRhRAhc","avatar":"/img/player/10030.png"}

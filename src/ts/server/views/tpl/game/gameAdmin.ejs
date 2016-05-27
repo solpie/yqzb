@@ -70,7 +70,7 @@
 
 <div id="app">
     <input id="btnGen" type="button" value="分区" @click="onGen">
-    <input type="button" value="打印game球员" @click="onPrint">
+    <input id="btnGen" type="button" value="确定生成赛程" @click="onGen">
     <div>
         <li v-for="section in sectionArr">
             {{section.name}}
@@ -89,19 +89,9 @@
                 </ul>
             </nav>
             <ul>
-                <!--<div v-if="!section.idx">-->
-                <!--high games-->
-                <!--<li v-for="game in highSectionC">-->
-                <!--{{game[0].name}} vs {{game[1].name}}-->
-                <!--</li>-->
-                <!--</div>-->
-                <!--<div v-if="section.idx">-->
-                <!--<li v-for="game in lowSectionC">-->
-                <!--{{game[0].name}} vs {{game[1].name}}-->
-                <!--</li>-->
-                <!--</div>-->
                 <li v-for="game in section.gameArr">
                     {{game[0].name}} vs {{game[1].name}}
+                    <input type="radio" name="game" value="{{$index}}" v-model="gameId" @click="onGameChanged">
                 </li>
             </ul>
             <br>
@@ -110,16 +100,55 @@
             <br>
         </li>
     </div>
+    <input type="button" value="打印game球员" @click="onPrint">
 </div>
 <canvas id="the-canvas"></canvas>
+<canvas id="stage1"></canvas>
 
 <script src="/js/jquery-2.1.4.min.js"></script>
+<script src="/js/createjs/createjs.min.js"></script>
+<script src="/js/createjs/easeljs.min.js"></script>
+<script src="/js/createjs/tweenjs.min.js"></script>
 <script src="/js/vue.min.js"></script>
 <script src="/js/vue-resource.min.js"></script>
 <script src="/js/client.js"></script>
 <script src="/js/pdf.js"></script>
 <script>
+    var pdfData64;
+    var stage;
+    function genPrint(playerDataArr, py, py2) {
+        if (!stage) {
+            var canvas = document.getElementById('the-canvas');
+            stage = new createjs.Stage(canvas);
+            pdfData64 = stage.toDataURL('rgba(0,0,0,0)', "image/png")
+        }
+        console.log("genPrint");
+        stage.removeAllChildren();
+        var sheet = new createjs.Bitmap(pdfData64);
+        stage.addChild(sheet);
+        var map = {}
+        map[1] = "风"
+        map[2] = "林"
+        map[3] = "火"
+        map[4] = "山"
+        function addName(start, posY) {
+            for (var i = start; i < start + 4; i++) {
+                var player = playerDataArr[i];
+                var label = new createjs.Text(player.name, "24px Arial", "#000");
+                label.x = 140;
+                label.y = posY + i * 60
+                stage.addChild(label)
+                var style = new createjs.Text("/" + map[player.style], "20px Arial", "#000");
+                style.x = 370;
+                style.y = posY + i * 60
+                stage.addChild(style)
+            }
+        }
 
+        addName(0, py)
+        addName(4, py2)
+        stage.update();
+    }
     Array.prototype.swap = function (x, y) {
         var b = this[x];
         this[x] = this[y];
@@ -132,7 +161,7 @@
             lowSectionC: [],
             highSectionC: [],
             sectionArr: [],
-            message: 'Hello Vue.js!'
+            gameId: 0
         },
         methods: {
             combineTeam: function (arr, num) {
@@ -146,6 +175,27 @@
                     }
                 })([], arr, num);
                 return r;
+            },
+            onGameChanged: function (e) {
+                var gameId = e.target.value;
+                var game = this.sectionArr[0].gameArr[gameId]
+
+                var team1 = game[0]
+                var playerArr = team1.getNewPlayerDataArr()
+                var playerDataArr = [];
+                for (var i = 0; i < playerArr.length; i++) {
+                    var player = playerArr[i];
+                    playerDataArr.push(player);
+                }
+
+                playerArr = game[1].getNewPlayerDataArr()
+                for (var i = 0; i < playerArr.length; i++) {
+                    var player = playerArr[i];
+                    playerDataArr.push(player);
+                }
+                genPrint(playerDataArr, 345, 375);
+
+                console.log('onGameChanged', e.target.value, game);
             },
             onPrint: function () {
                 console.log('todo print!!!');
@@ -208,25 +258,27 @@
         }
     });
 
-    PDFJS.getDocument('/img/demo.pdf').then(function (pdf) {
+
+    PDFJS.getDocument('/img/gameSheet.pdf').then(function (pdf) {
         // Fetch the page.
         pdf.getPage(1).then(function (page) {
-            var scale = 1.5;
+            var scale = 1.33;
+            scale = 1.48;
             var viewport = page.getViewport(scale);
-
-            // Prepare canvas using PDF page dimensions.
             var canvas = document.getElementById('the-canvas');
             var context = canvas.getContext('2d');
-            canvas.height = viewport.height;
+            //A4 794×1123
             canvas.width = viewport.width;
-
+            canvas.height = viewport.height;
             // Render PDF page into canvas context.
             var renderContext = {
                 canvasContext: context,
                 viewport: viewport
             };
+            //render take some sec
             page.render(renderContext);
         });
+
     });
 </script>
 </body>
