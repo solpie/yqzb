@@ -1,7 +1,8 @@
 class GameInfoAdmin {
     static index(req, res) {
-        var data = {gameDataArr: []};
-        res.render('game/gameAdmin', data);
+        var actId = req.params.id;
+        var data = {activityId: actId};
+        res.render('activity/activityAdmin', data);
     }
 
     static genPrintPng(req, res) {
@@ -10,10 +11,15 @@ class GameInfoAdmin {
         })
     }
 
-    static genRound(req, res) {
+    static genActivity(req, res) {
+        if (!req.body) return res.sendStatus(400);
+        console.log('gen activity ', JSON.stringify(res.body.sectionArr));
+        db.activity.addActivity(res.body.sectionArr);
+    }
+
+    static getActivityPlayerArr(req, res) {
         if (!req.body) return res.sendStatus(400);
         var actId = parseInt(req.body.id);
-
         dbPlayerInfo().getActivityPlayerDataArr(actId, function (err, docs) {
             if (!err) {
                 res.send(docs);

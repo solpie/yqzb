@@ -58,6 +58,11 @@ class BaseDB {
 
 class ActivityDB extends BaseDB {
     addActivity(data) {
+        this.dataStore.insert({id: this.config.idUsed, sectionArr: data}, function (err, newDoc) {
+            if (!err) {
+                this.saveIdUsed();
+            }
+        })
     }
 }
 class GameDB extends BaseDB {
@@ -72,7 +77,7 @@ function initDB() {
     db = {};
     db.player = new Datastore({filename: playerDb, autoload: true});
     db.activity = new ActivityDB({filename: activityDb, autoload: true});
-    // db.game = new GameDB({filename: gameDbPath, autoload: true});
+    db.game = new GameDB({filename: gameDbPath, autoload: true});
 
     db.player.find({id: 0}, function (err, doc) {
         db.player.config = doc[0];

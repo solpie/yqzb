@@ -11,6 +11,10 @@
             margin: 0;
         }
 
+        .Section {
+            border: 1px solid #ccc;
+        }
+
         li {
             list-style: none;
         }
@@ -70,42 +74,43 @@
 
 <div id="app" style="width: 800px">
     <input id="btnGen" type="button" value="分区" @click="onGen">
-    <input id="btnGen" type="button" value="确定生成赛程" @click="onGen">
+    <input id="btnGen" type="button" value="确定生成赛程" @click="onGenActivity">
     <div>
         <li v-for="section in sectionArr">
-            {{section.name}}
-            <input id="{{section.btnId}}" type="button" value="组合比赛" @click="onGenGames">
-            <nav>
+            <div class="Section">
+                {{section.name}}
+                <nav>
+                    <ul>
+                        <li v-for="team in section.teamArr">
+                            {{ team.name }}
+                            <ul>
+                                <li v-for="playerInfo in team.playerInfoArr">
+                                    <img src='{{playerInfo.avatar()}}' style="width: 40px">
+                                    {{ playerInfo.name() }}:{{ playerInfo.eloScore() }}
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </nav>
                 <ul>
-                    <li v-for="team in section.teamArr">
-                        {{ team.name }}
-                        <ul>
-                            <li v-for="playerInfo in team.playerInfoArr">
-                                <img src='{{playerInfo.avatar()}}' style="width: 40px">
-                                {{ playerInfo.name() }}:{{ playerInfo.eloScore() }}
-                            </li>
-                        </ul>
+                    <li v-for="game in section.gameArr">
+                        <div v-if="section.idx">
+                            {{game[0].name}} vs {{game[1].name}}
+                            <input type="radio" name="game{{section.idx}}" value="{{$index+10*section.idx}}"
+                                   v-model="gameIdHigh" @click="onGameChanged">
+                        </div>
+                        <div v-else="section.idx">
+                            {{game[0].name}} vs {{game[1].name}}
+                            <input type="radio" name="game{{section.idx}}" value="{{$index+10*section.idx}}"
+                                   v-model="gameIdLow" @click="onGameChanged">
+                        </div>
                     </li>
                 </ul>
-            </nav>
-            <ul>
-                <li v-for="game in section.gameArr">
-                    <div v-if="section.idx">
-                        {{game[0].name}} vs {{game[1].name}}
-                        <input type="radio" name="game{{section.idx}}" value="{{$index+10*section.idx}}"
-                               v-model="gameIdHigh" @click="onGameChanged">
-                    </div>
-                    <div v-else="section.idx">
-                        {{game[0].name}} vs {{game[1].name}}
-                        <input type="radio" name="game{{section.idx}}" value="{{$index+10*section.idx}}"
-                               v-model="gameIdLow" @click="onGameChanged">
-                    </div>
-                </li>
-            </ul>
-            <br>
-            <br>
-            <br>
-            <br>
+                <br>
+                <br>
+                <br>
+                <br>
+            </div>
         </li>
     </div>
     <input type="button" value="打印game球员" @click="onPrint">
@@ -123,6 +128,7 @@
 <script src="/js/client.js"></script>
 <script src="/js/pdf.js"></script>
 <script>
+    var activityId = parseInt('<%= activityId %>');
     var pdfData64;
     var stage;
     function genPrint(playerDataArr, py, py2) {
@@ -186,6 +192,20 @@
                 })([], arr, num);
                 return r;
             },
+
+            onGenActivity: function (e) {
+                if (this.sectionArr && this.sectionArr.length) {
+                    var activityData = {activityId: activityId, date: ""};
+                    activityData.gameDataArr = []//[{gameId,[playerId]}]
+                    this.$http.post("/admin/game/genActivity", activityData).then(function (res) {
+                        console.log('onGenActivity', res.data);
+                    });
+                }
+                else {
+                    alert('没有设置赛程！！！');
+                }
+                console.log('onGenActivity', JSON.stringify(this.sectionArr));
+            },
             onGameChanged: function (e) {
                 console.log(e, e.target);
                 var gameId = e.target.value;
@@ -211,7 +231,6 @@
                     playerDataArr.push(player);
                 }
                 genPrint(playerDataArr, 515, 555);
-
                 console.log('onGameChanged', e.target.value, game);
             },
             onPrint: function () {
@@ -220,28 +239,9 @@
                 });
             },
             onGenGames: function (e) {
-//                console.log('onGenGames', e.target, e.target.idx);
-//                var btnId = e.target.id;
-//                if (btnId == this.sectionArr[0].btnId) {
-//                    //high  C2/4
-////                    var sectionArr1 = this.sectionArr;
-////                    var c24 =
-////                    this.highSectionC = this.combineTeam(this.sectionArr[0].teamArr, 2);
-//                    var gameArr = this.combineTeam(this.sectionArr[0].teamArr, 2);
-//                    gameArr.swap(1, 5);
-//                    this.sectionArr[0].gameArr = gameArr;
-////                    this.sectionArr = sectionArr1;
-////                    vue.sectionArr.$set(0, {childMsg: 'Changed!'});
-//                    console.log('gen high');
-//
-//                }
-//                else {
-//                    this.sectionArr[1].gameArr = this.combineTeam(this.sectionArr[1].teamArr, 2);
-//                    console.log('gen low');
-//                }
             },
             onGen: function () {
-                this.$http.post("/admin/game/genRound", {id: 1}).then(function (res) {
+                this.$http.post("/admin/activity/getActPlayer", {id: activityId}).then(function (res) {
                     var playerDataArr = res.data;
 //                    console.log(res);
                     function getSection(playerDataArr, start) {
@@ -267,11 +267,8 @@
 
                     var lowSection = getSection(playerDataArr, 0);
                     var highSection = getSection(playerDataArr, 16);
-//                    this.lowSection = lowSection;
-//                    this.highSection = highSection;
                     this.sectionArr = [{idx: 0, name: '上半区：', teamArr: highSection, btnId: 'onGenHigh', gameArr: []},
                         {idx: 1, name: '下半区：', teamArr: lowSection, btnId: 'onGenLow', gameArr: []}]
-
 
                     //gen combine
                     var gameArr = this.combineTeam(this.sectionArr[0].teamArr, 2);
@@ -281,8 +278,6 @@
                     gameArr.swap(1, 5);
                     this.sectionArr[1].gameArr = gameArr;
                 });
-
-
             }
         }
     });

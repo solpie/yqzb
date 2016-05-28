@@ -1133,15 +1133,22 @@ var GameInfoAdmin = (function () {
     function GameInfoAdmin() {
     }
     GameInfoAdmin.index = function (req, res) {
-        var data = { gameDataArr: [] };
-        res.render('game/gameAdmin', data);
+        var actId = req.params.id;
+        var data = { activityId: actId };
+        res.render('activity/activityAdmin', data);
     };
     GameInfoAdmin.genPrintPng = function (req, res) {
         base64ToPng('img/cache/game.png', req.body.base64, function () {
             res.send('/img/cache/game.png');
         });
     };
-    GameInfoAdmin.genRound = function (req, res) {
+    GameInfoAdmin.genActivity = function (req, res) {
+        if (!req.body)
+            return res.sendStatus(400);
+        console.log('gen activity ', JSON.stringify(res.body.sectionArr));
+        db.activity.addActivity(res.body.sectionArr);
+    };
+    GameInfoAdmin.getActivityPlayerArr = function (req, res) {
         if (!req.body)
             return res.sendStatus(400);
         var actId = parseInt(req.body.id);
@@ -1212,6 +1219,11 @@ var ActivityDB = (function (_super) {
         _super.apply(this, arguments);
     }
     ActivityDB.prototype.addActivity = function (data) {
+        this.dataStore.insert({ id: this.config.idUsed, sectionArr: data }, function (err, newDoc) {
+            if (!err) {
+                this.saveIdUsed();
+            }
+        });
     };
     return ActivityDB;
 }(BaseDB));
@@ -1230,7 +1242,7 @@ function initDB() {
     db = {};
     db.player = new Datastore({ filename: playerDb, autoload: true });
     db.activity = new ActivityDB({ filename: activityDb, autoload: true });
-    // db.game = new GameDB({filename: gameDbPath, autoload: true});
+    db.game = new GameDB({ filename: gameDbPath, autoload: true });
     db.player.find({ id: 0 }, function (err, doc) {
         db.player.config = doc[0];
     });
@@ -1783,10 +1795,12 @@ var HttpServer = (function () {
         app.post('/admin/player/new', urlencodedParser, PlayerAdmin.newPlayer);
         app.post('/admin/player/update', urlencodedParser, PlayerAdmin.updatePlayerData);
         app.post('/admin/player/delete', urlencodedParser, PlayerAdmin.deletePlayerData);
-        //game admin
-        app.get('/admin/game/', GameInfoAdmin.index);
-        app.post('/admin/game/genRound', urlencodedParser, GameInfoAdmin.genRound);
+        //activity admin
+        // app.get('/admin/game/', GameInfoAdmin.index);
+        app.get('/admin/activity/:id', GameInfoAdmin.index);
+        app.post('/admin/activity/getActPlayer', urlencodedParser, GameInfoAdmin.getActivityPlayerArr);
         app.post('/admin/game/genPrintPng', urlencodedParser, GameInfoAdmin.genPrintPng);
+        app.post('/admin/game/genActivity', urlencodedParser, GameInfoAdmin.genActivity);
         app.get('/panel/:id/:op', function (req, res) {
             var pid = req.params.id;
             var op = req.params.op;

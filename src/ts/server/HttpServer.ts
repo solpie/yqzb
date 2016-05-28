@@ -17,7 +17,7 @@ class HttpServer {
     activityInfo:ActivityInfo;
 
     getIPAddress() {
-        var interfaces = require('os').networkInterfaces({ all: true });
+        var interfaces = require('os').networkInterfaces({all: true});
         for (var devName in interfaces) {
             // console.log("interfaces:", devName);
             var iface = interfaces[devName];
@@ -83,7 +83,7 @@ class HttpServer {
         app.all("*", function (req, res, next) {
             res.header('Access-Control-Allow-Origin', '*');
             res.header("Access-Control-Allow-Headers", "Content-Type,Content-Length, Authorization, Accept,X-Requested-With");
-            res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
+            res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
             if (req.method == 'OPTIONS') {
                 res.send(200);
             } else {
@@ -102,10 +102,12 @@ class HttpServer {
         app.post('/admin/player/update', urlencodedParser, PlayerAdmin.updatePlayerData);
         app.post('/admin/player/delete', urlencodedParser, PlayerAdmin.deletePlayerData);
 
-        //game admin
-        app.get('/admin/game/', GameInfoAdmin.index);
-        app.post('/admin/game/genRound', urlencodedParser, GameInfoAdmin.genRound);
+        //activity admin
+        // app.get('/admin/game/', GameInfoAdmin.index);
+        app.get('/admin/activity/:id', GameInfoAdmin.index);
+        app.post('/admin/activity/getActPlayer', urlencodedParser, GameInfoAdmin.getActivityPlayerArr);
         app.post('/admin/game/genPrintPng', urlencodedParser, GameInfoAdmin.genPrintPng);
+        app.post('/admin/game/genActivity', urlencodedParser, GameInfoAdmin.genActivity);
 
 
         app.get('/panel/:id/:op', function (req, res) {
