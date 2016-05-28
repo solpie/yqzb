@@ -58,7 +58,8 @@ class BaseDB {
 
 class ActivityDB extends BaseDB {
     addActivity(data) {
-        this.dataStore.insert({id: this.config.idUsed, sectionArr: data}, function (err, newDoc) {
+        data.date = this.config.idUsed;
+        this.dataStore.insert(data, (err, newDoc) => {
             if (!err) {
                 this.saveIdUsed();
             }

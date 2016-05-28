@@ -197,7 +197,25 @@
                 if (this.sectionArr && this.sectionArr.length) {
                     var activityData = {activityId: activityId, date: ""};
                     activityData.gameDataArr = []//[{gameId,[playerId]}]
-                    this.$http.post("/admin/game/genActivity", activityData).then(function (res) {
+                    for (var idx = 0; idx < this.sectionArr.length; idx++) {
+                        var section = this.sectionArr[idx];
+                        var gameData = {id: 0, playerIdArr: []}
+                        for (var i = 0; i < section.gameArr.length; i++) {
+                            var teamInfoArr = section.gameArr[i];
+                            for (var j = 0; j < teamInfoArr.length; j++) {
+                                var teamInfo = teamInfoArr[j];
+                                for (var k = 0; k < teamInfo.playerInfoArr.length; k++) {
+                                    var playerInfo = teamInfo.playerInfoArr[k];
+                                    console.log("playerInfo", JSON.stringify(playerInfo));
+                                    gameData.playerIdArr.push(playerInfo.id());
+                                }
+                            }
+                        }
+                        activityData.gameDataArr.push(gameData);
+                    }
+                    console.log('onGenActivity data', activityData);
+
+                    this.$http.post("/admin/game/genActivity", {activityData: activityData}).then(function (res) {
                         console.log('onGenActivity', res.data);
                     });
                 }

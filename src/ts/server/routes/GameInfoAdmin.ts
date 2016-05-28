@@ -13,8 +13,8 @@ class GameInfoAdmin {
 
     static genActivity(req, res) {
         if (!req.body) return res.sendStatus(400);
-        console.log('gen activity ', JSON.stringify(res.body.sectionArr));
-        db.activity.addActivity(res.body.sectionArr);
+        console.log('gen activity ', JSON.stringify(req.body.activityData));
+        db.activity.addActivity(req.body.activityData);
     }
 
     static getActivityPlayerArr(req, res) {

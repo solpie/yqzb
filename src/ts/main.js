@@ -1145,8 +1145,8 @@ var GameInfoAdmin = (function () {
     GameInfoAdmin.genActivity = function (req, res) {
         if (!req.body)
             return res.sendStatus(400);
-        console.log('gen activity ', JSON.stringify(res.body.sectionArr));
-        db.activity.addActivity(res.body.sectionArr);
+        console.log('gen activity ', JSON.stringify(req.body.activityData));
+        db.activity.addActivity(req.body.activityData);
     };
     GameInfoAdmin.getActivityPlayerArr = function (req, res) {
         if (!req.body)
@@ -1219,9 +1219,11 @@ var ActivityDB = (function (_super) {
         _super.apply(this, arguments);
     }
     ActivityDB.prototype.addActivity = function (data) {
-        this.dataStore.insert({ id: this.config.idUsed, sectionArr: data }, function (err, newDoc) {
+        var _this = this;
+        data.date = this.config.idUsed;
+        this.dataStore.insert(data, function (err, newDoc) {
             if (!err) {
-                this.saveIdUsed();
+                _this.saveIdUsed();
             }
         });
     };
