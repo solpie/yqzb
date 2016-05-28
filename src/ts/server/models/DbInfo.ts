@@ -21,15 +21,11 @@ var Datastore = require('nedb');
 
 class BaseDB {
     dataStore:any;
-    // onload:any;
     config:any;
     dbPath:string;
 
     constructor(option) {
         this.dbPath = option.filename;
-        // this.onload = option.onload;
-        // option.onload = this.init;
-
         this.dataStore = new Datastore(option);
         this.dataStore.find({id: 0}, (err, docs) => {
             console.log('find config', this.dbPath);
@@ -44,10 +40,19 @@ class BaseDB {
 
     init() {
         this.dataStore.insert({id: 0, idUsed: 1}, (err, newDoc) => {
-            console.log('onload inti db config', this.dbPath);
+            console.log('onload inti db config');
             console.log(this, JSON.stringify(newDoc));
             this.config = newDoc;
         });
+    }
+
+    saveIdUsed() {
+        this.config.idUsed++;
+        this.dataStore.update({id: 0}, {$set: this.config});
+    };
+
+    getActivityPlayerDataArr() {
+
     }
 }
 
@@ -84,11 +89,6 @@ function initDB() {
             callback(err, docs);
         });
     };
-    // db.player.getActivityPlayerDataArr(1, function (err, docs) {
-    //     console.log("actPlayer:", JSON.stringify(docs));
-    // });
-    // var playerDb:string = M_path.join(appPath, 'db/player.db');
-    // var activityDb:string = M_path.join(appPath, 'db/activity.db');
     console.log(process.cwd());
     // Get path of project binary:
     console.log(M_path.dirname(process.execPath));

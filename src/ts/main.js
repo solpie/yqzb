@@ -1178,8 +1178,6 @@ var BaseDB = (function () {
     function BaseDB(option) {
         var _this = this;
         this.dbPath = option.filename;
-        // this.onload = option.onload;
-        // option.onload = this.init;
         this.dataStore = new Datastore(option);
         this.dataStore.find({ id: 0 }, function (err, docs) {
             console.log('find config', _this.dbPath);
@@ -1194,16 +1192,17 @@ var BaseDB = (function () {
     BaseDB.prototype.init = function () {
         var _this = this;
         this.dataStore.insert({ id: 0, idUsed: 1 }, function (err, newDoc) {
-            console.log('onload inti db config', _this.dbPath);
+            console.log('onload inti db config');
             console.log(_this, JSON.stringify(newDoc));
             _this.config = newDoc;
         });
-        // this.dataStore.find({id: 0}, (err, docs) => {
-        //     if (!err)
-        //         this.config = docs[0]
-        // });
-        // if (this.onload)
-        //     this.onload();
+    };
+    BaseDB.prototype.saveIdUsed = function () {
+        this.config.idUsed++;
+        this.dataStore.update({ id: 0 }, { $set: this.config });
+    };
+    ;
+    BaseDB.prototype.getActivityPlayerDataArr = function () {
     };
     return BaseDB;
 }());
@@ -1247,11 +1246,6 @@ function initDB() {
             callback(err, docs);
         });
     };
-    // db.player.getActivityPlayerDataArr(1, function (err, docs) {
-    //     console.log("actPlayer:", JSON.stringify(docs));
-    // });
-    // var playerDb:string = M_path.join(appPath, 'db/player.db');
-    // var activityDb:string = M_path.join(appPath, 'db/activity.db');
     console.log(process.cwd());
     // Get path of project binary:
     console.log(M_path.dirname(process.execPath));

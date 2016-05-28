@@ -66,9 +66,9 @@
         }
     </style>
 </head>
-<body>
+<body style="display:inline;">
 
-<div id="app">
+<div id="app" style="width: 800px">
     <input id="btnGen" type="button" value="分区" @click="onGen">
     <input id="btnGen" type="button" value="确定生成赛程" @click="onGen">
     <div>
@@ -90,8 +90,16 @@
             </nav>
             <ul>
                 <li v-for="game in section.gameArr">
-                    {{game[0].name}} vs {{game[1].name}}
-                    <input type="radio" name="game" value="{{$index}}" v-model="gameId" @click="onGameChanged">
+                    <div v-if="section.idx">
+                        {{game[0].name}} vs {{game[1].name}}
+                        <input type="radio" name="game{{section.idx}}" value="{{$index+10*section.idx}}"
+                               v-model="gameIdHigh" @click="onGameChanged">
+                    </div>
+                    <div v-else="section.idx">
+                        {{game[0].name}} vs {{game[1].name}}
+                        <input type="radio" name="game{{section.idx}}" value="{{$index+10*section.idx}}"
+                               v-model="gameIdLow" @click="onGameChanged">
+                    </div>
                 </li>
             </ul>
             <br>
@@ -102,8 +110,9 @@
     </div>
     <input type="button" value="打印game球员" @click="onPrint">
 </div>
-<canvas id="the-canvas"></canvas>
-<canvas id="stage1"></canvas>
+<div style="position: absolute;left: 450px;top: 0">
+    <canvas id="the-canvas"></canvas>
+</div>
 
 <script src="/js/jquery-2.1.4.min.js"></script>
 <script src="/js/createjs/createjs.min.js"></script>
@@ -161,7 +170,8 @@
             lowSectionC: [],
             highSectionC: [],
             sectionArr: [],
-            gameId: 0
+            gameIdHigh: 0,
+            gameIdLow: 0
         },
         methods: {
             combineTeam: function (arr, num) {
@@ -177,8 +187,15 @@
                 return r;
             },
             onGameChanged: function (e) {
+                console.log(e, e.target);
                 var gameId = e.target.value;
-                var game = this.sectionArr[0].gameArr[gameId]
+                var sectionIdx = 0;
+                if (gameId > 9)//low section
+                {
+                    sectionIdx = 1;
+                    gameId -= 10;
+                }
+                var game = this.sectionArr[sectionIdx].gameArr[gameId]
 
                 var team1 = game[0]
                 var playerArr = team1.getNewPlayerDataArr()
