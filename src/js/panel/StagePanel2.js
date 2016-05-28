@@ -5,12 +5,14 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 /// <reference path="../clientDef.ts"/>
 /// <reference path="./NoticePanelView.ts"/>
+/// <reference path="./ActivityPanelView.ts"/>
 /// <reference path="./BaseView2.ts"/>
 var StagePanel2 = (function (_super) {
     __extends(StagePanel2, _super);
     function StagePanel2() {
         var _this = this;
         _super.call(this);
+        ///
         this.mvpPos = 0;
         this.isBusy = false;
         this.timeOnSec = 0;

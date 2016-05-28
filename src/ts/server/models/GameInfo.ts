@@ -5,7 +5,7 @@ class GameInfo {
     rightScore:number = 0;
     time:number = 0;
     timerState:number = 0;
-    data:Date;
+    data:Date;//开始时间
     straightScoreLeft:number = 0;//连杀判定
     straightScoreRight:number = 0;//连杀判定
     playerInfoArr:any = new Array(8);
@@ -15,6 +15,9 @@ class GameInfo {
     _isUnsaved:Boolean = false;//未保存状态
     _winTeam:TeamInfo;
     _loseTeam:TeamInfo;
+
+    _teamLeft:TeamInfo;
+    _teamRight:TeamInfo;
 
     constructor() {
 
@@ -31,34 +34,48 @@ class GameInfo {
             }, 1000);
             this.timerState = 1;
         }
-
     }
 
     saveGameRec() {
         if (this._isUnsaved) {
             this._isUnsaved = false;
-            for (var i = 0; i < this._winTeam.playerInfoArr.length; i++) {
-                var playerInfo:PlayerInfo = this._winTeam.playerInfoArr[i];
-                console.log("playerData", JSON.stringify(playerInfo));
-                if (!playerInfo.gameRec())
-                    playerInfo.gameRec([]);
-                playerInfo.gameRec().push(this.gameId);
-                console.log(playerInfo.name(), " cur player score:", playerInfo.eloScore(), playerInfo.dtScore());
-                this.playerDb.update({id: playerInfo.id()}, {$set: playerInfo.playerData}, {}, function (err, doc) {
-                    console.log("saveGameRec: game rec saved");
-                })
+            function saveTeamPlayerData(teamInfo:TeamInfo) {
+                for (var playerInfo of teamInfo.playerInfoArr) {
+                    console.log("playerData", JSON.stringify(playerInfo));
+                    if (!playerInfo.gameRec())
+                        playerInfo.gameRec([]);
+                    playerInfo.gameRec().push(this.gameId);
+                    console.log(playerInfo.name(), " cur player score:", playerInfo.eloScore(), playerInfo.dtScore());
+                    this.playerDb.update({id: playerInfo.id()}, {$set: playerInfo.playerData}, {}, function (err, doc) {
+                        console.log("saveGameRec: game rec saved");
+                    })
+                }
             }
-            for (var i = 0; i < this._loseTeam.playerInfoArr.length; i++) {
-                var playerInfo:PlayerInfo = this._loseTeam.playerInfoArr[i];
-                console.log("playerData", JSON.stringify(playerInfo));
-                if (!playerInfo.gameRec())
-                    playerInfo.gameRec([]);
-                playerInfo.gameRec().push(this.gameId);
-                console.log(playerInfo.name(), " cur player score:", playerInfo.eloScore(), playerInfo.dtScore());
-                this.playerDb.update({id: playerInfo.id()}, {$set: playerInfo.playerData}, {}, function (err, doc) {
-                    console.log("lose saveGameRec: game rec saved");
-                })
-            }
+
+            saveTeamPlayerData(this._winTeam);
+            saveTeamPlayerData(this._loseTeam);
+            // for (var i = 0; i < this._winTeam.playerInfoArr.length; i++) {
+            //     var playerInfo:PlayerInfo = this._winTeam.playerInfoArr[i];
+            //     console.log("playerData", JSON.stringify(playerInfo));
+            //     if (!playerInfo.gameRec())
+            //         playerInfo.gameRec([]);
+            //     playerInfo.gameRec().push(this.gameId);
+            //     console.log(playerInfo.name(), " cur player score:", playerInfo.eloScore(), playerInfo.dtScore());
+            //     this.playerDb.update({id: playerInfo.id()}, {$set: playerInfo.playerData}, {}, function (err, doc) {
+            //         console.log("saveGameRec: game rec saved");
+            //     })
+            // }
+            // for (var i = 0; i < this._loseTeam.playerInfoArr.length; i++) {
+            //     var playerInfo:PlayerInfo = this._loseTeam.playerInfoArr[i];
+            //     console.log("playerData", JSON.stringify(playerInfo));
+            //     if (!playerInfo.gameRec())
+            //         playerInfo.gameRec([]);
+            //     playerInfo.gameRec().push(this.gameId);
+            //     console.log(playerInfo.name(), " cur player score:", playerInfo.eloScore(), playerInfo.dtScore());
+            //     this.playerDb.update({id: playerInfo.id()}, {$set: playerInfo.playerData}, {}, function (err, doc) {
+            //         console.log("lose saveGameRec: game rec saved");
+            //     })
+            // }
         }
     }
 

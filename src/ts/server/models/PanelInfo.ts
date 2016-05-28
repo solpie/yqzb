@@ -83,7 +83,8 @@ class StagePanelInfo extends BasePanelInfo {
     ctnXY:any;
     gameInfo:GameInfo;
     stageNotice:any;
-
+    
+    
     constructor(pid) {
         super(pid);
         this.gameInfo = new GameInfo();

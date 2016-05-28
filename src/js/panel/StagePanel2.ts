@@ -1,5 +1,6 @@
 /// <reference path="../clientDef.ts"/>
 /// <reference path="./NoticePanelView.ts"/>
+/// <reference path="./ActivityPanelView.ts"/>
 /// <reference path="./BaseView2.ts"/>
 declare var cmd:{
     on(val:number, func:any);
@@ -8,6 +9,10 @@ declare var cmd:{
 };
 declare var client:any;
 class StagePanel2 extends BaseView2 {
+    //sub panel
+    noticePanelView:any;
+    activityPanelView:any;
+    ///
     mvpPos:any = 0;
     isBusy = false;
     straight3Ctn;
@@ -35,7 +40,6 @@ class StagePanel2 extends BaseView2 {
 
     //
     winCtn:any;
-    noticePanelView:any;
     leftAvgEloScoreLabel:any;
     rightAvgEloScoreLabel:any;
 

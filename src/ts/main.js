@@ -1157,8 +1157,14 @@ var GameInfoAdmin = (function () {
     return GameInfoAdmin;
 }());
 /// <reference path="../../Node.ts"/>
+/////
 var appExecPath = M_path.dirname(process.execPath);
 var isDev;
+//path for external
+function pathEx(p) {
+    return isDev ? p : M_path.join(appExecPath, p);
+}
+/////////////////
 var db;
 function dbPlayerInfo() {
     return db.player;
@@ -1166,18 +1172,66 @@ function dbPlayerInfo() {
 function dbActivityInfo() {
     return db.activity;
 }
-function initDB() {
-    var Datastore = require('nedb');
-    // Fetch a collection to insert document into
-    var playerDb = 'db/player.db';
-    var activityDb = 'db/activity.db';
-    if (!isDev) {
-        playerDb = M_path.join(appExecPath, playerDb);
-        activityDb = M_path.join(appExecPath, activityDb);
+// var Document = require('camo').Document;
+var Datastore = require('nedb');
+var BaseDB = (function () {
+    function BaseDB(option) {
+        var _this = this;
+        this.dbPath = option.filename;
+        // this.onload = option.onload;
+        // option.onload = this.init;
+        this.dataStore = new Datastore(option);
+        this.dataStore.find({ id: 0 }, function (err, docs) {
+            console.log('find config', _this.dbPath);
+            if (!err) {
+                if (docs.length)
+                    _this.config = docs[0];
+                else
+                    _this.init();
+            }
+        });
     }
+    BaseDB.prototype.init = function () {
+        var _this = this;
+        this.dataStore.insert({ id: 0, idUsed: 1 }, function (err, newDoc) {
+            console.log('onload inti db config', _this.dbPath);
+            console.log(_this, JSON.stringify(newDoc));
+            _this.config = newDoc;
+        });
+        // this.dataStore.find({id: 0}, (err, docs) => {
+        //     if (!err)
+        //         this.config = docs[0]
+        // });
+        // if (this.onload)
+        //     this.onload();
+    };
+    return BaseDB;
+}());
+var ActivityDB = (function (_super) {
+    __extends(ActivityDB, _super);
+    function ActivityDB() {
+        _super.apply(this, arguments);
+    }
+    ActivityDB.prototype.addActivity = function (data) {
+    };
+    return ActivityDB;
+}(BaseDB));
+var GameDB = (function (_super) {
+    __extends(GameDB, _super);
+    function GameDB() {
+        _super.apply(this, arguments);
+    }
+    return GameDB;
+}(BaseDB));
+function initDB() {
+    // Fetch a collection to insert document into
+    var playerDb = pathEx('db/player.db');
+    var activityDb = pathEx('db/activity.db');
+    var gameDbPath = pathEx('db/game.db');
     db = {};
     db.player = new Datastore({ filename: playerDb, autoload: true });
-    db.activity = new Datastore({ filename: activityDb, autoload: true });
+    db.activity = new ActivityDB({ filename: activityDb, autoload: true });
+    // db.game = new GameDB({filename: gameDbPath, autoload: true});
     db.player.find({ id: 0 }, function (err, doc) {
         db.player.config = doc[0];
     });
@@ -1336,28 +1390,21 @@ var GameInfo = (function () {
     GameInfo.prototype.saveGameRec = function () {
         if (this._isUnsaved) {
             this._isUnsaved = false;
-            for (var i = 0; i < this._winTeam.playerInfoArr.length; i++) {
-                var playerInfo = this._winTeam.playerInfoArr[i];
-                console.log("playerData", JSON.stringify(playerInfo));
-                if (!playerInfo.gameRec())
-                    playerInfo.gameRec([]);
-                playerInfo.gameRec().push(this.gameId);
-                console.log(playerInfo.name(), " cur player score:", playerInfo.eloScore(), playerInfo.dtScore());
-                this.playerDb.update({ id: playerInfo.id() }, { $set: playerInfo.playerData }, {}, function (err, doc) {
-                    console.log("saveGameRec: game rec saved");
-                });
+            function saveTeamPlayerData(teamInfo) {
+                for (var _i = 0, _a = teamInfo.playerInfoArr; _i < _a.length; _i++) {
+                    var playerInfo = _a[_i];
+                    console.log("playerData", JSON.stringify(playerInfo));
+                    if (!playerInfo.gameRec())
+                        playerInfo.gameRec([]);
+                    playerInfo.gameRec().push(this.gameId);
+                    console.log(playerInfo.name(), " cur player score:", playerInfo.eloScore(), playerInfo.dtScore());
+                    this.playerDb.update({ id: playerInfo.id() }, { $set: playerInfo.playerData }, {}, function (err, doc) {
+                        console.log("saveGameRec: game rec saved");
+                    });
+                }
             }
-            for (var i = 0; i < this._loseTeam.playerInfoArr.length; i++) {
-                var playerInfo = this._loseTeam.playerInfoArr[i];
-                console.log("playerData", JSON.stringify(playerInfo));
-                if (!playerInfo.gameRec())
-                    playerInfo.gameRec([]);
-                playerInfo.gameRec().push(this.gameId);
-                console.log(playerInfo.name(), " cur player score:", playerInfo.eloScore(), playerInfo.dtScore());
-                this.playerDb.update({ id: playerInfo.id() }, { $set: playerInfo.playerData }, {}, function (err, doc) {
-                    console.log("lose saveGameRec: game rec saved");
-                });
-            }
+            saveTeamPlayerData(this._winTeam);
+            saveTeamPlayerData(this._loseTeam);
         }
     };
     GameInfo.prototype.resetTimer = function () {
@@ -1716,8 +1763,6 @@ var HttpServer = (function () {
         else {
             app.use(express.static(appExecPath));
         }
-        //request  size
-        // app.use(express.limit(100000000));
         var bodyParser = require('body-parser');
         // create application/x-www-form-urlencoded parser
         var urlencodedParser = bodyParser.urlencoded({

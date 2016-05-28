@@ -1,5 +1,6 @@
 /// <reference path="./DbInfo.ts"/>
 class ActivityInfo {
+    date:number;//比赛日
     gameInfoArr:Array<GameInfo>;
 
     constructor() {
