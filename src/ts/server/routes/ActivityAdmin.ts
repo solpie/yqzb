@@ -1,4 +1,12 @@
-class GameInfoAdmin {
+class ActivityAdmin {
+    static getActivityDateArr(req, res) {
+        if (!req.body) return res.sendStatus(400);
+        console.log('getActivityDateArr', JSON.stringify(req.body));
+        db.activity.getDateArrByActivityId(req.body.activityId, function (docs) {
+            res.send(docs);
+        });
+    };
+
     static index(req, res) {
         var actId = req.params.id;
         var data = {activityId: actId};

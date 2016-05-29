@@ -5,6 +5,8 @@ declare var cmd:{
     emit(val:number, param?:any);
 };
 declare var client:any;
+declare class Vue {
+}
 class BasePanelView {
     stageWidth = 1920;
     stageHeight = 1080;

@@ -1130,26 +1130,35 @@ var PlayerAdmin = (function () {
     };
     return PlayerAdmin;
 }());
-var GameInfoAdmin = (function () {
-    function GameInfoAdmin() {
+var ActivityAdmin = (function () {
+    function ActivityAdmin() {
     }
-    GameInfoAdmin.index = function (req, res) {
+    ActivityAdmin.getActivityDateArr = function (req, res) {
+        if (!req.body)
+            return res.sendStatus(400);
+        console.log('getActivityDateArr', JSON.stringify(req.body));
+        db.activity.getDateArrByActivityId(req.body.activityId, function (docs) {
+            res.send(docs);
+        });
+    };
+    ;
+    ActivityAdmin.index = function (req, res) {
         var actId = req.params.id;
         var data = { activityId: actId };
         res.render('activity/activityAdmin', data);
     };
-    GameInfoAdmin.genPrintPng = function (req, res) {
+    ActivityAdmin.genPrintPng = function (req, res) {
         base64ToPng('img/cache/game.png', req.body.base64, function () {
             res.send('/img/cache/game.png');
         });
     };
-    GameInfoAdmin.genActivity = function (req, res) {
+    ActivityAdmin.genActivity = function (req, res) {
         if (!req.body)
             return res.sendStatus(400);
         console.log('gen activity ', JSON.stringify(req.body.activityData));
         db.activity.addActivity(req.body.activityData);
     };
-    GameInfoAdmin.getActivityPlayerArr = function (req, res) {
+    ActivityAdmin.getActivityPlayerArr = function (req, res) {
         if (!req.body)
             return res.sendStatus(400);
         var actId = parseInt(req.body.id);
@@ -1162,7 +1171,7 @@ var GameInfoAdmin = (function () {
             }
         });
     };
-    return GameInfoAdmin;
+    return ActivityAdmin;
 }());
 /// <reference path="../../Node.ts"/>
 /////
@@ -1226,6 +1235,11 @@ var ActivityDB = (function (_super) {
             if (!err) {
                 _this.saveIdUsed();
             }
+        });
+    };
+    ActivityDB.prototype.getDateArrByActivityId = function (actId, callback) {
+        this.dataStore.find({ id: actId }, function (err, docs) {
+            callback(docs);
         });
     };
     return ActivityDB;
@@ -1491,7 +1505,10 @@ var BasePanelInfo = (function (_super) {
     function BasePanelInfo(pid) {
         _super.call(this);
         this.pid = pid;
+        this.initInfo();
     }
+    BasePanelInfo.prototype.initInfo = function () {
+    };
     return BasePanelInfo;
 }(EventDispatcher));
 var PlayerPanelInfo = (function (_super) {
@@ -1535,6 +1552,9 @@ var ActivityPanelInfo = (function (_super) {
         return {
             activityInfo: this.activityInfo
         };
+    };
+    ActivityPanelInfo.prototype.initInfo = function () {
+        this.activityInfo = new ActivityInfo();
     };
     return ActivityPanelInfo;
 }(BasePanelInfo));
@@ -1699,7 +1719,7 @@ var ActivityInfo = (function () {
  */
 /// <reference path="Config.ts"/>
 /// <reference path="routes/PlayerInfoAdmin.ts"/>
-/// <reference path="routes/GameInfoAdmin.ts"/>
+/// <reference path="routes/ActivityAdmin.ts"/>
 /// <reference path="models/DbInfo.ts"/>
 /// <reference path="models/PanelInfo.ts"/>
 /// <reference path="models/ActivityInfo.ts"/>
@@ -1728,7 +1748,6 @@ var HttpServer = (function () {
     };
     HttpServer.prototype.initPanelInfo = function () {
         this.panel = new PanelInfo();
-        this.panel.act.activityInfo = new ActivityInfo();
         console.log("init panel info", this.panel);
     };
     HttpServer.prototype.initEnv = function (callback) {
@@ -1790,11 +1809,12 @@ var HttpServer = (function () {
         app.post('/admin/player/update', urlencodedParser, PlayerAdmin.updatePlayerData);
         app.post('/admin/player/delete', urlencodedParser, PlayerAdmin.deletePlayerData);
         //activity admin
-        // app.get('/admin/game/', GameInfoAdmin.index);
-        app.get('/admin/activity/:id', GameInfoAdmin.index);
-        app.post('/admin/activity/getActPlayer', urlencodedParser, GameInfoAdmin.getActivityPlayerArr);
-        app.post('/admin/game/genPrintPng', urlencodedParser, GameInfoAdmin.genPrintPng);
-        app.post('/admin/game/genActivity', urlencodedParser, GameInfoAdmin.genActivity);
+        // app.get('/admin/game/', ActivityAdmin.index);
+        app.get('/admin/activity/:id', ActivityAdmin.index);
+        app.post('/admin/activity/getActPlayer', urlencodedParser, ActivityAdmin.getActivityPlayerArr);
+        app.post('/admin/game/genPrintPng', urlencodedParser, ActivityAdmin.genPrintPng);
+        app.post('/admin/game/genActivity', urlencodedParser, ActivityAdmin.genActivity);
+        app.post('/api/act/', urlencodedParser, ActivityAdmin.getActivityDateArr);
         app.get('/panel/:id/:op', function (req, res) {
             var pid = req.params.id;
             var op = req.params.op;

@@ -1,3 +1,4 @@
+// import {Vue} from "./BasePanelView";
 /**
  * Created by toramisu on 2016/5/28.
  */
@@ -11,6 +12,7 @@ class ActivityPanelView extends BasePanelView {
 
     constructor() {
         super();
+        this.initVue();
         this.onServer();
     }
 
@@ -19,6 +21,35 @@ class ActivityPanelView extends BasePanelView {
             console.log("initPanel::::::::", param);
             this.onInit(param)
         });
+    }
+
+    initVue() {
+        var vue = new Vue({
+            el: '#panel',
+            data: {
+                dateArr: [],
+                selected: 1,
+                options: [
+                    {text: '测试赛', value: 1},
+                    {text: '63运动', value: 2}
+                ]
+            },
+            // watch: {
+            //     selected: function (currentValue) {
+            //         console.log('date change');
+            //         // do my stuff
+            //     }
+            // },
+            methods: {
+                onGetDateArr: function () {
+                    console.log('date change');
+                    var actId = parseInt(this.selected);
+                    this.$http.post('/api/act/', {activityId: actId}).then(function (res) {
+                        console.log(JSON.stringify(res.data));
+                    })
+                },
+            }
+        })
     }
 
     onInit(param) {
@@ -30,7 +61,6 @@ class ActivityPanelView extends BasePanelView {
     }
 
     fadeIn(actInfo:ActivityInfo) {
-
         this.ctn.alpha = 0;
         for (var gameInfo of actInfo.gameInfoArr) {
 

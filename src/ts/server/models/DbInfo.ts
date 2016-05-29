@@ -65,6 +65,12 @@ class ActivityDB extends BaseDB {
             }
         })
     }
+
+    getDateArrByActivityId(actId, callback) {
+        this.dataStore.find({id: actId}, function (err, docs) {
+            callback(docs);
+        });
+    }
 }
 class GameDB extends BaseDB {
 

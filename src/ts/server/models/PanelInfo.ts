@@ -24,6 +24,11 @@ class BasePanelInfo extends EventDispatcher {
     constructor(pid) {
         super();
         this.pid = pid;
+        this.initInfo();
+    }
+
+    initInfo() {
+
     }
 }
 
@@ -63,10 +68,15 @@ class PlayerPanelInfo extends BasePanelInfo {
 class ActivityPanelInfo extends BasePanelInfo {
     activityInfo:ActivityInfo;
 
+
     getInfo() {
         return {
             activityInfo: this.activityInfo
         }
+    }
+
+    initInfo() {
+        this.activityInfo = new ActivityInfo();
     }
 }
 

@@ -1,12 +1,20 @@
 <div id="panel" class="inputPanel">
+    <select v-model="selected" @change="onGetDateArr">
+        <option v-for="option in options" v-bind:value="option.value">
+            {{ option.text }}
+        </option>
+    </select>
+    <li v-for="date in dateArr">
 
-
+    </li>
 </div>
 <div class="Preloader" style="display: none">
     <img src="/img/panel/act/bg.png">
 </div>
 
 <script src="/js/clientDef.js"></script>
+<script src="/js/vue.min.js"></script>
+<script src="/js/vue-resource.min.js"></script>
 
 <script src="/js/panel/BasePanelView.js"></script>
 <script src="/js/panel/ActivityPanelView.js"></script>

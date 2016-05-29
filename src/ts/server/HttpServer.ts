@@ -3,7 +3,7 @@
  */
 /// <reference path="Config.ts"/>
 /// <reference path="routes/PlayerInfoAdmin.ts"/>
-/// <reference path="routes/GameInfoAdmin.ts"/>
+/// <reference path="routes/ActivityAdmin.ts"/>
 /// <reference path="models/DbInfo.ts"/>
 /// <reference path="models/PanelInfo.ts"/>
 /// <reference path="models/ActivityInfo.ts"/>
@@ -32,7 +32,6 @@ class HttpServer {
 
     initPanelInfo() {
         this.panel = new PanelInfo();
-        this.panel.act.activityInfo = new ActivityInfo();
         console.log("init panel info", this.panel);
     }
 
@@ -102,11 +101,13 @@ class HttpServer {
         app.post('/admin/player/delete', urlencodedParser, PlayerAdmin.deletePlayerData);
 
         //activity admin
-        // app.get('/admin/game/', GameInfoAdmin.index);
-        app.get('/admin/activity/:id', GameInfoAdmin.index);
-        app.post('/admin/activity/getActPlayer', urlencodedParser, GameInfoAdmin.getActivityPlayerArr);
-        app.post('/admin/game/genPrintPng', urlencodedParser, GameInfoAdmin.genPrintPng);
-        app.post('/admin/game/genActivity', urlencodedParser, GameInfoAdmin.genActivity);
+        // app.get('/admin/game/', ActivityAdmin.index);
+        app.get('/admin/activity/:id', ActivityAdmin.index);
+        app.post('/admin/activity/getActPlayer', urlencodedParser, ActivityAdmin.getActivityPlayerArr);
+        app.post('/admin/game/genPrintPng', urlencodedParser, ActivityAdmin.genPrintPng);
+        app.post('/admin/game/genActivity', urlencodedParser, ActivityAdmin.genActivity);
+
+        app.post('/api/act/', urlencodedParser, ActivityAdmin.getActivityDateArr);
 
 
         app.get('/panel/:id/:op', function (req, res) {
