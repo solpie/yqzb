@@ -4,9 +4,24 @@
             {{ option.text }}
         </option>
     </select>
-    <li v-for="date in dateArr">
 
-    </li>
+    <select v-model="dateSelected" @change="onDateSelected">
+        <option v-for="option in dateOptions" v-bind:value="option.value">
+            {{ option.text }}
+        </option>
+    </select>
+
+    <select v-model="gameSelected" @change="onGameSelected">
+        <option v-for="option in gameOptionArr" v-bind:value="option.value">
+            {{ option.text }}
+        </option>
+    </select>
+
+    <ul>
+        <li v-for="playerId in playerIdArr">
+            playerId:{{playerId}}
+        </li>
+    </ul>
 </div>
 <div class="Preloader" style="display: none">
     <img src="/img/panel/act/bg.png">

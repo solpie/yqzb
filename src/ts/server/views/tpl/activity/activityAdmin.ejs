@@ -140,18 +140,7 @@
     </li>
 </script>
 <div id="app" style="width: 800px">
-    <button id="show-modal" @click="showModal = true">Show Modal</button>
-    <!-- use the modal component, pass in the prop -->
-    <modal :show.sync="showModal">
-        <!--
-          you can use custom content here to overwrite
-          default content
-        -->
-        <h3 slot="header">custom header</h3>
-    </modal>
-
-
-    <input id="btnGen" type="button" value="分区" @click="onGen">
+      <input id="btnGen" type="button" value="分区" @click="onGen">
     <input id="btnGen" type="button" value="确定生成赛程" @click="onGenActivity">
     <item
             class="item"
@@ -326,8 +315,8 @@
                     activityData.gameDataArr = []//[{gameId,[playerId]}]
                     for (var idx = 0; idx < this.sectionArr.length; idx++) {
                         var section = this.sectionArr[idx];
-                        var gameData = {id: 0, playerIdArr: []}
-                        for (var i = 0; i < section.gameArr.length; i++) {
+                        for (var i = 0; i < section.gameArr.length; i++) {                        var gameData = {id: 0, playerIdArr: []}
+                            var gameData = {id: 0, playerIdArr: []}
                             var teamInfoArr = section.gameArr[i];
                             for (var j = 0; j < teamInfoArr.length; j++) {
                                 var teamInfo = teamInfoArr[j];
@@ -337,8 +326,8 @@
                                     gameData.playerIdArr.push(playerInfo.id());
                                 }
                             }
+                            activityData.gameDataArr.push(gameData);
                         }
-                        activityData.gameDataArr.push(gameData);
                     }
                     console.log('onGenActivity data', activityData);
 

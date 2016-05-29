@@ -9,6 +9,7 @@
 class ActivityPanelView extends BasePanelView {
     ctn:any;
     isInit:Boolean;
+    vue:any;
 
     constructor() {
         super();
@@ -27,8 +28,16 @@ class ActivityPanelView extends BasePanelView {
         var vue = new Vue({
             el: '#panel',
             data: {
-                dateArr: [],
-                selected: 1,
+                playerIdArr: [],
+                dateDataArr: [],
+
+                gameSelected: -1,
+                gameOptionArr: [],
+
+                dateSelected: -1,
+                dateOptions: [],
+
+                selected: 0,
                 options: [
                     {text: '测试赛', value: 1},
                     {text: '63运动', value: 2}
@@ -41,15 +50,41 @@ class ActivityPanelView extends BasePanelView {
             //     }
             // },
             methods: {
+                onGameSelected: function () {
+                    console.log('game change', this.gameSelected);
+                    var selDate = this.dateDataArr[this.dateSelected];
+                    var selGame = selDate.gameDataArr[this.gameSelected];
+                    this.playerIdArr.length = 0;
+                    console.log("sel", JSON.stringify(selDate));
+                    for (var i = 0; i < selGame.playerIdArr.length; i++) {
+                        this.playerIdArr.push(selGame.playerIdArr[i]);
+                    }
+                },
+                onDateSelected: function () {
+                    console.log('date change', this.dateSelected);
+                    console.log(vue.dateDataArr[this.dateSelected]);
+                    vue.gameOptionArr = [];
+                    for (var i = 0; i < vue.dateDataArr[this.dateSelected].gameDataArr.length; i++) {
+                        vue.gameOptionArr.push({value: i, text: '第' + (i + 1) + '场'});
+                        // console.log('第' + (i + 1) + '场');
+                    }
+                },
                 onGetDateArr: function () {
-                    console.log('date change');
+                    console.log('activity change');
                     var actId = parseInt(this.selected);
                     this.$http.post('/api/act/', {activityId: actId}).then(function (res) {
-                        console.log(JSON.stringify(res.data));
+                        vue.dateDataArr = res.data;
+                        vue.dateOptions = [];
+                        for (var i = 0; i < vue.dateDataArr.length; i++) {
+                            vue.dateOptions.push({value: i, text: '第' + (i + 1) + '天'});
+                            console.log('第' + (i + 1) + '天');
+                        }
+                        // console.log(JSON.stringify(res.data));
                     })
                 },
             }
-        })
+        });
+        this.vue = vue;
     }
 
     onInit(param) {
@@ -74,7 +109,7 @@ class ActivityPanelView extends BasePanelView {
     }
 
 }
-
+var actView;
 $(function () {
-    new ActivityPanelView();
+    actView = new ActivityPanelView();
 });

@@ -1238,7 +1238,7 @@ var ActivityDB = (function (_super) {
         });
     };
     ActivityDB.prototype.getDateArrByActivityId = function (actId, callback) {
-        this.dataStore.find({ id: actId }, function (err, docs) {
+        this.dataStore.find({ activityId: actId }, function (err, docs) {
             callback(docs);
         });
     };
