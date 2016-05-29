@@ -6,6 +6,25 @@
     <link rel="stylesheet" type="text/css" href="/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="/style.css">
     <style>
+        body {
+            font-family: Menlo, Consolas, monospace;
+            color: #444;
+        }
+
+        .item {
+            cursor: pointer;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        ul {
+            padding-left: 1em;
+            line-height: 1.5em;
+            list-style-type: dot;
+        }
+
         * {
             padding: 0;
             margin: 0;
@@ -71,10 +90,73 @@
     </style>
 </head>
 <body style="display:inline;">
+<!-- template for the modal component -->
+<script type="x/template" id="modal-template">
+    <div class="modal-mask" v-show="show" transition="modal">
+        <div class="modal-wrapper">
+            <div class="modal-container">
 
+                <div class="modal-header">
+                    <slot name="header">
+                        default header
+                    </slot>
+                </div>
+
+                <div class="modal-body">
+                    <slot name="body">
+                        default body
+                    </slot>
+                </div>
+
+                <div class="modal-footer">
+                    <slot name="footer">
+                        default footer
+                        <button class="modal-default-button"
+                                @click="show = false">
+                            OK
+                        </button>
+                    </slot>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/x-template" id="item-template">
+    <li>
+        <div
+                :class="{bold: isFolder}"
+                @click="toggle"
+                @dblclick="changeType">
+            {{model.name}}
+            <span v-if="isFolder">[{{open ? '-' : '+'}}]</span>
+        </div>
+        <ul v-show="open" v-if="isFolder">
+            <item
+                    class="item"
+                    v-for="model in model.children"
+                    :model="model">
+            </item>
+        </ul>
+    </li>
+</script>
 <div id="app" style="width: 800px">
+    <button id="show-modal" @click="showModal = true">Show Modal</button>
+    <!-- use the modal component, pass in the prop -->
+    <modal :show.sync="showModal">
+        <!--
+          you can use custom content here to overwrite
+          default content
+        -->
+        <h3 slot="header">custom header</h3>
+    </modal>
+
+
     <input id="btnGen" type="button" value="分区" @click="onGen">
     <input id="btnGen" type="button" value="确定生成赛程" @click="onGenActivity">
+    <item
+            class="item"
+            :model="sectionArr">
+    </item>
     <div>
         <li v-for="section in sectionArr">
             <div class="Section">
@@ -170,9 +252,54 @@
         this[y] = b;
         return this;
     }
+
+    // define the item component
+    Vue.component('item', {
+        template: '#item-template',
+        props: {
+            model: Object
+        },
+        data: function () {
+            return {
+                open: false
+            }
+        },
+        computed: {
+            isFolder: function () {
+                return this.model.children &&
+                        this.model.children.length
+            }
+        },
+        methods: {
+            toggle: function () {
+                if (this.isFolder) {
+                    this.open = !this.open
+                }
+            },
+            changeType: function () {
+                if (!this.isFolder) {
+                    Vue.set(this.model, 'children', [])
+                    this.addChild()
+                    this.open = true
+                }
+            }
+        }
+    })
+    // register modal component
+    Vue.component('modal', {
+        template: '#modal-template',
+        props: {
+            show: {
+                type: Boolean,
+                required: true,
+                twoWay: true
+            }
+        }
+    })
     var vue = new Vue({
         el: '#app',
         data: {
+            showModal: false,
             lowSectionC: [],
             highSectionC: [],
             sectionArr: [],

@@ -9,13 +9,13 @@ class PanelInfo {
     //for localhost/panel/pid/
     stage:StagePanelInfo;
     player:PlayerPanelInfo;
-    win:WinPanelInfo;
+    act:ActivityPanelInfo;
 
     constructor() {
         this.stage = new StagePanelInfo(PanelId.stagePanel);
         this.player = new PlayerPanelInfo(PanelId.playerPanel);
         this.player.stageInfo = this.stage;
-        this.win = new WinPanelInfo(PanelId.winPanel);
+        this.act = new ActivityPanelInfo(PanelId.actPanel);
     }
 }
 class BasePanelInfo extends EventDispatcher {
@@ -60,22 +60,13 @@ class PlayerPanelInfo extends BasePanelInfo {
         cmd.emit(CommandId.movePlayerPanel, param, this.pid);
     }
 }
-class WinPanelInfo extends BasePanelInfo {
-    playerInfoArr:Array<PlayerInfo> = new Array(4);
+class ActivityPanelInfo extends BasePanelInfo {
+    activityInfo:ActivityInfo;
 
     getInfo() {
         return {
-            playerInfoArr: this.playerInfoArr
+            activityInfo: this.activityInfo
         }
-    }
-
-    updatePlayerAllWin(param:any) {
-        // for (var i = 0; i < param.length; i++) {
-        //     var obj = param[i];
-        //     this.playerInfoArr[obj.pos] = obj;
-        //     console.log(this, "updatePlayer", JSON.stringify(obj), obj.pos, obj.isRed);
-        // }
-        cmd.emit(CommandId.fadeInWinPanel, param, this.pid);
     }
 }
 
@@ -83,8 +74,8 @@ class StagePanelInfo extends BasePanelInfo {
     ctnXY:any;
     gameInfo:GameInfo;
     stageNotice:any;
-    
-    
+
+
     constructor(pid) {
         super(pid);
         this.gameInfo = new GameInfo();

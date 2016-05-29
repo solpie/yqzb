@@ -3,30 +3,37 @@
  */
 /// <reference path="../clientDef.ts"/>
 /// <reference path="../../ts/server/models/ActivityInfo.ts"/>
-class ActivityPanelView {
+/// <reference path="./BasePanelView.ts"/>
+
+class ActivityPanelView extends BasePanelView {
     ctn:any;
-    parent:any;
     isInit:Boolean;
 
-    constructor(parent) {
-        this.parent = parent;
-        this.preload();
+    constructor() {
+        super();
+        this.onServer();
     }
 
-    init() {
+    onServer() {
+        cmd.on(CommandId.initPanel, (param) => {
+            console.log("initPanel::::::::", param);
+            this.onInit(param)
+        });
+    }
+
+    onInit(param) {
+        this.stage = client.panel.stage;
         this.ctn = new createjs.Container();
         // var bg = new createjs.Bitmap('/img/panel/act/bg.png');
         // this.ctn.addChild(bg);
-        this.isInit = true;
+        this.stage.addChild(this.ctn);
     }
 
     fadeIn(actInfo:ActivityInfo) {
-        if (!this.isInit)
-            this.init();
+
         this.ctn.alpha = 0;
-        this.parent.addChild(this.ctn);
         for (var gameInfo of actInfo.gameInfoArr) {
-            
+
         }
         createjs.Tween.get(this.ctn)
             .to({alpha: 1}, 300);
@@ -36,11 +43,8 @@ class ActivityPanelView {
 
     }
 
-    preload() {
-        var imgArr = [];
-        for (var imgSrc of imgArr) {
-            var img = new Image();
-            img.src = imgSrc;
-        }
-    }
 }
+
+$(function () {
+    new ActivityPanelView();
+});

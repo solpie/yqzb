@@ -453,6 +453,7 @@ var ElmId$ = {
 var PanelId = {
     stagePanel: 'stage',
     winPanel: 'win',
+    actPanel: 'act',
     playerPanel: 'player'
 };
 /// <reference path="JQuery.ts"/>
@@ -1481,7 +1482,7 @@ var PanelInfo = (function () {
         this.stage = new StagePanelInfo(PanelId.stagePanel);
         this.player = new PlayerPanelInfo(PanelId.playerPanel);
         this.player.stageInfo = this.stage;
-        this.win = new WinPanelInfo(PanelId.winPanel);
+        this.act = new ActivityPanelInfo(PanelId.actPanel);
     }
     return PanelInfo;
 }());
@@ -1525,26 +1526,17 @@ var PlayerPanelInfo = (function (_super) {
     };
     return PlayerPanelInfo;
 }(BasePanelInfo));
-var WinPanelInfo = (function (_super) {
-    __extends(WinPanelInfo, _super);
-    function WinPanelInfo() {
+var ActivityPanelInfo = (function (_super) {
+    __extends(ActivityPanelInfo, _super);
+    function ActivityPanelInfo() {
         _super.apply(this, arguments);
-        this.playerInfoArr = new Array(4);
     }
-    WinPanelInfo.prototype.getInfo = function () {
+    ActivityPanelInfo.prototype.getInfo = function () {
         return {
-            playerInfoArr: this.playerInfoArr
+            activityInfo: this.activityInfo
         };
     };
-    WinPanelInfo.prototype.updatePlayerAllWin = function (param) {
-        // for (var i = 0; i < param.length; i++) {
-        //     var obj = param[i];
-        //     this.playerInfoArr[obj.pos] = obj;
-        //     console.log(this, "updatePlayer", JSON.stringify(obj), obj.pos, obj.isRed);
-        // }
-        cmd.emit(CommandId.fadeInWinPanel, param, this.pid);
-    };
-    return WinPanelInfo;
+    return ActivityPanelInfo;
 }(BasePanelInfo));
 var StagePanelInfo = (function (_super) {
     __extends(StagePanelInfo, _super);
@@ -1736,7 +1728,7 @@ var HttpServer = (function () {
     };
     HttpServer.prototype.initPanelInfo = function () {
         this.panel = new PanelInfo();
-        this.activityInfo = new ActivityInfo();
+        this.panel.act.activityInfo = new ActivityInfo();
         console.log("init panel info", this.panel);
     };
     HttpServer.prototype.initEnv = function (callback) {
@@ -1864,10 +1856,8 @@ var HttpServer = (function () {
         });
         cmd.on(CommandId.cs_updatePlayerAll, function (param) {
             var idArr = [];
-            // var idPosMap = {};
             for (var i = 0; i < param.length; i++) {
                 var obj = param[i];
-                // obj.src = 'data/' + obj.playerId + '.player';
                 idArr.push({ id: parseInt(obj.playerId) });
             }
             dbPlayerInfo().find({ $or: idArr }, function (err, playerDataArr) {
@@ -1936,6 +1926,8 @@ var HttpServer = (function () {
                         info = _this.panel.stage.getInfo();
                     else if (pid == PanelId.playerPanel)
                         info = _this.panel.player.getInfo();
+                    else if (pid == PanelId.actPanel)
+                        info = _this.panel.act.getInfo();
                     wsClient.send(JSON.stringify({
                         res: "init",
                         param: info

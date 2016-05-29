@@ -1,24 +1,11 @@
 /// <reference path="../clientDef.ts"/>
-class BaseView2 {
-    stageWidth = 1920;
-    stageHeight = 1080;
-    stage:any;
-    isOp:Boolean = false;
-    ctn:any;
-    constructor() {
-      
+var BasePanelView = (function () {
+    function BasePanelView() {
+        this.stageWidth = 1920;
+        this.stageHeight = 1080;
+        this.isOp = false;
     }
-    //
-    // init(param) {
-    //     console.log("init panel");
-    //     this.ctn = new createjs.Container();
-    // }
-    //
-    // initOp(){
-    //     $(".inputPanel").show();
-    // }
-
-    newBtn(func, text?) {
+    BasePanelView.prototype.newBtn = function (func, text) {
         var ctn = new createjs.Container();
         var btn = new createjs.Shape();
         var btnWidth = 75 * 3, btnHeight = 30 * 3;
@@ -36,5 +23,7 @@ class BaseView2 {
             ctn.addChild(txt);
         }
         return ctn;
-    }
-}
+    };
+    return BasePanelView;
+}());
+//# sourceMappingURL=BasePanelView.js.map

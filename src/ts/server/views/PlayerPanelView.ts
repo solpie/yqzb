@@ -1,5 +1,3 @@
-/// <reference path="PlayerView.ts"/>
-
 class PlayerPanelView extends BaseView {
     handle() {
 

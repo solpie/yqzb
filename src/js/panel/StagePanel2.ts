@@ -1,14 +1,9 @@
 /// <reference path="../clientDef.ts"/>
 /// <reference path="./NoticePanelView.ts"/>
 /// <reference path="./ActivityPanelView.ts"/>
-/// <reference path="./BaseView2.ts"/>
-declare var cmd:{
-    on(val:number, func:any);
-    proxy(val:number, param?:any);
-    emit(val:number, param?:any);
-};
-declare var client:any;
-class StagePanel2 extends BaseView2 {
+/// <reference path="./BasePanelView.ts"/>
+
+class StagePanel2 extends BasePanelView {
     //sub panel
     noticePanelView:any;
     activityPanelView:any;

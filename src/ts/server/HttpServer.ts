@@ -14,7 +14,6 @@ var debug = require('debug')('express2:server');
 
 class HttpServer {
     panel:PanelInfo;
-    activityInfo:ActivityInfo;
 
     getIPAddress() {
         var interfaces = require('os').networkInterfaces({all: true});
@@ -33,7 +32,7 @@ class HttpServer {
 
     initPanelInfo() {
         this.panel = new PanelInfo();
-        this.activityInfo = new ActivityInfo();
+        this.panel.act.activityInfo = new ActivityInfo();
         console.log("init panel info", this.panel);
     }
 
@@ -183,12 +182,9 @@ class HttpServer {
 
         cmd.on(CommandId.cs_updatePlayerAll, (param)=> {
             var idArr = [];
-            // var idPosMap = {};
             for (var i = 0; i < param.length; i++) {
                 var obj = param[i];
-                // obj.src = 'data/' + obj.playerId + '.player';
                 idArr.push({id: parseInt(obj.playerId)});
-                // idPosMap[obj.playerId] = parseInt(obj.pos);
             }
 
             dbPlayerInfo().find({$or: idArr}, (err, playerDataArr)=> {
@@ -259,6 +255,8 @@ class HttpServer {
                         info = this.panel.stage.getInfo();
                     else if (pid == PanelId.playerPanel)
                         info = this.panel.player.getInfo();
+                    else if (pid == PanelId.actPanel)
+                        info = this.panel.act.getInfo();
                     wsClient.send(JSON.stringify({
                         res: "init",
                         param: info

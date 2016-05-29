@@ -70,6 +70,7 @@ class Client {
         var viewMap = {};
         viewMap[PanelId.stagePanel] = StagePanelView;
         viewMap[PanelId.playerPanel] = PlayerPanelView;
+        viewMap[PanelId.actPanel] = PlayerPanelView;
         this.panel = new viewMap[pid](stage, this.isOB);
         this.panel.init(param);
     }

@@ -192,6 +192,7 @@ var ElmId$ = {
 var PanelId = {
     stagePanel: 'stage',
     winPanel: 'win',
+    actPanel: 'act',
     playerPanel: 'player'
 };
 /// <reference path="../Model/Command.ts"/>
@@ -629,7 +630,6 @@ var StagePanelView = (function (_super) {
     };
     return StagePanelView;
 }(BaseView));
-/// <reference path="PlayerView.ts"/>
 var PlayerPanelView = (function (_super) {
     __extends(PlayerPanelView, _super);
     function PlayerPanelView() {
@@ -810,6 +810,7 @@ var Client = (function () {
         var viewMap = {};
         viewMap[PanelId.stagePanel] = StagePanelView;
         viewMap[PanelId.playerPanel] = PlayerPanelView;
+        viewMap[PanelId.actPanel] = PlayerPanelView;
         this.panel = new viewMap[pid](stage, this.isOB);
         this.panel.init(param);
     };

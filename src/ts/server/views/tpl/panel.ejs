@@ -42,6 +42,9 @@
     <% if (pid == "player") { %>
     <%- include playerPanel %>
     <% } %>
+    <% if (pid == "act") { %>
+    <%- include activityPanel %>
+    <% } %>
     <canvas id="stage">
     </canvas>
 </div>

@@ -1,12 +1,12 @@
+/// <reference path="../clientDef.ts"/>
+/// <reference path="./NoticePanelView.ts"/>
+/// <reference path="./ActivityPanelView.ts"/>
+/// <reference path="./BasePanelView.ts"/>
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-/// <reference path="../clientDef.ts"/>
-/// <reference path="./NoticePanelView.ts"/>
-/// <reference path="./ActivityPanelView.ts"/>
-/// <reference path="./BaseView2.ts"/>
 var StagePanel2 = (function (_super) {
     __extends(StagePanel2, _super);
     function StagePanel2() {
@@ -879,7 +879,7 @@ var StagePanel2 = (function (_super) {
         }
     };
     return StagePanel2;
-}(BaseView2));
+}(BasePanelView));
 var stagePanel2;
 $(function main() {
     stagePanel2 = new StagePanel2();
