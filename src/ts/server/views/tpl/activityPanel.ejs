@@ -23,7 +23,8 @@
     <input type="button" value="reset" @click="onClkReset"/>
     <input type="button" value="fadeIn" @click="onClkFadeIn"/>
     <input type="button" value="fadeOut" @click="onClkFadeOut"/>
-
+    <input type="button" value="开始比赛" @click="onClkStartGame"/>
+    <input type="button" value="结算" @click="onClkSubmit"/>
     <ul>
         <li v-for="playerId in playerIdArr">
             playerId:{{playerId}}

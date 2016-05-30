@@ -58,6 +58,7 @@ enum CommandId{
     fadeInActPanel,
     cs_fadeOutActPanel,
     fadeOutActPanel,
+    cs_startGame,
 
 }
 class CommandItem {

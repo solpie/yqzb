@@ -157,7 +157,6 @@
     var activityId = parseInt('<%= activityId %>');
     var pdfData64;
     var stage;
-    var roundData = <%- roundData %>;
     function genPrint(playerDataArr, py, py2) {
         if (!stage) {
             var canvas = document.getElementById('the-canvas');
@@ -327,40 +326,6 @@
             }
         }
     });
-
-    if (roundData) {
-
-        var sectionArr = [{idx: 0, name: '上半区：', teamArr: [], btnId: 'onGenHigh', gameArr: []},
-            {idx: 1, name: '下半区：', teamArr: [], btnId: 'onGenLow', gameArr: []}];
-
-
-        function genSection(start, sectionIdx) {
-            for (var i = start; i < start + 6; i++) {//半区6场
-                var gameData = roundData.gameDataArr[i];
-                var teamInfo = new TeamInfo();
-                teamInfo.name = 'team1'
-                var gameArr = [];
-                gameArr.push(teamInfo);
-                for (var j = 0; j < gameData.playerIdArr.length; j++) {
-                    if (j == 4) {
-                        teamInfo = new TeamInfo();
-                        teamInfo.name = 'team2'
-                        gameArr.push(teamInfo);
-                    }
-                    var playerId = gameData.playerIdArr[j];
-                    var playerInfo = new PlayerInfo(roundData.playerInfoMap[playerId]);
-                    playerInfo.id(playerId);
-                    teamInfo.push(playerInfo)
-                }
-                sectionArr[sectionIdx].gameArr.push(gameArr);
-            }
-        }
-
-        genSection(0, 0);
-        genSection(6, 1);
-        vue.sectionArr = sectionArr;
-    }
-
 
     PDFJS.getDocument('/img/gameSheet.pdf').then(function (pdf) {
         // Fetch the page.

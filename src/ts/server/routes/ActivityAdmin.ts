@@ -12,6 +12,10 @@ class ActivityAdmin {
             server.panel.act.fadeOutActPanel();
             res.send("sus");
         }
+        else if (reqCmd === CommandId.cs_startGame) {
+            server.panel.act.startGame(param);
+            res.send("sus");
+        }
         else {
             db.activity.getDateArrByActivityId(param, function (docs) {
                 res.send(docs);

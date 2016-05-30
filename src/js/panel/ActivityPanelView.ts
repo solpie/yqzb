@@ -72,6 +72,16 @@ class ActivityPanelView extends BasePanelView {
                     }
                     this.showGameArr = tmp;
                 },
+                onClkStartGame: function () {
+                    var selRound = this.roundDataArr[this.roundSelected];
+                    var selGame = selRound.gameDataArr[this.gameSelected];
+                    console.log('start game:', JSON.stringify(selGame));
+                    this.$http.post('/op/act/', {
+                        cmd: CommandId.cs_startGame, param: {activityId: this.selected, gameData: selGame}
+                    }).then(function (res) {
+                        console.log(res);
+                    });
+                },
                 onClkAddHighSection: function () {
                     this.selectSection(0);
                 },
@@ -104,7 +114,7 @@ class ActivityPanelView extends BasePanelView {
                         this.$http.post('/op/act/', {
                             cmd: CommandId.cs_fadeInActPanel,
                             param: {
-                                activityId:this.activityId,
+                                activityId: this.activityId,
                                 gameArr: this.showGameArr
                             }
                         }).then(function (res) {
@@ -144,7 +154,8 @@ class ActivityPanelView extends BasePanelView {
                         vue.roundDataArr = res.data;
                         vue.roundOptionArr = [];
                         for (var i = 0; i < vue.roundDataArr.length; i++) {
-                            vue.roundOptionArr.push({value: i, text: '第' + (i + 1) + '轮'});
+                            var roundData = vue.roundDataArr[i];
+                            vue.roundOptionArr.push({value: i, text: '第' + (roundData.round) + '轮'});
                         }
                     })
                 },
@@ -184,14 +195,14 @@ class ActivityPanelView extends BasePanelView {
                 var scoreText = newScoreText();
                 scoreText.y = 70;
                 if (playerInfo.isRed) {
-                    scoreText.text = '7';
+                    scoreText.text = '0';
                     scoreText.x = 830;
                     rightScore += playerInfo.eloScore();
                     playerCtn = getRightPlayerCard(playerInfo, 1);
                     playerCtn.x = 282 + j * 148;
                 }
                 else {
-                    scoreText.text = '9';
+                    scoreText.text = '0';
                     scoreText.x = 685;
                     leftScore += playerInfo.eloScore();
                     playerCtn = getLeftPlayerCard(playerInfo, 1);

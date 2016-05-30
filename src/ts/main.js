@@ -309,6 +309,7 @@ var CommandId;
     CommandId[CommandId["fadeInActPanel"] = 100046] = "fadeInActPanel";
     CommandId[CommandId["cs_fadeOutActPanel"] = 100047] = "cs_fadeOutActPanel";
     CommandId[CommandId["fadeOutActPanel"] = 100048] = "fadeOutActPanel";
+    CommandId[CommandId["cs_startGame"] = 100049] = "cs_startGame";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {
@@ -702,6 +703,10 @@ var ActivityAdmin = (function () {
             server.panel.act.fadeOutActPanel();
             res.send("sus");
         }
+        else if (reqCmd === CommandId.cs_startGame) {
+            server.panel.act.startGame(param);
+            res.send("sus");
+        }
         else {
             db.activity.getDateArrByActivityId(param, function (docs) {
                 res.send(docs);
@@ -891,6 +896,12 @@ var GameDB = (function (_super) {
     function GameDB() {
         _super.apply(this, arguments);
     }
+    GameDB.prototype.startGame = function (gameData) {
+        this.ds().update({ id: gameData.id }, gameData, { upsert: true }, function (err, newDoc) {
+        });
+        // this.ds().insert({id: gameData}, (err, newDoc) => {
+        // });
+    };
     return GameDB;
 }(BaseDB));
 var PlayerDB = (function (_super) {
@@ -1441,6 +1452,11 @@ var ActivityPanelInfo = (function (_super) {
     };
     ActivityPanelInfo.prototype.fadeOutActPanel = function () {
         cmd.emit(CommandId.fadeOutActPanel, null, this.pid);
+    };
+    ActivityPanelInfo.prototype.startGame = function (param) {
+        param.gameData.activityId = param.activityId;
+        param.gameData.isFinish = false;
+        db.game.startGame(param.gameData);
     };
     return ActivityPanelInfo;
 }(BasePanelInfo));

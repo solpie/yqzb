@@ -112,7 +112,12 @@ class ActivityDB extends BaseDB {
     }
 }
 class GameDB extends BaseDB {
-
+    startGame(gameData) {
+        this.ds().update({id: gameData.id}, gameData, {upsert: true}, (err, newDoc) => {
+        });
+        // this.ds().insert({id: gameData}, (err, newDoc) => {
+        // });
+    }
 }
 class PlayerDB extends BaseDB {
     getNewId() {

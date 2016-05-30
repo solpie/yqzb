@@ -69,7 +69,7 @@ class PlayerPanelInfo extends BasePanelInfo {
 }
 class ActivityPanelInfo extends BasePanelInfo {
     roundInfo:RoundInfo;
-
+    curGameInfo:GameInfo;
 
     getInfo() {
         return {
@@ -115,6 +115,12 @@ class ActivityPanelInfo extends BasePanelInfo {
 
     fadeOutActPanel() {
         cmd.emit(CommandId.fadeOutActPanel, null, this.pid);
+    }
+
+    startGame(param) {//{activityId: this.selected, gameData: selGame}
+        param.gameData.activityId = param.activityId;
+        param.gameData.isFinish = false;
+        db.game.startGame(param.gameData);
     }
 }
 

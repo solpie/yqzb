@@ -161,6 +161,7 @@ var CommandId;
     CommandId[CommandId["fadeInActPanel"] = 100046] = "fadeInActPanel";
     CommandId[CommandId["cs_fadeOutActPanel"] = 100047] = "cs_fadeOutActPanel";
     CommandId[CommandId["fadeOutActPanel"] = 100048] = "fadeOutActPanel";
+    CommandId[CommandId["cs_startGame"] = 100049] = "cs_startGame";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {
