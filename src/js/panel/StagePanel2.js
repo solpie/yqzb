@@ -14,7 +14,6 @@ var StagePanel2 = (function (_super) {
         _super.call(this);
         ///
         this.mvpPos = 0;
-        this.isBusy = false;
         this.timeOnSec = 0;
         this.timerState = 0;
         //playerInfo array
@@ -438,39 +437,40 @@ var StagePanel2 = (function (_super) {
     };
     StagePanel2.prototype.fadeInStraight3 = function (isRed) {
         var _this = this;
-        if (!this.isBusy) {
-            this.isBusy = true;
-            var ctn;
-            if (!this.straight3Ctn) {
-                ctn = new createjs.Container();
-                var basePath = '/img/panel/stage/straight3';
-                if (isRed)
-                    basePath += 'Red.png';
-                else
-                    basePath += 'Blue.png';
-                loadImg(basePath, function () {
-                    var txt3 = new createjs.Bitmap(basePath);
-                    txt3.x = -txt3.getBounds().width;
-                    txt3.y = -txt3.getBounds().height;
-                    ctn.addChild(txt3);
-                    ctn.x = 1920 / 2;
-                    ctn.y = 200;
-                    ctn.cache(txt3.x, txt3.y, txt3.getBounds().width, txt3.getBounds().height);
-                });
-                client.panel.stage.addChild(ctn);
-                this.straight3Ctn = ctn;
-            }
-            else
-                ctn = this.straight3Ctn;
+        console.log("straight score 3 isRed:", isRed);
+        var isBusy = false;
+        // if (!isBusy) {
+        isBusy = true;
+        if (!this.straight3Ctn) {
+            this.straight3Ctn = new createjs.Container();
+            client.panel.stage.addChild(this.straight3Ctn);
+        }
+        this.straight3Ctn.removeAllChildren();
+        var ctn = new createjs.Container();
+        var basePath = '/img/panel/stage/straight3';
+        if (isRed)
+            basePath += 'Red.png';
+        else
+            basePath += 'Blue.png';
+        loadImg(basePath, function () {
+            var txt3 = new createjs.Bitmap(basePath);
+            txt3.x = -txt3.getBounds().width;
+            txt3.y = -txt3.getBounds().height;
+            ctn.addChild(txt3);
+            ctn.x = 1920 / 2;
+            ctn.y = 200;
+            // ctn.cache(txt3.x, txt3.y, txt3.getBounds().width, txt3.getBounds().height);
             ctn.alpha = 1;
             ctn.scaleX = ctn.scaleY = 5;
+            _this.straight3Ctn.addChild(ctn);
             createjs.Tween.get(ctn)
                 .to({ scaleX: 1, scaleY: 1 }, 150)
                 .wait(4000)
                 .to({ alpha: 0 }, 200).call(function () {
-                _this.isBusy = false;
+                isBusy = false;
             });
-        }
+        });
+        // }
     };
     StagePanel2.prototype.getWinPlayerCard = function (p) {
         var isMvp = p.isMvp;
@@ -720,7 +720,6 @@ var StagePanel2 = (function (_super) {
             _this.fadeOutWinPanel();
         });
         cmd.on(CommandId.straightScore3, function (param) {
-            console.log("straight score 3", param);
             _this.fadeInStraight3(param.team === 'right');
         });
         cmd.on(CommandId.straightScore5, function (param) {
