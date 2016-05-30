@@ -10,6 +10,7 @@ class ActivityAdmin {
         }
         else if (reqCmd === CommandId.cs_fadeOutActPanel) {
             server.panel.act.fadeOutActPanel();
+            res.send("sus");
         }
         else {
             db.activity.getDateArrByActivityId(param, function (docs) {
@@ -20,7 +21,7 @@ class ActivityAdmin {
 
     static index(req, res) {
         var actId = req.params.id;
-        var data = {activityId: actId};
+        var data = {activityId: actId, lastRound: db.activity.config.idUsed};
         res.render('activity/activityAdmin', data);
     }
 
@@ -30,16 +31,26 @@ class ActivityAdmin {
         })
     }
 
-    static genActivity(req, res) {
+    static genRound(req, res) {
         if (!req.body) return res.sendStatus(400);
-        console.log('gen activity ', JSON.stringify(req.body.activityData));
-        db.activity.addActivity(req.body.activityData);
+        var actData:any = req.body.activityData;
+        actData.round = db.activity.getIdNew();
+        for (var i = 0; i < actData.gameDataArr.length; i++) {
+            var gameData = actData.gameDataArr[i];
+            gameData.id = actData.round * 1000 + i;
+        }
+        console.log('gen activity ', JSON.stringify(actData));
+        db.activity.addRound(actData, (err, newdoc)=> {
+            //todo return gameId to client
+            res.send(err);
+        });
+        // db.game.addGame();
     }
 
     static getActivityPlayerArr(req, res) {
         if (!req.body) return res.sendStatus(400);
         var actId = parseInt(req.body.id);
-        dbPlayerInfo().getActivityPlayerDataArr(actId, function (err, docs) {
+        db.player.getActivityPlayerDataArr(actId, function (err, docs) {
             if (!err) {
                 res.send(docs);
             }

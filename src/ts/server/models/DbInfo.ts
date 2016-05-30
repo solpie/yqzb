@@ -53,16 +53,24 @@ class BaseDB {
     saveIdUsed() {
         this.config.idUsed++;
         this.dataStore.update({id: 0}, {$set: this.config});
+        return this.config.idUsed;
     };
+
+    getIdNew() {
+        return this.config.idUsed;
+    }
 }
 
 class ActivityDB extends BaseDB {
-    addActivity(data) {
-        data.date = this.config.idUsed;
+    addRound(data, callback) {
+        data.round = this.config.idUsed;
         this.dataStore.insert(data, (err, newDoc) => {
             if (!err) {
-                this.saveIdUsed();
+                var newId = this.saveIdUsed();
+
             }
+            if (callback)
+                callback(err, newDoc);
         })
     }
 

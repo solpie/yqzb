@@ -700,6 +700,7 @@ var ActivityAdmin = (function () {
         }
         else if (reqCmd === CommandId.cs_fadeOutActPanel) {
             server.panel.act.fadeOutActPanel();
+            res.send("sus");
         }
         else {
             db.activity.getDateArrByActivityId(param, function (docs) {
@@ -710,7 +711,7 @@ var ActivityAdmin = (function () {
     ;
     ActivityAdmin.index = function (req, res) {
         var actId = req.params.id;
-        var data = { activityId: actId };
+        var data = { activityId: actId, lastRound: db.activity.config.idUsed };
         res.render('activity/activityAdmin', data);
     };
     ActivityAdmin.genPrintPng = function (req, res) {
@@ -718,17 +719,26 @@ var ActivityAdmin = (function () {
             res.send('/img/cache/game.png');
         });
     };
-    ActivityAdmin.genActivity = function (req, res) {
+    ActivityAdmin.genRound = function (req, res) {
         if (!req.body)
             return res.sendStatus(400);
-        console.log('gen activity ', JSON.stringify(req.body.activityData));
-        db.activity.addActivity(req.body.activityData);
+        var actData = req.body.activityData;
+        actData.round = db.activity.getIdNew();
+        for (var i = 0; i < actData.gameDataArr.length; i++) {
+            var gameData = actData.gameDataArr[i];
+            gameData.id = actData.round * 1000 + i;
+        }
+        console.log('gen activity ', JSON.stringify(actData));
+        db.activity.addRound(actData, function (err, newdoc) {
+            res.send(err);
+        });
+        // db.game.addGame();
     };
     ActivityAdmin.getActivityPlayerArr = function (req, res) {
         if (!req.body)
             return res.sendStatus(400);
         var actId = parseInt(req.body.id);
-        dbPlayerInfo().getActivityPlayerDataArr(actId, function (err, docs) {
+        db.player.getActivityPlayerDataArr(actId, function (err, docs) {
             if (!err) {
                 res.send(docs);
             }
@@ -787,8 +797,12 @@ var BaseDB = (function () {
     BaseDB.prototype.saveIdUsed = function () {
         this.config.idUsed++;
         this.dataStore.update({ id: 0 }, { $set: this.config });
+        return this.config.idUsed;
     };
     ;
+    BaseDB.prototype.getIdNew = function () {
+        return this.config.idUsed;
+    };
     return BaseDB;
 }());
 var ActivityDB = (function (_super) {
@@ -796,13 +810,15 @@ var ActivityDB = (function (_super) {
     function ActivityDB() {
         _super.apply(this, arguments);
     }
-    ActivityDB.prototype.addActivity = function (data) {
+    ActivityDB.prototype.addRound = function (data, callback) {
         var _this = this;
-        data.date = this.config.idUsed;
+        data.round = this.config.idUsed;
         this.dataStore.insert(data, function (err, newDoc) {
             if (!err) {
-                _this.saveIdUsed();
+                var newId = _this.saveIdUsed();
             }
+            if (callback)
+                callback(err, newDoc);
         });
     };
     ActivityDB.prototype.getDateArrByActivityId = function (actId, callback) {
@@ -1323,11 +1339,11 @@ var ActivityPanelInfo = (function (_super) {
         var _this = this;
         console.log("fade in act panel", JSON.stringify(param));
         var queryIdArr = []; //[{id:}]
-        for (var _i = 0, param_1 = param; _i < param_1.length; _i++) {
-            var playerIdArr = param_1[_i];
+        for (var _i = 0, _a = param.gameArr; _i < _a.length; _i++) {
+            var playerIdArr = _a[_i];
             //query playerData
-            for (var _a = 0, playerIdArr_1 = playerIdArr; _a < playerIdArr_1.length; _a++) {
-                var playerId = playerIdArr_1[_a];
+            for (var _b = 0, playerIdArr_1 = playerIdArr; _b < playerIdArr_1.length; _b++) {
+                var playerId = playerIdArr_1[_b];
                 queryIdArr.push({ id: playerId });
             }
         }
@@ -1335,8 +1351,8 @@ var ActivityPanelInfo = (function (_super) {
         db.player.getPlayerDataMapByIdArr(queryIdArr, function (err, playerDataMap) {
             if (!err) {
                 _this.roundInfo = new RoundInfo();
-                for (var _i = 0, param_2 = param; _i < param_2.length; _i++) {
-                    var playerIdArr = param_2[_i];
+                for (var _i = 0, param_1 = param; _i < param_1.length; _i++) {
+                    var playerIdArr = param_1[_i];
                     //query playerData
                     var gameInfo = new GameInfo();
                     for (var i = 0; i < playerIdArr.length; i++) {
@@ -1609,7 +1625,7 @@ var HttpServer = (function () {
         app.get('/admin/activity/:id', ActivityAdmin.index);
         app.post('/admin/activity/getActPlayer', urlencodedParser, ActivityAdmin.getActivityPlayerArr);
         app.post('/admin/game/genPrintPng', urlencodedParser, ActivityAdmin.genPrintPng);
-        app.post('/admin/game/genActivity', urlencodedParser, ActivityAdmin.genActivity);
+        app.post('/admin/game/genRound', urlencodedParser, ActivityAdmin.genRound);
         app.post('/op/act/', urlencodedParser, ActivityAdmin.opHandle);
         app.get('/panel/:id/:op', function (req, res) {
             var pid = req.params.id;

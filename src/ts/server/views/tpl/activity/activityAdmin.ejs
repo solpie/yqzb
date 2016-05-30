@@ -140,8 +140,9 @@
     </li>
 </script>
 <div id="app" style="width: 800px">
-      <input id="btnGen" type="button" value="分区" @click="onGen">
+    <input id="btnGen" type="button" value="分区" @click="onGen">
     <input id="btnGen" type="button" value="确定生成赛程" @click="onGenActivity">
+    <span>新一轮：<%= lastRound %></span>
     <item
             class="item"
             :model="sectionArr">
@@ -315,7 +316,8 @@
                     activityData.gameDataArr = []//[{gameId,[playerId]}]
                     for (var idx = 0; idx < this.sectionArr.length; idx++) {
                         var section = this.sectionArr[idx];
-                        for (var i = 0; i < section.gameArr.length; i++) {                        var gameData = {id: 0, playerIdArr: []}
+                        for (var i = 0; i < section.gameArr.length; i++) {
+                            var gameData = {id: 0, playerIdArr: []}
                             var gameData = {id: 0, playerIdArr: []}
                             var teamInfoArr = section.gameArr[i];
                             for (var j = 0; j < teamInfoArr.length; j++) {
@@ -331,7 +333,7 @@
                     }
                     console.log('onGenActivity data', activityData);
 
-                    this.$http.post("/admin/game/genActivity", {activityData: activityData}).then(function (res) {
+                    this.$http.post("/admin/game/genRound", {activityData: activityData}).then(function (res) {
                         console.log('onGenActivity', res.data);
                     });
                 }

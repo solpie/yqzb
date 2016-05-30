@@ -103,7 +103,10 @@ class ActivityPanelView extends BasePanelView {
                         console.log("showGameArr", JSON.stringify(this.showGameArr));
                         this.$http.post('/op/act/', {
                             cmd: CommandId.cs_fadeInActPanel,
-                            param: this.showGameArr
+                            param: {
+                                activityId:this.activityId,
+                                gameArr: this.showGameArr
+                            }
                         }).then(function (res) {
                             console.log(res);
                         });

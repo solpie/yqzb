@@ -84,7 +84,7 @@ class ActivityPanelInfo extends BasePanelInfo {
     fadeInActPanel(param) {
         console.log("fade in act panel", JSON.stringify(param));
         var queryIdArr = [];//[{id:}]
-        for (var playerIdArr of param) {
+        for (var playerIdArr of param.gameArr) {
             //query playerData
             for (var playerId of playerIdArr) {
                 queryIdArr.push({id: playerId});
