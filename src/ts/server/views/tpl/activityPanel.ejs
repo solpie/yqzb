@@ -18,6 +18,9 @@
     </select>
 
     <input type="button" value="addGame" @click="onClkAddGame"/>
+    <input type="button" value="下半区" @click="onClkAddLowSection"/>
+    <input type="button" value="上半区" @click="onClkAddHighSection"/>
+    <input type="button" value="reset" @click="onClkReset"/>
     <input type="button" value="fadeIn" @click="onClkFadeIn"/>
 
     <ul>
@@ -25,6 +28,7 @@
             playerId:{{playerId}}
         </li>
     </ul>
+    <pre id="raw">{{showGameArr | json}}</pre>
 </div>
 <div class="Preloader" style="display: none">
     <img src="/img/panel/act/bg.png">

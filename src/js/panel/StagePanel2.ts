@@ -511,45 +511,40 @@ class StagePanel2 extends BasePanelView {
         }
     }
 
-    fadeInStraight3() {
+    fadeInStraight3(isRed) {
         if (!this.isBusy) {
             this.isBusy = true;
             var ctn;
             if (!this.straight3Ctn) {
                 ctn = new createjs.Container();
-                var txt3 = new createjs.Text("三杀！！！", "bold 40px Arial", "#e2e2e2");
-                txt3.x = -txt3.getBounds().width;
-                txt3.y = -txt3.getBounds().height;
-                ctn.addChild(txt3);
-                ctn.x = 1920 / 2;
-                ctn.y = 100;
-                ctn.cache(txt3.x, txt3.y, txt3.getBounds().width, txt3.getBounds().height);
+                var basePath = '/img/panel/stage/straight3';
+                if (isRed)
+                    basePath += 'Red.png';
+                else
+                    basePath += 'Blue.png';
+                loadImg(basePath, function () {
+                    var txt3 = new createjs.Bitmap(basePath);
+                    txt3.x = -txt3.getBounds().width;
+                    txt3.y = -txt3.getBounds().height;
+                    ctn.addChild(txt3);
+                    ctn.x = 1920 / 2;
+                    ctn.y = 200;
+                    ctn.cache(txt3.x, txt3.y, txt3.getBounds().width, txt3.getBounds().height);
+                });
                 client.panel.stage.addChild(ctn);
                 this.straight3Ctn = ctn;
             }
             else
                 ctn = this.straight3Ctn;
-
             ctn.alpha = 1;
             ctn.scaleX = ctn.scaleY = 5;
 
             createjs.Tween.get(ctn)
                 .to({scaleX: 1, scaleY: 1}, 150)
-                .wait(3000)
+                .wait(4000)
                 .to({alpha: 0}, 200).call(()=> {
                 this.isBusy = false;
             });
-
-
-            //            createjs.Tween.get(client.panel.fxEventCtn)
-            //                    .to({x: 1080, alpha: 1}, 100)
-            //                    .wait(3000)
-            //                    .to({y: 150, alpha: 0}, 200)
-            //                    .call(function () {
-            //                        client.panel.fxEventCtn.x = 800;
-            //                        client.panel.fxEventCtn.y = 200;
-            //                        isBusy = false;
-            //                    });
         }
     }
 
@@ -827,7 +822,7 @@ class StagePanel2 extends BasePanelView {
         });
         cmd.on(CommandId.straightScore3, (param)=> {
             console.log("straight score 3", param);
-            this.fadeInStraight3();
+            this.fadeInStraight3(param.team === 'right');
         });
         cmd.on(CommandId.straightScore5, (param)=> {
             console.log("straight score 5", param);
@@ -970,7 +965,7 @@ class StagePanel2 extends BasePanelView {
                 }
             }
             var ret = Math.floor(sum / count);
-            return ret?ret:0;
+            return ret ? ret : 0;
         }
 
         this.leftAvgEloScoreLabel.text = getAvgRight(0, this.playerInfoArr) + "";

@@ -27,17 +27,28 @@ class PlayerInfo extends BaseInfo {
     constructor(playerData?) {
         super();
         if (playerData) {
-            this.playerData = obj2Class(playerData, PlayerData);
-            if (playerData['isRed'] != null)
-                this.isRed = playerData.isRed;
-            if (playerData['isMvp'] != null)
-                this.isMvp = playerData.isMvp;
-            if (playerData['backNumber'] != null)
-                this.backNumber = playerData.backNumber;
+            if (playerData['playerData'] != null)//playerInfo data
+            {
+                this.playerData = obj2Class(playerData.playerData, PlayerData);
+                this.setPlayerInfofromData(playerData);
+            }
+            else {//playerData with isRed isMvp etc.
+                this.playerData = obj2Class(playerData, PlayerData);
+                this.setPlayerInfofromData(playerData);
+            }
         }
     }
-    
-    getPlayerData(){
+
+    setPlayerInfofromData(data) {
+        if (data['isRed'] != null)
+            this.isRed = data.isRed;
+        if (data['isMvp'] != null)
+            this.isMvp = data.isMvp;
+        if (data['backNumber'] != null)
+            this.backNumber = data.backNumber;
+    }
+
+    getPlayerData() {
         this.playerData['isRed'] = this.isRed;
         this.playerData['isMvp'] = this.isMvp;
         this.playerData['backNumber'] = this.backNumber;

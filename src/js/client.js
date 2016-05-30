@@ -251,15 +251,24 @@ var PlayerInfo = (function (_super) {
         this.isRed = true;
         this.isMvp = false;
         if (playerData) {
-            this.playerData = obj2Class(playerData, PlayerData);
-            if (playerData['isRed'] != null)
-                this.isRed = playerData.isRed;
-            if (playerData['isMvp'] != null)
-                this.isMvp = playerData.isMvp;
-            if (playerData['backNumber'] != null)
-                this.backNumber = playerData.backNumber;
+            if (playerData['playerData'] != null) {
+                this.playerData = obj2Class(playerData.playerData, PlayerData);
+                this.setPlayerInfofromData(playerData);
+            }
+            else {
+                this.playerData = obj2Class(playerData, PlayerData);
+                this.setPlayerInfofromData(playerData);
+            }
         }
     }
+    PlayerInfo.prototype.setPlayerInfofromData = function (data) {
+        if (data['isRed'] != null)
+            this.isRed = data.isRed;
+        if (data['isMvp'] != null)
+            this.isMvp = data.isMvp;
+        if (data['backNumber'] != null)
+            this.backNumber = data.backNumber;
+    };
     PlayerInfo.prototype.getPlayerData = function () {
         this.playerData['isRed'] = this.isRed;
         this.playerData['isMvp'] = this.isMvp;
@@ -466,6 +475,11 @@ var TeamInfo = (function () {
 /// <reference path="../model/ElemID.ts"/>
 /// <reference path="models/TeamInfo.ts"/>
 var cmd = new Command();
+function loadImg(path1, callback) {
+    var img = new Image();
+    img.onload = callback;
+    img.src = path1;
+}
 var BaseCanvasView = (function () {
     function BaseCanvasView(stage, isOp) {
         this.stageWidth = 1920;
