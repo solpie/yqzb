@@ -24,6 +24,7 @@ class ActivityPanelView extends BasePanelView {
         });
         cmd.on(CommandId.fadeInActPanel, (param) => {
             console.log("fadeInActPanel", param);
+            this.fadeIn(param.gameInfoArr);
         });
     }
 
@@ -59,6 +60,7 @@ class ActivityPanelView extends BasePanelView {
                     this.showGameArr.push(this.playerIdArr);
                 },
                 onClkFadeIn: function () {
+                    this.showGameArr = [[11, 11, 11, 11, 12, 12, 12, 12], [11, 11, 11, 11, 12, 12, 12, 12]];
                     if (this.showGameArr.length)
                         this.$http.post('/op/act/', {
                             cmd: CommandId.cs_fadeInActPanel,
@@ -115,11 +117,32 @@ class ActivityPanelView extends BasePanelView {
         this.stage.addChild(this.ctn);
     }
 
-    fadeIn(actInfo:RoundInfo) {
+    fadeIn(gameInfoArr) {
+        this.ctn.removeAllChildren();
         this.ctn.alpha = 0;
-        for (var gameInfo of actInfo.gameInfoArr) {
-
+        for (var i = 0; i < gameInfoArr.length; i++) {
+            var gameInfo = gameInfoArr[i];
+            var gameCtn = new createjs.Container();
+            gameCtn.y = i * 169;
+            var bg = new createjs.Bitmap('/img/panel/act/bg.png');
+            gameCtn.addChild(bg);
+            for (var j = 0; j < gameInfo.playerInfoArr.length; j++) {
+                var playerInfo = gameInfo.playerInfoArr[j];
+                var playerCtn;
+                if (playerInfo.isRed) {
+                    playerCtn = getRightPlayerCard(playerInfo.playerData.avatar, 1);
+                    playerCtn.x = 282 + j * 148;
+                }
+                else {
+                    playerCtn = getLeftPlayerCard(playerInfo.playerData.avatar, 1);
+                    playerCtn.x = 1 + j * 148;
+                }
+                playerCtn.y = 36;
+                gameCtn.addChild(playerCtn);
+            }
+            this.ctn.addChild(gameCtn);
         }
+
         createjs.Tween.get(this.ctn)
             .to({alpha: 1}, 300);
     }
