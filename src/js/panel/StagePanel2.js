@@ -221,7 +221,7 @@ var StagePanel2 = (function (_super) {
                     .lineTo(180 - sx, 76)
                     .lineTo(180, 0)
                     .lineTo(sx, 0);
-                var avatarBmp = new createjs.Bitmap("/img/player/p11.png");
+                var avatarBmp = new createjs.Bitmap("/img/player/blue.png");
                 avatarBmp.mask = leftMask;
                 avatarCtn.addChild(leftMask);
                 avatarCtn.addChild(avatarBmp);
@@ -272,7 +272,7 @@ var StagePanel2 = (function (_super) {
                     .lineTo(180, 76)
                     .lineTo(180 - sx, 0)
                     .lineTo(0, 0);
-                var avatarBmp = new createjs.Bitmap("/img/player/p13.png");
+                var avatarBmp = new createjs.Bitmap("/img/player/red.png");
                 avatarBmp.mask = rightMask;
                 rightAvatarCtn.addChild(rightMask);
                 rightAvatarCtn.addChild(avatarBmp);
