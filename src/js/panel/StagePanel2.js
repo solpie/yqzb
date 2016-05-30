@@ -344,6 +344,7 @@ var StagePanel2 = (function (_super) {
             this.initOp();
         }
         if (param) {
+            this.initPlayerIdArr(param.playerIdArr);
             this.setLeftScore(param.leftScore);
             this.setRightScore(param.rightScore);
             this.setTime(param.time, param.state);
@@ -568,6 +569,13 @@ var StagePanel2 = (function (_super) {
     // constructor(stage, isOp) {
     //     super(stage, isOp);
     // }
+    StagePanel2.prototype.initPlayerIdArr = function (playerIdArr) {
+        console.log(JSON.stringify(playerIdArr));
+        for (var i = 0; i < playerIdArr.length; i++) {
+            var playerId = playerIdArr[i];
+            $("#playerId" + i).val(playerId);
+        }
+    };
     StagePanel2.prototype.initOp = function () {
         var _this = this;
         var ctn = this.ctn;
@@ -888,7 +896,15 @@ var StagePanel2 = (function (_super) {
     return StagePanel2;
 }(BasePanelView));
 var stagePanel2;
+// var vue;
 $(function main() {
     stagePanel2 = new StagePanel2();
+    // vue = new Vue({
+    //     el: '#panel',
+    //     data: {
+    //         playerIdArr: []
+    //     },
+    //     methods: {}
+    // })
 });
 //# sourceMappingURL=StagePanel2.js.map

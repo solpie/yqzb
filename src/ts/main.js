@@ -1352,18 +1352,18 @@ var PanelId = {
 /// <reference path="../../libs/createjs/createjs.d.ts"/>
 var PanelInfo = (function () {
     function PanelInfo() {
-        this.stage = new StagePanelInfo(PanelId.stagePanel);
-        this.player = new PlayerPanelInfo(PanelId.playerPanel);
-        this.player.stageInfo = this.stage;
-        this.act = new ActivityPanelInfo(PanelId.actPanel);
+        this.stage = new StagePanelInfo(PanelId.stagePanel, this);
+        this.player = new PlayerPanelInfo(PanelId.playerPanel, this);
+        this.act = new ActivityPanelInfo(PanelId.actPanel, this);
     }
     return PanelInfo;
 }());
 var BasePanelInfo = (function (_super) {
     __extends(BasePanelInfo, _super);
-    function BasePanelInfo(pid) {
+    function BasePanelInfo(pid, panelInfo) {
         _super.call(this);
         this.pid = pid;
+        this.panelInfo = panelInfo;
         this.initInfo();
     }
     BasePanelInfo.prototype.initInfo = function () {
@@ -1378,15 +1378,15 @@ var PlayerPanelInfo = (function (_super) {
     }
     PlayerPanelInfo.prototype.getInfo = function () {
         return {
-            playerInfoArr: this.stageInfo.getPlayerInfoArr(),
+            playerInfoArr: this.panelInfo.stage.getPlayerInfoArr(),
             playerInfo: this.playerData,
             position: this.position
         };
     };
     PlayerPanelInfo.prototype.showPlayerPanel = function (param) {
         var playerId = parseInt(param);
-        for (var i = 0; i < this.stageInfo.getPlayerInfoArr().length; i++) {
-            var obj = this.stageInfo.getPlayerInfoArr()[i];
+        for (var i = 0; i < this.panelInfo.stage.getPlayerInfoArr().length; i++) {
+            var obj = this.panelInfo.stage.getPlayerInfoArr()[i];
             if (obj && obj.id == playerId) {
                 this.playerData = obj;
                 cmd.emit(CommandId.fadeInPlayerPanel, obj, this.pid);
@@ -1414,6 +1414,12 @@ var ActivityPanelInfo = (function (_super) {
     };
     ActivityPanelInfo.prototype.initInfo = function () {
         this.roundInfo = new RoundInfo();
+    };
+    ActivityPanelInfo.prototype.getCurPlayerIdArr = function () {
+        if (this.gameData)
+            return this.gameData.playerIdArr;
+        else
+            return [];
     };
     ActivityPanelInfo.prototype.fadeInActPanel = function (param) {
         var _this = this;
@@ -1454,6 +1460,7 @@ var ActivityPanelInfo = (function (_super) {
         cmd.emit(CommandId.fadeOutActPanel, null, this.pid);
     };
     ActivityPanelInfo.prototype.startGame = function (param) {
+        this.gameData = param.gameData;
         param.gameData.activityId = param.activityId;
         param.gameData.isFinish = false;
         db.game.startGame(param.gameData);
@@ -1462,8 +1469,8 @@ var ActivityPanelInfo = (function (_super) {
 }(BasePanelInfo));
 var StagePanelInfo = (function (_super) {
     __extends(StagePanelInfo, _super);
-    function StagePanelInfo(pid) {
-        _super.call(this, pid);
+    function StagePanelInfo(pid, panelInfo) {
+        _super.call(this, pid, panelInfo);
         this.gameInfo = new GameInfo();
         this.gameInfo.playerDb = dbPlayerInfo();
         this.initCanvasNotice();
@@ -1492,6 +1499,7 @@ var StagePanelInfo = (function (_super) {
     };
     StagePanelInfo.prototype.getInfo = function () {
         return {
+            playerIdArr: this.panelInfo.act.getCurPlayerIdArr(),
             leftScore: this.gameInfo.leftScore,
             rightScore: this.gameInfo.rightScore,
             time: this.gameInfo.time,

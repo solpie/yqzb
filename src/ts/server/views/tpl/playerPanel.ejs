@@ -76,8 +76,11 @@
             <img class="playerAvatar" src="/img/player/p0.png">
             <input class="playerId" type="text" style="width: 75px"/>
             <input class="btnQuery" type="button" value="query" data-pos="0"/>
-            <input class="btnUpdate" type="button" value="update↓↓↓" data-pos="0"/><br>
-            <input class="btnFadeOut" type="button" value="fadeOut" data-pos="0"/><br>
+            <input class="btnUpdate" type="button" value="update↓↓↓" data-pos="0"/>
+            <br>
+            <input class="btnFadeOut" type="button" value="fadeOut" data-pos="0"/>
+            鼠标移动到头像上:按 M 切换移动状态
+            <br>
             <label id="moveState"></label>
         </div>
     </div>
@@ -223,6 +226,7 @@
     });
 
     var movePlayerName = function (x, y) {
+        console.log("movePlayerName");
         x += 290;
         y += 18;
         $('#playerName').css({left: x, top: y});
@@ -252,10 +256,11 @@
 
 
     var fadeInPlayerPanel = function (playerInfo) {
+        console.log("fadeInPlayerPanel");
         var ctn = client.panel.ctn;
         ctn.alpha = 1;
-        if (ctn.numChildren)
-            ctn.removeAllChildren();
+//        if (ctn.numChildren)
+        ctn.removeAllChildren();
         var fxCtn = new createjs.Container()
         ctn.addChild(fxCtn);
 
@@ -295,13 +300,10 @@
             mask.y = avatar.y;
             avatar.mask = mask;
             avatarCtn.addChild(avatar);
-
             var bgBound = bg.getBounds();
             fxCtn.cache(0, 0, bgBound.width, bgBound.height);
-
         }
         img.src = playerInfo.avatar();
-
 
         var eloScore = new createjs.Text(playerInfo.eloScore(), '30px Microsoft Yahei', '#f2f2f2')
         eloScore.textAlign = 'left';

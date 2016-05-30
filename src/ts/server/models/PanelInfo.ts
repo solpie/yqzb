@@ -14,18 +14,19 @@ class PanelInfo {
     act:ActivityPanelInfo;
 
     constructor() {
-        this.stage = new StagePanelInfo(PanelId.stagePanel);
-        this.player = new PlayerPanelInfo(PanelId.playerPanel);
-        this.player.stageInfo = this.stage;
-        this.act = new ActivityPanelInfo(PanelId.actPanel);
+        this.stage = new StagePanelInfo(PanelId.stagePanel, this);
+        this.player = new PlayerPanelInfo(PanelId.playerPanel, this);
+        this.act = new ActivityPanelInfo(PanelId.actPanel, this);
     }
 }
 class BasePanelInfo extends EventDispatcher {
     pid:string;
+    panelInfo:any;
 
-    constructor(pid) {
+    constructor(pid, panelInfo) {
         super();
         this.pid = pid;
+        this.panelInfo = panelInfo;
         this.initInfo();
     }
 
@@ -37,11 +38,10 @@ class BasePanelInfo extends EventDispatcher {
 class PlayerPanelInfo extends BasePanelInfo {
     playerData:any;
     position:any = {ctnX: 500, ctnY: 500};
-    stageInfo:StagePanelInfo;
 
     getInfo() {
         return {
-            playerInfoArr: this.stageInfo.getPlayerInfoArr(),
+            playerInfoArr: this.panelInfo.stage.getPlayerInfoArr(),
             playerInfo: this.playerData,
             position: this.position
         };
@@ -49,8 +49,8 @@ class PlayerPanelInfo extends BasePanelInfo {
 
     showPlayerPanel(param:any) {
         var playerId = parseInt(param);
-        for (var i = 0; i < this.stageInfo.getPlayerInfoArr().length; i++) {
-            var obj = this.stageInfo.getPlayerInfoArr()[i];
+        for (var i = 0; i < this.panelInfo.stage.getPlayerInfoArr().length; i++) {
+            var obj = this.panelInfo.stage.getPlayerInfoArr()[i];
             if (obj && obj.id == playerId) {
                 this.playerData = obj;
                 cmd.emit(CommandId.fadeInPlayerPanel, obj, this.pid);
@@ -67,9 +67,10 @@ class PlayerPanelInfo extends BasePanelInfo {
         cmd.emit(CommandId.movePlayerPanel, param, this.pid);
     }
 }
+
 class ActivityPanelInfo extends BasePanelInfo {
     roundInfo:RoundInfo;
-    curGameInfo:GameInfo;
+    gameData:any;
 
     getInfo() {
         return {
@@ -79,6 +80,13 @@ class ActivityPanelInfo extends BasePanelInfo {
 
     initInfo() {
         this.roundInfo = new RoundInfo();
+    }
+
+    getCurPlayerIdArr() {
+        if (this.gameData)
+            return this.gameData.playerIdArr;
+        else
+            return []
     }
 
     fadeInActPanel(param) {
@@ -118,6 +126,7 @@ class ActivityPanelInfo extends BasePanelInfo {
     }
 
     startGame(param) {//{activityId: this.selected, gameData: selGame}
+        this.gameData = param.gameData;
         param.gameData.activityId = param.activityId;
         param.gameData.isFinish = false;
         db.game.startGame(param.gameData);
@@ -129,9 +138,8 @@ class StagePanelInfo extends BasePanelInfo {
     gameInfo:GameInfo;
     stageNotice:any;
 
-
-    constructor(pid) {
-        super(pid);
+    constructor(pid, panelInfo) {
+        super(pid, panelInfo);
         this.gameInfo = new GameInfo();
         this.gameInfo.playerDb = dbPlayerInfo();
         this.initCanvasNotice();
@@ -165,6 +173,7 @@ class StagePanelInfo extends BasePanelInfo {
 
     getInfo() {
         return {
+            playerIdArr: this.panelInfo.act.getCurPlayerIdArr(),
             leftScore: this.gameInfo.leftScore,
             rightScore: this.gameInfo.rightScore,
             time: this.gameInfo.time,

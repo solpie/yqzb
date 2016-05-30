@@ -409,6 +409,7 @@ class StagePanel2 extends BasePanelView {
             this.initOp();
         }
         if (param) {
+            this.initPlayerIdArr(param.playerIdArr);
             this.setLeftScore(param.leftScore);
             this.setRightScore(param.rightScore);
             this.setTime(param.time, param.state);
@@ -657,6 +658,14 @@ class StagePanel2 extends BasePanelView {
     // constructor(stage, isOp) {
     //     super(stage, isOp);
     // }
+    initPlayerIdArr(playerIdArr) {
+        console.log(JSON.stringify(playerIdArr));
+        for (var i = 0; i < playerIdArr.length; i++) {
+            var playerId = playerIdArr[i];
+            $("#playerId" + i).val(playerId);
+        }
+
+    }
 
     initOp() {
         var ctn = this.ctn;
@@ -1025,8 +1034,16 @@ class StagePanel2 extends BasePanelView {
 
 
 var stagePanel2;
+// var vue;
 $(function main() {
     stagePanel2 = new StagePanel2();
+    // vue = new Vue({
+    //     el: '#panel',
+    //     data: {
+    //         playerIdArr: []
+    //     },
+    //     methods: {}
+    // })
 });
 
 
