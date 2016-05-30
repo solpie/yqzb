@@ -5,3 +5,4 @@
 /// <reference path="../ts/view/BaseView.ts"/>
 /// <reference path="../ts/JQuery.ts"/>
 /// <reference path="../ts/libs/createjs/createjs.d.ts"/>
+

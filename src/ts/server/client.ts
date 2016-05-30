@@ -1,8 +1,5 @@
 /// <reference path="../lib.ts"/>
 /// <reference path="Config.ts"/>
-/// <reference path="views/StagePanelView.ts"/>
-/// <reference path="views/PlayerPanelView.ts"/>
-/// <reference path="../view/BaseView.ts"/>
 /// <reference path="../model/Command.ts"/>
 /// <reference path="../model/ElemID.ts"/>
 /// <reference path="models/TeamInfo.ts"/>
@@ -13,11 +10,57 @@ declare var msgpack:{
     encode(obj:any):any;
     decode(obj:any):any;
 };
+
+
+class BaseCanvasView {
+    stageWidth = 1920;
+    stageHeight = 1080;
+    stage:any;
+    isOp:Boolean = false;
+    ctn:any;
+
+    constructor(stage, isOp) {
+        this.stage = stage;
+        this.isOp = isOp;
+    }
+
+    init(param) {
+        var ctn = new createjs.Container();
+        this.ctn = ctn;
+        this.stage.addChild(ctn);
+        cmd.emit(CommandId.initPanel, param);
+    }
+
+    initOp() {
+        $(".inputPanel").show();
+    }
+
+    newBtn(func, text?) {
+        var ctn = new createjs.Container();
+        var btn = new createjs.Shape();
+        var btnWidth = 75 * 3, btnHeight = 30 * 3;
+        btn.graphics
+            .beginFill("#3c3c3c")
+            .drawRect(0, 0, btnWidth, btnHeight);
+        btn.addEventListener("click", func);
+        // btn.addEventListener("mousedown", func);
+        ctn.addChild(btn);
+        if (text) {
+            var txt = new createjs.Text(text, "30px Arial", "#e2e2e2");
+            txt.x = (btnWidth - txt.getMeasuredWidth()) * .5;
+            txt.y = (btnHeight - txt.getMeasuredHeight()) * .5 - 5;
+            txt.mouseEnabled = false;
+            ctn.addChild(txt);
+        }
+        return ctn;
+    }
+}
+
 class Client {
-    panel:BaseView;
+    panel:BaseCanvasView;
     pid:number;
     isOB:boolean;
-    teamInfo:TeamInfo;
+
     constructor(pid, isOB, host, port) {
         this.pid = pid;
         this.initWsClient(pid, host, port);
@@ -67,11 +110,7 @@ class Client {
 
     initPanel(pid, param) {
         var stage = this.initCanvas();
-        var viewMap = {};
-        viewMap[PanelId.stagePanel] = StagePanelView;
-        viewMap[PanelId.playerPanel] = PlayerPanelView;
-        viewMap[PanelId.actPanel] = PlayerPanelView;
-        this.panel = new viewMap[pid](stage, this.isOB);
+        this.panel = new BaseCanvasView(stage, this.isOB);
         this.panel.init(param);
     }
 

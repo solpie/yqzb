@@ -2,7 +2,6 @@
  * Created by toramisu on 2016/5/9.
  */
 /// <reference path="WinView.ts"/>
-/// <reference path="../server/views/StagePanelView.ts"/>
 /// <reference path="KeyInput.ts"/>
 /// <reference path="../JQuery.ts"/>
 var Keys = {

@@ -7,6 +7,7 @@
 /// <reference path="models/DbInfo.ts"/>
 /// <reference path="models/PanelInfo.ts"/>
 /// <reference path="models/RoundInfo.ts"/>
+/// <reference path="../model/ElemID.ts"/>
 
 var msgpack = require("msgpack-lite");
 var debug = require('debug')('express2:server');
