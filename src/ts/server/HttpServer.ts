@@ -119,7 +119,7 @@ class HttpServer {
             var s1 = JSON.stringify(data);
             var s2 = s1.substr(0, s1.length - 1) + ',"' + pid + '":1}';
             data = JSON.parse(s2);
-            res.render('panel', data);
+            res.render('panel/panel', data);
         });
 
         app.post('/getPlayerInfo/:playerId', (req, res) => {
