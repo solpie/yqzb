@@ -8,6 +8,9 @@ class ActivityAdmin {
             server.panel.act.fadeInActPanel(param);
             res.send("sus");
         }
+        else if (reqCmd === CommandId.cs_fadeOutActPanel) {
+            server.panel.act.fadeOutActPanel();
+        }
         else {
             db.activity.getDateArrByActivityId(param, function (docs) {
                 res.send(docs);

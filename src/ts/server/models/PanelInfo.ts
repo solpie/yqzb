@@ -111,6 +111,10 @@ class ActivityPanelInfo extends BasePanelInfo {
             }
         })
     }
+
+    fadeOutActPanel() {
+        cmd.emit(CommandId.fadeOutActPanel, null, this.pid);
+    }
 }
 
 class StagePanelInfo extends BasePanelInfo {

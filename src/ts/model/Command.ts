@@ -56,6 +56,8 @@ enum CommandId{
     /////activity panel
     cs_fadeInActPanel,
     fadeInActPanel,
+    cs_fadeOutActPanel,
+    fadeOutActPanel,
 
 }
 class CommandItem {

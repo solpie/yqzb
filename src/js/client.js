@@ -159,6 +159,8 @@ var CommandId;
     /////activity panel
     CommandId[CommandId["cs_fadeInActPanel"] = 100045] = "cs_fadeInActPanel";
     CommandId[CommandId["fadeInActPanel"] = 100046] = "fadeInActPanel";
+    CommandId[CommandId["cs_fadeOutActPanel"] = 100047] = "cs_fadeOutActPanel";
+    CommandId[CommandId["fadeOutActPanel"] = 100048] = "fadeOutActPanel";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {
@@ -475,11 +477,6 @@ var TeamInfo = (function () {
 /// <reference path="../model/ElemID.ts"/>
 /// <reference path="models/TeamInfo.ts"/>
 var cmd = new Command();
-function loadImg(path1, callback) {
-    var img = new Image();
-    img.onload = callback;
-    img.src = path1;
-}
 var BaseCanvasView = (function () {
     function BaseCanvasView(stage, isOp) {
         this.stageWidth = 1920;

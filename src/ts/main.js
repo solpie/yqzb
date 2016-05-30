@@ -307,6 +307,8 @@ var CommandId;
     /////activity panel
     CommandId[CommandId["cs_fadeInActPanel"] = 100045] = "cs_fadeInActPanel";
     CommandId[CommandId["fadeInActPanel"] = 100046] = "fadeInActPanel";
+    CommandId[CommandId["cs_fadeOutActPanel"] = 100047] = "cs_fadeOutActPanel";
+    CommandId[CommandId["fadeOutActPanel"] = 100048] = "fadeOutActPanel";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {
@@ -695,6 +697,9 @@ var ActivityAdmin = (function () {
         if (reqCmd === CommandId.cs_fadeInActPanel) {
             server.panel.act.fadeInActPanel(param);
             res.send("sus");
+        }
+        else if (reqCmd === CommandId.cs_fadeOutActPanel) {
+            server.panel.act.fadeOutActPanel();
         }
         else {
             db.activity.getDateArrByActivityId(param, function (docs) {
@@ -1347,6 +1352,9 @@ var ActivityPanelInfo = (function (_super) {
                 throw new Error(err);
             }
         });
+    };
+    ActivityPanelInfo.prototype.fadeOutActPanel = function () {
+        cmd.emit(CommandId.fadeOutActPanel, null, this.pid);
     };
     return ActivityPanelInfo;
 }(BasePanelInfo));

@@ -25,6 +25,9 @@ class ActivityPanelView extends BasePanelView {
             console.log("fadeInActPanel", param);
             this.fadeIn(param.gameInfoArr);
         });
+        cmd.on(CommandId.fadeOutActPanel, (param) => {
+            this.fadeOut();
+        });
     }
 
     initVue() {
@@ -80,6 +83,13 @@ class ActivityPanelView extends BasePanelView {
                 },
                 onClkAddGame: function () {
                     this.showGameArr.push(this.playerIdArr.concat());
+                },
+                onClkFadeOut: function () {
+                    this.$http.post('/op/act/', {
+                        cmd: CommandId.cs_fadeOutActPanel
+                    }).then(function (res) {
+                        console.log(res);
+                    });
                 },
                 onClkFadeIn: function () {
                     // this.showGameArr = [
@@ -209,7 +219,12 @@ class ActivityPanelView extends BasePanelView {
     }
 
     fadeOut() {
-
+        createjs.Tween.get(this.ctn)
+            .to({alpha: 0}, 300).call(
+            ()=> {
+                this.ctn.removeAllChildren();
+            }
+        );
     }
 
 }
