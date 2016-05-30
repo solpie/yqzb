@@ -10,7 +10,7 @@ function pathEx(p) {
 /////////////////
 var db:any;
 function dbPlayerInfo() {
-    return db.player;
+    return db.player.dataStore;
 }
 function dbActivityInfo() {
     return db.activity;
@@ -36,7 +36,11 @@ class BaseDB {
                     this.init();
             }
         });
+        this.onloaded();
     }
+
+    onloaded() {
+    };
 
     init() {
         this.dataStore.insert({id: 0, idUsed: 1}, (err, newDoc) => {
@@ -50,10 +54,6 @@ class BaseDB {
         this.config.idUsed++;
         this.dataStore.update({id: 0}, {$set: this.config});
     };
-
-    getActivityPlayerDataArr() {
-
-    }
 }
 
 class ActivityDB extends BaseDB {
@@ -75,6 +75,28 @@ class ActivityDB extends BaseDB {
 class GameDB extends BaseDB {
 
 }
+class PlayerDB extends BaseDB {
+    getNewId() {
+        return this.config.idUsed;
+    }
+
+    getActivityPlayerDataArr(actId, callback) {
+        this.dataStore.find({$not: {id: 0}, activityId: actId}).sort({eloScore: 1}).exec(function (err, docs) {
+            callback(err, docs);
+        });
+    }
+
+    getPlayerDataByIdArr(idArr, callback) {
+        // this.dataStore.find()
+    }
+
+    onloaded() {
+        super.onloaded();
+        // this.dataStore.find({$not: {id: 0}}).sort({eloScore: 1}).exec(function (err, docs) {
+        //     callback(err, docs);
+        // });
+    }
+}
 function initDB() {
 // Fetch a collection to insert document into
     var playerDb:string = pathEx('db/player.db');
@@ -82,25 +104,25 @@ function initDB() {
     var gameDbPath:string = pathEx('db/game.db');
 
     db = {};
-    db.player = new Datastore({filename: playerDb, autoload: true});
+    db.player = new PlayerDB({filename: playerDb, autoload: true});
     db.activity = new ActivityDB({filename: activityDb, autoload: true});
     db.game = new GameDB({filename: gameDbPath, autoload: true});
 
-    db.player.find({id: 0}, function (err, doc) {
-        db.player.config = doc[0];
-    });
-    db.player.saveIdUsed = function () {
-        db.player.config.playerIdUsed++;
-        db.player.update({id: 0}, {$set: db.player.config})
-    };
-    db.player.getNewId = function () {
-        return db.player.config.playerIdUsed;
-    };
-    db.player.getActivityPlayerDataArr = function (actId, callback) {
-        db.player.find({$not: {id: 0}, activityId: actId}).sort({eloScore: 1}).exec(function (err, docs) {
-            callback(err, docs);
-        });
-    };
+    // db.player.find({id: 0}, function (err, doc) {
+    //     db.player.config = doc[0];
+    // });
+    // db.player.saveIdUsed = function () {
+    //     db.player.config.playerIdUsed++;
+    //     db.player.update({id: 0}, {$set: db.player.config})
+    // };
+    // db.player.getNewId = function () {
+    //     return db.player.config.playerIdUsed;
+    // };
+    // db.player.getActivityPlayerDataArr = function (actId, callback) {
+    //     db.player.find({$not: {id: 0}, activityId: actId}).sort({eloScore: 1}).exec(function (err, docs) {
+    //         callback(err, docs);
+    //     });
+    // };
     console.log(process.cwd());
     // Get path of project binary:
     console.log(M_path.dirname(process.execPath));

@@ -3,7 +3,7 @@
  * Created by toramisu on 2016/5/28.
  */
 /// <reference path="../clientDef.ts"/>
-/// <reference path="../../ts/server/models/ActivityInfo.ts"/>
+/// <reference path="../../ts/server/models/RoundInfo.ts"/>
 /// <reference path="./BasePanelView.ts"/>
 
 class ActivityPanelView extends BasePanelView {
@@ -28,14 +28,16 @@ class ActivityPanelView extends BasePanelView {
         var vue = new Vue({
             el: '#panel',
             data: {
+                showGameArr: [],
+
                 playerIdArr: [],
-                dateDataArr: [],
+                roundDataArr: [],
 
                 gameSelected: -1,
                 gameOptionArr: [],
 
-                dateSelected: -1,
-                dateOptions: [],
+                roundSelected: -1,
+                roundOptionArr: [],
 
                 selected: 0,
                 options: [
@@ -50,36 +52,51 @@ class ActivityPanelView extends BasePanelView {
             //     }
             // },
             methods: {
+                onClkAddGame: function () {
+                    this.showGameArr.push(this.playerIdArr);
+                },
+                onClkFadeIn: function () {
+                    if (this.showGameArr.length)
+                        this.$http.post('/op/act/', {
+                            cmd: CommandId.cs_fadeInActPanel,
+                            param: this.showGameArr
+                        }).then(function (res) {
+                            console.log(res);
+                        });
+                    else {
+                        console.log('no game arr@!');
+                    }
+                },
                 onGameSelected: function () {
                     console.log('game change', this.gameSelected);
-                    var selDate = this.dateDataArr[this.dateSelected];
-                    var selGame = selDate.gameDataArr[this.gameSelected];
+                    var selRound = this.roundDataArr[this.roundSelected];
+                    var selGame = selRound.gameDataArr[this.gameSelected];
                     this.playerIdArr.length = 0;
-                    console.log("sel", JSON.stringify(selDate));
+                    console.log("sel", JSON.stringify(selRound));
                     for (var i = 0; i < selGame.playerIdArr.length; i++) {
                         this.playerIdArr.push(selGame.playerIdArr[i]);
                     }
                 },
-                onDateSelected: function () {
-                    console.log('date change', this.dateSelected);
-                    console.log(vue.dateDataArr[this.dateSelected]);
+                onRoundSelected: function () {
+                    console.log('round change', this.roundSelected);
+                    console.log(vue.roundDataArr[this.roundSelected]);
                     vue.gameOptionArr = [];
-                    for (var i = 0; i < vue.dateDataArr[this.dateSelected].gameDataArr.length; i++) {
+                    for (var i = 0; i < vue.roundDataArr[this.roundSelected].gameDataArr.length; i++) {
                         vue.gameOptionArr.push({value: i, text: '第' + (i + 1) + '场'});
                         // console.log('第' + (i + 1) + '场');
                     }
+                    this.gameSelected = -1;
+                    this.playerIdArr = [];
                 },
                 onGetDateArr: function () {
                     console.log('activity change');
                     var actId = parseInt(this.selected);
-                    this.$http.post('/api/act/', {activityId: actId}).then(function (res) {
-                        vue.dateDataArr = res.data;
-                        vue.dateOptions = [];
-                        for (var i = 0; i < vue.dateDataArr.length; i++) {
-                            vue.dateOptions.push({value: i, text: '第' + (i + 1) + '天'});
-                            console.log('第' + (i + 1) + '天');
+                    this.$http.post('/op/act/', {cmd: 'query', param: actId}).then(function (res) {
+                        vue.roundDataArr = res.data;
+                        vue.roundOptionArr = [];
+                        for (var i = 0; i < vue.roundDataArr.length; i++) {
+                            vue.roundOptionArr.push({value: i, text: '第' + (i + 1) + '轮'});
                         }
-                        // console.log(JSON.stringify(res.data));
                     })
                 },
             }
@@ -95,7 +112,7 @@ class ActivityPanelView extends BasePanelView {
         this.stage.addChild(this.ctn);
     }
 
-    fadeIn(actInfo:ActivityInfo) {
+    fadeIn(actInfo:RoundInfo) {
         this.ctn.alpha = 0;
         for (var gameInfo of actInfo.gameInfoArr) {
 

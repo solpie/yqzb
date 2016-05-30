@@ -53,6 +53,10 @@ enum CommandId{
     straightScore5,
 
     initPanel,
+    /////activity panel
+    cs_fadeInActPanel,
+    fadeInActPanel,
+
 }
 class CommandItem {
     id:number;

@@ -66,17 +66,27 @@ class PlayerPanelInfo extends BasePanelInfo {
     }
 }
 class ActivityPanelInfo extends BasePanelInfo {
-    activityInfo:ActivityInfo;
+    roundInfo:RoundInfo;
 
 
     getInfo() {
         return {
-            activityInfo: this.activityInfo
+            roundInfo: this.roundInfo
         }
     }
 
     initInfo() {
-        this.activityInfo = new ActivityInfo();
+        this.roundInfo = new RoundInfo();
+    }
+
+    fadeInActPanel(param) {
+        console.log("fade in act panel", JSON.stringify(param));
+        for (var playerIdArr of param) {
+            //query playerData
+            for (var playerId of playerIdArr) {
+                
+            }
+        }
     }
 }
 

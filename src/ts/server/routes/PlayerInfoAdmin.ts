@@ -112,7 +112,8 @@ class PlayerAdmin {
     static newPlayer(req, res) {
         if (!req.body) return res.sendStatus(400);
         var playerInfo = new PlayerInfo(req.body);
-        playerInfo.id(dbPlayerInfo().getNewId());
+        //refactor new player method into playerDB
+        playerInfo.id(db.player.getNewId());
         var imgPath1 = "img/player/" + playerInfo.id() + '.png';
         base64ToPng(imgPath1, req.body.avatar, function (imgPath) {
             playerInfo.avatar(imgPath);
@@ -120,7 +121,7 @@ class PlayerAdmin {
             data.avatar = imgPath;
             dbPlayerInfo().insert(data, function (err, newDoc) {
                 if (!err) {
-                    dbPlayerInfo().saveIdUsed();
+                    db.player.saveIdUsed();
                     res.redirect("/admin/player/");
                 }
                 else

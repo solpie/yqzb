@@ -6,7 +6,7 @@
 /// <reference path="routes/ActivityAdmin.ts"/>
 /// <reference path="models/DbInfo.ts"/>
 /// <reference path="models/PanelInfo.ts"/>
-/// <reference path="models/ActivityInfo.ts"/>
+/// <reference path="models/RoundInfo.ts"/>
 
 var msgpack = require("msgpack-lite");
 var debug = require('debug')('express2:server');
@@ -106,8 +106,8 @@ class HttpServer {
         app.post('/admin/activity/getActPlayer', urlencodedParser, ActivityAdmin.getActivityPlayerArr);
         app.post('/admin/game/genPrintPng', urlencodedParser, ActivityAdmin.genPrintPng);
         app.post('/admin/game/genActivity', urlencodedParser, ActivityAdmin.genActivity);
-
-        app.post('/api/act/', urlencodedParser, ActivityAdmin.getActivityDateArr);
+        
+        app.post('/op/act/', urlencodedParser, ActivityAdmin.opHandle);
 
 
         app.get('/panel/:id/:op', function (req, res) {

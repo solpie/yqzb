@@ -304,6 +304,9 @@ var CommandId;
     CommandId[CommandId["straightScore3"] = 100042] = "straightScore3";
     CommandId[CommandId["straightScore5"] = 100043] = "straightScore5";
     CommandId[CommandId["initPanel"] = 100044] = "initPanel";
+    /////activity panel
+    CommandId[CommandId["cs_fadeInActPanel"] = 100045] = "cs_fadeInActPanel";
+    CommandId[CommandId["fadeInActPanel"] = 100046] = "fadeInActPanel";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {
@@ -1111,7 +1114,8 @@ var PlayerAdmin = (function () {
         if (!req.body)
             return res.sendStatus(400);
         var playerInfo = new PlayerInfo(req.body);
-        playerInfo.id(dbPlayerInfo().getNewId());
+        //refactor new player method into playerDB
+        playerInfo.id(db.player.getNewId());
         var imgPath1 = "img/player/" + playerInfo.id() + '.png';
         base64ToPng(imgPath1, req.body.avatar, function (imgPath) {
             playerInfo.avatar(imgPath);
@@ -1119,7 +1123,7 @@ var PlayerAdmin = (function () {
             data.avatar = imgPath;
             dbPlayerInfo().insert(data, function (err, newDoc) {
                 if (!err) {
-                    dbPlayerInfo().saveIdUsed();
+                    db.player.saveIdUsed();
                     res.redirect("/admin/player/");
                 }
                 else
@@ -1133,13 +1137,20 @@ var PlayerAdmin = (function () {
 var ActivityAdmin = (function () {
     function ActivityAdmin() {
     }
-    ActivityAdmin.getActivityDateArr = function (req, res) {
+    ActivityAdmin.opHandle = function (req, res) {
         if (!req.body)
             return res.sendStatus(400);
-        console.log('getActivityDateArr', JSON.stringify(req.body));
-        db.activity.getDateArrByActivityId(req.body.activityId, function (docs) {
-            res.send(docs);
-        });
+        console.log('opHandle', JSON.stringify(req.body));
+        var reqCmd = req.body.cmd;
+        var param = req.body.param;
+        if (reqCmd === CommandId.cs_fadeInActPanel) {
+            server.panel.act.fadeInActPanel(param);
+        }
+        else {
+            db.activity.getDateArrByActivityId(param, function (docs) {
+                res.send(docs);
+            });
+        }
     };
     ;
     ActivityAdmin.index = function (req, res) {
@@ -1184,7 +1195,7 @@ function pathEx(p) {
 /////////////////
 var db;
 function dbPlayerInfo() {
-    return db.player;
+    return db.player.dataStore;
 }
 function dbActivityInfo() {
     return db.activity;
@@ -1205,7 +1216,11 @@ var BaseDB = (function () {
                     _this.init();
             }
         });
+        this.onloaded();
     }
+    BaseDB.prototype.onloaded = function () {
+    };
+    ;
     BaseDB.prototype.init = function () {
         var _this = this;
         this.dataStore.insert({ id: 0, idUsed: 1 }, function (err, newDoc) {
@@ -1219,8 +1234,6 @@ var BaseDB = (function () {
         this.dataStore.update({ id: 0 }, { $set: this.config });
     };
     ;
-    BaseDB.prototype.getActivityPlayerDataArr = function () {
-    };
     return BaseDB;
 }());
 var ActivityDB = (function (_super) {
@@ -1251,30 +1264,54 @@ var GameDB = (function (_super) {
     }
     return GameDB;
 }(BaseDB));
+var PlayerDB = (function (_super) {
+    __extends(PlayerDB, _super);
+    function PlayerDB() {
+        _super.apply(this, arguments);
+    }
+    PlayerDB.prototype.getNewId = function () {
+        return this.config.idUsed;
+    };
+    PlayerDB.prototype.getActivityPlayerDataArr = function (actId, callback) {
+        this.dataStore.find({ $not: { id: 0 }, activityId: actId }).sort({ eloScore: 1 }).exec(function (err, docs) {
+            callback(err, docs);
+        });
+    };
+    PlayerDB.prototype.getPlayerDataByIdArr = function (idArr, callback) {
+        // this.dataStore.find()
+    };
+    PlayerDB.prototype.onloaded = function () {
+        _super.prototype.onloaded.call(this);
+        // this.dataStore.find({$not: {id: 0}}).sort({eloScore: 1}).exec(function (err, docs) {
+        //     callback(err, docs);
+        // });
+    };
+    return PlayerDB;
+}(BaseDB));
 function initDB() {
     // Fetch a collection to insert document into
     var playerDb = pathEx('db/player.db');
     var activityDb = pathEx('db/activity.db');
     var gameDbPath = pathEx('db/game.db');
     db = {};
-    db.player = new Datastore({ filename: playerDb, autoload: true });
+    db.player = new PlayerDB({ filename: playerDb, autoload: true });
     db.activity = new ActivityDB({ filename: activityDb, autoload: true });
     db.game = new GameDB({ filename: gameDbPath, autoload: true });
-    db.player.find({ id: 0 }, function (err, doc) {
-        db.player.config = doc[0];
-    });
-    db.player.saveIdUsed = function () {
-        db.player.config.playerIdUsed++;
-        db.player.update({ id: 0 }, { $set: db.player.config });
-    };
-    db.player.getNewId = function () {
-        return db.player.config.playerIdUsed;
-    };
-    db.player.getActivityPlayerDataArr = function (actId, callback) {
-        db.player.find({ $not: { id: 0 }, activityId: actId }).sort({ eloScore: 1 }).exec(function (err, docs) {
-            callback(err, docs);
-        });
-    };
+    // db.player.find({id: 0}, function (err, doc) {
+    //     db.player.config = doc[0];
+    // });
+    // db.player.saveIdUsed = function () {
+    //     db.player.config.playerIdUsed++;
+    //     db.player.update({id: 0}, {$set: db.player.config})
+    // };
+    // db.player.getNewId = function () {
+    //     return db.player.config.playerIdUsed;
+    // };
+    // db.player.getActivityPlayerDataArr = function (actId, callback) {
+    //     db.player.find({$not: {id: 0}, activityId: actId}).sort({eloScore: 1}).exec(function (err, docs) {
+    //         callback(err, docs);
+    //     });
+    // };
     console.log(process.cwd());
     // Get path of project binary:
     console.log(M_path.dirname(process.execPath));
@@ -1550,11 +1587,21 @@ var ActivityPanelInfo = (function (_super) {
     }
     ActivityPanelInfo.prototype.getInfo = function () {
         return {
-            activityInfo: this.activityInfo
+            roundInfo: this.roundInfo
         };
     };
     ActivityPanelInfo.prototype.initInfo = function () {
-        this.activityInfo = new ActivityInfo();
+        this.roundInfo = new RoundInfo();
+    };
+    ActivityPanelInfo.prototype.fadeInActPanel = function (param) {
+        console.log("fade in act panel", JSON.stringify(param));
+        for (var _i = 0, param_1 = param; _i < param_1.length; _i++) {
+            var playerIdArr = param_1[_i];
+            //query playerData
+            for (var _a = 0, playerIdArr_1 = playerIdArr; _a < playerIdArr_1.length; _a++) {
+                var playerId = playerIdArr_1[_a];
+            }
+        }
     };
     return ActivityPanelInfo;
 }(BasePanelInfo));
@@ -1703,16 +1750,10 @@ var StagePanelInfo = (function (_super) {
     return StagePanelInfo;
 }(BasePanelInfo));
 /// <reference path="./DbInfo.ts"/>
-var ActivityInfo = (function () {
-    function ActivityInfo() {
+var RoundInfo = (function () {
+    function RoundInfo() {
     }
-    ActivityInfo.prototype.round = function () {
-        var playerDataArr;
-        dbPlayerInfo().getActivityPlayerDataArr(1, function (err, docs) {
-            console.log("get Activity player arr", JSON.stringify(docs));
-        });
-    };
-    return ActivityInfo;
+    return RoundInfo;
 }());
 /**
  * Created by toramisu on 2016/5/13.
@@ -1722,7 +1763,7 @@ var ActivityInfo = (function () {
 /// <reference path="routes/ActivityAdmin.ts"/>
 /// <reference path="models/DbInfo.ts"/>
 /// <reference path="models/PanelInfo.ts"/>
-/// <reference path="models/ActivityInfo.ts"/>
+/// <reference path="models/RoundInfo.ts"/>
 var msgpack = require("msgpack-lite");
 var debug = require('debug')('express2:server');
 var HttpServer = (function () {
@@ -1814,7 +1855,7 @@ var HttpServer = (function () {
         app.post('/admin/activity/getActPlayer', urlencodedParser, ActivityAdmin.getActivityPlayerArr);
         app.post('/admin/game/genPrintPng', urlencodedParser, ActivityAdmin.genPrintPng);
         app.post('/admin/game/genActivity', urlencodedParser, ActivityAdmin.genActivity);
-        app.post('/api/act/', urlencodedParser, ActivityAdmin.getActivityDateArr);
+        app.post('/op/act/', urlencodedParser, ActivityAdmin.opHandle);
         app.get('/panel/:id/:op', function (req, res) {
             var pid = req.params.id;
             var op = req.params.op;

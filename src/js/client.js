@@ -156,6 +156,9 @@ var CommandId;
     CommandId[CommandId["straightScore3"] = 100042] = "straightScore3";
     CommandId[CommandId["straightScore5"] = 100043] = "straightScore5";
     CommandId[CommandId["initPanel"] = 100044] = "initPanel";
+    /////activity panel
+    CommandId[CommandId["cs_fadeInActPanel"] = 100045] = "cs_fadeInActPanel";
+    CommandId[CommandId["fadeInActPanel"] = 100046] = "fadeInActPanel";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {

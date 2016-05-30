@@ -5,8 +5,8 @@
         </option>
     </select>
 
-    <select v-model="dateSelected" @change="onDateSelected">
-        <option v-for="option in dateOptions" v-bind:value="option.value">
+    <select v-model="roundSelected" @change="onRoundSelected">
+        <option v-for="option in roundOptionArr" v-bind:value="option.value">
             {{ option.text }}
         </option>
     </select>
@@ -16,6 +16,9 @@
             {{ option.text }}
         </option>
     </select>
+
+    <input type="button" value="addGame" @click="onClkAddGame"/>
+    <input type="button" value="fadeIn" @click="onClkFadeIn"/>
 
     <ul>
         <li v-for="playerId in playerIdArr">

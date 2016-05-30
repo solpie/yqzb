@@ -1,10 +1,17 @@
 class ActivityAdmin {
-    static getActivityDateArr(req, res) {
+    static opHandle(req, res) {
         if (!req.body) return res.sendStatus(400);
-        console.log('getActivityDateArr', JSON.stringify(req.body));
-        db.activity.getDateArrByActivityId(req.body.activityId, function (docs) {
-            res.send(docs);
-        });
+        console.log('opHandle', JSON.stringify(req.body));
+        var reqCmd = req.body.cmd;
+        var param = req.body.param;
+        if (reqCmd === CommandId.cs_fadeInActPanel) {
+            server.panel.act.fadeInActPanel(param);
+        }
+        else {
+            db.activity.getDateArrByActivityId(param, function (docs) {
+                res.send(docs);
+            });
+        }
     };
 
     static index(req, res) {
@@ -35,7 +42,6 @@ class ActivityAdmin {
             else {
                 res.send(err);
             }
-
         });
     }
 }
