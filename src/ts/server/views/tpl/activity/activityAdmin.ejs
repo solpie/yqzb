@@ -90,55 +90,6 @@
     </style>
 </head>
 <body style="display:inline;">
-<!-- template for the modal component -->
-<script type="x/template" id="modal-template">
-    <div class="modal-mask" v-show="show" transition="modal">
-        <div class="modal-wrapper">
-            <div class="modal-container">
-
-                <div class="modal-header">
-                    <slot name="header">
-                        default header
-                    </slot>
-                </div>
-
-                <div class="modal-body">
-                    <slot name="body">
-                        default body
-                    </slot>
-                </div>
-
-                <div class="modal-footer">
-                    <slot name="footer">
-                        default footer
-                        <button class="modal-default-button"
-                                @click="show = false">
-                            OK
-                        </button>
-                    </slot>
-                </div>
-            </div>
-        </div>
-    </div>
-</script>
-<script type="text/x-template" id="item-template">
-    <li>
-        <div
-                :class="{bold: isFolder}"
-                @click="toggle"
-                @dblclick="changeType">
-            {{model.name}}
-            <span v-if="isFolder">[{{open ? '-' : '+'}}]</span>
-        </div>
-        <ul v-show="open" v-if="isFolder">
-            <item
-                    class="item"
-                    v-for="model in model.children"
-                    :model="model">
-            </item>
-        </ul>
-    </li>
-</script>
 <div id="app" style="width: 800px">
     <input id="btnGen" type="button" value="分区" @click="onGen">
     <input id="btnGen" type="button" value="确定生成赛程" @click="onGenActivity">
@@ -177,6 +128,9 @@
                                    v-model="gameIdLow" @click="onGameChanged">
                         </div>
                     </li>
+                    <input type="button" value="开始比赛">
+                    <input type="button" value="红方胜">
+                    <input type="button" value="蓝方胜">
                 </ul>
                 <br>
                 <br>
@@ -203,13 +157,14 @@
     var activityId = parseInt('<%= activityId %>');
     var pdfData64;
     var stage;
+    var roundData = <%- roundData %>;
     function genPrint(playerDataArr, py, py2) {
         if (!stage) {
             var canvas = document.getElementById('the-canvas');
             stage = new createjs.Stage(canvas);
             pdfData64 = stage.toDataURL('rgba(0,0,0,0)', "image/png")
         }
-        console.log("genPrint");
+        console.log("genPrint",JSON.stringify(playerDataArr));
         stage.removeAllChildren();
         var sheet = new createjs.Bitmap(pdfData64);
         stage.addChild(sheet);
@@ -243,49 +198,6 @@
         return this;
     }
 
-    // define the item component
-    Vue.component('item', {
-        template: '#item-template',
-        props: {
-            model: Object
-        },
-        data: function () {
-            return {
-                open: false
-            }
-        },
-        computed: {
-            isFolder: function () {
-                return this.model.children &&
-                        this.model.children.length
-            }
-        },
-        methods: {
-            toggle: function () {
-                if (this.isFolder) {
-                    this.open = !this.open
-                }
-            },
-            changeType: function () {
-                if (!this.isFolder) {
-                    Vue.set(this.model, 'children', [])
-                    this.addChild()
-                    this.open = true
-                }
-            }
-        }
-    })
-    // register modal component
-    Vue.component('modal', {
-        template: '#modal-template',
-        props: {
-            show: {
-                type: Boolean,
-                required: true,
-                twoWay: true
-            }
-        }
-    })
     var vue = new Vue({
         el: '#app',
         data: {
@@ -318,7 +230,6 @@
                         var section = this.sectionArr[idx];
                         for (var i = 0; i < section.gameArr.length; i++) {
                             var gameData = {id: 0, playerIdArr: []}
-                            var gameData = {id: 0, playerIdArr: []}
                             var teamInfoArr = section.gameArr[i];
                             for (var j = 0; j < teamInfoArr.length; j++) {
                                 var teamInfo = teamInfoArr[j];
@@ -343,7 +254,7 @@
                 console.log('onGenActivity', JSON.stringify(this.sectionArr));
             },
             onGameChanged: function (e) {
-                console.log(e, e.target);
+//                console.log(e, e.target);
                 var gameId = e.target.value;
                 var sectionIdx = 0;
                 if (gameId > 9)//low section
@@ -405,7 +316,6 @@
                     var highSection = getSection(playerDataArr, 16);
                     this.sectionArr = [{idx: 0, name: '上半区：', teamArr: highSection, btnId: 'onGenHigh', gameArr: []},
                         {idx: 1, name: '下半区：', teamArr: lowSection, btnId: 'onGenLow', gameArr: []}]
-
                     //gen combine
                     var gameArr = this.combineTeam(this.sectionArr[0].teamArr, 2);
                     gameArr.swap(1, 5);
@@ -417,6 +327,39 @@
             }
         }
     });
+
+    if (roundData) {
+
+        var sectionArr = [{idx: 0, name: '上半区：', teamArr: [], btnId: 'onGenHigh', gameArr: []},
+            {idx: 1, name: '下半区：', teamArr: [], btnId: 'onGenLow', gameArr: []}];
+
+
+        function genSection(start, sectionIdx) {
+            for (var i = start; i < start + 6; i++) {//半区6场
+                var gameData = roundData.gameDataArr[i];
+                var teamInfo = new TeamInfo();
+                teamInfo.name = 'team1'
+                var gameArr = [];
+                gameArr.push(teamInfo);
+                for (var j = 0; j < gameData.playerIdArr.length; j++) {
+                    if (j == 4) {
+                        teamInfo = new TeamInfo();
+                        teamInfo.name = 'team2'
+                        gameArr.push(teamInfo);
+                    }
+                    var playerId = gameData.playerIdArr[j];
+                    var playerInfo = new PlayerInfo(roundData.playerInfoMap[playerId]);
+                    playerInfo.id(playerId);
+                    teamInfo.push(playerInfo)
+                }
+                sectionArr[sectionIdx].gameArr.push(gameArr);
+            }
+        }
+
+        genSection(0, 0);
+        genSection(6, 1);
+        vue.sectionArr = sectionArr;
+    }
 
 
     PDFJS.getDocument('/img/gameSheet.pdf').then(function (pdf) {

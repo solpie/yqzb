@@ -104,6 +104,7 @@ class HttpServer {
         //activity admin
         // app.get('/admin/game/', ActivityAdmin.index);
         app.get('/admin/activity/:id', ActivityAdmin.index);
+        app.get('/admin/activity/:id/:round', ActivityAdmin.round);
         app.post('/admin/activity/getActPlayer', urlencodedParser, ActivityAdmin.getActivityPlayerArr);
         app.post('/admin/game/genPrintPng', urlencodedParser, ActivityAdmin.genPrintPng);
         app.post('/admin/game/genRound', urlencodedParser, ActivityAdmin.genRound);

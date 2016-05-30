@@ -90,17 +90,18 @@ class ActivityPanelInfo extends BasePanelInfo {
                 queryIdArr.push({id: playerId});
             }
         }
-        console.log('get Player map:', JSON.stringify(queryIdArr));
+        console.log('get Player Arr:', JSON.stringify(queryIdArr));
         db.player.getPlayerDataMapByIdArr(queryIdArr, (err, playerDataMap)=> {
             if (!err) {
                 this.roundInfo = new RoundInfo();
-                for (var playerIdArr of param) {
+                for (var playerIdArr of param.gameArr) {
                     //query playerData
                     var gameInfo:GameInfo = new GameInfo();
                     for (var i = 0; i < playerIdArr.length; i++) {
                         var playerId = playerIdArr[i];
                         var playerInfo:PlayerInfo = new PlayerInfo(playerDataMap[playerId]);
                         gameInfo.setPlayerInfoByPos(i, playerInfo);
+                        console.log('push playerInfo');
                     }
                     this.roundInfo.gameInfoArr.push(gameInfo);
                 }

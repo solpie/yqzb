@@ -59,6 +59,10 @@ class BaseDB {
     getIdNew() {
         return this.config.idUsed;
     }
+
+    ds() {
+        return this.dataStore;
+    }
 }
 
 class ActivityDB extends BaseDB {
@@ -78,6 +82,33 @@ class ActivityDB extends BaseDB {
         this.dataStore.find({activityId: actId}, function (err, docs) {
             callback(docs);
         });
+    }
+
+    getRoundDataWithPlayerInfo(roundId, callback) {
+        this.ds().find({round: roundId}, function (err, docs) {
+            if (!err) {
+                if (docs.length)
+                    for (var i = 0; i < docs[0].gameDataArr.length; i++) {
+                        var gameData = docs[0].gameDataArr;
+
+                        db.player.getPlayerDataMapByIdArr(gameData.playerIdArr, function (err, playerIdMap) {
+                            // for (var j = 0; j < gameData.playerIdArr.length; j++) {
+                            //     var playerId = gameData.playerIdArr[j];
+                            //     db.player.ds().find({id: playerId}, function (err, docs) {
+                            //         if (!err) {
+                            //
+                            //         }
+                            //         else
+                            //             throw new Error(err);
+                            //     })
+                            // }
+                        });
+
+                    }
+            }
+            else
+                throw new Error(err);
+        })
     }
 }
 class GameDB extends BaseDB {
@@ -109,6 +140,18 @@ class PlayerDB extends BaseDB {
         // this.dataStore.find({$not: {id: 0}}).sort({eloScore: 1}).exec(function (err, docs) {
         //     callback(err, docs);
         // });
+    }
+
+    fillPlayerInfo(playerIdArr, dataContainer, callback) {
+        this.getPlayerDataMapByIdArr(playerIdArr, function (err, playerIdMap) {
+            dataContainer.playerInfoMap = {};
+            for (var i = 0; i < playerIdArr.length; i++) {
+                var playerId = playerIdArr[i];
+                dataContainer.playerInfoMap[playerId] = new PlayerInfo(playerIdMap[playerId]);
+            }
+            console.log('fillPlayerInfo');
+            callback();
+        });
     }
 }
 function initDB() {

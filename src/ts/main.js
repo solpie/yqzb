@@ -711,8 +711,38 @@ var ActivityAdmin = (function () {
     ;
     ActivityAdmin.index = function (req, res) {
         var actId = req.params.id;
-        var data = { activityId: actId, lastRound: db.activity.config.idUsed };
+        var data = { activityId: actId, lastRound: db.activity.config.idUsed, roundData: 'null' };
         res.render('activity/activityAdmin', data);
+    };
+    ActivityAdmin.round = function (req, res) {
+        var actId = req.params.id;
+        var roundId = parseInt(req.params.round);
+        var data = { activityId: actId, lastRound: db.activity.config.idUsed };
+        if (roundId) {
+            db.activity.ds().find({ round: roundId }, function (err, docs) {
+                if (!err) {
+                    if (docs.length) {
+                        var playerIdArr = [];
+                        for (var i = 0; i < docs[0].gameDataArr.length; i++) {
+                            var gameData = docs[0].gameDataArr[i];
+                            playerIdArr = playerIdArr.concat(gameData.playerIdArr);
+                        }
+                        db.player.fillPlayerInfo(playerIdArr, docs[0], function () {
+                            data.roundData = JSON.stringify(docs[0]);
+                            console.log('activity/activityAdmin render');
+                            res.render('activity/activityAdmin', data);
+                        });
+                    }
+                    else
+                        res.sendStatus(404);
+                }
+                else
+                    res.sendStatus(500);
+            });
+        }
+        else {
+            res.send('没有轮');
+        }
     };
     ActivityAdmin.genPrintPng = function (req, res) {
         base64ToPng('img/cache/game.png', req.body.base64, function () {
@@ -730,6 +760,7 @@ var ActivityAdmin = (function () {
         }
         console.log('gen activity ', JSON.stringify(actData));
         db.activity.addRound(actData, function (err, newdoc) {
+            //todo return gameId to client
             res.send(err);
         });
         // db.game.addGame();
@@ -803,6 +834,9 @@ var BaseDB = (function () {
     BaseDB.prototype.getIdNew = function () {
         return this.config.idUsed;
     };
+    BaseDB.prototype.ds = function () {
+        return this.dataStore;
+    };
     return BaseDB;
 }());
 var ActivityDB = (function (_super) {
@@ -824,6 +858,30 @@ var ActivityDB = (function (_super) {
     ActivityDB.prototype.getDateArrByActivityId = function (actId, callback) {
         this.dataStore.find({ activityId: actId }, function (err, docs) {
             callback(docs);
+        });
+    };
+    ActivityDB.prototype.getRoundDataWithPlayerInfo = function (roundId, callback) {
+        this.ds().find({ round: roundId }, function (err, docs) {
+            if (!err) {
+                if (docs.length)
+                    for (var i = 0; i < docs[0].gameDataArr.length; i++) {
+                        var gameData = docs[0].gameDataArr;
+                        db.player.getPlayerDataMapByIdArr(gameData.playerIdArr, function (err, playerIdMap) {
+                            // for (var j = 0; j < gameData.playerIdArr.length; j++) {
+                            //     var playerId = gameData.playerIdArr[j];
+                            //     db.player.ds().find({id: playerId}, function (err, docs) {
+                            //         if (!err) {
+                            //
+                            //         }
+                            //         else
+                            //             throw new Error(err);
+                            //     })
+                            // }
+                        });
+                    }
+            }
+            else
+                throw new Error(err);
         });
     };
     return ActivityDB;
@@ -863,6 +921,17 @@ var PlayerDB = (function (_super) {
         // this.dataStore.find({$not: {id: 0}}).sort({eloScore: 1}).exec(function (err, docs) {
         //     callback(err, docs);
         // });
+    };
+    PlayerDB.prototype.fillPlayerInfo = function (playerIdArr, dataContainer, callback) {
+        this.getPlayerDataMapByIdArr(playerIdArr, function (err, playerIdMap) {
+            dataContainer.playerInfoMap = {};
+            for (var i = 0; i < playerIdArr.length; i++) {
+                var playerId = playerIdArr[i];
+                dataContainer.playerInfoMap[playerId] = new PlayerInfo(playerIdMap[playerId]);
+            }
+            console.log('fillPlayerInfo');
+            callback();
+        });
     };
     return PlayerDB;
 }(BaseDB));
@@ -1347,18 +1416,19 @@ var ActivityPanelInfo = (function (_super) {
                 queryIdArr.push({ id: playerId });
             }
         }
-        console.log('get Player map:', JSON.stringify(queryIdArr));
+        console.log('get Player Arr:', JSON.stringify(queryIdArr));
         db.player.getPlayerDataMapByIdArr(queryIdArr, function (err, playerDataMap) {
             if (!err) {
                 _this.roundInfo = new RoundInfo();
-                for (var _i = 0, param_1 = param; _i < param_1.length; _i++) {
-                    var playerIdArr = param_1[_i];
+                for (var _i = 0, _a = param.gameArr; _i < _a.length; _i++) {
+                    var playerIdArr = _a[_i];
                     //query playerData
                     var gameInfo = new GameInfo();
                     for (var i = 0; i < playerIdArr.length; i++) {
                         var playerId = playerIdArr[i];
                         var playerInfo = new PlayerInfo(playerDataMap[playerId]);
                         gameInfo.setPlayerInfoByPos(i, playerInfo);
+                        console.log('push playerInfo');
                     }
                     _this.roundInfo.gameInfoArr.push(gameInfo);
                 }
@@ -1623,6 +1693,7 @@ var HttpServer = (function () {
         //activity admin
         // app.get('/admin/game/', ActivityAdmin.index);
         app.get('/admin/activity/:id', ActivityAdmin.index);
+        app.get('/admin/activity/:id/:round', ActivityAdmin.round);
         app.post('/admin/activity/getActPlayer', urlencodedParser, ActivityAdmin.getActivityPlayerArr);
         app.post('/admin/game/genPrintPng', urlencodedParser, ActivityAdmin.genPrintPng);
         app.post('/admin/game/genRound', urlencodedParser, ActivityAdmin.genRound);
