@@ -81,12 +81,33 @@ class ActivityPanelInfo extends BasePanelInfo {
 
     fadeInActPanel(param) {
         console.log("fade in act panel", JSON.stringify(param));
+        var queryIdArr = [];//[{id:}]
         for (var playerIdArr of param) {
             //query playerData
             for (var playerId of playerIdArr) {
-                
+                queryIdArr.push({id: playerId});
             }
         }
+        console.log('get Player map:', JSON.stringify(queryIdArr));
+        db.player.getPlayerDataMapByIdArr(queryIdArr, (err, playerDataMap)=> {
+            if (!err) {
+                this.roundInfo = new RoundInfo();
+                for (var playerIdArr of param) {
+                    //query playerData
+                    var gameInfo:GameInfo = new GameInfo();
+                    for (var i = 0; i < playerIdArr.length; i++) {
+                        var playerId = playerIdArr[i];
+                        var playerInfo:PlayerInfo = new PlayerInfo(playerDataMap[playerId]);
+                        gameInfo.setPlayerInfoByPos(i, playerInfo);
+                    }
+                    this.roundInfo.gameInfoArr.push(gameInfo);
+                }
+                cmd.emit(CommandId.fadeInActPanel, this.roundInfo, this.pid);
+            }
+            else {
+                throw new Error(err);
+            }
+        })
     }
 }
 

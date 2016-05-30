@@ -1145,6 +1145,7 @@ var ActivityAdmin = (function () {
         var param = req.body.param;
         if (reqCmd === CommandId.cs_fadeInActPanel) {
             server.panel.act.fadeInActPanel(param);
+            res.send("sus");
         }
         else {
             db.activity.getDateArrByActivityId(param, function (docs) {
@@ -1277,8 +1278,15 @@ var PlayerDB = (function (_super) {
             callback(err, docs);
         });
     };
-    PlayerDB.prototype.getPlayerDataByIdArr = function (idArr, callback) {
-        // this.dataStore.find()
+    PlayerDB.prototype.getPlayerDataMapByIdArr = function (idArr, callback) {
+        this.dataStore.find({ '$or': idArr }, function (err, docs) {
+            var playerIdMap = {};
+            for (var _i = 0, docs_1 = docs; _i < docs_1.length; _i++) {
+                var playerData = docs_1[_i];
+                playerIdMap[playerData.id] = playerData;
+            }
+            callback(err, playerIdMap);
+        });
     };
     PlayerDB.prototype.onloaded = function () {
         _super.prototype.onloaded.call(this);
@@ -1297,21 +1305,6 @@ function initDB() {
     db.player = new PlayerDB({ filename: playerDb, autoload: true });
     db.activity = new ActivityDB({ filename: activityDb, autoload: true });
     db.game = new GameDB({ filename: gameDbPath, autoload: true });
-    // db.player.find({id: 0}, function (err, doc) {
-    //     db.player.config = doc[0];
-    // });
-    // db.player.saveIdUsed = function () {
-    //     db.player.config.playerIdUsed++;
-    //     db.player.update({id: 0}, {$set: db.player.config})
-    // };
-    // db.player.getNewId = function () {
-    //     return db.player.config.playerIdUsed;
-    // };
-    // db.player.getActivityPlayerDataArr = function (actId, callback) {
-    //     db.player.find({$not: {id: 0}, activityId: actId}).sort({eloScore: 1}).exec(function (err, docs) {
-    //         callback(err, docs);
-    //     });
-    // };
     console.log(process.cwd());
     // Get path of project binary:
     console.log(M_path.dirname(process.execPath));
@@ -1594,14 +1587,38 @@ var ActivityPanelInfo = (function (_super) {
         this.roundInfo = new RoundInfo();
     };
     ActivityPanelInfo.prototype.fadeInActPanel = function (param) {
+        var _this = this;
         console.log("fade in act panel", JSON.stringify(param));
+        var queryIdArr = []; //[{id:}]
         for (var _i = 0, param_1 = param; _i < param_1.length; _i++) {
             var playerIdArr = param_1[_i];
             //query playerData
             for (var _a = 0, playerIdArr_1 = playerIdArr; _a < playerIdArr_1.length; _a++) {
                 var playerId = playerIdArr_1[_a];
+                queryIdArr.push({ id: playerId });
             }
         }
+        console.log('get Player map:', JSON.stringify(queryIdArr));
+        db.player.getPlayerDataMapByIdArr(queryIdArr, function (err, playerDataMap) {
+            if (!err) {
+                _this.roundInfo = new RoundInfo();
+                for (var _i = 0, param_2 = param; _i < param_2.length; _i++) {
+                    var playerIdArr = param_2[_i];
+                    //query playerData
+                    var gameInfo = new GameInfo();
+                    for (var i = 0; i < playerIdArr.length; i++) {
+                        var playerId = playerIdArr[i];
+                        var playerInfo = new PlayerInfo(playerDataMap[playerId]);
+                        gameInfo.setPlayerInfoByPos(i, playerInfo);
+                    }
+                    _this.roundInfo.gameInfoArr.push(gameInfo);
+                }
+                cmd.emit(CommandId.fadeInActPanel, _this.roundInfo, _this.pid);
+            }
+            else {
+                throw new Error(err);
+            }
+        });
     };
     return ActivityPanelInfo;
 }(BasePanelInfo));
@@ -1752,6 +1769,7 @@ var StagePanelInfo = (function (_super) {
 /// <reference path="./DbInfo.ts"/>
 var RoundInfo = (function () {
     function RoundInfo() {
+        this.gameInfoArr = [];
     }
     return RoundInfo;
 }());

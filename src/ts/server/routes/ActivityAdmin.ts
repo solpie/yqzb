@@ -6,6 +6,7 @@ class ActivityAdmin {
         var param = req.body.param;
         if (reqCmd === CommandId.cs_fadeInActPanel) {
             server.panel.act.fadeInActPanel(param);
+            res.send("sus");
         }
         else {
             db.activity.getDateArrByActivityId(param, function (docs) {

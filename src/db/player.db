@@ -1,4 +1,4 @@
-{"id":0,"idUsed":10038,"_id":"37LEJfADIO5o2Fxd"}
+{"id":0,"idUsed":10040,"_id":"37LEJfADIO5o2Fxd"}
 {"id":15,"name":"thompson","eloScore":2562,"style":4,"avatar":"/img/player/p15.png","height":12,"weight":0,"winpercent":0.9501,"gameCount":28,"dtScore":-26,"pos":3,"_id":"3btsTuGx0g2zWQ2f","phone":null,"activityId":1,"isRed":false,"gameRec":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"loseGameCount":3,"winGameCount":25,"isMvp":false}
 {"id":10029,"phone":13654872698,"weight":70,"height":170,"eloScore":1356,"style":1,"name":"7c","activityId":1,"_id":"792E1679TtseGRB3","avatar":"/img/player/10029.png"}
 {"id":10023,"name":"路人3","phone":13654872698,"eloScore":1666,"style":1,"avatar":"/img/player/10023.png","height":170,"weight":70,"dtScore":0,"winpercent":0,"activityId":1,"gameCount":0,"loseGameCount":0,"winGameCount":0,"_id":"A0ITJcfBuqZrSNTj"}
@@ -13,7 +13,6 @@
 {"id":16,"name":"tmac","eloScore":2762,"style":2,"avatar":"/img/player/p16.png","height":0,"weight":0,"winpercent":0.9501,"gameCount":28,"dtScore":-26,"pos":2,"_id":"LXOWjafTuoHhfyi1","isRed":false,"gameRec":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"phone":0,"activityId":1,"loseGameCount":3,"winGameCount":25,"isMvp":false}
 {"id":13,"name":"irving","eloScore":2293,"style":3,"avatar":"/img/player/p13.png","height":0,"weight":0,"winpercent":0.9501,"gameCount":21,"dtScore":26,"pos":5,"_id":"MkdN2kAMVKLUUpyE","isRed":true,"gameRec":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"phone":0,"activityId":1,"loseGameCount":18,"winGameCount":3,"isMvp":false}
 {"id":10009,"name":"miliya","phone":13654872698,"eloScore":2000,"style":2,"avatar":"/img/player/10009.png","height":170,"weight":70,"dtScore":0,"winpercent":0,"activityId":1,"gameCount":0,"loseGameCount":0,"winGameCount":0,"_id":"NxnECGM2TVZVpCCP"}
-{"id":10037,"phone":13654872698,"weight":70,"height":170,"eloScore":2000,"style":2,"name":"fff","activityId":1,"avatar":"/img/player/10037.png","_id":"Phhh5d8vvxhDGEOE"}
 {"id":10018,"name":"car","phone":13654872698,"eloScore":1253,"style":3,"avatar":"/img/player/10018.png","height":170,"weight":70,"dtScore":0,"winpercent":0,"activityId":1,"gameCount":0,"loseGameCount":0,"winGameCount":0,"_id":"SuMT8p45Sq8S6Opo"}
 {"id":17,"name":"paul","eloScore":2962,"style":2,"avatar":"/img/player/p17.png","height":0,"weight":0,"winpercent":0.9501,"gameCount":28,"dtScore":-26,"pos":1,"_id":"VMhPt2a4yRzPFyS8","isRed":false,"gameRec":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"phone":0,"activityId":1,"loseGameCount":3,"winGameCount":25,"isMvp":false}
 {"id":10035,"phone":13654872698,"weight":70,"height":170,"eloScore":2000,"style":2,"name":"sd","activityId":1,"avatar":"/img/player/10035.png","_id":"YyhjD0K2Nv1EoDDE"}
@@ -32,7 +31,3 @@
 {"id":10024,"name":"路人4","phone":13654872698,"eloScore":1423,"style":2,"avatar":"/img/player/10024.png","height":170,"weight":70,"dtScore":0,"winpercent":0,"activityId":1,"gameCount":0,"loseGameCount":0,"winGameCount":0,"_id":"xeCaJeAdS86lDVLZ"}
 {"id":10036,"phone":13654872698,"weight":70,"height":170,"eloScore":2000,"style":1,"name":"ccc","activityId":1,"avatar":"/img/player/10036.png","_id":"xiwZgVfbEYcOzRB4"}
 {"id":10026,"name":"路人6","phone":13654872698,"eloScore":1953,"style":4,"avatar":"/img/player/10026.png","height":170,"weight":70,"dtScore":0,"winpercent":0,"activityId":1,"gameCount":0,"loseGameCount":0,"winGameCount":0,"_id":"y3CyvsvRa9SCG0uC"}
-{"id":10038,"phone":13654872698,"weight":70,"height":170,"eloScore":2000,"style":2,"name":"miku","activityId":1,"avatar":"/img/player/10038.png","_id":"zzuZ95BnTAlmDPNl"}
-{"id":0,"idUsed":10039,"_id":"37LEJfADIO5o2Fxd"}
-{"id":10038,"phone":13654872698,"weight":70,"height":170,"eloScore":2000,"style":2,"name":"miku","activityId":1,"avatar":"/img/player/10038.png","_id":"zzuZ95BnTAlmDPNl"}
-{"$$deleted":true,"_id":"zzuZ95BnTAlmDPNl"}

@@ -4,7 +4,7 @@ class RoundInfo {
     gameInfoArr:Array<GameInfo>;
 
     constructor() {
-
+        this.gameInfoArr = [];
     }
 
 }

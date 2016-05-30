@@ -86,8 +86,14 @@ class PlayerDB extends BaseDB {
         });
     }
 
-    getPlayerDataByIdArr(idArr, callback) {
-        // this.dataStore.find()
+    getPlayerDataMapByIdArr(idArr, callback) {
+        this.dataStore.find({'$or': idArr}, function (err, docs) {
+            var playerIdMap:any = {};
+            for (var playerData of docs) {
+                playerIdMap[playerData.id] = playerData;
+            }
+            callback(err, playerIdMap);
+        });
     }
 
     onloaded() {
@@ -108,21 +114,6 @@ function initDB() {
     db.activity = new ActivityDB({filename: activityDb, autoload: true});
     db.game = new GameDB({filename: gameDbPath, autoload: true});
 
-    // db.player.find({id: 0}, function (err, doc) {
-    //     db.player.config = doc[0];
-    // });
-    // db.player.saveIdUsed = function () {
-    //     db.player.config.playerIdUsed++;
-    //     db.player.update({id: 0}, {$set: db.player.config})
-    // };
-    // db.player.getNewId = function () {
-    //     return db.player.config.playerIdUsed;
-    // };
-    // db.player.getActivityPlayerDataArr = function (actId, callback) {
-    //     db.player.find({$not: {id: 0}, activityId: actId}).sort({eloScore: 1}).exec(function (err, docs) {
-    //         callback(err, docs);
-    //     });
-    // };
     console.log(process.cwd());
     // Get path of project binary:
     console.log(M_path.dirname(process.execPath));

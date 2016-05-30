@@ -22,6 +22,9 @@ class ActivityPanelView extends BasePanelView {
             console.log("initPanel::::::::", param);
             this.onInit(param)
         });
+        cmd.on(CommandId.fadeInActPanel, (param) => {
+            console.log("fadeInActPanel", param);
+        });
     }
 
     initVue() {
