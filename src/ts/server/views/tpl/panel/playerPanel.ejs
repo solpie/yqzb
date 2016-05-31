@@ -67,25 +67,27 @@
     }
 
 </style>
-<label id="playerNameShadow"></label>
-<label id="playerName"></label>
-<div class="inputPanel" id="panel">
-    <div class="playerPanel">
-        <img class="playerAvatar" src="{{pickedImg}}">
-        <br>
-        player id:
-        <div class="pickupPlayer">
-            <ul v-for="player in playerInfoArr">
-                <input id="playerId{{$index}}" name="posSel" type="radio" value="{{$index}}" v-model="picked"
-                       @change="onPicked"/>
-                <label for="{{$index}}">{{player.name}}</label>
-            </ul>
-            <input id="btnFadeIn" class="btnUpdate" type="button" value="fadeIn" @click="onClkFadeIn"/>
+<div id="panel">
+    <label id="playerNameShadow" v-bind:class="[isRed ? 'nameShadowRed' : 'nameShadowBlue']" ></label>
+    <label id="playerName" v-bind:class="[isRed ? 'nameRed' : 'nameBlue']"></label>
+    <div class="inputPanel">
+        <div class="playerPanel">
+            <img class="playerAvatar" src="{{pickedImg}}">
             <br>
-            <input id="btnFadeOut" class="btnFadeOut" type="button" value="fadeOut" @click="onClkFadeOut"/>
-            鼠标移动到头像上:按 M 切换移动状态
-            <br>
-            <label id="moveState"></label>
+            player id:
+            <div class="pickupPlayer">
+                <ul v-for="player in playerInfoArr">
+                    <input id="playerId{{$index}}" name="posSel" type="radio" value="{{$index}}" v-model="picked"
+                           @change="onPicked"/>
+                    <label for="{{$index}}">{{player.name}}</label>
+                </ul>
+                <input id="btnFadeIn" class="btnUpdate" type="button" value="fadeIn" @click="onClkFadeIn"/>
+                <br>
+                <input id="btnFadeOut" class="btnFadeOut" type="button" value="fadeOut" @click="onClkFadeOut"/>
+                鼠标移动到头像上:按 M 切换移动状态
+                <br>
+                <label id="moveState"></label>
+            </div>
         </div>
     </div>
 </div>
@@ -307,15 +309,7 @@
         eloScore.x = 285;
         eloScore.y = 65;
         fxCtn.addChild(eloScore);
-
-        if (playerInfo.isRed) {
-            playerName$.addClass('nameRed');
-            playerNameShadow$.addClass('nameShadowRed');
-        }
-        else {
-            playerName$.addClass('nameBlue');
-            playerNameShadow$.addClass('nameShadowBlue');
-        }
+        vue.isRed = playerInfo.isRed;
         movePlayerName(ctn.x, ctn.y);
         playerName$.html(playerInfo.name());
         playerNameShadow$.html(playerInfo.name());
@@ -331,6 +325,7 @@
     var vue = new Vue({
         el: '#panel',
         data: {
+            isRed: true,
             picked: 0,
             pickedImg: "",
             playerInfoArr: []
