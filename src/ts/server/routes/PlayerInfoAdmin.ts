@@ -1,18 +1,6 @@
 /// <reference path="../../utils/JSONFile.ts"/>
 
 class PlayerAdmin {
-    // static base64ToPng(imgPath, base64Data, callback) {
-    //     var base64Data = base64Data.replace(/^data:image\/png;base64,/, "");
-    //     var writePath = imgPath;
-    //     if (!isDev)
-    //         writePath = M_path.join(appExecPath, imgPath);
-    //     writeFile(writePath, base64Data, 'base64', (err)=> {
-    //         if (!err) {
-    //             callback('/' + imgPath);
-    //         }
-    //     });
-    // }
-
     static  index(req, res) {
         dbPlayerInfo().find({}, function (err, docs) {
             var data:any = {adminId: 'playerList'};

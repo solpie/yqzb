@@ -38,22 +38,21 @@ class GameInfo {
 
     saveGameRec() {
         // if (this._isUnsaved) {
-        this._isUnsaved = false;
-        function saveTeamPlayerData(teamInfo:TeamInfo) {
-            for (var playerInfo of teamInfo.playerInfoArr) {
-                console.log("playerData", JSON.stringify(playerInfo));
-                if (!playerInfo.gameRec())
-                    playerInfo.gameRec([]);
-                playerInfo.gameRec().push(this.gameId);
-                console.log(playerInfo.name(), " cur player score:", playerInfo.eloScore(), playerInfo.dtScore());
-                // this.playerDb.update({id: playerInfo.id()}, {$set: playerInfo.playerData}, {}, function (err, doc) {
-                //     console.log("saveGameRec: game rec saved");
-                // })
-            }
-        }
-
-        saveTeamPlayerData(this._winTeam);
-        saveTeamPlayerData(this._loseTeam);
+        // this._isUnsaved = false;
+        // function saveTeamPlayerData(teamInfo:TeamInfo) {
+        //     for (var playerInfo of teamInfo.playerInfoArr) {
+        //         console.log("playerData", JSON.stringify(playerInfo));
+        //         if (!playerInfo.gameRec())
+        //             playerInfo.gameRec([]);
+        //         playerInfo.gameRec().push(this.gameId);
+        //         console.log(playerInfo.name(), " cur player score:", playerInfo.eloScore(), playerInfo.dtScore());
+        //         // this.playerDb.update({id: playerInfo.id()}, {$set: playerInfo.playerData}, {}, function (err, doc) {
+        //         //     console.log("saveGameRec: game rec saved");
+        //         // })
+        //     }
+        // }
+        // saveTeamPlayerData(this._winTeam);
+        // saveTeamPlayerData(this._loseTeam);
         // }
     }
 

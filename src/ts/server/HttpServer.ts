@@ -5,6 +5,7 @@
 /// <reference path="routes/PlayerInfoAdmin.ts"/>
 /// <reference path="routes/ActivityAdmin.ts"/>
 /// <reference path="routes/PlayerPanelHandle.ts"/>
+/// <reference path="routes/StagePanelHandle.ts"/>
 /// <reference path="models/DbInfo.ts"/>
 /// <reference path="models/PanelInfo.ts"/>
 /// <reference path="models/RoundInfo.ts"/>
@@ -112,6 +113,7 @@ class HttpServer {
         
         app.post('/op/act/', urlencodedParser, ActivityAdmin.opHandle);
         app.post('/panel/player/op', urlencodedParser, PlayerPanelHandle.opHandle);
+        app.post('/panel/stage/op', urlencodedParser, StagePanelHandle.opHandle);
 
 
         app.get('/panel/:id/:op', function (req, res) {
@@ -161,9 +163,6 @@ class HttpServer {
     }
 
     handleOp() {
-        cmd.on(CommandId.cs_saveGameRec, (param)=> {
-            this.panel.stage.gameInfo.saveGameRec();
-        });
         cmd.on(CommandId.cs_fadeInPlayerPanel, (param)=> {
             this.panel.player.showPlayerPanel(param);
         });

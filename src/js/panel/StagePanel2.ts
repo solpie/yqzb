@@ -19,6 +19,7 @@ class StagePanel2 extends BasePanelView {
     rightScoreLabel:any;
     curSelectCtn:any;
     // time = 0;
+    gameId:number;
     timeLabel:any;
     ctn:any;
     fxCtn:any;
@@ -59,9 +60,9 @@ class StagePanel2 extends BasePanelView {
         $("#btnHideWin").click(function () {
             cmd.proxy(CommandId.cs_fadeOutWinPanel);
         });
-        $("#btnSaveGame").click(function () {
-            cmd.proxy(CommandId.cs_saveGameRec);
-        });
+        // $("#btnSaveGame").click(function () {
+        //     cmd.proxy(CommandId.cs_saveGameRec);
+        // });
         $("#notice").keyup((e)=> {
             if (e.keyCode == 13 && e.ctrlKey) {
                 console.log("send notice");
@@ -410,6 +411,7 @@ class StagePanel2 extends BasePanelView {
             this.setLeftScore(param.leftScore);
             this.setRightScore(param.rightScore);
             this.setTime(param.time, param.state);
+            this.gameId = param.gameId;
             for (var i = 0; i < param.playerInfoArr.length; i++) {
                 var obj = param.playerInfoArr[i];
                 if (obj) {
@@ -1033,16 +1035,24 @@ class StagePanel2 extends BasePanelView {
 
 
 var stagePanel2;
-// var vue;
+var vue;
 $(function main() {
     stagePanel2 = new StagePanel2();
-    // vue = new Vue({
-    //     el: '#panel',
-    //     data: {
-    //         playerIdArr: []
-    //     },
-    //     methods: {}
-    // })
+    vue = new Vue({
+        el: '#panel',
+        data: {
+            playerIdArr: []
+        },
+        methods: {
+            onClkSaveGame: function () {
+                var param:any = {gameId: stagePanel2.gameId, mvp: stagePanel2.mvpPos};
+                this.$http.post('/panel/stage/op', {cmd: CommandId.cs_saveGameRec, param: param})
+                    .then(function (res) {
+                        console.log(res.data);
+                    })
+            }
+        }
+    })
 });
 
 

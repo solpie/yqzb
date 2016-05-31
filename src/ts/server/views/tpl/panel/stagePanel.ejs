@@ -60,7 +60,7 @@
     <br>
     <input id="btnShowWin" class="WinPanelButton" type="button" value="Show Win"/>
     <input id="btnHideWin" class="WinPanelButton" type="button" value="Hide Win"/>
-    <input id="btnSaveGame" class="WinPanelButton" type="button" value="submit Game"/>
+    <input id="btnSaveGame" class="WinPanelButton" type="button" value="submit Game" @click="onClkSaveGame"/>
     <input id="btnResetGame" class="WinPanelButton" type="button" value="reset Game"/>
     <div class="NoticePanel">
         小喇叭：
@@ -84,4 +84,6 @@
 <script src="/js/panel/BasePanelView.js"></script>
 <script src="/js/panel/NoticePanelView.js"></script>
 <script src="/js/panel/PlayerCardRender.js"></script>
+<script src="/js/vue.min.js"></script>
+<script src="/js/vue-resource.min.js"></script>
 <script src="/js/panel/StagePanel2.js"></script>

@@ -129,6 +129,7 @@ class ActivityPanelInfo extends BasePanelInfo {
         this.gameData = param.gameData;
         param.gameData.activityId = param.activityId;
         param.gameData.isFinish = false;
+        this.panelInfo.stage.gameInfo.gameId = param.gameData.id;
         db.game.startGame(param.gameData);
     }
 
@@ -187,6 +188,7 @@ class StagePanelInfo extends BasePanelInfo {
 
     getInfo() {
         return {
+            gameId: this.gameInfo.gameId,
             playerIdArr: this.panelInfo.act.getCurPlayerIdArr(),
             leftScore: this.gameInfo.leftScore,
             rightScore: this.gameInfo.rightScore,
@@ -276,10 +278,6 @@ class StagePanelInfo extends BasePanelInfo {
             winTeam = this.gameInfo.setRightTeamWin();
         }
         console.log("showWinPanel param:", param, "mvp:", param.mvp, this.getPlayerInfoArr());
-        // console.log("win team:", JSON.stringify(winTeam.playerInfoArr));
-
-        // if (winTeam)//!winTeam means unsaved
-        // {
         for (var i = 0; i < winTeam.playerInfoArr.length; i++) {
             var obj:PlayerInfo = winTeam.playerInfoArr[i];
             if (!obj)
@@ -289,16 +287,6 @@ class StagePanelInfo extends BasePanelInfo {
             console.log(JSON.stringify(obj));
         }
         cmd.emit(CommandId.fadeInWinPanel, {mvp: param.mvp, playerDataArr: winTeam.playerInfoArr}, this.pid);
-        // }
-        // else {
-        //     //todo unsaved alert in front end;
-        // }
-
-        // console.log(this, "after elo");
-        // for (var i = 0; i < this.getPlayerInfoArr().length; i++) {
-        //     var obj = this.getPlayerInfoArr()[i];
-        //     console.log(JSON.stringify(obj));
-        // }
     }
 
     hideWinPanel(param:any) {
@@ -317,5 +305,13 @@ class StagePanelInfo extends BasePanelInfo {
     notice(param:any) {
         param.img = this.getNoticeImg(param.notice);
         cmd.emit(CommandId.notice, param, this.pid);
+    }
+
+    saveGameRec(param:any) {
+        var mvp = param.mvp;
+        var isRedWin = (mvp > 3);
+        db.game.submitGame(param.gameId, isRedWin, mvp, function (isSus) {
+
+        })
     }
 }
