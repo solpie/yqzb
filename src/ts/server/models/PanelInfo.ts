@@ -98,13 +98,24 @@ class ActivityPanelInfo extends BasePanelInfo {
                 queryIdArr.push({id: playerId});
             }
         }
+
         console.log('get Player Arr:', JSON.stringify(queryIdArr));
         db.player.getPlayerDataMapByIdArr(queryIdArr, (err, playerDataMap)=> {
             if (!err) {
                 this.roundInfo = new RoundInfo();
-                for (var playerIdArr of param.gameArr) {
-                    //query playerData
+
+                var gameIdArr = param.gameIdArr;
+                for (var j = 0; j < param.gameArr.length; j++) {
                     var gameInfo:GameInfo = new GameInfo();
+                    var gameId = gameIdArr[j];
+                    if (db.game.isGameFinish(gameId)) {
+                        var gameData = db.game.dataMap[gameIdArr[j]];
+                        console.log('finish game:', JSON.stringify(gameData));
+                        gameInfo.leftScore = gameData.blueScore;
+                        gameInfo.rightScore = gameData.redScore;
+                    }
+
+                    var playerIdArr = param.gameArr[j];
                     for (var i = 0; i < playerIdArr.length; i++) {
                         var playerId = playerIdArr[i];
                         var playerInfo:PlayerInfo = new PlayerInfo(playerDataMap[playerId]);
@@ -113,6 +124,7 @@ class ActivityPanelInfo extends BasePanelInfo {
                     }
                     this.roundInfo.gameInfoArr.push(gameInfo);
                 }
+
                 cmd.emit(CommandId.fadeInActPanel, this.roundInfo, this.pid);
             }
             else {
@@ -316,7 +328,7 @@ class StagePanelInfo extends BasePanelInfo {
         db.game.submitGame(param.gameId, isRedWin, mvp, blueScore, redScore, (isSus)=> {
             if (isSus) {
                 console.log("submit Game sus");
-                this.gameInfo.saveGameRecToPlayer(param.gameId,isRedWin);
+                this.gameInfo.saveGameRecToPlayer(param.gameId, isRedWin);
             }
             else {
                 console.log("submit Game failed!!");

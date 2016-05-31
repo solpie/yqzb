@@ -43,6 +43,7 @@ class ActivityPanelView extends BasePanelView {
         var vue = new Vue({
             el: '#panel',
             data: {
+                selGameIdArr: [],
                 showGameArr: [],
 
                 playerIdArr: [],
@@ -130,19 +131,13 @@ class ActivityPanelView extends BasePanelView {
                     });
                 },
                 onClkFadeIn: function () {
-                    // this.showGameArr = [
-                    //     [11, 13, 14, 18, 10029, 10017, 10008, 10034],
-                    //     [10029, 10017, 10008, 10034, 12, 17, 16, 15],
-                    //     [11, 13, 14, 18, 12, 17, 16, 15],
-                    //     [11, 13, 14, 18, 10032, 10030, 10031, 10036],
-                    //     [12, 17, 16, 15, 10032, 10030, 10031, 10036],
-                    //     [10032, 10030, 10031, 10036, 10029, 10017, 10008, 10034]];
                     if (this.showGameArr.length) {
                         console.log("showGameArr", JSON.stringify(this.showGameArr));
                         this.$http.post('/op/act/', {
                             cmd: CommandId.cs_fadeInActPanel,
                             param: {
                                 activityId: this.activityId,
+                                gameIdArr: this.selGameIdArr,
                                 gameArr: this.showGameArr
                             }
                         }).then(function (res) {
@@ -159,7 +154,7 @@ class ActivityPanelView extends BasePanelView {
                     var selRound = this.roundDataArr[this.roundSelected];
                     var selGame = selRound.gameDataArr[this.gameSelected];
                     this.playerIdArr.length = 0;
-                    console.log("sel", JSON.stringify(selRound));
+                    console.log("selGame", JSON.stringify(selGame));
                     for (var i = 0; i < selGame.playerIdArr.length; i++) {
                         this.playerIdArr.push(selGame.playerIdArr[i]);
                     }
@@ -167,10 +162,12 @@ class ActivityPanelView extends BasePanelView {
                 onRoundSelected: function () {
                     console.log('round change', this.roundSelected);
                     console.log(vue.roundDataArr[this.roundSelected]);
+                    this.selGameIdArr = [];
                     vue.gameOptionArr = [];
                     for (var i = 0; i < vue.roundDataArr[this.roundSelected].gameDataArr.length; i++) {
-                        vue.gameOptionArr.push({value: i, text: '第' + (i + 1) + '场'});
-                        // console.log('第' + (i + 1) + '场');
+                        var selGame = vue.roundDataArr[this.roundSelected].gameDataArr[i];
+                        this.selGameIdArr.push(selGame.id);
+                        vue.gameOptionArr.push({value: i, text: '第' + (i + 1) + '场 id:' + selGame.id});
                     }
                     this.gameSelected = -1;
                     this.playerIdArr = [];
@@ -305,14 +302,14 @@ class ActivityPanelView extends BasePanelView {
                 var scoreText = newScoreText();
                 scoreText.y = 70;
                 if (playerInfo.isRed) {
-                    scoreText.text = '0';
+                    scoreText.text = gameInfo.rightScore+"";
                     scoreText.x = 830;
                     rightScore += playerInfo.eloScore();
                     playerCtn = getRightPlayerCard(playerInfo, 1);
                     playerCtn.x = 282 + j * 148;
                 }
                 else {
-                    scoreText.text = '0';
+                    scoreText.text = gameInfo.leftScore+"";
                     scoreText.x = 685;
                     leftScore += playerInfo.eloScore();
                     playerCtn = getLeftPlayerCard(playerInfo, 1);

@@ -682,7 +682,6 @@ var ActivityAdmin = (function () {
         console.log('opHandle', JSON.stringify(req.body));
         var reqCmd = req.body.cmd;
         var param = req.body.param;
-        var cmdMap = {};
         if (reqCmd === CommandId.cs_fadeInActPanel) {
             server.panel.act.fadeInActPanel(param);
             res.send("sus");
@@ -1530,10 +1529,17 @@ var ActivityPanelInfo = (function (_super) {
         db.player.getPlayerDataMapByIdArr(queryIdArr, function (err, playerDataMap) {
             if (!err) {
                 _this.roundInfo = new RoundInfo();
-                for (var _i = 0, _a = param.gameArr; _i < _a.length; _i++) {
-                    var playerIdArr = _a[_i];
-                    //query playerData
+                var gameIdArr = param.gameIdArr;
+                for (var j = 0; j < param.gameArr.length; j++) {
                     var gameInfo = new GameInfo();
+                    var gameId = gameIdArr[j];
+                    if (db.game.isGameFinish(gameId)) {
+                        var gameData = db.game.dataMap[gameIdArr[j]];
+                        console.log('finish game:', JSON.stringify(gameData));
+                        gameInfo.leftScore = gameData.blueScore;
+                        gameInfo.rightScore = gameData.redScore;
+                    }
+                    var playerIdArr = param.gameArr[j];
                     for (var i = 0; i < playerIdArr.length; i++) {
                         var playerId = playerIdArr[i];
                         var playerInfo = new PlayerInfo(playerDataMap[playerId]);

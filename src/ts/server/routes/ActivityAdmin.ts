@@ -4,7 +4,6 @@ class ActivityAdmin {
         console.log('opHandle', JSON.stringify(req.body));
         var reqCmd = req.body.cmd;
         var param = req.body.param;
-        var cmdMap:any = {};
         if (reqCmd === CommandId.cs_fadeInActPanel) {
             server.panel.act.fadeInActPanel(param);
             res.send("sus");
