@@ -934,10 +934,9 @@ var GameDB = (function (_super) {
         this.ds().update({ id: gameData.id }, gameData, { upsert: true }, function (err, newDoc) {
         });
     };
-    GameDB.prototype.submitGame = function (gameId, isRedWin, mvp, callback) {
+    GameDB.prototype.submitGame = function (gameId, isRedWin, mvp, blueScore, redScore, callback) {
         var _this = this;
         this.ds().findOne({ id: gameId }, function (err, doc) {
-            console.log('submitGame:', gameId, JSON.stringify(doc));
             if (doc.isFinish) {
                 console.log('closed game can not modify!!!');
                 callback(false);
@@ -945,11 +944,14 @@ var GameDB = (function (_super) {
             else {
                 _this.ds().update({ id: gameId }, {
                     $set: {
+                        blueScore: blueScore,
+                        redScore: redScore,
                         isFinish: true,
                         mvp: doc.playerIdArr[mvp],
                         isRedWin: isRedWin
                     }
-                }, {}, function (err, newdoc) {
+                }, {}, function (err, numUpdate) {
+                    console.log('submitGame:', gameId, JSON.stringify(numUpdate));
                     callback(true);
                 });
             }
@@ -1319,24 +1321,24 @@ var GameInfo = (function () {
             this.timerState = 1;
         }
     };
-    GameInfo.prototype.saveGameRec = function () {
+    GameInfo.prototype.saveGameRecToPlayer = function (gameId) {
         // if (this._isUnsaved) {
-        // this._isUnsaved = false;
-        // function saveTeamPlayerData(teamInfo:TeamInfo) {
-        //     for (var playerInfo of teamInfo.playerInfoArr) {
-        //         console.log("playerData", JSON.stringify(playerInfo));
-        //         if (!playerInfo.gameRec())
-        //             playerInfo.gameRec([]);
-        //         playerInfo.gameRec().push(this.gameId);
-        //         console.log(playerInfo.name(), " cur player score:", playerInfo.eloScore(), playerInfo.dtScore());
-        //         // this.playerDb.update({id: playerInfo.id()}, {$set: playerInfo.playerData}, {}, function (err, doc) {
-        //         //     console.log("saveGameRec: game rec saved");
-        //         // })
-        //     }
-        // }
-        // saveTeamPlayerData(this._winTeam);
-        // saveTeamPlayerData(this._loseTeam);
-        // }
+        this._isUnsaved = false;
+        function saveTeamPlayerData(teamInfo) {
+            for (var _i = 0, _a = teamInfo.playerInfoArr; _i < _a.length; _i++) {
+                var playerInfo = _a[_i];
+                console.log("playerData", JSON.stringify(playerInfo));
+                if (!playerInfo.gameRec())
+                    playerInfo.gameRec([]);
+                playerInfo.gameRec().push(gameId);
+                console.log(playerInfo.name(), " cur player score:", playerInfo.eloScore(), playerInfo.dtScore());
+                db.player.ds().update({ id: playerInfo.id() }, { $set: playerInfo.playerData }, {}, function (err, doc) {
+                    console.log("saveGameRec: game rec saved");
+                });
+            }
+        }
+        saveTeamPlayerData(this._winTeam);
+        saveTeamPlayerData(this._loseTeam);
     };
     GameInfo.prototype.resetTimer = function () {
         clearInterval(this._timer);
@@ -1348,7 +1350,6 @@ var GameInfo = (function () {
     };
     GameInfo.prototype._setGameResult = function (isLeftWin) {
         // if (!this._isUnsaved) {
-        console.log("setGameResult: game rec unsaved");
         var teamLeft = new TeamInfo();
         teamLeft.setPlayerArr(this.getLeftTeam());
         var teamRight = new TeamInfo();
@@ -1676,9 +1677,19 @@ var StagePanelInfo = (function (_super) {
         cmd.emit(CommandId.notice, param, this.pid);
     };
     StagePanelInfo.prototype.saveGameRec = function (param) {
+        var _this = this;
         var mvp = param.mvp;
+        var blueScore = param.blueScore;
+        var redScore = param.redScore;
         var isRedWin = (mvp > 3);
-        db.game.submitGame(param.gameId, isRedWin, mvp, function (isSus) {
+        db.game.submitGame(param.gameId, isRedWin, mvp, blueScore, redScore, function (isSus) {
+            if (isSus) {
+                console.log("submit Game sus");
+                _this.gameInfo.saveGameRecToPlayer(param.gameId);
+            }
+            else {
+                console.log("submit Game failed!!");
+            }
         });
     };
     return StagePanelInfo;

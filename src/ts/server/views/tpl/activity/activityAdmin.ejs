@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>dashboard</title>
-    <link rel="stylesheet" type="text/css" href="/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="/style.css">
+    <link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+    <script src="/js/jquery-2.1.4.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
     <style>
         body {
             font-family: Menlo, Consolas, monospace;
@@ -91,8 +92,8 @@
 </head>
 <body style="display:inline;">
 <div id="app" style="width: 800px">
-    <input id="btnGen" type="button" value="分区" @click="onGen">
-    <input id="btnGen" type="button" value="确定生成赛程" @click="onGenActivity">
+    <button id="btnGen" type="button" class="btn btn-lg btn-default" @click="onGen">分区</button>
+    <button id="btnGen" type="button" class="btn btn-lg btn-default" @click="onGenActivity">确定生成赛程</button>
     <span>新一轮：<%= lastRound %></span>
     <item
             class="item"
@@ -139,7 +140,6 @@
             </div>
         </li>
     </div>
-    <input type="button" value="打印game球员" @click="onPrint">
 </div>
 <div style="position: absolute;left: 450px;top: 0">
     <canvas id="the-canvas"></canvas>
@@ -163,7 +163,7 @@
             stage = new createjs.Stage(canvas);
             pdfData64 = stage.toDataURL('rgba(0,0,0,0)', "image/png")
         }
-        console.log("genPrint",JSON.stringify(playerDataArr));
+        console.log("genPrint", JSON.stringify(playerDataArr));
         stage.removeAllChildren();
         var sheet = new createjs.Bitmap(pdfData64);
         stage.addChild(sheet);

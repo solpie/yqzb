@@ -117,9 +117,8 @@ class GameDB extends BaseDB {
         });
     }
 
-    submitGame(gameId, isRedWin, mvp, callback) {
+    submitGame(gameId, isRedWin, mvp, blueScore, redScore, callback) {
         this.ds().findOne({id: gameId}, (err, doc)=> {
-            console.log('submitGame:', gameId, JSON.stringify(doc));
             if (doc.isFinish) {
                 console.log('closed game can not modify!!!');
                 callback(false);
@@ -128,11 +127,14 @@ class GameDB extends BaseDB {
                 this.ds().update({id: gameId},
                     {
                         $set: {
+                            blueScore: blueScore,
+                            redScore: redScore,
                             isFinish: true,
                             mvp: doc.playerIdArr[mvp],
                             isRedWin: isRedWin
                         }
-                    }, {}, function (err, newdoc) {
+                    }, {}, function (err, numUpdate) {
+                        console.log('submitGame:', gameId, JSON.stringify(numUpdate));
                         callback(true);
                     });
             }

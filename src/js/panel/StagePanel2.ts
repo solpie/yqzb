@@ -1045,11 +1045,18 @@ $(function main() {
         },
         methods: {
             onClkSaveGame: function () {
-                var param:any = {gameId: stagePanel2.gameId, mvp: stagePanel2.mvpPos};
+                var blueScore = parseInt(stagePanel2.leftScoreLabel.text);
+                var redScore = parseInt(stagePanel2.rightScoreLabel.text);
+                var param:any = {
+                    gameId: stagePanel2.gameId,
+                    mvp: stagePanel2.mvpPos,
+                    blueScore: blueScore,
+                    redScore: redScore
+                };
                 this.$http.post('/panel/stage/op', {cmd: CommandId.cs_saveGameRec, param: param})
                     .then(function (res) {
                         console.log(res.data);
-                    })
+                    });
             }
         }
     })

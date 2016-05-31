@@ -309,9 +309,17 @@ class StagePanelInfo extends BasePanelInfo {
 
     saveGameRec(param:any) {
         var mvp = param.mvp;
+        var blueScore = param.blueScore;
+        var redScore = param.redScore;
         var isRedWin = (mvp > 3);
-        db.game.submitGame(param.gameId, isRedWin, mvp, function (isSus) {
-
+        db.game.submitGame(param.gameId, isRedWin, mvp, blueScore, redScore, (isSus)=> {
+            if (isSus) {
+                console.log("submit Game sus");
+                this.gameInfo.saveGameRecToPlayer(param.gameId);
+            }
+            else {
+                console.log("submit Game failed!!");
+            }
         })
     }
 }
