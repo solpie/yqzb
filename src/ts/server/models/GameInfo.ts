@@ -37,46 +37,24 @@ class GameInfo {
     }
 
     saveGameRec() {
-        if (this._isUnsaved) {
-            this._isUnsaved = false;
-            function saveTeamPlayerData(teamInfo:TeamInfo) {
-                for (var playerInfo of teamInfo.playerInfoArr) {
-                    console.log("playerData", JSON.stringify(playerInfo));
-                    if (!playerInfo.gameRec())
-                        playerInfo.gameRec([]);
-                    playerInfo.gameRec().push(this.gameId);
-                    console.log(playerInfo.name(), " cur player score:", playerInfo.eloScore(), playerInfo.dtScore());
-                    this.playerDb.update({id: playerInfo.id()}, {$set: playerInfo.playerData}, {}, function (err, doc) {
-                        console.log("saveGameRec: game rec saved");
-                    })
-                }
+        // if (this._isUnsaved) {
+        this._isUnsaved = false;
+        function saveTeamPlayerData(teamInfo:TeamInfo) {
+            for (var playerInfo of teamInfo.playerInfoArr) {
+                console.log("playerData", JSON.stringify(playerInfo));
+                if (!playerInfo.gameRec())
+                    playerInfo.gameRec([]);
+                playerInfo.gameRec().push(this.gameId);
+                console.log(playerInfo.name(), " cur player score:", playerInfo.eloScore(), playerInfo.dtScore());
+                // this.playerDb.update({id: playerInfo.id()}, {$set: playerInfo.playerData}, {}, function (err, doc) {
+                //     console.log("saveGameRec: game rec saved");
+                // })
             }
-
-            saveTeamPlayerData(this._winTeam);
-            saveTeamPlayerData(this._loseTeam);
-            // for (var i = 0; i < this._winTeam.playerInfoArr.length; i++) {
-            //     var playerInfo:PlayerInfo = this._winTeam.playerInfoArr[i];
-            //     console.log("playerData", JSON.stringify(playerInfo));
-            //     if (!playerInfo.gameRec())
-            //         playerInfo.gameRec([]);
-            //     playerInfo.gameRec().push(this.gameId);
-            //     console.log(playerInfo.name(), " cur player score:", playerInfo.eloScore(), playerInfo.dtScore());
-            //     this.playerDb.update({id: playerInfo.id()}, {$set: playerInfo.playerData}, {}, function (err, doc) {
-            //         console.log("saveGameRec: game rec saved");
-            //     })
-            // }
-            // for (var i = 0; i < this._loseTeam.playerInfoArr.length; i++) {
-            //     var playerInfo:PlayerInfo = this._loseTeam.playerInfoArr[i];
-            //     console.log("playerData", JSON.stringify(playerInfo));
-            //     if (!playerInfo.gameRec())
-            //         playerInfo.gameRec([]);
-            //     playerInfo.gameRec().push(this.gameId);
-            //     console.log(playerInfo.name(), " cur player score:", playerInfo.eloScore(), playerInfo.dtScore());
-            //     this.playerDb.update({id: playerInfo.id()}, {$set: playerInfo.playerData}, {}, function (err, doc) {
-            //         console.log("lose saveGameRec: game rec saved");
-            //     })
-            // }
         }
+
+        saveTeamPlayerData(this._winTeam);
+        saveTeamPlayerData(this._loseTeam);
+        // }
     }
 
     resetTimer() {
@@ -90,29 +68,29 @@ class GameInfo {
     }
 
     _setGameResult(isLeftWin) {
-        if (!this._isUnsaved) {
-            console.log("setGameResult: game rec unsaved");
-            var teamLeft = new TeamInfo();
-            teamLeft.setPlayerArr(this.getLeftTeam());
+        // if (!this._isUnsaved) {
+        console.log("setGameResult: game rec unsaved");
+        var teamLeft = new TeamInfo();
+        teamLeft.setPlayerArr(this.getLeftTeam());
 
-            var teamRight = new TeamInfo();
-            teamRight.setPlayerArr(this.getRightTeam());
+        var teamRight = new TeamInfo();
+        teamRight.setPlayerArr(this.getRightTeam());
 
-            if (isLeftWin) {
-                teamLeft.beat(teamRight);
-                this._winTeam = teamLeft;
-                this._loseTeam = teamRight;
-            }
-            else {
-                teamRight.beat(teamLeft);
-                this._winTeam = teamRight;
-                this._loseTeam = teamLeft;
-            }
-            this.playerInfoArr = teamLeft.getNewPlayerDataArr().concat(teamRight.getNewPlayerDataArr());
-            console.log("playerData", JSON.stringify(this.playerInfoArr));
-            this._isUnsaved = true;
-            return this._winTeam;
+        if (isLeftWin) {
+            teamLeft.beat(teamRight);
+            this._winTeam = teamLeft;
+            this._loseTeam = teamRight;
         }
+        else {
+            teamRight.beat(teamLeft);
+            this._winTeam = teamRight;
+            this._loseTeam = teamLeft;
+        }
+        this.playerInfoArr = teamLeft.getNewPlayerDataArr().concat(teamRight.getNewPlayerDataArr());
+        console.log("playerData", JSON.stringify(this.playerInfoArr));
+        this._isUnsaved = true;
+        return this._winTeam;
+        // }
     }
 
 

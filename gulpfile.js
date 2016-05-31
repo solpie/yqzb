@@ -67,6 +67,8 @@ gulp.task("nwjs", function () {
             .pipe(gulp.dest(destPath));
         gulp.src('./src/**/*.css')
             .pipe(gulp.dest(destPath));
+        gulp.src('./src/**/*.pdf')
+            .pipe(gulp.dest(destPath));
     }).catch(function (error) {
         console.error(error);
     });

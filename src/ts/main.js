@@ -402,13 +402,6 @@ var WindowView = (function () {
         // $("#btnDbg").on(MouseEvt.CLICK, function () {
         //     win.showDevTools('', true);
         // });
-        ///dashboard
-        //var win = gui.Window.open ('panel.html', {
-        //    position: 'center',
-        //    toolbar: false,
-        //    width: 901,
-        //    height: 523
-        //});
         //
         //default op
         // var op = gui.Window.open ('http://localhost/panel/stage/op', {
@@ -1302,24 +1295,21 @@ var GameInfo = (function () {
         }
     };
     GameInfo.prototype.saveGameRec = function () {
-        if (this._isUnsaved) {
-            this._isUnsaved = false;
-            function saveTeamPlayerData(teamInfo) {
-                for (var _i = 0, _a = teamInfo.playerInfoArr; _i < _a.length; _i++) {
-                    var playerInfo = _a[_i];
-                    console.log("playerData", JSON.stringify(playerInfo));
-                    if (!playerInfo.gameRec())
-                        playerInfo.gameRec([]);
-                    playerInfo.gameRec().push(this.gameId);
-                    console.log(playerInfo.name(), " cur player score:", playerInfo.eloScore(), playerInfo.dtScore());
-                    this.playerDb.update({ id: playerInfo.id() }, { $set: playerInfo.playerData }, {}, function (err, doc) {
-                        console.log("saveGameRec: game rec saved");
-                    });
-                }
+        // if (this._isUnsaved) {
+        this._isUnsaved = false;
+        function saveTeamPlayerData(teamInfo) {
+            for (var _i = 0, _a = teamInfo.playerInfoArr; _i < _a.length; _i++) {
+                var playerInfo = _a[_i];
+                console.log("playerData", JSON.stringify(playerInfo));
+                if (!playerInfo.gameRec())
+                    playerInfo.gameRec([]);
+                playerInfo.gameRec().push(this.gameId);
+                console.log(playerInfo.name(), " cur player score:", playerInfo.eloScore(), playerInfo.dtScore());
             }
-            saveTeamPlayerData(this._winTeam);
-            saveTeamPlayerData(this._loseTeam);
         }
+        saveTeamPlayerData(this._winTeam);
+        saveTeamPlayerData(this._loseTeam);
+        // }
     };
     GameInfo.prototype.resetTimer = function () {
         clearInterval(this._timer);
@@ -1330,27 +1320,27 @@ var GameInfo = (function () {
         this.playerInfoArr[pos] = playerInfo;
     };
     GameInfo.prototype._setGameResult = function (isLeftWin) {
-        if (!this._isUnsaved) {
-            console.log("setGameResult: game rec unsaved");
-            var teamLeft = new TeamInfo();
-            teamLeft.setPlayerArr(this.getLeftTeam());
-            var teamRight = new TeamInfo();
-            teamRight.setPlayerArr(this.getRightTeam());
-            if (isLeftWin) {
-                teamLeft.beat(teamRight);
-                this._winTeam = teamLeft;
-                this._loseTeam = teamRight;
-            }
-            else {
-                teamRight.beat(teamLeft);
-                this._winTeam = teamRight;
-                this._loseTeam = teamLeft;
-            }
-            this.playerInfoArr = teamLeft.getNewPlayerDataArr().concat(teamRight.getNewPlayerDataArr());
-            console.log("playerData", JSON.stringify(this.playerInfoArr));
-            this._isUnsaved = true;
-            return this._winTeam;
+        // if (!this._isUnsaved) {
+        console.log("setGameResult: game rec unsaved");
+        var teamLeft = new TeamInfo();
+        teamLeft.setPlayerArr(this.getLeftTeam());
+        var teamRight = new TeamInfo();
+        teamRight.setPlayerArr(this.getRightTeam());
+        if (isLeftWin) {
+            teamLeft.beat(teamRight);
+            this._winTeam = teamLeft;
+            this._loseTeam = teamRight;
         }
+        else {
+            teamRight.beat(teamLeft);
+            this._winTeam = teamRight;
+            this._loseTeam = teamLeft;
+        }
+        this.playerInfoArr = teamLeft.getNewPlayerDataArr().concat(teamRight.getNewPlayerDataArr());
+        console.log("playerData", JSON.stringify(this.playerInfoArr));
+        this._isUnsaved = true;
+        return this._winTeam;
+        // }
     };
     GameInfo.prototype.setLeftTeamWin = function () {
         return this._setGameResult(true);
@@ -1633,19 +1623,21 @@ var StagePanelInfo = (function (_super) {
         }
         console.log("showWinPanel param:", param, "mvp:", param.mvp, this.getPlayerInfoArr());
         // console.log("win team:", JSON.stringify(winTeam.playerInfoArr));
-        if (winTeam) {
-            for (var i = 0; i < winTeam.playerInfoArr.length; i++) {
-                var obj = winTeam.playerInfoArr[i];
-                if (!obj)
-                    return;
-                if (obj.pos == param.mvp)
-                    obj.isMvp = true;
-                console.log(JSON.stringify(obj));
-            }
-            cmd.emit(CommandId.fadeInWinPanel, { mvp: param.mvp, playerDataArr: winTeam.playerInfoArr }, this.pid);
+        // if (winTeam)//!winTeam means unsaved
+        // {
+        for (var i = 0; i < winTeam.playerInfoArr.length; i++) {
+            var obj = winTeam.playerInfoArr[i];
+            if (!obj)
+                return;
+            if (obj.pos == param.mvp)
+                obj.isMvp = true;
+            console.log(JSON.stringify(obj));
         }
-        else {
-        }
+        cmd.emit(CommandId.fadeInWinPanel, { mvp: param.mvp, playerDataArr: winTeam.playerInfoArr }, this.pid);
+        // }
+        // else {
+        //     //todo unsaved alert in front end;
+        // }
         // console.log(this, "after elo");
         // for (var i = 0; i < this.getPlayerInfoArr().length; i++) {
         //     var obj = this.getPlayerInfoArr()[i];

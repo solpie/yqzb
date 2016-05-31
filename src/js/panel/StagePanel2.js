@@ -454,10 +454,11 @@ var StagePanel2 = (function (_super) {
             basePath += 'Blue.png';
         loadImg(basePath, function () {
             var txt3 = new createjs.Bitmap(basePath);
-            txt3.x = -txt3.getBounds().width;
-            txt3.y = -txt3.getBounds().height;
+            var bound = txt3.getBounds();
+            txt3.x = -bound.width;
+            txt3.y = -bound.height;
             ctn.addChild(txt3);
-            ctn.x = 1920 / 2;
+            ctn.x = 1920 / 2 + 200;
             ctn.y = 200;
             // ctn.cache(txt3.x, txt3.y, txt3.getBounds().width, txt3.getBounds().height);
             ctn.alpha = 1;
@@ -470,7 +471,6 @@ var StagePanel2 = (function (_super) {
                 isBusy = false;
             });
         });
-        // }
     };
     StagePanel2.prototype.getWinPlayerCard = function (p) {
         var isMvp = p.isMvp;
@@ -522,9 +522,11 @@ var StagePanel2 = (function (_super) {
             name = new createjs.Text(p.name(), "30px Arial", col);
         name.textAlign = 'center';
         name.x = 90 + 60;
-        if (isMvp)
+        name.y = 200;
+        if (isMvp) {
             name.x += 20;
-        name.y = 185 + 30;
+            name.y = 215;
+        }
         ctn.addChild(name);
         var eloScore;
         eloScore = new createjs.Text(p.eloScore(), "bold 32px Arial", nameCol);

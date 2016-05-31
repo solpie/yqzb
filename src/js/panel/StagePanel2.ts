@@ -160,8 +160,6 @@ class StagePanel2 extends BasePanelView {
 
         {//score point
             //left score---------------------
-
-
             this.leftCircleArr = [];
             this.rightCircleArr = [];
             var px = 205 + 470;
@@ -445,9 +443,7 @@ class StagePanel2 extends BasePanelView {
 
     fadeInWinPanel(paramDataArr, mvp) {
         console.log(this, "show fadeInWinPanel mvp:", mvp);
-
         var ctn = this.winCtn;
-
         var bg = new createjs.Shape();
         bg.graphics.beginFill('#000').drawRect(0, 0, client.panel.stageWidth, client.panel.stageHeight);
         bg.alpha = .3;
@@ -530,10 +526,11 @@ class StagePanel2 extends BasePanelView {
             basePath += 'Blue.png';
         loadImg(basePath, ()=> {
             var txt3 = new createjs.Bitmap(basePath);
-            txt3.x = -txt3.getBounds().width;
-            txt3.y = -txt3.getBounds().height;
+            var bound = txt3.getBounds();
+            txt3.x = -bound.width;
+            txt3.y = -bound.height;
             ctn.addChild(txt3);
-            ctn.x = 1920 / 2;
+            ctn.x = 1920 / 2 + 200;
             ctn.y = 200;
             // ctn.cache(txt3.x, txt3.y, txt3.getBounds().width, txt3.getBounds().height);
             ctn.alpha = 1;
@@ -546,8 +543,6 @@ class StagePanel2 extends BasePanelView {
                 isBusy = false;
             });
         });
-
-        // }
     }
 
     getWinPlayerCard(p):any {
@@ -605,9 +600,11 @@ class StagePanel2 extends BasePanelView {
             name = new createjs.Text(p.name(), "30px Arial", col);
         name.textAlign = 'center';
         name.x = 90 + 60;
-        if (isMvp)
+        name.y = 200;
+        if (isMvp) {
             name.x += 20;
-        name.y = 185 + 30;
+            name.y = 215;
+        }
         ctn.addChild(name);
 
         var eloScore;

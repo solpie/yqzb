@@ -278,21 +278,21 @@ class StagePanelInfo extends BasePanelInfo {
         console.log("showWinPanel param:", param, "mvp:", param.mvp, this.getPlayerInfoArr());
         // console.log("win team:", JSON.stringify(winTeam.playerInfoArr));
 
-        if (winTeam)//!winTeam means unsaved
-        {
-            for (var i = 0; i < winTeam.playerInfoArr.length; i++) {
-                var obj:PlayerInfo = winTeam.playerInfoArr[i];
-                if (!obj)
-                    return;
-                if (obj.pos == param.mvp)
-                    obj.isMvp = true;
-                console.log(JSON.stringify(obj));
-            }
-            cmd.emit(CommandId.fadeInWinPanel, {mvp: param.mvp, playerDataArr: winTeam.playerInfoArr}, this.pid);
+        // if (winTeam)//!winTeam means unsaved
+        // {
+        for (var i = 0; i < winTeam.playerInfoArr.length; i++) {
+            var obj:PlayerInfo = winTeam.playerInfoArr[i];
+            if (!obj)
+                return;
+            if (obj.pos == param.mvp)
+                obj.isMvp = true;
+            console.log(JSON.stringify(obj));
         }
-        else {
-            //todo unsaved alert in front end;
-        }
+        cmd.emit(CommandId.fadeInWinPanel, {mvp: param.mvp, playerDataArr: winTeam.playerInfoArr}, this.pid);
+        // }
+        // else {
+        //     //todo unsaved alert in front end;
+        // }
 
         // console.log(this, "after elo");
         // for (var i = 0; i < this.getPlayerInfoArr().length; i++) {
