@@ -4,6 +4,7 @@
 /// <reference path="Config.ts"/>
 /// <reference path="routes/PlayerInfoAdmin.ts"/>
 /// <reference path="routes/ActivityAdmin.ts"/>
+/// <reference path="routes/PlayerPanelHandle.ts"/>
 /// <reference path="models/DbInfo.ts"/>
 /// <reference path="models/PanelInfo.ts"/>
 /// <reference path="models/RoundInfo.ts"/>
@@ -110,6 +111,7 @@ class HttpServer {
         app.post('/admin/game/genRound', urlencodedParser, ActivityAdmin.genRound);
         
         app.post('/op/act/', urlencodedParser, ActivityAdmin.opHandle);
+        app.post('/panel/player/op', urlencodedParser, PlayerPanelHandle.opHandle);
 
 
         app.get('/panel/:id/:op', function (req, res) {

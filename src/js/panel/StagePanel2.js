@@ -235,7 +235,7 @@ var StagePanel2 = (function (_super) {
                 var leftEloLabel = new createjs.Text("1984", "18px Arial", "#e2e2e2");
                 leftEloLabel.textAlign = "left";
                 leftEloLabel.x = leftEloBg.x + 12;
-                leftEloLabel.y = leftEloBg.y + 3;
+                leftEloLabel.y = leftEloBg.y;
                 this.eloLabelArr.push(leftEloLabel);
                 ctnMove.addChild(leftEloLabel);
                 var styleCtn = new createjs.Container();
@@ -286,7 +286,7 @@ var StagePanel2 = (function (_super) {
                 var rightEloLabel = new createjs.Text("99999", "18px Arial", "#e2e2e2");
                 rightEloLabel.textAlign = "right";
                 rightEloLabel.x = rightEloBg.x + 53;
-                rightEloLabel.y = rightEloBg.y + 3;
+                rightEloLabel.y = rightEloBg.y;
                 this.eloLabelArr.push(rightEloLabel);
                 ctnMove.addChild(rightEloLabel);
                 var styleCtn = new createjs.Container();
@@ -477,13 +477,14 @@ var StagePanel2 = (function (_super) {
         var ctn = new createjs.Container();
         var avatar = new createjs.Bitmap(p.avatar());
         console.log("playerCard=======:", p.avatar());
+        var scale = 80 / avatar.getBounds().height;
         if (isMvp) {
-            avatar.scaleX = avatar.scaleY = 1.5;
+            avatar.scaleX = avatar.scaleY = 1.5 * scale;
             avatar.x = (180 - 180 * 1.2) * .5 + 60;
             avatar.y = 45 + 30;
         }
         else {
-            avatar.scaleX = avatar.scaleY = 1.2;
+            avatar.scaleX = avatar.scaleY = 1.2 * scale;
             avatar.x = (180 - 180 * 1.2) * .5 + 60;
             avatar.y = 50 + 30;
         }

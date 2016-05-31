@@ -294,22 +294,23 @@ var CommandId;
     CommandId[CommandId["saveGameRec"] = 100034] = "saveGameRec";
     CommandId[CommandId["cs_saveGameRec"] = 100035] = "cs_saveGameRec";
     //---------------- player panel
-    CommandId[CommandId["fadeInPlayerPanel"] = 100036] = "fadeInPlayerPanel";
-    CommandId[CommandId["cs_fadeInPlayerPanel"] = 100037] = "cs_fadeInPlayerPanel";
-    CommandId[CommandId["fadeOutPlayerPanel"] = 100038] = "fadeOutPlayerPanel";
-    CommandId[CommandId["cs_fadeOutPlayerPanel"] = 100039] = "cs_fadeOutPlayerPanel";
-    CommandId[CommandId["movePlayerPanel"] = 100040] = "movePlayerPanel";
-    CommandId[CommandId["cs_movePlayerPanel"] = 100041] = "cs_movePlayerPanel";
+    CommandId[CommandId["cs_queryPlayerByPos"] = 100036] = "cs_queryPlayerByPos";
+    CommandId[CommandId["fadeInPlayerPanel"] = 100037] = "fadeInPlayerPanel";
+    CommandId[CommandId["cs_fadeInPlayerPanel"] = 100038] = "cs_fadeInPlayerPanel";
+    CommandId[CommandId["fadeOutPlayerPanel"] = 100039] = "fadeOutPlayerPanel";
+    CommandId[CommandId["cs_fadeOutPlayerPanel"] = 100040] = "cs_fadeOutPlayerPanel";
+    CommandId[CommandId["movePlayerPanel"] = 100041] = "movePlayerPanel";
+    CommandId[CommandId["cs_movePlayerPanel"] = 100042] = "cs_movePlayerPanel";
     //自动三杀事件
-    CommandId[CommandId["straightScore3"] = 100042] = "straightScore3";
-    CommandId[CommandId["straightScore5"] = 100043] = "straightScore5";
-    CommandId[CommandId["initPanel"] = 100044] = "initPanel";
+    CommandId[CommandId["straightScore3"] = 100043] = "straightScore3";
+    CommandId[CommandId["straightScore5"] = 100044] = "straightScore5";
+    CommandId[CommandId["initPanel"] = 100045] = "initPanel";
     /////activity panel
-    CommandId[CommandId["cs_fadeInActPanel"] = 100045] = "cs_fadeInActPanel";
-    CommandId[CommandId["fadeInActPanel"] = 100046] = "fadeInActPanel";
-    CommandId[CommandId["cs_fadeOutActPanel"] = 100047] = "cs_fadeOutActPanel";
-    CommandId[CommandId["fadeOutActPanel"] = 100048] = "fadeOutActPanel";
-    CommandId[CommandId["cs_startGame"] = 100049] = "cs_startGame";
+    CommandId[CommandId["cs_fadeInActPanel"] = 100046] = "cs_fadeInActPanel";
+    CommandId[CommandId["fadeInActPanel"] = 100047] = "fadeInActPanel";
+    CommandId[CommandId["cs_fadeOutActPanel"] = 100048] = "cs_fadeOutActPanel";
+    CommandId[CommandId["fadeOutActPanel"] = 100049] = "fadeOutActPanel";
+    CommandId[CommandId["cs_startGame"] = 100050] = "cs_startGame";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {
@@ -785,6 +786,28 @@ var ActivityAdmin = (function () {
     };
     return ActivityAdmin;
 }());
+var PlayerPanelHandle = (function () {
+    function PlayerPanelHandle() {
+    }
+    PlayerPanelHandle.opHandle = function (req, res) {
+        if (!req.body)
+            return res.sendStatus(400);
+        console.log('opHandle', JSON.stringify(req.body));
+        var reqCmd = req.body.cmd;
+        var param = req.body.param;
+        if (reqCmd === CommandId.cs_queryPlayerByPos) {
+            var playerInfoArr = server.panel.stage.getPlayerInfoArr();
+            if (playerInfoArr && playerInfoArr.length) {
+                res.send(playerInfoArr[param.pos]);
+            }
+            else {
+                console.trace("no player on stage!!!");
+                res.sendStatus(500);
+            }
+        }
+    };
+    return PlayerPanelHandle;
+}());
 /// <reference path="../../Node.ts"/>
 /////
 var appExecPath = M_path.dirname(process.execPath);
@@ -809,7 +832,7 @@ var BaseDB = (function () {
         this.dbPath = option.filename;
         this.dataStore = new Datastore(option);
         this.dataStore.find({ id: 0 }, function (err, docs) {
-            console.log('find config', _this.dbPath);
+            console.log('load config', _this.dbPath);
             if (!err) {
                 if (docs.length)
                     _this.config = docs[0];
@@ -1625,6 +1648,7 @@ var RoundInfo = (function () {
 /// <reference path="Config.ts"/>
 /// <reference path="routes/PlayerInfoAdmin.ts"/>
 /// <reference path="routes/ActivityAdmin.ts"/>
+/// <reference path="routes/PlayerPanelHandle.ts"/>
 /// <reference path="models/DbInfo.ts"/>
 /// <reference path="models/PanelInfo.ts"/>
 /// <reference path="models/RoundInfo.ts"/>
@@ -1722,6 +1746,7 @@ var HttpServer = (function () {
         app.post('/admin/game/genPrintPng', urlencodedParser, ActivityAdmin.genPrintPng);
         app.post('/admin/game/genRound', urlencodedParser, ActivityAdmin.genRound);
         app.post('/op/act/', urlencodedParser, ActivityAdmin.opHandle);
+        app.post('/panel/player/op', urlencodedParser, PlayerPanelHandle.opHandle);
         app.get('/panel/:id/:op', function (req, res) {
             var pid = req.params.id;
             var op = req.params.op;

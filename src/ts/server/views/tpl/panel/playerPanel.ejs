@@ -69,16 +69,20 @@
 </style>
 <label id="playerNameShadow"></label>
 <label id="playerName"></label>
-<div class="inputPanel">
+<div class="inputPanel" id="panel">
     <div class="playerPanel">
+        <img class="playerAvatar" src="{{pickedImg}}">
+        <br>
         player id:
         <div class="pickupPlayer">
-            <img class="playerAvatar" src="/img/player/p0.png">
-            <input class="playerId" type="text" style="width: 75px"/>
-            <input class="btnQuery" type="button" value="query" data-pos="0"/>
-            <input class="btnUpdate" type="button" value="update↓↓↓" data-pos="0"/>
+            <ul v-for="player in playerInfoArr">
+                <input id="playerId{{$index}}" name="posSel" type="radio" value="{{$index}}" v-model="picked"
+                       @change="onPicked"/>
+                <label for="{{$index}}">{{player.name}}</label>
+            </ul>
+            <input id="btnFadeIn" class="btnUpdate" type="button" value="fadeIn" @click="onClkFadeIn"/>
             <br>
-            <input class="btnFadeOut" type="button" value="fadeOut" data-pos="0"/>
+            <input id="btnFadeOut" class="btnFadeOut" type="button" value="fadeOut" @click="onClkFadeOut"/>
             鼠标移动到头像上:按 M 切换移动状态
             <br>
             <label id="moveState"></label>
@@ -89,11 +93,13 @@
     <img src="/img/panel/playerPanelBlue.png">
     <img src="/img/panel/playerPanelRed.png">
 </div>
+<script src="/js/vue.min.js"></script>
+<script src="/js/vue-resource.min.js"></script>
 <script>
     var onServer = function () {
         cmd.on(CommandId.initPanel, function (param) {
             console.log("initPanel::::::::", param);
-            //            console.log(this, "initParam");
+            vue.playerInfoArr = param.playerInfoArr;
             if (param.playerInfo) {
                 fadeInPlayerPanel(new PlayerInfo(param.playerInfo));
             }
@@ -206,15 +212,6 @@
                 var data = JSON.parse(res);
                 $($(".playerAvatar")[0]).attr("src", data.playerInfo.avatar);
             });
-        });
-
-        $(".btnUpdate").click(function (e) {
-            playerId = $($(".playerId")[0]).val();
-            cmd.proxy(CommandId.cs_fadeInPlayerPanel, playerId);
-        });
-
-        $(".btnFadeOut").click(function (e) {
-            cmd.proxy(CommandId.cs_fadeOutPlayerPanel);
         });
 
         $("#btnMove").click(function (e) {
@@ -331,5 +328,29 @@
         playerName$.html('');
         playerNameShadow$.html('');
     }
-
+    var vue = new Vue({
+        el: '#panel',
+        data: {
+            picked: 0,
+            pickedImg: "",
+            playerInfoArr: []
+        },
+        methods: {
+            onClkFadeOut: function () {
+                cmd.proxy(CommandId.cs_fadeOutPlayerPanel);
+            },
+            onClkFadeIn: function () {
+                var playerId = this.playerInfoArr[this.picked].id;
+                cmd.proxy(CommandId.cs_fadeInPlayerPanel, playerId);
+            },
+            onPicked: function () {
+                console.log('pick pos: ', this.picked);
+                this.pickedImg = this.playerInfoArr[this.picked].avatar;
+//                this.$http.post('/panel/player/op', {cmd: CommandId.cs_queryPlayerByPos, pos: this.picked})
+//                        .then(function (res) {
+//                            console.log(JSON.stringify(res.data));
+//                        });
+            }
+        }
+    })
 </script>

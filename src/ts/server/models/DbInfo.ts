@@ -28,7 +28,7 @@ class BaseDB {
         this.dbPath = option.filename;
         this.dataStore = new Datastore(option);
         this.dataStore.find({id: 0}, (err, docs) => {
-            console.log('find config', this.dbPath);
+            console.log('load config', this.dbPath);
             if (!err) {
                 if (docs.length)
                     this.config = docs[0];

@@ -42,6 +42,7 @@ enum CommandId{
     saveGameRec,
     cs_saveGameRec,
     //---------------- player panel
+    cs_queryPlayerByPos,
     fadeInPlayerPanel,
     cs_fadeInPlayerPanel,
     fadeOutPlayerPanel,

@@ -146,22 +146,23 @@ var CommandId;
     CommandId[CommandId["saveGameRec"] = 100034] = "saveGameRec";
     CommandId[CommandId["cs_saveGameRec"] = 100035] = "cs_saveGameRec";
     //---------------- player panel
-    CommandId[CommandId["fadeInPlayerPanel"] = 100036] = "fadeInPlayerPanel";
-    CommandId[CommandId["cs_fadeInPlayerPanel"] = 100037] = "cs_fadeInPlayerPanel";
-    CommandId[CommandId["fadeOutPlayerPanel"] = 100038] = "fadeOutPlayerPanel";
-    CommandId[CommandId["cs_fadeOutPlayerPanel"] = 100039] = "cs_fadeOutPlayerPanel";
-    CommandId[CommandId["movePlayerPanel"] = 100040] = "movePlayerPanel";
-    CommandId[CommandId["cs_movePlayerPanel"] = 100041] = "cs_movePlayerPanel";
+    CommandId[CommandId["cs_queryPlayerByPos"] = 100036] = "cs_queryPlayerByPos";
+    CommandId[CommandId["fadeInPlayerPanel"] = 100037] = "fadeInPlayerPanel";
+    CommandId[CommandId["cs_fadeInPlayerPanel"] = 100038] = "cs_fadeInPlayerPanel";
+    CommandId[CommandId["fadeOutPlayerPanel"] = 100039] = "fadeOutPlayerPanel";
+    CommandId[CommandId["cs_fadeOutPlayerPanel"] = 100040] = "cs_fadeOutPlayerPanel";
+    CommandId[CommandId["movePlayerPanel"] = 100041] = "movePlayerPanel";
+    CommandId[CommandId["cs_movePlayerPanel"] = 100042] = "cs_movePlayerPanel";
     //自动三杀事件
-    CommandId[CommandId["straightScore3"] = 100042] = "straightScore3";
-    CommandId[CommandId["straightScore5"] = 100043] = "straightScore5";
-    CommandId[CommandId["initPanel"] = 100044] = "initPanel";
+    CommandId[CommandId["straightScore3"] = 100043] = "straightScore3";
+    CommandId[CommandId["straightScore5"] = 100044] = "straightScore5";
+    CommandId[CommandId["initPanel"] = 100045] = "initPanel";
     /////activity panel
-    CommandId[CommandId["cs_fadeInActPanel"] = 100045] = "cs_fadeInActPanel";
-    CommandId[CommandId["fadeInActPanel"] = 100046] = "fadeInActPanel";
-    CommandId[CommandId["cs_fadeOutActPanel"] = 100047] = "cs_fadeOutActPanel";
-    CommandId[CommandId["fadeOutActPanel"] = 100048] = "fadeOutActPanel";
-    CommandId[CommandId["cs_startGame"] = 100049] = "cs_startGame";
+    CommandId[CommandId["cs_fadeInActPanel"] = 100046] = "cs_fadeInActPanel";
+    CommandId[CommandId["fadeInActPanel"] = 100047] = "fadeInActPanel";
+    CommandId[CommandId["cs_fadeOutActPanel"] = 100048] = "cs_fadeOutActPanel";
+    CommandId[CommandId["fadeOutActPanel"] = 100049] = "fadeOutActPanel";
+    CommandId[CommandId["cs_startGame"] = 100050] = "cs_startGame";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {
