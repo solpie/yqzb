@@ -68,8 +68,8 @@
 
 </style>
 <div id="panel">
-    <label id="playerNameShadow" v-bind:class="[isRed ? 'nameShadowRed' : 'nameShadowBlue']" ></label>
-    <label id="playerName" v-bind:class="[isRed ? 'nameRed' : 'nameBlue']"></label>
+    <label id="playerNameShadow" v-bind:class="[isRed ? 'nameShadowRed' : 'nameShadowBlue']" >{{pickedName}}</label>
+    <label id="playerName" v-bind:class="[isRed ? 'nameRed' : 'nameBlue']">{{pickedName}}</label>
     <div class="inputPanel">
         <div class="playerPanel">
             <img class="playerAvatar" src="{{pickedImg}}">
@@ -96,7 +96,6 @@
     <img src="/img/panel/playerPanelRed.png">
 </div>
 <script src="/js/vue.min.js"></script>
-<script src="/js/vue-resource.min.js"></script>
 <script>
     var onServer = function () {
         cmd.on(CommandId.initPanel, function (param) {
@@ -199,27 +198,9 @@
 
 </script>
 <script>
-    var playerId;
-    var playerName$;
-    var playerNameShadow$;
     var isMoving = false;
     var movingTimer = 0;
     $(function () {
-        playerName$ = $('#playerName');
-        playerNameShadow$ = $('#playerNameShadow');
-        $(".btnQuery").click(function (e) {
-            playerId = $($(".playerId")[0]).val();
-            $.post("/getPlayerInfo/" + playerId, null, function (res) {
-                console.log("query player:", res);
-                var data = JSON.parse(res);
-                $($(".playerAvatar")[0]).attr("src", data.playerInfo.avatar);
-            });
-        });
-
-        $("#btnMove").click(function (e) {
-            isMoving = !isMoving;
-        });
-
         onKeyPress();
         onServer();
     });
@@ -311,22 +292,20 @@
         fxCtn.addChild(eloScore);
         vue.isRed = playerInfo.isRed;
         movePlayerName(ctn.x, ctn.y);
-        playerName$.html(playerInfo.name());
-        playerNameShadow$.html(playerInfo.name());
-
+        vue.pickedName = playerInfo.name();
     }
 
     var fadeOutPlayerPanel = function () {
         var ctn = client.panel.ctn;
         createjs.Tween.get(ctn).to({alpha: 0}, 100);
-        playerName$.html('');
-        playerNameShadow$.html('');
+        vue.pickedName = '';
     }
     var vue = new Vue({
         el: '#panel',
         data: {
             isRed: true,
             picked: 0,
+            pickedName: "",
             pickedImg: "",
             playerInfoArr: []
         },
@@ -341,10 +320,7 @@
             onPicked: function () {
                 console.log('pick pos: ', this.picked);
                 this.pickedImg = this.playerInfoArr[this.picked].avatar;
-//                this.$http.post('/panel/player/op', {cmd: CommandId.cs_queryPlayerByPos, pos: this.picked})
-//                        .then(function (res) {
-//                            console.log(JSON.stringify(res.data));
-//                        });
+                this.pickedName = this.playerInfoArr[this.picked].name;
             }
         }
     })
