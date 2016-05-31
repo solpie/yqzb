@@ -4,6 +4,23 @@ function loadImg(path1, callback) {
     img.src = path1;
 }
 
+function loadImgArr(pathArr, callback) {
+    var count = pathArr.length;
+
+    function onLoadImg() {
+        count--;
+        if (count === 0)
+            callback();
+    }
+
+    for (var i = 0; i < pathArr.length; i++) {
+        var p = pathArr[i];
+        var img = new Image();
+        img.onload = onLoadImg;
+        img.src = p;
+    }
+}
+
 function getLeftPlayerCard(playerInfo, scale) {
     //width 150
     var ctn = new createjs.Container();

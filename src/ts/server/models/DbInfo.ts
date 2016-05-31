@@ -124,6 +124,15 @@ class PlayerDB extends BaseDB {
         return this.config.idUsed;
     }
 
+    getRankPlayerArr(actId, limit, callback) {
+        this.dataStore.find({$not: {id: 0}, activityId: actId})
+            .sort({eloScore: -1})
+            .limit(limit)
+            .exec(function (err, docs) {
+                callback(err, docs);
+            });
+    }
+
     getActivityPlayerDataArr(actId, callback) {
         this.dataStore.find({$not: {id: 0}, activityId: actId}).sort({eloScore: 1}).exec(function (err, docs) {
             callback(err, docs);

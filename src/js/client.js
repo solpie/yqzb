@@ -163,6 +163,10 @@ var CommandId;
     CommandId[CommandId["cs_fadeOutActPanel"] = 100048] = "cs_fadeOutActPanel";
     CommandId[CommandId["fadeOutActPanel"] = 100049] = "fadeOutActPanel";
     CommandId[CommandId["cs_startGame"] = 100050] = "cs_startGame";
+    CommandId[CommandId["cs_fadeInRankPanel"] = 100051] = "cs_fadeInRankPanel";
+    CommandId[CommandId["fadeInRankPanel"] = 100052] = "fadeInRankPanel";
+    CommandId[CommandId["cs_fadeOutRankPanel"] = 100053] = "cs_fadeOutRankPanel";
+    CommandId[CommandId["fadeOutRankPanel"] = 100054] = "fadeOutRankPanel";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {

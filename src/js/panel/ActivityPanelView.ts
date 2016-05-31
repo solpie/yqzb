@@ -28,6 +28,14 @@ class ActivityPanelView extends BasePanelView {
         cmd.on(CommandId.fadeOutActPanel, (param) => {
             this.fadeOut();
         });
+        cmd.on(CommandId.fadeInRankPanel, (param) => {
+            console.log("fadeInRankPanel", param);
+            this.fadeInRank(param.playerDataArr);
+        });
+        cmd.on(CommandId.fadeOutRankPanel, (param) => {
+            console.log("fadeOutRankPanel", param);
+            this.fadeOutRank();
+        });
     }
 
     initVue() {
@@ -93,6 +101,21 @@ class ActivityPanelView extends BasePanelView {
                 },
                 onClkAddGame: function () {
                     this.showGameArr.push(this.playerIdArr.concat());
+                },
+                onClkFadeInRank: function () {
+                    this.$http.post('/op/act/', {
+                        cmd: CommandId.cs_fadeInRankPanel,
+                        param: {activityId: this.selected, limit: 10}
+                    }).then(function (res) {
+                        console.log('cs_fadeInRankPanel', res);
+                    });
+                },
+                onClkFadeOutRank: function () {
+                    this.$http.post('/op/act/', {
+                        cmd: CommandId.cs_fadeOutRankPanel
+                    }).then(function (res) {
+                        console.log(res);
+                    });
                 },
                 onClkFadeOut: function () {
                     this.$http.post('/op/act/', {
@@ -172,13 +195,95 @@ class ActivityPanelView extends BasePanelView {
         this.stage.addChild(this.ctn);
     }
 
+    fadeInRank(playerDataArr) {
+        this.ctn.removeAllChildren();
+        this.ctn.alpha = 0;
+
+        var modal = new createjs.Shape();
+        modal.alpha = .8;
+        modal.graphics.beginFill("#000").drawRect(0, 0, this.stageWidth, this.stageHeight);
+        this.ctn.addChild(modal);
+
+        var title = new createjs.Bitmap('/img/panel/act/rankTitle.png');
+        title.x = (this.stageWidth - 1200) * .5;
+        title.y = 20;
+        this.ctn.addChild(title);
+
+        var imgArr = [];
+        for (var i = 0; i < playerDataArr.length; i++) {
+            var playerData = playerDataArr[i];
+            imgArr.push(playerData.avatar);
+        }
+        loadImgArr(imgArr, ()=> {
+            for (var i = 0; i < playerDataArr.length; i++) {
+                var playerData = playerDataArr[i];
+                imgArr.push(playerData.avatar);
+
+                var item = new createjs.Bitmap('/img/panel/act/rankItem.png');
+                item.x = title.x;
+                item.y = title.y + i * 95 + 105;
+                this.ctn.addChild(item);
+
+                var avatar = new createjs.Bitmap(playerData.avatar);
+                avatar.x = item.x + 10;
+                avatar.y = item.y + 10;
+                var scale = 70 / avatar.getBounds().height;
+                avatar.scaleX = avatar.scaleY = scale;
+                this.ctn.addChild(avatar);
+
+                var nameLabel = new createjs.Text(playerData.name, "28px Arial", "#fff");
+                nameLabel.textAlign = 'center';
+                nameLabel.x = item.x + 300;
+                nameLabel.y = item.y + 30;
+                this.ctn.addChild(nameLabel);
+
+                var gameCount = new createjs.Text(playerData.gameCount, "28px Arial", "#fff");
+                gameCount.textAlign = 'center';
+                gameCount.x = item.x + 495;
+                gameCount.y = nameLabel.y;
+                this.ctn.addChild(gameCount);
+
+                var winPercent = new createjs.Text((playerData.winpercent*100).toFixed(2)+"%", "28px Arial", "#fff");
+                winPercent.textAlign = 'center';
+                winPercent.x = item.x + 710;
+                winPercent.y = nameLabel.y;
+                this.ctn.addChild(winPercent);
+
+                var eloScore = new createjs.Text(playerData.eloScore, "28px Arial", "#fff");
+                eloScore.textAlign = 'center';
+                eloScore.x = item.x + 900;
+                eloScore.y = nameLabel.y;
+                this.ctn.addChild(eloScore);
+
+                var rankPos = new createjs.Text((i + 1).toString(), "28px Arial", "#fff");
+                rankPos.textAlign = 'center';
+                rankPos.x = item.x + 1100;
+                rankPos.y = nameLabel.y;
+                this.ctn.addChild(rankPos);
+            }
+
+        });
+
+        createjs.Tween.get(this.ctn)
+            .to({alpha: 1}, 300);
+    }
+
+    fadeOutRank() {
+        createjs.Tween.get(this.ctn)
+            .to({alpha: 0}, 300).call(
+            ()=> {
+                this.ctn.removeAllChildren();
+            }
+        );
+    }
+
     fadeIn(gameInfoArr) {
         this.ctn.removeAllChildren();
         this.ctn.alpha = 0;
 
         var modal = new createjs.Shape();
-        modal.alpha = .4;
-        modal.graphics.beginFill("#000").drawRect(0, 0, this.stageWidth, this.stageHeight)
+        modal.alpha = .8;
+        modal.graphics.beginFill("#000").drawRect(0, 0, this.stageWidth, this.stageHeight);
         this.ctn.addChild(modal);
         for (var i = 0; i < gameInfoArr.length; i++) {
             var gameInfo = gameInfoArr[i];

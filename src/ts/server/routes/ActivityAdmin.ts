@@ -4,6 +4,7 @@ class ActivityAdmin {
         console.log('opHandle', JSON.stringify(req.body));
         var reqCmd = req.body.cmd;
         var param = req.body.param;
+        var cmdMap:any = {};
         if (reqCmd === CommandId.cs_fadeInActPanel) {
             server.panel.act.fadeInActPanel(param);
             res.send("sus");
@@ -14,6 +15,14 @@ class ActivityAdmin {
         }
         else if (reqCmd === CommandId.cs_startGame) {
             server.panel.act.startGame(param);
+            res.send("sus");
+        }
+        else if (reqCmd === CommandId.cs_fadeInRankPanel) {
+            server.panel.act.fadeInRankPanel(param);
+            res.send("sus");
+        }
+        else if (reqCmd === CommandId.cs_fadeOutRankPanel) {
+            server.panel.act.fadeOutRankPanel(param);
             res.send("sus");
         }
         else {

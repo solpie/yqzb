@@ -68,11 +68,11 @@
 
 </style>
 <div id="panel">
-    <label id="playerNameShadow" v-bind:class="[isRed ? 'nameShadowRed' : 'nameShadowBlue']" >{{pickedName}}</label>
-    <label id="playerName" v-bind:class="[isRed ? 'nameRed' : 'nameBlue']">{{pickedName}}</label>
+    <label id="playerNameShadow" v-bind:class="[isRed ? 'nameShadowRed' : 'nameShadowBlue']" style="left:{{nameX}}px;top:{{nameY}}px">{{pickedName}}</label>
+    <label id="playerName" v-bind:class="[isRed ? 'nameRed' : 'nameBlue']" style="left:{{nameX}}px;top:{{nameY}}px">{{pickedName}}</label>
     <div class="inputPanel">
         <div class="playerPanel">
-            <img class="playerAvatar" src="{{pickedImg}}">
+            <img class="playerAvatar" src="{{pickedImg}}" style="width: 180px">
             <br>
             player id:
             <div class="pickupPlayer">
@@ -120,10 +120,6 @@
     }
 </script>
 <script>
-    var toggleMove = function () {
-        isMoving = !isMoving;
-        $("#moveState").html(isMoving.toString());
-    }
     var onKeyPress = function () {
         document.onkeydown = function (e) {
             var key = e.keyCode;
@@ -209,8 +205,8 @@
         console.log("movePlayerName");
         x += 290;
         y += 18;
-        $('#playerName').css({left: x, top: y});
-        $('#playerNameShadow').css({left: x, top: y});
+        vue.nameX = x;
+        vue.nameY = y;
     }
     var moveCtn = function (x, y) {
         var ctn = client.panel.ctn;
@@ -305,8 +301,10 @@
         data: {
             isRed: true,
             picked: 0,
+            nameX: 0,
+            nameY: 0,
             pickedName: "",
-            pickedImg: "",
+            pickedImg: "/img/player/red.png",
             playerInfoArr: []
         },
         methods: {
@@ -320,7 +318,7 @@
             onPicked: function () {
                 console.log('pick pos: ', this.picked);
                 this.pickedImg = this.playerInfoArr[this.picked].avatar;
-                this.pickedName = this.playerInfoArr[this.picked].name;
+//                this.pickedName = this.playerInfoArr[this.picked].name;
             }
         }
     })

@@ -131,6 +131,20 @@ class ActivityPanelInfo extends BasePanelInfo {
         param.gameData.isFinish = false;
         db.game.startGame(param.gameData);
     }
+
+    fadeInRankPanel(param:any) {
+        db.player.getRankPlayerArr(param.activityId, param.limit, (err, docs)=> {
+            if (!err) {
+                cmd.emit(CommandId.fadeInRankPanel, {playerDataArr: docs}, this.pid);
+            }
+            else
+                throw new Error("db error!!");
+        });
+    }
+
+    fadeOutRankPanel(param:any) {
+        cmd.emit(CommandId.fadeOutRankPanel, null, this.pid);
+    }
 }
 
 class StagePanelInfo extends BasePanelInfo {

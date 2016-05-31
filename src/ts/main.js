@@ -311,6 +311,10 @@ var CommandId;
     CommandId[CommandId["cs_fadeOutActPanel"] = 100048] = "cs_fadeOutActPanel";
     CommandId[CommandId["fadeOutActPanel"] = 100049] = "fadeOutActPanel";
     CommandId[CommandId["cs_startGame"] = 100050] = "cs_startGame";
+    CommandId[CommandId["cs_fadeInRankPanel"] = 100051] = "cs_fadeInRankPanel";
+    CommandId[CommandId["fadeInRankPanel"] = 100052] = "fadeInRankPanel";
+    CommandId[CommandId["cs_fadeOutRankPanel"] = 100053] = "cs_fadeOutRankPanel";
+    CommandId[CommandId["fadeOutRankPanel"] = 100054] = "fadeOutRankPanel";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {
@@ -696,6 +700,7 @@ var ActivityAdmin = (function () {
         console.log('opHandle', JSON.stringify(req.body));
         var reqCmd = req.body.cmd;
         var param = req.body.param;
+        var cmdMap = {};
         if (reqCmd === CommandId.cs_fadeInActPanel) {
             server.panel.act.fadeInActPanel(param);
             res.send("sus");
@@ -706,6 +711,14 @@ var ActivityAdmin = (function () {
         }
         else if (reqCmd === CommandId.cs_startGame) {
             server.panel.act.startGame(param);
+            res.send("sus");
+        }
+        else if (reqCmd === CommandId.cs_fadeInRankPanel) {
+            server.panel.act.fadeInRankPanel(param);
+            res.send("sus");
+        }
+        else if (reqCmd === CommandId.cs_fadeOutRankPanel) {
+            server.panel.act.fadeOutRankPanel(param);
             res.send("sus");
         }
         else {
@@ -934,6 +947,14 @@ var PlayerDB = (function (_super) {
     }
     PlayerDB.prototype.getNewId = function () {
         return this.config.idUsed;
+    };
+    PlayerDB.prototype.getRankPlayerArr = function (actId, limit, callback) {
+        this.dataStore.find({ $not: { id: 0 }, activityId: actId })
+            .sort({ eloScore: -1 })
+            .limit(limit)
+            .exec(function (err, docs) {
+            callback(err, docs);
+        });
     };
     PlayerDB.prototype.getActivityPlayerDataArr = function (actId, callback) {
         this.dataStore.find({ $not: { id: 0 }, activityId: actId }).sort({ eloScore: 1 }).exec(function (err, docs) {
@@ -1487,6 +1508,19 @@ var ActivityPanelInfo = (function (_super) {
         param.gameData.activityId = param.activityId;
         param.gameData.isFinish = false;
         db.game.startGame(param.gameData);
+    };
+    ActivityPanelInfo.prototype.fadeInRankPanel = function (param) {
+        var _this = this;
+        db.player.getRankPlayerArr(param.activityId, param.limit, function (err, docs) {
+            if (!err) {
+                cmd.emit(CommandId.fadeInRankPanel, { playerDataArr: docs }, _this.pid);
+            }
+            else
+                throw new Error("db error!!");
+        });
+    };
+    ActivityPanelInfo.prototype.fadeOutRankPanel = function (param) {
+        cmd.emit(CommandId.fadeOutRankPanel, null, this.pid);
     };
     return ActivityPanelInfo;
 }(BasePanelInfo));
