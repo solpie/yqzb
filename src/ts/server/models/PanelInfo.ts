@@ -130,6 +130,7 @@ class ActivityPanelInfo extends BasePanelInfo {
         param.gameData.activityId = param.activityId;
         param.gameData.isFinish = false;
         this.panelInfo.stage.gameInfo.gameId = param.gameData.id;
+        this.panelInfo.stage.gameInfo.gameState = 0;
         db.game.startGame(param.gameData);
     }
 

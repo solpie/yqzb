@@ -12,7 +12,8 @@ class GameInfo {
 
     _timer:number = 0;
     playerDb:any;
-    _isUnsaved:Boolean = false;//未保存状态
+    isUnsaved:Boolean = false;//未保存状态
+    gameState:number = 0;//0 未确认胜负 1 确认胜负未录入数据 2确认胜负并录入数据
     _winTeam:TeamInfo;
     _loseTeam:TeamInfo;
 
@@ -37,20 +38,21 @@ class GameInfo {
     }
 
     saveGameRecToPlayer(gameId) {
-        // if (this._isUnsaved) {
-        this._isUnsaved = false;
-        function saveTeamPlayerData(teamInfo:TeamInfo) {
+        // if (this.isUnsaved) {
+        this.isUnsaved = false;
+        var saveTeamPlayerData = (teamInfo:TeamInfo)=> {
             for (var playerInfo of teamInfo.playerInfoArr) {
                 console.log("playerData", JSON.stringify(playerInfo));
                 if (!playerInfo.gameRec())
                     playerInfo.gameRec([]);
                 playerInfo.gameRec().push(gameId);
                 console.log(playerInfo.name(), " cur player score:", playerInfo.eloScore(), playerInfo.dtScore());
-                db.player.ds().update({id: playerInfo.id()}, {$set: playerInfo.playerData}, {}, function (err, doc) {
+                db.player.ds().update({id: playerInfo.id()}, {$set: playerInfo.playerData}, {}, (err, doc)=> {
                     console.log("saveGameRec: game rec saved");
+                    this.gameState = 2;
                 });
             }
-        }
+        };
 
         saveTeamPlayerData(this._winTeam);
         saveTeamPlayerData(this._loseTeam);
@@ -67,7 +69,7 @@ class GameInfo {
     }
 
     _setGameResult(isLeftWin) {
-        // if (!this._isUnsaved) {
+        // if (!this.isUnsaved) {
         var teamLeft = new TeamInfo();
         teamLeft.setPlayerArr(this.getLeftTeam());
 
@@ -85,7 +87,8 @@ class GameInfo {
             this._loseTeam = teamLeft;
         }
         console.log("playerData", JSON.stringify(this.playerInfoArr));
-        this._isUnsaved = true;
+        this.gameState = 1;
+        this.isUnsaved = true;
         return this._winTeam;
         // }
     }

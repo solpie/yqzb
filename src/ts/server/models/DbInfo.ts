@@ -23,6 +23,7 @@ class BaseDB {
     dataStore:any;
     config:any;
     dbPath:string;
+    dataMap:any;
 
     constructor(option) {
         this.dbPath = option.filename;
@@ -36,7 +37,18 @@ class BaseDB {
                     this.init();
             }
         });
+        this.syncDataMap();
         this.onloaded();
+    }
+
+    syncDataMap() {
+        this.dataStore.find({$not: {id: 0}}, (err, docs)=> {
+            this.dataMap = {};
+            for (var i = 0; i < docs.length; i++) {
+                var doc = docs[i];
+                this.dataMap[doc.id] = doc;
+            }
+        });
     }
 
     onloaded() {
@@ -115,6 +127,12 @@ class GameDB extends BaseDB {
     startGame(gameData) {
         this.ds().update({id: gameData.id}, gameData, {upsert: true}, (err, newDoc) => {
         });
+        this.syncDataMap();
+    }
+
+    isGameFinish(gameId) {
+        var gameDataInDb = this.dataMap[gameId];
+        return gameDataInDb && gameDataInDb.isFinish;
     }
 
     submitGame(gameId, isRedWin, mvp, blueScore, redScore, callback) {

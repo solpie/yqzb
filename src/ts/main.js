@@ -692,8 +692,13 @@ var ActivityAdmin = (function () {
             res.send("sus");
         }
         else if (reqCmd === CommandId.cs_startGame) {
-            server.panel.act.startGame(param);
-            res.send("sus");
+            if (db.game.isGameFinish(param.gameData.id)) {
+                res.send({ isFinish: true });
+            }
+            else {
+                server.panel.act.startGame(param);
+                res.send({ isFinish: false });
+            }
         }
         else if (reqCmd === CommandId.cs_fadeInRankPanel) {
             server.panel.act.fadeInRankPanel(param);
@@ -851,8 +856,19 @@ var BaseDB = (function () {
                     _this.init();
             }
         });
+        this.syncDataMap();
         this.onloaded();
     }
+    BaseDB.prototype.syncDataMap = function () {
+        var _this = this;
+        this.dataStore.find({ $not: { id: 0 } }, function (err, docs) {
+            _this.dataMap = {};
+            for (var i = 0; i < docs.length; i++) {
+                var doc = docs[i];
+                _this.dataMap[doc.id] = doc;
+            }
+        });
+    };
     BaseDB.prototype.onloaded = function () {
     };
     ;
@@ -933,6 +949,11 @@ var GameDB = (function (_super) {
     GameDB.prototype.startGame = function (gameData) {
         this.ds().update({ id: gameData.id }, gameData, { upsert: true }, function (err, newDoc) {
         });
+        this.syncDataMap();
+    };
+    GameDB.prototype.isGameFinish = function (gameId) {
+        var gameDataInDb = this.dataMap[gameId];
+        return gameDataInDb && gameDataInDb.isFinish;
     };
     GameDB.prototype.submitGame = function (gameId, isRedWin, mvp, blueScore, redScore, callback) {
         var _this = this;
@@ -1306,7 +1327,8 @@ var GameInfo = (function () {
         this.straightScoreRight = 0; //连杀判定
         this.playerInfoArr = new Array(8);
         this._timer = 0;
-        this._isUnsaved = false; //未保存状态
+        this.isUnsaved = false; //未保存状态
+        this.gameState = 0; //0 未确认胜负 1 确认胜负未录入数据 2确认胜负并录入数据
     }
     GameInfo.prototype.toggleTimer = function () {
         var _this = this;
@@ -1322,9 +1344,10 @@ var GameInfo = (function () {
         }
     };
     GameInfo.prototype.saveGameRecToPlayer = function (gameId) {
-        // if (this._isUnsaved) {
-        this._isUnsaved = false;
-        function saveTeamPlayerData(teamInfo) {
+        var _this = this;
+        // if (this.isUnsaved) {
+        this.isUnsaved = false;
+        var saveTeamPlayerData = function (teamInfo) {
             for (var _i = 0, _a = teamInfo.playerInfoArr; _i < _a.length; _i++) {
                 var playerInfo = _a[_i];
                 console.log("playerData", JSON.stringify(playerInfo));
@@ -1334,9 +1357,10 @@ var GameInfo = (function () {
                 console.log(playerInfo.name(), " cur player score:", playerInfo.eloScore(), playerInfo.dtScore());
                 db.player.ds().update({ id: playerInfo.id() }, { $set: playerInfo.playerData }, {}, function (err, doc) {
                     console.log("saveGameRec: game rec saved");
+                    _this.gameState = 2;
                 });
             }
-        }
+        };
         saveTeamPlayerData(this._winTeam);
         saveTeamPlayerData(this._loseTeam);
     };
@@ -1349,7 +1373,7 @@ var GameInfo = (function () {
         this.playerInfoArr[pos] = playerInfo;
     };
     GameInfo.prototype._setGameResult = function (isLeftWin) {
-        // if (!this._isUnsaved) {
+        // if (!this.isUnsaved) {
         var teamLeft = new TeamInfo();
         teamLeft.setPlayerArr(this.getLeftTeam());
         var teamRight = new TeamInfo();
@@ -1365,7 +1389,8 @@ var GameInfo = (function () {
             this._loseTeam = teamLeft;
         }
         console.log("playerData", JSON.stringify(this.playerInfoArr));
-        this._isUnsaved = true;
+        this.gameState = 1;
+        this.isUnsaved = true;
         return this._winTeam;
         // }
     };
@@ -1525,6 +1550,7 @@ var ActivityPanelInfo = (function (_super) {
         param.gameData.activityId = param.activityId;
         param.gameData.isFinish = false;
         this.panelInfo.stage.gameInfo.gameId = param.gameData.id;
+        this.panelInfo.stage.gameInfo.gameState = 0;
         db.game.startGame(param.gameData);
     };
     ActivityPanelInfo.prototype.fadeInRankPanel = function (param) {

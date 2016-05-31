@@ -14,8 +14,13 @@ class ActivityAdmin {
             res.send("sus");
         }
         else if (reqCmd === CommandId.cs_startGame) {
-            server.panel.act.startGame(param);
-            res.send("sus");
+            if (db.game.isGameFinish(param.gameData.id)) {
+                res.send({isFinish: true})
+            }
+            else {
+                server.panel.act.startGame(param);
+                res.send({isFinish: false});
+            }
         }
         else if (reqCmd === CommandId.cs_fadeInRankPanel) {
             server.panel.act.fadeInRankPanel(param);

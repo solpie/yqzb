@@ -87,7 +87,12 @@ class ActivityPanelView extends BasePanelView {
                     this.$http.post('/op/act/', {
                         cmd: CommandId.cs_startGame, param: {activityId: this.selected, gameData: selGame}
                     }).then(function (res) {
-                        console.log(res);
+                        console.log(res.data);
+                        if (res.data.isFinish) {
+                            alert("这个比赛已完结！！");
+                        }
+                        else
+                            alert("比赛创建成功！！");
                     });
                 },
                 onClkAddHighSection: function () {
@@ -243,7 +248,7 @@ class ActivityPanelView extends BasePanelView {
                 gameCount.y = nameLabel.y;
                 this.ctn.addChild(gameCount);
 
-                var winPercent = new createjs.Text((playerData.winpercent*100).toFixed(2)+"%", "28px Arial", "#fff");
+                var winPercent = new createjs.Text((playerData.winpercent * 100).toFixed(2) + "%", "28px Arial", "#fff");
                 winPercent.textAlign = 'center';
                 winPercent.x = item.x + 710;
                 winPercent.y = nameLabel.y;
