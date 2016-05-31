@@ -404,7 +404,7 @@ var WindowView = (function () {
         // });
         //
         //default op
-        // var op = gui.Window.open ('http://localhost/panel/stage/op', {
+        // var op = gui.Window.open ('http://localhost/', {
         //    position: 'center',
         //    toolbar: false,
         //    width: 1920,
@@ -1157,6 +1157,7 @@ var PlayerInfo = (function (_super) {
         else
             this.loseGameCount(this.loseGameCount() + 1);
         this.gameCount(this.gameCount() + 1);
+        this.winpercent(this.getCurWinningPercent());
     };
     PlayerInfo.prototype.getCurWinningPercent = function () {
         return this.winGameCount() / (this.loseGameCount() + this.winGameCount());
@@ -1336,7 +1337,6 @@ var GameInfo = (function () {
             this._winTeam = teamRight;
             this._loseTeam = teamLeft;
         }
-        this.playerInfoArr = teamLeft.getNewPlayerDataArr().concat(teamRight.getNewPlayerDataArr());
         console.log("playerData", JSON.stringify(this.playerInfoArr));
         this._isUnsaved = true;
         return this._winTeam;

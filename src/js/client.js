@@ -367,6 +367,7 @@ var PlayerInfo = (function (_super) {
         else
             this.loseGameCount(this.loseGameCount() + 1);
         this.gameCount(this.gameCount() + 1);
+        this.winpercent(this.getCurWinningPercent());
     };
     PlayerInfo.prototype.getCurWinningPercent = function () {
         return this.winGameCount() / (this.loseGameCount() + this.winGameCount());

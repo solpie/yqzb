@@ -15,12 +15,12 @@ class WindowView {
         // });
         //
         //default op
-        var op = gui.Window.open ('http://localhost/', {
-           position: 'center',
-           toolbar: false,
-           width: 1920,
-           height: 1200
-        });
+        // var op = gui.Window.open ('http://localhost/', {
+        //    position: 'center',
+        //    toolbar: false,
+        //    width: 1920,
+        //    height: 1200
+        // });
 
         //win.on ('loaded', function () {
         //    // the native onload event has just occurred

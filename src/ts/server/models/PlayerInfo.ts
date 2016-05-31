@@ -154,8 +154,8 @@ class PlayerInfo extends BaseInfo {
         }
         else
             this.loseGameCount(this.loseGameCount() + 1);
-
         this.gameCount(this.gameCount() + 1);
+        this.winpercent(this.getCurWinningPercent());
     }
 
     getCurWinningPercent():number {
