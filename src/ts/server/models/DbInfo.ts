@@ -151,8 +151,9 @@ class GameDB extends BaseDB {
                             mvp: doc.playerIdArr[mvp],
                             isRedWin: isRedWin
                         }
-                    }, {}, function (err, numUpdate) {
+                    }, {}, (err, numUpdate)=> {
                         console.log('submitGame:', gameId, JSON.stringify(numUpdate));
+                        this.syncDataMap();
                         callback(true);
                     });
             }

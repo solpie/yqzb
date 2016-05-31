@@ -818,8 +818,13 @@ var StagePanelHandle = (function () {
         var reqCmd = req.body.cmd;
         var param = req.body.param;
         if (reqCmd === CommandId.cs_saveGameRec) {
-            server.panel.stage.saveGameRec(param);
-            res.sendStatus(200);
+            if (db.game.isGameFinish(param.gameId)) {
+                res.send({ isFinish: true });
+            }
+            else {
+                server.panel.stage.saveGameRec(param);
+                res.send({ isFinish: false });
+            }
         }
     };
     return StagePanelHandle;
@@ -973,6 +978,7 @@ var GameDB = (function (_super) {
                     }
                 }, {}, function (err, numUpdate) {
                     console.log('submitGame:', gameId, JSON.stringify(numUpdate));
+                    _this.syncDataMap();
                     callback(true);
                 });
             }
@@ -1327,7 +1333,6 @@ var GameInfo = (function () {
         this.straightScoreRight = 0; //连杀判定
         this.playerInfoArr = new Array(8);
         this._timer = 0;
-        this.isUnsaved = false; //未保存状态
         this.gameState = 0; //0 未确认胜负 1 确认胜负未录入数据 2确认胜负并录入数据
     }
     GameInfo.prototype.toggleTimer = function () {
@@ -1343,10 +1348,15 @@ var GameInfo = (function () {
             this.timerState = 1;
         }
     };
-    GameInfo.prototype.saveGameRecToPlayer = function (gameId) {
+    GameInfo.prototype.saveGameRecToPlayer = function (gameId, isRedWin) {
         var _this = this;
         // if (this.isUnsaved) {
-        this.isUnsaved = false;
+        if (this.gameState === 0) {
+            if (isRedWin)
+                this.setRightTeamWin();
+            else
+                this.setLeftTeamWin();
+        }
         var saveTeamPlayerData = function (teamInfo) {
             for (var _i = 0, _a = teamInfo.playerInfoArr; _i < _a.length; _i++) {
                 var playerInfo = _a[_i];
@@ -1373,7 +1383,6 @@ var GameInfo = (function () {
         this.playerInfoArr[pos] = playerInfo;
     };
     GameInfo.prototype._setGameResult = function (isLeftWin) {
-        // if (!this.isUnsaved) {
         var teamLeft = new TeamInfo();
         teamLeft.setPlayerArr(this.getLeftTeam());
         var teamRight = new TeamInfo();
@@ -1390,9 +1399,7 @@ var GameInfo = (function () {
         }
         console.log("playerData", JSON.stringify(this.playerInfoArr));
         this.gameState = 1;
-        this.isUnsaved = true;
         return this._winTeam;
-        // }
     };
     GameInfo.prototype.setLeftTeamWin = function () {
         return this._setGameResult(true);
@@ -1711,7 +1718,7 @@ var StagePanelInfo = (function (_super) {
         db.game.submitGame(param.gameId, isRedWin, mvp, blueScore, redScore, function (isSus) {
             if (isSus) {
                 console.log("submit Game sus");
-                _this.gameInfo.saveGameRecToPlayer(param.gameId);
+                _this.gameInfo.saveGameRecToPlayer(param.gameId, isRedWin);
             }
             else {
                 console.log("submit Game failed!!");

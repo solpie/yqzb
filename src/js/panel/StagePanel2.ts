@@ -1056,6 +1056,11 @@ $(function main() {
                 this.$http.post('/panel/stage/op', {cmd: CommandId.cs_saveGameRec, param: param})
                     .then(function (res) {
                         console.log(res.data);
+                        if (res.data.isFinish) {
+                            alert("这个比赛已完结！！");
+                        }
+                        else
+                            alert("比赛结果保存成功！！");
                     });
             }
         }

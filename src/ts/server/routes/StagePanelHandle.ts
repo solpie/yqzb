@@ -5,8 +5,13 @@ class StagePanelHandle {
         var reqCmd = req.body.cmd;
         var param = req.body.param;
         if (reqCmd === CommandId.cs_saveGameRec) {
-            server.panel.stage.saveGameRec(param);
-            res.sendStatus(200);
+            if (db.game.isGameFinish(param.gameId)) {
+                res.send({isFinish: true});
+            }
+            else {
+                server.panel.stage.saveGameRec(param);
+                res.send({isFinish: false});
+            }
         }
     }
 }

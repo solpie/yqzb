@@ -316,7 +316,7 @@ class StagePanelInfo extends BasePanelInfo {
         db.game.submitGame(param.gameId, isRedWin, mvp, blueScore, redScore, (isSus)=> {
             if (isSus) {
                 console.log("submit Game sus");
-                this.gameInfo.saveGameRecToPlayer(param.gameId);
+                this.gameInfo.saveGameRecToPlayer(param.gameId,isRedWin);
             }
             else {
                 console.log("submit Game failed!!");

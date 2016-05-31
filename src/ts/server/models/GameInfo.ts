@@ -12,7 +12,6 @@ class GameInfo {
 
     _timer:number = 0;
     playerDb:any;
-    isUnsaved:Boolean = false;//未保存状态
     gameState:number = 0;//0 未确认胜负 1 确认胜负未录入数据 2确认胜负并录入数据
     _winTeam:TeamInfo;
     _loseTeam:TeamInfo;
@@ -37,9 +36,14 @@ class GameInfo {
         }
     }
 
-    saveGameRecToPlayer(gameId) {
+    saveGameRecToPlayer(gameId, isRedWin) {
         // if (this.isUnsaved) {
-        this.isUnsaved = false;
+        if (this.gameState === 0) {
+            if (isRedWin)
+                this.setRightTeamWin();
+            else
+                this.setLeftTeamWin();
+        }
         var saveTeamPlayerData = (teamInfo:TeamInfo)=> {
             for (var playerInfo of teamInfo.playerInfoArr) {
                 console.log("playerData", JSON.stringify(playerInfo));
@@ -69,7 +73,6 @@ class GameInfo {
     }
 
     _setGameResult(isLeftWin) {
-        // if (!this.isUnsaved) {
         var teamLeft = new TeamInfo();
         teamLeft.setPlayerArr(this.getLeftTeam());
 
@@ -88,9 +91,7 @@ class GameInfo {
         }
         console.log("playerData", JSON.stringify(this.playerInfoArr));
         this.gameState = 1;
-        this.isUnsaved = true;
         return this._winTeam;
-        // }
     }
 
 
