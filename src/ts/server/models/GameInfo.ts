@@ -8,8 +8,9 @@ class GameInfo {
     data:Date;//开始时间
     straightScoreLeft:number = 0;//连杀判定
     straightScoreRight:number = 0;//连杀判定
-    playerInfoArr:any = new Array(8);
-
+    playerDataArr:any = new Array(8);
+    playerRecArr:any = [];
+    isFinish:any = null;
     _timer:number = 0;
     gameState:number = 0;//0 未确认胜负 1 确认胜负未录入数据 2确认胜负并录入数据
     _winTeam:TeamInfo;
@@ -20,6 +21,10 @@ class GameInfo {
 
     constructor() {
 
+    }
+
+    getGameId() {
+        return this.gameId;
     }
 
     toggleTimer() {
@@ -35,7 +40,7 @@ class GameInfo {
         }
     }
 
-    saveGameRecToPlayer(gameId, isRedWin,callback) {
+    saveGameRecToPlayer(gameId, isRedWin, callback) {
         // if (this.isUnsaved) {
         if (this.gameState === 0) {
             if (isRedWin)
@@ -51,13 +56,18 @@ class GameInfo {
                 playerInfo.gameRec().push(gameId);
                 console.log(playerInfo.name(), " cur player score:", playerInfo.eloScore(), playerInfo.dtScore());
                 db.player.ds().update({id: playerInfo.id()}, {$set: playerInfo.playerData}, {}, (err, doc)=> {
-                    console.log("saveGameRec: game rec saved");
-                    callback();
-                    this.gameState = 2;
+                    savePlayerCount--;
+                    console.log("saveGameRecToPlayer:", savePlayerCount);
+                    if (savePlayerCount === 0) {
+                        console.log("change game state 2 and callback");
+                        this.gameState = 2;
+                        db.player.syncDataMap(callback);
+                    }
                 });
             }
         };
 
+        var savePlayerCount = 8;
         saveTeamPlayerData(this._winTeam);
         saveTeamPlayerData(this._loseTeam);
     }
@@ -69,7 +79,7 @@ class GameInfo {
 
     setPlayerInfoByPos(pos, playerInfo) {
         playerInfo.isRed = (pos > 3);
-        this.playerInfoArr[pos] = playerInfo;
+        this.playerDataArr[pos] = playerInfo;
     }
 
     _setGameResult(isLeftWin) {
@@ -89,7 +99,7 @@ class GameInfo {
             this._winTeam = teamRight;
             this._loseTeam = teamLeft;
         }
-        console.log("playerData", JSON.stringify(this.playerInfoArr));
+        console.log("playerData", JSON.stringify(this.playerDataArr));
         this.gameState = 1;
         return this._winTeam;
     }
@@ -103,15 +113,15 @@ class GameInfo {
         return this._setGameResult(false);
     }
 
-    getPlayerInfoArr():Array<any> {
-        return this.playerInfoArr;
+    getPlayerDataArr():Array<any> {
+        return this.playerDataArr;
     }
 
 
     getLeftTeam(start = 0) {
         var team = [];
         for (var i = start; i < 4 + start; i++) {
-            var pInfo = new PlayerInfo(this.playerInfoArr[i]);
+            var pInfo = new PlayerInfo(this.playerDataArr[i]);
             team.push(pInfo);
             pInfo.isRed = (start > 0)
         }

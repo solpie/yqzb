@@ -297,11 +297,13 @@ class ActivityPanelView extends BasePanelView {
             gameCtn.addChild(bg);
             var leftScore = 0;
             var rightScore = 0;
-            for (var j = 0; j < gameInfo.playerInfoArr.length; j++) {
-                var playerInfo = new PlayerInfo(gameInfo.playerInfoArr[j]);
+            for (var j = 0; j < gameInfo.playerDataArr.length; j++) {
+                var playerInfo = new PlayerInfo(gameInfo.playerDataArr[j]);
                 var playerCtn;
                 var scoreText = newScoreText();
                 scoreText.y = 70;
+                if(gameInfo.isFinish)
+                    playerInfo.eloScore(gameInfo.playerRecArr[j].eloScore);
                 if (playerInfo.isRed) {
                     scoreText.text = gameInfo.rightScore + "";
                     scoreText.x = 830;

@@ -41,13 +41,15 @@ class BaseDB {
         this.onloaded();
     }
 
-    syncDataMap() {
+    syncDataMap(callback?) {
         this.dataStore.find({$not: {id: 0}}, (err, docs)=> {
             this.dataMap = {};
             for (var i = 0; i < docs.length; i++) {
                 var doc = docs[i];
                 this.dataMap[doc.id] = doc;
             }
+            if (callback)
+                callback();
         });
     }
 
@@ -143,23 +145,22 @@ class GameDB extends BaseDB {
     }
 
     submitGame(gameId, isRedWin, mvp, blueScore, redScore, playerRecArr, callback) {
-        this.ds().findOne({id: gameId}, (err, doc)=> {
+        this.ds().findOne({id: gameId}, (err, docs)=> {
+            var doc = docs;
             if (doc.isFinish) {
-                console.log('closed game can not modify!!!');
+                console.log('closed game can not modify!!!', doc.id);
                 callback(false);
             }
             else {
+                doc.blueScore = blueScore;
+                doc.redScore = redScore;
+                doc.isFinish = true;
+                doc.mvp = doc.playerIdArr[mvp];
+                doc.playerRecArr = playerRecArr;
+                doc.isRedWin = isRedWin;
+                console.log('update game data:', JSON.stringify(doc));
                 this.ds().update({id: gameId},
-                    {
-                        $set: {
-                            blueScore: blueScore,
-                            redScore: redScore,
-                            isFinish: true,
-                            mvp: doc.playerIdArr[mvp],
-                            playerRecArr: playerRecArr,
-                            isRedWin: isRedWin
-                        }
-                    }, {}, (err, numUpdate)=> {
+                    {$set: doc}, {upsert: true}, (err, numUpdate)=> {
                         console.log('submitGame:', gameId, JSON.stringify(numUpdate));
                         this.syncDataMap();
                         callback(true);

@@ -347,7 +347,7 @@ var StagePanel2 = (function (_super) {
             this.setLeftScore(param.leftScore);
             this.setRightScore(param.rightScore);
             this.setTime(param.time, param.state);
-            this.gameId = param.gameId;
+            vue.gameId = param.gameId;
             for (var i = 0; i < param.playerInfoArr.length; i++) {
                 var obj = param.playerInfoArr[i];
                 if (obj) {
@@ -905,6 +905,7 @@ $(function main() {
     vue = new Vue({
         el: '#panel',
         data: {
+            gameId: 0,
             playerIdArr: []
         },
         methods: {
@@ -921,11 +922,12 @@ $(function main() {
                 var blueScore = parseInt(stagePanel2.leftScoreLabel.text);
                 var redScore = parseInt(stagePanel2.rightScoreLabel.text);
                 var param = {
-                    gameId: stagePanel2.gameId,
+                    gameId: this.gameId,
                     mvp: stagePanel2.mvpPos,
                     blueScore: blueScore,
                     redScore: redScore
                 };
+                console.log("CommandId.cs_saveGameRec:", JSON.stringify(param));
                 this.$http.post('/panel/stage/op', { cmd: CommandId.cs_saveGameRec, param: param })
                     .then(function (res) {
                     console.log(res.data);

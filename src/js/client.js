@@ -359,7 +359,7 @@ var PlayerInfo = (function (_super) {
         return path;
     };
     PlayerInfo.prototype.getRec = function () {
-        return { eloScore: this.eloScore(), dtScore: this.dtScore() };
+        return { id: this.id(), eloScore: this.eloScore(), dtScore: this.dtScore() };
     };
     PlayerInfo.prototype.saveScore = function (dtScore, isWin) {
         this.dtScore(dtScore);

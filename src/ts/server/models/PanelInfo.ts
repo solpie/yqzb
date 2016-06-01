@@ -41,7 +41,7 @@ class PlayerPanelInfo extends BasePanelInfo {
 
     getInfo() {
         return {
-            playerInfoArr: this.panelInfo.stage.getPlayerInfoArr(),
+            playerInfoArr: this.panelInfo.stage.getPlayerDataArr(),
             playerInfo: this.playerData,
             position: this.position
         };
@@ -49,8 +49,8 @@ class PlayerPanelInfo extends BasePanelInfo {
 
     showPlayerPanel(param:any) {
         var playerId = parseInt(param);
-        for (var i = 0; i < this.panelInfo.stage.getPlayerInfoArr().length; i++) {
-            var obj = this.panelInfo.stage.getPlayerInfoArr()[i];
+        for (var i = 0; i < this.panelInfo.stage.getPlayerDataArr().length; i++) {
+            var obj = this.panelInfo.stage.getPlayerDataArr()[i];
             if (obj && obj.id == playerId) {
                 this.playerData = obj;
                 cmd.emit(CommandId.fadeInPlayerPanel, obj, this.pid);
@@ -99,6 +99,8 @@ class ActivityPanelInfo extends BasePanelInfo {
                 if (db.game.isGameFinish(gameData.id)) {
                     gameInfo.leftScore = gameData.blueScore;
                     gameInfo.rightScore = gameData.redScore;
+                    gameInfo.playerRecArr = gameData.playerRecArr;
+                    gameInfo.isFinish = gameData.isFinish;
                     console.log("game data:", JSON.stringify(gameData));
                 }
             }
@@ -123,9 +125,11 @@ class ActivityPanelInfo extends BasePanelInfo {
         this.gameData = param.gameData;
         param.gameData.activityId = param.activityId;
         param.gameData.isFinish = false;
+        this.panelInfo.stage.gameInfo = new GameInfo();
         this.panelInfo.stage.gameInfo.gameId = param.gameData.id;
         this.panelInfo.stage.gameInfo.gameState = 0;
         db.game.startGame(param.gameData);
+        console.log('startGame:', param.gameData.id);
     }
 
     fadeInRankPanel(param:any) {
@@ -182,19 +186,19 @@ class StagePanelInfo extends BasePanelInfo {
 
     getInfo() {
         return {
-            gameId: this.gameInfo.gameId,
+            gameId: this.gameInfo.getGameId(),
             playerIdArr: this.panelInfo.act.getCurPlayerIdArr(),
             leftScore: this.gameInfo.leftScore,
             rightScore: this.gameInfo.rightScore,
             time: this.gameInfo.time,
             state: this.gameInfo.timerState,
             ctnXY: this.ctnXY,
-            playerInfoArr: this.getPlayerInfoArr()
+            playerInfoArr: this.getPlayerDataArr()
         }
     }
 
-    getPlayerInfoArr():Array<any> {
-        return this.gameInfo.getPlayerInfoArr();
+    getPlayerDataArr():Array<any> {
+        return this.gameInfo.getPlayerDataArr();
     }
 
     addLeftScore() {
@@ -271,7 +275,7 @@ class StagePanelInfo extends BasePanelInfo {
         else {
             winTeam = this.gameInfo.setRightTeamWin();
         }
-        console.log("showWinPanel param:", param, "mvp:", param.mvp, this.getPlayerInfoArr());
+        console.log("showWinPanel param:", param, "mvp:", param.mvp, this.getPlayerDataArr());
         for (var i = 0; i < winTeam.playerInfoArr.length; i++) {
             var obj:PlayerInfo = winTeam.playerInfoArr[i];
             if (!obj)
@@ -293,7 +297,7 @@ class StagePanelInfo extends BasePanelInfo {
             this.gameInfo.setPlayerInfoByPos(obj.pos, obj.playerData);
             console.log(this, "updatePlayer", JSON.stringify(obj.playerData), obj.pos);
         }
-        cmd.emit(CommandId.updatePlayerAll, this.getPlayerInfoArr(), this.pid);
+        cmd.emit(CommandId.updatePlayerAll, this.getPlayerDataArr(), this.pid);
     }
 
     notice(param:any) {
@@ -312,10 +316,14 @@ class StagePanelInfo extends BasePanelInfo {
         }
         else {
             this.gameInfo.saveGameRecToPlayer(param.gameId, isRedWin, ()=> {
+                // console.log("submitGame player dataMap:", JSON.stringify(db.player.dataMap));
+                console.log("saveGameRecToPlayer callback!!",param.gameId);
                 var playerRecArr = [];
-                for (var i = 0; i < this.getPlayerInfoArr().length; i++) {
-                    var playerInfo:PlayerInfo = this.getPlayerInfoArr()[i];
-                    playerRecArr.push(playerInfo.getRec());
+                for (var i = 0; i < this.getPlayerDataArr().length; i++) {
+                    var playerData = this.getPlayerDataArr()[i];
+                    var newPlayerInfo:PlayerInfo = new PlayerInfo(db.player.getDataById(playerData.id));
+                    playerRecArr.push(newPlayerInfo.getRec());
+                    console.log("push rec", JSON.stringify(newPlayerInfo.getRec()));
                 }
                 db.game.submitGame(param.gameId, isRedWin, mvp, blueScore, redScore, playerRecArr, (isSus)=> {
                     if (isSus) {
@@ -331,6 +339,6 @@ class StagePanelInfo extends BasePanelInfo {
     }
 
     resetGame() {
-        this.gameInfo = new GameInfo();
+        // this.gameInfo = new GameInfo();
     }
 }

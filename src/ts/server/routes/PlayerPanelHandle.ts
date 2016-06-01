@@ -5,7 +5,7 @@ class PlayerPanelHandle {
         var reqCmd = req.body.cmd;
         var param = req.body.param;
         if (reqCmd === CommandId.cs_queryPlayerByPos) {
-            var playerInfoArr = server.panel.stage.getPlayerInfoArr();
+            var playerInfoArr = server.panel.stage.getPlayerDataArr();
             if (playerInfoArr && playerInfoArr.length) {
                 res.send(playerInfoArr[param.pos]);
             }
