@@ -63,7 +63,7 @@ class ActivityPanelView extends BasePanelView {
             },
             watch: {
                 showGameArr: function (val) {
-                    console.log('selRound showGameArr change',JSON.stringify(val));
+                    console.log('selRound showGameArr change', JSON.stringify(val));
                     // do my stuff
                 }
             },
@@ -113,12 +113,18 @@ class ActivityPanelView extends BasePanelView {
                     // this.showGameArr.push(this.playerIdArr.concat());
                 },
                 onClkFadeInRank: function () {
-                    this.$http.post('/panel/act/op', {
-                        cmd: CommandId.cs_fadeInRankPanel,
-                        param: {activityId: this.selected, limit: 10}
-                    }).then(function (res) {
-                        console.log('cs_fadeInRankPanel', res);
-                    });
+                    if (this.selected < 1) {
+                        alert("没有选择赛事！！")
+                    }
+                    else {
+                        this.$http.post('/panel/act/op', {
+                            cmd: CommandId.cs_fadeInRankPanel,
+                            param: {activityId: this.selected, limit: 10}
+                        }).then(function (res) {
+                            console.log('cs_fadeInRankPanel', res);
+                        });
+                    }
+
                 },
                 onClkFadeOutRank: function () {
                     this.$http.post('/panel/act/op', {
@@ -302,7 +308,7 @@ class ActivityPanelView extends BasePanelView {
                 var playerCtn;
                 var scoreText = newScoreText();
                 scoreText.y = 70;
-                if(gameInfo.isFinish)
+                if (gameInfo.isFinish)
                     playerInfo.eloScore(gameInfo.playerRecArr[j].eloScore);
                 if (playerInfo.isRed) {
                     scoreText.text = gameInfo.rightScore + "";
