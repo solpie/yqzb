@@ -77,9 +77,9 @@ class GameInfo {
         this._timer = 0;
     }
 
-    setPlayerInfoByPos(pos, playerInfo) {
-        playerInfo.isRed = (pos > 3);
-        this.playerDataArr[pos] = playerInfo;
+    setPlayerInfoByPos(pos, playerData) {
+        playerData.isRed = (pos > 3);
+        this.playerDataArr[pos] = playerData;
     }
 
     _setGameResult(isLeftWin) {

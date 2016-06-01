@@ -95,38 +95,24 @@ class ActivityDB extends BaseDB {
         })
     }
 
+
     getDateArrByActivityId(actId, callback) {
         this.dataStore.find({activityId: actId}, function (err, docs) {
+            for (var i = 0; i < docs.length; i++) {
+                var doc = docs[i];
+                for (var j = 0; j < doc.gameDataArr.length; j++) {
+                    var gameId = doc.gameDataArr[j].id;
+                    var gameData = db.game.getDataById(gameId);
+                    if (gameData)//换人的数据同步
+                    {
+                        doc.gameDataArr[j].playerIdArr = gameData.playerIdArr.concat();
+                    }
+                }
+            }
             callback(docs);
         });
     }
 
-    // getRoundDataWithPlayerInfo(roundId, callback) {
-    //     this.ds().find({round: roundId}, function (err, docs) {
-    //         if (!err) {
-    //             if (docs.length)
-    //                 for (var i = 0; i < docs[0].gameDataArr.length; i++) {
-    //                     var gameData = docs[0].gameDataArr;
-    //
-    //                     db.player.getPlayerDataMapByIdArr(gameData.playerIdArr, function (err, playerIdMap) {
-    //                         // for (var j = 0; j < gameData.playerIdArr.length; j++) {
-    //                         //     var playerId = gameData.playerIdArr[j];
-    //                         //     db.player.ds().find({id: playerId}, function (err, docs) {
-    //                         //         if (!err) {
-    //                         //
-    //                         //         }
-    //                         //         else
-    //                         //             throw new Error(err);
-    //                         //     })
-    //                         // }
-    //                     });
-    //
-    //                 }
-    //         }
-    //         else
-    //             throw new Error(err);
-    //     })
-    // }
 }
 class GameDB extends BaseDB {
     startGame(gameData) {
@@ -142,6 +128,27 @@ class GameDB extends BaseDB {
     isGameFinish(gameId) {
         var gameDataInDb = this.dataMap[gameId];
         return gameDataInDb && gameDataInDb.isFinish;
+    }
+
+    /*
+     开始比赛之后换人
+     */
+    updatePlayerByPos(gameId, pos, playerId) {//开始比赛之后换人
+        if (!this.isGameFinish(gameId)) {
+            this.ds().findOne({id: gameId}, (err, doc)=> {
+                if (doc) {
+                    var oldPlayerId = doc.playerIdArr[pos];
+                    doc.playerIdArr[pos] = playerId;
+                    this.ds().update({id: gameId}, {$set: doc}, {}, ()=> {
+                        console.log('updatePlayerByPos', oldPlayerId, "=>", playerId);
+                        this.syncDataMap();
+                    });
+                }
+            });
+        }
+        else {
+            console.log('closed game can not modify!!!', gameId);
+        }
     }
 
     submitGame(gameId, isRedWin, mvp, blueScore, redScore, playerRecArr, callback) {

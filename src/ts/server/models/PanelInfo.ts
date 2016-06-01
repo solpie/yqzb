@@ -95,6 +95,7 @@ class ActivityPanelInfo extends BasePanelInfo {
         for (var game of param.gameArr) {
             var gameData = db.game.getDataById(game.id);
             var gameInfo:GameInfo = new GameInfo();
+            var playerIdArr;
             if (gameData) {
                 if (db.game.isGameFinish(gameData.id)) {
                     gameInfo.leftScore = gameData.blueScore;
@@ -103,9 +104,12 @@ class ActivityPanelInfo extends BasePanelInfo {
                     gameInfo.isFinish = gameData.isFinish;
                     console.log("game data:", JSON.stringify(gameData));
                 }
+                playerIdArr = gameData.playerIdArr;
             }
+            else//未开始的比赛
+                playerIdArr = game.playerIdArr;
 
-            var playerIdArr = game.playerIdArr;
+
             for (var i = 0; i < playerIdArr.length; i++) {
                 var playerId = playerIdArr[i];
                 var playerInfo:PlayerInfo = new PlayerInfo(db.player.getDataById(playerId));
@@ -263,6 +267,7 @@ class StagePanelInfo extends BasePanelInfo {
         param.playerInfo.pos = pos;
         // this.playerInfoArr[pos] = param.playerInfo;
         this.gameInfo.setPlayerInfoByPos(pos, param.playerInfo);
+        db.game.updatePlayerByPos(this.gameInfo.gameId, pos, param.playerInfo.id);
         console.log(this, "updatePlayer", JSON.stringify(param.playerInfo), param.playerInfo.pos);
         cmd.emit(CommandId.updatePlayer, param, this.pid);
     }
@@ -317,7 +322,7 @@ class StagePanelInfo extends BasePanelInfo {
         else {
             this.gameInfo.saveGameRecToPlayer(param.gameId, isRedWin, ()=> {
                 // console.log("submitGame player dataMap:", JSON.stringify(db.player.dataMap));
-                console.log("saveGameRecToPlayer callback!!",param.gameId);
+                console.log("saveGameRecToPlayer callback!!", param.gameId);
                 var playerRecArr = [];
                 for (var i = 0; i < this.getPlayerDataArr().length; i++) {
                     var playerData = this.getPlayerDataArr()[i];
