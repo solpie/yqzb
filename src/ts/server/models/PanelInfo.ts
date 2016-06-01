@@ -169,7 +169,6 @@ class StagePanelInfo extends BasePanelInfo {
     constructor(pid, panelInfo) {
         super(pid, panelInfo);
         this.gameInfo = new GameInfo();
-        this.gameInfo.playerDb = dbPlayerInfo();
         this.initCanvasNotice();
     }
 
@@ -334,5 +333,9 @@ class StagePanelInfo extends BasePanelInfo {
                 console.log("submit Game failed!!");
             }
         })
+    }
+
+    resetGame() {
+        this.gameInfo = new GameInfo();
     }
 }

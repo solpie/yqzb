@@ -68,6 +68,9 @@ class ActivityPanelView extends BasePanelView {
             //     }
             // },
             methods: {
+                onClkMatch: function () {
+                    var gameArr = this.showGameArr.concat();
+                },
                 selectSection: function (start) {
                     var tmp = [];
                     var selRound = this.roundDataArr[this.roundSelected];
@@ -80,6 +83,7 @@ class ActivityPanelView extends BasePanelView {
                         tmp.push(playerIdArr)
                     }
                     this.showGameArr = tmp;
+                    return tmp;
                 },
                 onClkStartGame: function () {
                     var selRound = this.roundDataArr[this.roundSelected];
@@ -302,14 +306,14 @@ class ActivityPanelView extends BasePanelView {
                 var scoreText = newScoreText();
                 scoreText.y = 70;
                 if (playerInfo.isRed) {
-                    scoreText.text = gameInfo.rightScore+"";
+                    scoreText.text = gameInfo.rightScore + "";
                     scoreText.x = 830;
                     rightScore += playerInfo.eloScore();
                     playerCtn = getRightPlayerCard(playerInfo, 1);
                     playerCtn.x = 282 + j * 148;
                 }
                 else {
-                    scoreText.text = gameInfo.leftScore+"";
+                    scoreText.text = gameInfo.leftScore + "";
                     scoreText.x = 685;
                     leftScore += playerInfo.eloScore();
                     playerCtn = getLeftPlayerCard(playerInfo, 1);

@@ -11,7 +11,6 @@ class GameInfo {
     playerInfoArr:any = new Array(8);
 
     _timer:number = 0;
-    playerDb:any;
     gameState:number = 0;//0 未确认胜负 1 确认胜负未录入数据 2确认胜负并录入数据
     _winTeam:TeamInfo;
     _loseTeam:TeamInfo;

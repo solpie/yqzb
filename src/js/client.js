@@ -138,35 +138,36 @@ var CommandId;
     CommandId[CommandId["cs_updatePlayerAll"] = 100027] = "cs_updatePlayerAll";
     CommandId[CommandId["notice"] = 100028] = "notice";
     CommandId[CommandId["cs_notice"] = 100029] = "cs_notice";
+    CommandId[CommandId["cs_resetGame"] = 100030] = "cs_resetGame";
     //-----------------win panel
-    CommandId[CommandId["fadeInWinPanel"] = 100030] = "fadeInWinPanel";
-    CommandId[CommandId["cs_fadeInWinPanel"] = 100031] = "cs_fadeInWinPanel";
-    CommandId[CommandId["fadeOutWinPanel"] = 100032] = "fadeOutWinPanel";
-    CommandId[CommandId["cs_fadeOutWinPanel"] = 100033] = "cs_fadeOutWinPanel";
-    CommandId[CommandId["saveGameRec"] = 100034] = "saveGameRec";
-    CommandId[CommandId["cs_saveGameRec"] = 100035] = "cs_saveGameRec";
+    CommandId[CommandId["fadeInWinPanel"] = 100031] = "fadeInWinPanel";
+    CommandId[CommandId["cs_fadeInWinPanel"] = 100032] = "cs_fadeInWinPanel";
+    CommandId[CommandId["fadeOutWinPanel"] = 100033] = "fadeOutWinPanel";
+    CommandId[CommandId["cs_fadeOutWinPanel"] = 100034] = "cs_fadeOutWinPanel";
+    CommandId[CommandId["saveGameRec"] = 100035] = "saveGameRec";
+    CommandId[CommandId["cs_saveGameRec"] = 100036] = "cs_saveGameRec";
     //---------------- player panel
-    CommandId[CommandId["cs_queryPlayerByPos"] = 100036] = "cs_queryPlayerByPos";
-    CommandId[CommandId["fadeInPlayerPanel"] = 100037] = "fadeInPlayerPanel";
-    CommandId[CommandId["cs_fadeInPlayerPanel"] = 100038] = "cs_fadeInPlayerPanel";
-    CommandId[CommandId["fadeOutPlayerPanel"] = 100039] = "fadeOutPlayerPanel";
-    CommandId[CommandId["cs_fadeOutPlayerPanel"] = 100040] = "cs_fadeOutPlayerPanel";
-    CommandId[CommandId["movePlayerPanel"] = 100041] = "movePlayerPanel";
-    CommandId[CommandId["cs_movePlayerPanel"] = 100042] = "cs_movePlayerPanel";
+    CommandId[CommandId["cs_queryPlayerByPos"] = 100037] = "cs_queryPlayerByPos";
+    CommandId[CommandId["fadeInPlayerPanel"] = 100038] = "fadeInPlayerPanel";
+    CommandId[CommandId["cs_fadeInPlayerPanel"] = 100039] = "cs_fadeInPlayerPanel";
+    CommandId[CommandId["fadeOutPlayerPanel"] = 100040] = "fadeOutPlayerPanel";
+    CommandId[CommandId["cs_fadeOutPlayerPanel"] = 100041] = "cs_fadeOutPlayerPanel";
+    CommandId[CommandId["movePlayerPanel"] = 100042] = "movePlayerPanel";
+    CommandId[CommandId["cs_movePlayerPanel"] = 100043] = "cs_movePlayerPanel";
     //自动三杀事件
-    CommandId[CommandId["straightScore3"] = 100043] = "straightScore3";
-    CommandId[CommandId["straightScore5"] = 100044] = "straightScore5";
-    CommandId[CommandId["initPanel"] = 100045] = "initPanel";
+    CommandId[CommandId["straightScore3"] = 100044] = "straightScore3";
+    CommandId[CommandId["straightScore5"] = 100045] = "straightScore5";
+    CommandId[CommandId["initPanel"] = 100046] = "initPanel";
     /////activity panel
-    CommandId[CommandId["cs_fadeInActPanel"] = 100046] = "cs_fadeInActPanel";
-    CommandId[CommandId["fadeInActPanel"] = 100047] = "fadeInActPanel";
-    CommandId[CommandId["cs_fadeOutActPanel"] = 100048] = "cs_fadeOutActPanel";
-    CommandId[CommandId["fadeOutActPanel"] = 100049] = "fadeOutActPanel";
-    CommandId[CommandId["cs_startGame"] = 100050] = "cs_startGame";
-    CommandId[CommandId["cs_fadeInRankPanel"] = 100051] = "cs_fadeInRankPanel";
-    CommandId[CommandId["fadeInRankPanel"] = 100052] = "fadeInRankPanel";
-    CommandId[CommandId["cs_fadeOutRankPanel"] = 100053] = "cs_fadeOutRankPanel";
-    CommandId[CommandId["fadeOutRankPanel"] = 100054] = "fadeOutRankPanel";
+    CommandId[CommandId["cs_fadeInActPanel"] = 100047] = "cs_fadeInActPanel";
+    CommandId[CommandId["fadeInActPanel"] = 100048] = "fadeInActPanel";
+    CommandId[CommandId["cs_fadeOutActPanel"] = 100049] = "cs_fadeOutActPanel";
+    CommandId[CommandId["fadeOutActPanel"] = 100050] = "fadeOutActPanel";
+    CommandId[CommandId["cs_startGame"] = 100051] = "cs_startGame";
+    CommandId[CommandId["cs_fadeInRankPanel"] = 100052] = "cs_fadeInRankPanel";
+    CommandId[CommandId["fadeInRankPanel"] = 100053] = "fadeInRankPanel";
+    CommandId[CommandId["cs_fadeOutRankPanel"] = 100054] = "cs_fadeOutRankPanel";
+    CommandId[CommandId["fadeOutRankPanel"] = 100055] = "fadeOutRankPanel";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {

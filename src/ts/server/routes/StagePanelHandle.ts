@@ -13,5 +13,9 @@ class StagePanelHandle {
                 res.send({isFinish: false});
             }
         }
+        else if (reqCmd === CommandId.cs_resetGame) {
+            server.panel.stage.resetGame();
+            res.sendStatus(200);
+        }
     }
 }

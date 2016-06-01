@@ -1,6 +1,8 @@
+{"id":17006,"playerIdArr":[10018,10029,10024,10016,10017,10023,10021,10025],"activityId":1,"isFinish":true,"_id":"27Eg8vbM6NOC4NK1","blueScore":5,"redScore":7,"mvp":10018,"isRedWin":false}
+{"id":17005,"playerIdArr":[10034,10019,10033,10030,10027,12,15,14],"activityId":1,"isFinish":true,"_id":"AbTbLd0IhB4R4SkN","blueScore":7,"redScore":3,"mvp":10034,"isRedWin":false}
 {"id":17004,"playerIdArr":[10015,10008,10035,13,18,11,16,17],"activityId":1,"isFinish":true,"_id":"FZEnwSpBSL0JJ3Jy","blueScore":7,"redScore":0,"mvp":10008,"isRedWin":false}
-{"id":17003,"playerIdArr":[10015,10008,10035,13,10027,12,15,14],"activityId":1,"isFinish":true,"_id":"S7LU9bdIdQC1ndby","blueScore":0,"redScore":0,"mvp":10015,"isRedWin":false}
-{"id":17000,"playerIdArr":[10034,10019,10033,10030,10015,10008,10035,13],"activityId":1,"isFinish":true,"_id":"TCtOpoqIp5zJwadx","blueScore":0,"redScore":0,"mvp":10019,"isRedWin":false}
+{"id":17003,"playerIdArr":[10015,10008,10035,13,10027,12,15,14],"activityId":1,"isFinish":true,"_id":"S7LU9bdIdQC1ndby","blueScore":7,"redScore":3,"mvp":10015,"isRedWin":false}
+{"id":17000,"playerIdArr":[10034,10019,10033,10030,10015,10008,10035,13],"activityId":1,"isFinish":true,"_id":"TCtOpoqIp5zJwadx","blueScore":7,"redScore":0,"mvp":10034,"isRedWin":false}
 {"id":0,"idUsed":1,"_id":"YyObIBHaQgQE43Yi"}
-{"id":17001,"playerIdArr":[10027,12,15,14,18,11,16,17],"activityId":1,"isFinish":true,"_id":"v8PEXWASmXBp2nuk","blueScore":0,"redScore":0,"mvp":10027,"isRedWin":false}
-{"id":17002,"playerIdArr":[10034,10019,10033,10030,18,11,16,17],"activityId":1,"isFinish":true,"_id":"yoV2uL6JdO0cHBvV","blueScore":0,"redScore":0,"mvp":10034,"isRedWin":false}
+{"id":17001,"playerIdArr":[10027,12,15,14,18,11,16,17],"activityId":1,"isFinish":true,"_id":"v8PEXWASmXBp2nuk","blueScore":7,"redScore":3,"mvp":10027,"isRedWin":false}
+{"id":17002,"playerIdArr":[10034,10019,10033,10030,18,11,16,17],"activityId":1,"isFinish":true,"_id":"yoV2uL6JdO0cHBvV","blueScore":7,"redScore":3,"mvp":10034,"isRedWin":false}

@@ -34,6 +34,7 @@ enum CommandId{
     cs_updatePlayerAll,
     notice,//小喇叭
     cs_notice,
+    cs_resetGame,//重置比分 时间 player
     //-----------------win panel
     fadeInWinPanel,
     cs_fadeInWinPanel,

@@ -1044,6 +1044,15 @@ $(function main() {
             playerIdArr: []
         },
         methods: {
+            onClkResetGame: function () {
+                this.$http.post('/panel/stage/op', {cmd: CommandId.cs_resetGame})
+                    .then(function (res) {
+                        console.log(res);
+                        if (res.ok) {
+                            window.location.reload();
+                        }
+                    });
+            },
             onClkSaveGame: function () {
                 var blueScore = parseInt(stagePanel2.leftScoreLabel.text);
                 var redScore = parseInt(stagePanel2.rightScoreLabel.text);
