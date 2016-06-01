@@ -1480,7 +1480,7 @@ var PanelId = {
 /// <reference path="./DbInfo.ts"/>
 /// <reference path="../../utils/JSONFile.ts"/>
 /// <reference path="../../model/ElemID.ts"/>
-/// <reference path="../../libs/createjs/createjs.d.ts"/>
+/// <reference path="../../tsd/createjs.d.ts"/>
 var PanelInfo = (function () {
     function PanelInfo() {
         this.stage = new StagePanelInfo(PanelId.stagePanel, this);

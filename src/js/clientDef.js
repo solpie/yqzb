@@ -4,4 +4,4 @@
 /// <reference path="../ts/server/models/TeamInfo.ts"/>
 /// <reference path="../ts/JQuery.ts"/>
 /// <reference path="../ts/tsd/createjs.d.ts"/>
-
+//# sourceMappingURL=clientDef.js.map

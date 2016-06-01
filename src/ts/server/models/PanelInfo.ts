@@ -5,7 +5,7 @@
 /// <reference path="./DbInfo.ts"/>
 /// <reference path="../../utils/JSONFile.ts"/>
 /// <reference path="../../model/ElemID.ts"/>
-/// <reference path="../../libs/createjs/createjs.d.ts"/>
+/// <reference path="../../tsd/createjs.d.ts"/>
 
 class PanelInfo {
     //for localhost/panel/pid/
