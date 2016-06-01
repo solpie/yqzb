@@ -40,10 +40,10 @@ class ActivityPanelView extends BasePanelView {
 
     initVue() {
         var showGame;
+        var fadeInGameArr;
         var vue = new Vue({
             el: '#panel',
             data: {
-                selGameIdArr: [],
                 showGameArr: [],
 
                 playerIdArr: [],
@@ -61,35 +61,35 @@ class ActivityPanelView extends BasePanelView {
                     {text: '63运动', value: 2}
                 ]
             },
-            // watch: {
-            //     selected: function (currentValue) {
-            //         console.log('date change');
-            //         // do my stuff
-            //     }
-            // },
+            watch: {
+                showGameArr: function (val) {
+                    console.log('selRound showGameArr change',JSON.stringify(val));
+                    // do my stuff
+                }
+            },
             methods: {
                 onClkMatch: function () {
-                    var gameArr = this.showGameArr.concat();
+                    // var gameArr = this.showGameArr.concat();
                 },
                 selectSection: function (start) {
                     var tmp = [];
                     var selRound = this.roundDataArr[this.roundSelected];
+                    console.log('selRound:', JSON.stringify(selRound));
                     for (var i = start; i < start + 6; i++) {
                         var game = selRound.gameDataArr[i];
-                        var playerIdArr = [];
-                        for (var j = 0; j < game.playerIdArr.length; j++) {
-                            playerIdArr.push(game.playerIdArr[j]);
-                        }
-                        tmp.push(playerIdArr)
+                        console.log('selRound:', JSON.stringify(game));
+                        var gameData:any = {};
+                        gameData.id = game.id;
+                        gameData.playerIdArr = game.playerIdArr;
+                        tmp.push(gameData);
                     }
                     this.showGameArr = tmp;
-                    return tmp;
                 },
                 onClkStartGame: function () {
                     var selRound = this.roundDataArr[this.roundSelected];
                     var selGame = selRound.gameDataArr[this.gameSelected];
                     console.log('start game:', JSON.stringify(selGame));
-                    this.$http.post('/op/act/', {
+                    this.$http.post('/panel/act/op', {
                         cmd: CommandId.cs_startGame, param: {activityId: this.selected, gameData: selGame}
                     }).then(function (res) {
                         console.log(res.data);
@@ -110,10 +110,10 @@ class ActivityPanelView extends BasePanelView {
                     this.showGameArr = [];
                 },
                 onClkAddGame: function () {
-                    this.showGameArr.push(this.playerIdArr.concat());
+                    // this.showGameArr.push(this.playerIdArr.concat());
                 },
                 onClkFadeInRank: function () {
-                    this.$http.post('/op/act/', {
+                    this.$http.post('/panel/act/op', {
                         cmd: CommandId.cs_fadeInRankPanel,
                         param: {activityId: this.selected, limit: 10}
                     }).then(function (res) {
@@ -121,14 +121,14 @@ class ActivityPanelView extends BasePanelView {
                     });
                 },
                 onClkFadeOutRank: function () {
-                    this.$http.post('/op/act/', {
+                    this.$http.post('/panel/act/op', {
                         cmd: CommandId.cs_fadeOutRankPanel
                     }).then(function (res) {
                         console.log(res);
                     });
                 },
                 onClkFadeOut: function () {
-                    this.$http.post('/op/act/', {
+                    this.$http.post('/panel/act/op', {
                         cmd: CommandId.cs_fadeOutActPanel
                     }).then(function (res) {
                         console.log(res);
@@ -137,11 +137,10 @@ class ActivityPanelView extends BasePanelView {
                 onClkFadeIn: function () {
                     if (this.showGameArr.length) {
                         console.log("showGameArr", JSON.stringify(this.showGameArr));
-                        this.$http.post('/op/act/', {
+                        this.$http.post('/panel/act/op', {
                             cmd: CommandId.cs_fadeInActPanel,
                             param: {
                                 activityId: this.activityId,
-                                gameIdArr: this.selGameIdArr,
                                 gameArr: this.showGameArr
                             }
                         }).then(function (res) {
@@ -166,11 +165,9 @@ class ActivityPanelView extends BasePanelView {
                 onRoundSelected: function () {
                     console.log('round change', this.roundSelected);
                     console.log(vue.roundDataArr[this.roundSelected]);
-                    this.selGameIdArr = [];
                     vue.gameOptionArr = [];
                     for (var i = 0; i < vue.roundDataArr[this.roundSelected].gameDataArr.length; i++) {
                         var selGame = vue.roundDataArr[this.roundSelected].gameDataArr[i];
-                        this.selGameIdArr.push(selGame.id);
                         vue.gameOptionArr.push({value: i, text: '第' + (i + 1) + '场 id:' + selGame.id});
                     }
                     this.gameSelected = -1;
@@ -179,7 +176,7 @@ class ActivityPanelView extends BasePanelView {
                 onGetDateArr: function () {
                     console.log('activity change');
                     var actId = parseInt(this.selected);
-                    this.$http.post('/op/act/', {cmd: 'query', param: actId}).then(function (res) {
+                    this.$http.post('/panel/act/op', {cmd: 'query', param: actId}).then(function (res) {
                         vue.roundDataArr = res.data;
                         vue.roundOptionArr = [];
                         for (var i = 0; i < vue.roundDataArr.length; i++) {

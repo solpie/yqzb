@@ -35,7 +35,7 @@ class GameInfo {
         }
     }
 
-    saveGameRecToPlayer(gameId, isRedWin) {
+    saveGameRecToPlayer(gameId, isRedWin,callback) {
         // if (this.isUnsaved) {
         if (this.gameState === 0) {
             if (isRedWin)
@@ -52,6 +52,7 @@ class GameInfo {
                 console.log(playerInfo.name(), " cur player score:", playerInfo.eloScore(), playerInfo.dtScore());
                 db.player.ds().update({id: playerInfo.id()}, {$set: playerInfo.playerData}, {}, (err, doc)=> {
                     console.log("saveGameRec: game rec saved");
+                    callback();
                     this.gameState = 2;
                 });
             }

@@ -90,47 +90,29 @@ class ActivityPanelInfo extends BasePanelInfo {
     }
 
     fadeInActPanel(param) {
-        console.log("fade in act panel", JSON.stringify(param));
-        var queryIdArr = [];//[{id:}]
-        for (var playerIdArr of param.gameArr) {
-            //query playerData
-            for (var playerId of playerIdArr) {
-                queryIdArr.push({id: playerId});
-            }
-        }
-
-        console.log('get Player Arr:', JSON.stringify(queryIdArr));
-        db.player.getPlayerDataMapByIdArr(queryIdArr, (err, playerDataMap)=> {
-            if (!err) {
-                this.roundInfo = new RoundInfo();
-
-                var gameIdArr = param.gameIdArr;
-                for (var j = 0; j < param.gameArr.length; j++) {
-                    var gameInfo:GameInfo = new GameInfo();
-                    var gameId = gameIdArr[j];
-                    if (db.game.isGameFinish(gameId)) {
-                        var gameData = db.game.dataMap[gameIdArr[j]];
-                        console.log('finish game:', JSON.stringify(gameData));
-                        gameInfo.leftScore = gameData.blueScore;
-                        gameInfo.rightScore = gameData.redScore;
-                    }
-
-                    var playerIdArr = param.gameArr[j];
-                    for (var i = 0; i < playerIdArr.length; i++) {
-                        var playerId = playerIdArr[i];
-                        var playerInfo:PlayerInfo = new PlayerInfo(playerDataMap[playerId]);
-                        gameInfo.setPlayerInfoByPos(i, playerInfo);
-                        console.log('push playerInfo');
-                    }
-                    this.roundInfo.gameInfoArr.push(gameInfo);
+        console.log("fade in act panel");
+        this.roundInfo = new RoundInfo();
+        for (var game of param.gameArr) {
+            var gameData = db.game.getDataById(game.id);
+            var gameInfo:GameInfo = new GameInfo();
+            if (gameData) {
+                if (db.game.isGameFinish(gameData.id)) {
+                    gameInfo.leftScore = gameData.blueScore;
+                    gameInfo.rightScore = gameData.redScore;
+                    console.log("game data:", JSON.stringify(gameData));
                 }
+            }
 
-                cmd.emit(CommandId.fadeInActPanel, this.roundInfo, this.pid);
+            var playerIdArr = game.playerIdArr;
+            for (var i = 0; i < playerIdArr.length; i++) {
+                var playerId = playerIdArr[i];
+                var playerInfo:PlayerInfo = new PlayerInfo(db.player.getDataById(playerId));
+                gameInfo.setPlayerInfoByPos(i, playerInfo);
+                console.log('push playerInfo');
             }
-            else {
-                throw new Error(err);
-            }
-        })
+            this.roundInfo.gameInfoArr.push(gameInfo);
+        }
+        cmd.emit(CommandId.fadeInActPanel, this.roundInfo, this.pid);
     }
 
     fadeOutActPanel() {
@@ -324,15 +306,28 @@ class StagePanelInfo extends BasePanelInfo {
         var blueScore = param.blueScore;
         var redScore = param.redScore;
         var isRedWin = (mvp > 3);
-        db.game.submitGame(param.gameId, isRedWin, mvp, blueScore, redScore, (isSus)=> {
-            if (isSus) {
-                console.log("submit Game sus");
-                this.gameInfo.saveGameRecToPlayer(param.gameId, isRedWin);
-            }
-            else {
-                console.log("submit Game failed!!");
-            }
-        })
+        // function savePlayerDataToGame()
+        if (db.game.isGameFinish(param.gameId)) {
+
+        }
+        else {
+            this.gameInfo.saveGameRecToPlayer(param.gameId, isRedWin, ()=> {
+                var playerRecArr = [];
+                for (var i = 0; i < this.getPlayerInfoArr().length; i++) {
+                    var playerInfo:PlayerInfo = this.getPlayerInfoArr()[i];
+                    playerRecArr.push(playerInfo.getRec());
+                }
+                db.game.submitGame(param.gameId, isRedWin, mvp, blueScore, redScore, playerRecArr, (isSus)=> {
+                    if (isSus) {
+                        console.log("submit Game sus");
+                    }
+                    else {
+                        console.log("submit Game failed!!");
+                    }
+                })
+            });
+        }
+
     }
 
     resetGame() {

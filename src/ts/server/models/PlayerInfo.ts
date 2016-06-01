@@ -145,6 +145,10 @@ class PlayerInfo extends BaseInfo {
         return path
     }
 
+    getRec(){
+        return {eloScore: this.eloScore(), dtScore: this.dtScore()};
+    }
+
     saveScore(dtScore, isWin) {
         this.dtScore(dtScore);
         this.eloScore(this.eloScore() + dtScore);

@@ -51,6 +51,10 @@ class BaseDB {
         });
     }
 
+    getDataById(id) {
+        return this.dataMap[id];
+    }
+
     onloaded() {
     };
 
@@ -83,7 +87,6 @@ class ActivityDB extends BaseDB {
         this.dataStore.insert(data, (err, newDoc) => {
             if (!err) {
                 var newId = this.saveIdUsed();
-
             }
             if (callback)
                 callback(err, newDoc);
@@ -96,32 +99,32 @@ class ActivityDB extends BaseDB {
         });
     }
 
-    getRoundDataWithPlayerInfo(roundId, callback) {
-        this.ds().find({round: roundId}, function (err, docs) {
-            if (!err) {
-                if (docs.length)
-                    for (var i = 0; i < docs[0].gameDataArr.length; i++) {
-                        var gameData = docs[0].gameDataArr;
-
-                        db.player.getPlayerDataMapByIdArr(gameData.playerIdArr, function (err, playerIdMap) {
-                            // for (var j = 0; j < gameData.playerIdArr.length; j++) {
-                            //     var playerId = gameData.playerIdArr[j];
-                            //     db.player.ds().find({id: playerId}, function (err, docs) {
-                            //         if (!err) {
-                            //
-                            //         }
-                            //         else
-                            //             throw new Error(err);
-                            //     })
-                            // }
-                        });
-
-                    }
-            }
-            else
-                throw new Error(err);
-        })
-    }
+    // getRoundDataWithPlayerInfo(roundId, callback) {
+    //     this.ds().find({round: roundId}, function (err, docs) {
+    //         if (!err) {
+    //             if (docs.length)
+    //                 for (var i = 0; i < docs[0].gameDataArr.length; i++) {
+    //                     var gameData = docs[0].gameDataArr;
+    //
+    //                     db.player.getPlayerDataMapByIdArr(gameData.playerIdArr, function (err, playerIdMap) {
+    //                         // for (var j = 0; j < gameData.playerIdArr.length; j++) {
+    //                         //     var playerId = gameData.playerIdArr[j];
+    //                         //     db.player.ds().find({id: playerId}, function (err, docs) {
+    //                         //         if (!err) {
+    //                         //
+    //                         //         }
+    //                         //         else
+    //                         //             throw new Error(err);
+    //                         //     })
+    //                         // }
+    //                     });
+    //
+    //                 }
+    //         }
+    //         else
+    //             throw new Error(err);
+    //     })
+    // }
 }
 class GameDB extends BaseDB {
     startGame(gameData) {
@@ -130,12 +133,16 @@ class GameDB extends BaseDB {
         this.syncDataMap();
     }
 
+    restartGame(gameId) {
+        this.syncDataMap();
+    }
+
     isGameFinish(gameId) {
         var gameDataInDb = this.dataMap[gameId];
         return gameDataInDb && gameDataInDb.isFinish;
     }
 
-    submitGame(gameId, isRedWin, mvp, blueScore, redScore, callback) {
+    submitGame(gameId, isRedWin, mvp, blueScore, redScore, playerRecArr, callback) {
         this.ds().findOne({id: gameId}, (err, doc)=> {
             if (doc.isFinish) {
                 console.log('closed game can not modify!!!');
@@ -149,6 +156,7 @@ class GameDB extends BaseDB {
                             redScore: redScore,
                             isFinish: true,
                             mvp: doc.playerIdArr[mvp],
+                            playerRecArr: playerRecArr,
                             isRedWin: isRedWin
                         }
                     }, {}, (err, numUpdate)=> {

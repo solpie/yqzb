@@ -6,6 +6,7 @@
 /// <reference path="routes/ActivityAdmin.ts"/>
 /// <reference path="routes/PlayerPanelHandle.ts"/>
 /// <reference path="routes/StagePanelHandle.ts"/>
+/// <reference path="routes/ActivityPanelHandle.ts"/>
 /// <reference path="models/DbInfo.ts"/>
 /// <reference path="models/PanelInfo.ts"/>
 /// <reference path="models/RoundInfo.ts"/>
@@ -111,7 +112,7 @@ class HttpServer {
         app.post('/admin/game/genPrintPng', urlencodedParser, ActivityAdmin.genPrintPng);
         app.post('/admin/game/genRound', urlencodedParser, ActivityAdmin.genRound);
         
-        app.post('/op/act/', urlencodedParser, ActivityAdmin.opHandle);
+        app.post('/panel/act/op', urlencodedParser, ActivityPanelHandle.opHandle);
         app.post('/panel/player/op', urlencodedParser, PlayerPanelHandle.opHandle);
         app.post('/panel/stage/op', urlencodedParser, StagePanelHandle.opHandle);
 

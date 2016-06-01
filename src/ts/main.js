@@ -677,44 +677,6 @@ var PlayerAdmin = (function () {
 var ActivityAdmin = (function () {
     function ActivityAdmin() {
     }
-    ActivityAdmin.opHandle = function (req, res) {
-        if (!req.body)
-            return res.sendStatus(400);
-        console.log('opHandle', JSON.stringify(req.body));
-        var reqCmd = req.body.cmd;
-        var param = req.body.param;
-        if (reqCmd === CommandId.cs_fadeInActPanel) {
-            server.panel.act.fadeInActPanel(param);
-            res.send("sus");
-        }
-        else if (reqCmd === CommandId.cs_fadeOutActPanel) {
-            server.panel.act.fadeOutActPanel();
-            res.send("sus");
-        }
-        else if (reqCmd === CommandId.cs_startGame) {
-            if (db.game.isGameFinish(param.gameData.id)) {
-                res.send({ isFinish: true });
-            }
-            else {
-                server.panel.act.startGame(param);
-                res.send({ isFinish: false });
-            }
-        }
-        else if (reqCmd === CommandId.cs_fadeInRankPanel) {
-            server.panel.act.fadeInRankPanel(param);
-            res.send("sus");
-        }
-        else if (reqCmd === CommandId.cs_fadeOutRankPanel) {
-            server.panel.act.fadeOutRankPanel(param);
-            res.send("sus");
-        }
-        else {
-            db.activity.getDateArrByActivityId(param, function (docs) {
-                res.send(docs);
-            });
-        }
-    };
-    ;
     ActivityAdmin.index = function (req, res) {
         var actId = req.params.id;
         var data = { activityId: actId, lastRound: db.activity.config.idUsed, roundData: 'null' };
@@ -833,6 +795,49 @@ var StagePanelHandle = (function () {
     };
     return StagePanelHandle;
 }());
+var ActivityPanelHandle = (function () {
+    function ActivityPanelHandle() {
+    }
+    ActivityPanelHandle.opHandle = function (req, res) {
+        if (!req.body)
+            return res.sendStatus(400);
+        console.log('opHandle', JSON.stringify(req.body));
+        var reqCmd = req.body.cmd;
+        var param = req.body.param;
+        if (reqCmd === CommandId.cs_fadeInActPanel) {
+            server.panel.act.fadeInActPanel(param);
+            res.send("sus");
+        }
+        else if (reqCmd === CommandId.cs_fadeOutActPanel) {
+            server.panel.act.fadeOutActPanel();
+            res.send("sus");
+        }
+        else if (reqCmd === CommandId.cs_startGame) {
+            if (db.game.isGameFinish(param.gameData.id)) {
+                res.send({ isFinish: true });
+            }
+            else {
+                server.panel.act.startGame(param);
+                res.send({ isFinish: false });
+            }
+        }
+        else if (reqCmd === CommandId.cs_fadeInRankPanel) {
+            server.panel.act.fadeInRankPanel(param);
+            res.send("sus");
+        }
+        else if (reqCmd === CommandId.cs_fadeOutRankPanel) {
+            server.panel.act.fadeOutRankPanel(param);
+            res.send("sus");
+        }
+        else {
+            db.activity.getDateArrByActivityId(param, function (docs) {
+                res.send(docs);
+            });
+        }
+    };
+    ;
+    return ActivityPanelHandle;
+}());
 /// <reference path="../../Node.ts"/>
 /////
 var appExecPath = M_path.dirname(process.execPath);
@@ -877,6 +882,9 @@ var BaseDB = (function () {
                 _this.dataMap[doc.id] = doc;
             }
         });
+    };
+    BaseDB.prototype.getDataById = function (id) {
+        return this.dataMap[id];
     };
     BaseDB.prototype.onloaded = function () {
     };
@@ -924,30 +932,6 @@ var ActivityDB = (function (_super) {
             callback(docs);
         });
     };
-    ActivityDB.prototype.getRoundDataWithPlayerInfo = function (roundId, callback) {
-        this.ds().find({ round: roundId }, function (err, docs) {
-            if (!err) {
-                if (docs.length)
-                    for (var i = 0; i < docs[0].gameDataArr.length; i++) {
-                        var gameData = docs[0].gameDataArr;
-                        db.player.getPlayerDataMapByIdArr(gameData.playerIdArr, function (err, playerIdMap) {
-                            // for (var j = 0; j < gameData.playerIdArr.length; j++) {
-                            //     var playerId = gameData.playerIdArr[j];
-                            //     db.player.ds().find({id: playerId}, function (err, docs) {
-                            //         if (!err) {
-                            //
-                            //         }
-                            //         else
-                            //             throw new Error(err);
-                            //     })
-                            // }
-                        });
-                    }
-            }
-            else
-                throw new Error(err);
-        });
-    };
     return ActivityDB;
 }(BaseDB));
 var GameDB = (function (_super) {
@@ -960,11 +944,14 @@ var GameDB = (function (_super) {
         });
         this.syncDataMap();
     };
+    GameDB.prototype.restartGame = function (gameId) {
+        this.syncDataMap();
+    };
     GameDB.prototype.isGameFinish = function (gameId) {
         var gameDataInDb = this.dataMap[gameId];
         return gameDataInDb && gameDataInDb.isFinish;
     };
-    GameDB.prototype.submitGame = function (gameId, isRedWin, mvp, blueScore, redScore, callback) {
+    GameDB.prototype.submitGame = function (gameId, isRedWin, mvp, blueScore, redScore, playerRecArr, callback) {
         var _this = this;
         this.ds().findOne({ id: gameId }, function (err, doc) {
             if (doc.isFinish) {
@@ -978,6 +965,7 @@ var GameDB = (function (_super) {
                         redScore: redScore,
                         isFinish: true,
                         mvp: doc.playerIdArr[mvp],
+                        playerRecArr: playerRecArr,
                         isRedWin: isRedWin
                     }
                 }, {}, function (err, numUpdate) {
@@ -1204,6 +1192,9 @@ var PlayerInfo = (function (_super) {
         }
         return path;
     };
+    PlayerInfo.prototype.getRec = function () {
+        return { eloScore: this.eloScore(), dtScore: this.dtScore() };
+    };
     PlayerInfo.prototype.saveScore = function (dtScore, isWin) {
         this.dtScore(dtScore);
         this.eloScore(this.eloScore() + dtScore);
@@ -1352,7 +1343,7 @@ var GameInfo = (function () {
             this.timerState = 1;
         }
     };
-    GameInfo.prototype.saveGameRecToPlayer = function (gameId, isRedWin) {
+    GameInfo.prototype.saveGameRecToPlayer = function (gameId, isRedWin, callback) {
         var _this = this;
         // if (this.isUnsaved) {
         if (this.gameState === 0) {
@@ -1371,6 +1362,7 @@ var GameInfo = (function () {
                 console.log(playerInfo.name(), " cur player score:", playerInfo.eloScore(), playerInfo.dtScore());
                 db.player.ds().update({ id: playerInfo.id() }, { $set: playerInfo.playerData }, {}, function (err, doc) {
                     console.log("saveGameRec: game rec saved");
+                    callback();
                     _this.gameState = 2;
                 });
             }
@@ -1519,46 +1511,29 @@ var ActivityPanelInfo = (function (_super) {
             return [];
     };
     ActivityPanelInfo.prototype.fadeInActPanel = function (param) {
-        var _this = this;
         console.log("fade in act panel", JSON.stringify(param));
-        var queryIdArr = []; //[{id:}]
+        this.roundInfo = new RoundInfo();
         for (var _i = 0, _a = param.gameArr; _i < _a.length; _i++) {
-            var playerIdArr = _a[_i];
-            //query playerData
-            for (var _b = 0, playerIdArr_1 = playerIdArr; _b < playerIdArr_1.length; _b++) {
-                var playerId = playerIdArr_1[_b];
-                queryIdArr.push({ id: playerId });
-            }
-        }
-        console.log('get Player Arr:', JSON.stringify(queryIdArr));
-        db.player.getPlayerDataMapByIdArr(queryIdArr, function (err, playerDataMap) {
-            if (!err) {
-                _this.roundInfo = new RoundInfo();
-                var gameIdArr = param.gameIdArr;
-                for (var j = 0; j < param.gameArr.length; j++) {
-                    var gameInfo = new GameInfo();
-                    var gameId = gameIdArr[j];
-                    if (db.game.isGameFinish(gameId)) {
-                        var gameData = db.game.dataMap[gameIdArr[j]];
-                        console.log('finish game:', JSON.stringify(gameData));
-                        gameInfo.leftScore = gameData.blueScore;
-                        gameInfo.rightScore = gameData.redScore;
-                    }
-                    var playerIdArr = param.gameArr[j];
-                    for (var i = 0; i < playerIdArr.length; i++) {
-                        var playerId = playerIdArr[i];
-                        var playerInfo = new PlayerInfo(playerDataMap[playerId]);
-                        gameInfo.setPlayerInfoByPos(i, playerInfo);
-                        console.log('push playerInfo');
-                    }
-                    _this.roundInfo.gameInfoArr.push(gameInfo);
+            var game = _a[_i];
+            var gameData = db.game.getDataById(game.id);
+            var gameInfo = new GameInfo();
+            if (gameData) {
+                if (db.game.isGameFinish(gameData.id)) {
+                    gameInfo.leftScore = gameData.blueScore;
+                    gameInfo.rightScore = gameData.redScore;
+                    console.log("game data:", JSON.stringify(gameData));
                 }
-                cmd.emit(CommandId.fadeInActPanel, _this.roundInfo, _this.pid);
             }
-            else {
-                throw new Error(err);
+            var playerIdArr = game.playerIdArr;
+            for (var i = 0; i < playerIdArr.length; i++) {
+                var playerId = playerIdArr[i];
+                var playerInfo = new PlayerInfo(db.player.getDataById(playerId));
+                gameInfo.setPlayerInfoByPos(i, playerInfo);
+                console.log('push playerInfo');
             }
-        });
+            this.roundInfo.gameInfoArr.push(gameInfo);
+        }
+        cmd.emit(CommandId.fadeInActPanel, this.roundInfo, this.pid);
     };
     ActivityPanelInfo.prototype.fadeOutActPanel = function () {
         cmd.emit(CommandId.fadeOutActPanel, null, this.pid);
@@ -1725,15 +1700,26 @@ var StagePanelInfo = (function (_super) {
         var blueScore = param.blueScore;
         var redScore = param.redScore;
         var isRedWin = (mvp > 3);
-        db.game.submitGame(param.gameId, isRedWin, mvp, blueScore, redScore, function (isSus) {
-            if (isSus) {
-                console.log("submit Game sus");
-                _this.gameInfo.saveGameRecToPlayer(param.gameId, isRedWin);
-            }
-            else {
-                console.log("submit Game failed!!");
-            }
-        });
+        // function savePlayerDataToGame()
+        if (db.game.isGameFinish(param.gameId)) {
+        }
+        else {
+            this.gameInfo.saveGameRecToPlayer(param.gameId, isRedWin, function () {
+                var playerRecArr = [];
+                for (var i = 0; i < _this.getPlayerInfoArr().length; i++) {
+                    var playerInfo = _this.getPlayerInfoArr()[i];
+                    playerRecArr.push(playerInfo.getRec());
+                }
+                db.game.submitGame(param.gameId, isRedWin, mvp, blueScore, redScore, playerRecArr, function (isSus) {
+                    if (isSus) {
+                        console.log("submit Game sus");
+                    }
+                    else {
+                        console.log("submit Game failed!!");
+                    }
+                });
+            });
+        }
     };
     StagePanelInfo.prototype.resetGame = function () {
         this.gameInfo = new GameInfo();
@@ -1755,6 +1741,7 @@ var RoundInfo = (function () {
 /// <reference path="routes/ActivityAdmin.ts"/>
 /// <reference path="routes/PlayerPanelHandle.ts"/>
 /// <reference path="routes/StagePanelHandle.ts"/>
+/// <reference path="routes/ActivityPanelHandle.ts"/>
 /// <reference path="models/DbInfo.ts"/>
 /// <reference path="models/PanelInfo.ts"/>
 /// <reference path="models/RoundInfo.ts"/>
@@ -1851,7 +1838,7 @@ var HttpServer = (function () {
         app.post('/admin/activity/getActPlayer', urlencodedParser, ActivityAdmin.getActivityPlayerArr);
         app.post('/admin/game/genPrintPng', urlencodedParser, ActivityAdmin.genPrintPng);
         app.post('/admin/game/genRound', urlencodedParser, ActivityAdmin.genRound);
-        app.post('/op/act/', urlencodedParser, ActivityAdmin.opHandle);
+        app.post('/panel/act/op', urlencodedParser, ActivityPanelHandle.opHandle);
         app.post('/panel/player/op', urlencodedParser, PlayerPanelHandle.opHandle);
         app.post('/panel/stage/op', urlencodedParser, StagePanelHandle.opHandle);
         app.get('/panel/:id/:op', function (req, res) {
