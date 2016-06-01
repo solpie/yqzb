@@ -677,7 +677,7 @@ var StagePanel2 = (function (_super) {
         }, "score");
         btn.x = 820;
         btn.y = 150;
-        fxCtn.addChild(btn);
+        // fxCtn.addChild(btn);
         //key
         document.onkeydown = function (e) {
             var key = e.keyCode;

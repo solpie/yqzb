@@ -778,7 +778,7 @@ class StagePanel2 extends BasePanelView {
         }, "score");
         btn.x = 820;
         btn.y = 150;
-        fxCtn.addChild(btn);
+        // fxCtn.addChild(btn);
 
         //key
         document.onkeydown = (e)=> {
