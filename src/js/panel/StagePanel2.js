@@ -180,12 +180,14 @@ var StagePanel2 = (function (_super) {
             leftScoreNum.x = bg.x + 230;
             leftScoreNum.y = bg.y + 48;
             this.leftScoreLabel = leftScoreNum;
+            this.leftScoreLabelX = leftScoreNum.x;
             ctnMove.addChild(leftScoreNum);
             var rightScoreNum = new createjs.BitmapText("0", sheet);
             rightScoreNum.letterSpacing = -2;
             rightScoreNum.x = bg.x + 390;
             rightScoreNum.y = leftScoreNum.y;
             this.rightScoreLabel = rightScoreNum;
+            this.rightScoreLabelX = rightScoreNum.x;
             ctnMove.addChild(rightScoreNum);
         }
         {
@@ -809,6 +811,11 @@ var StagePanel2 = (function (_super) {
     };
     StagePanel2.prototype.setLeftScore = function (leftScore) {
         this.leftScoreLabel.text = leftScore + "";
+        if (leftScore > 9)
+            this.leftScoreLabel.x = this.leftScoreLabelX - 18;
+        else
+            this.leftScoreLabel.x = this.leftScoreLabelX;
+        console.log("LeftScoreLabel width:", this.leftScoreLabel.getBounds().width);
         var len = this.leftCircleArr.length;
         for (var i = 0; i < this.leftCircleArr.length; i++) {
             if (i < leftScore) {
@@ -831,6 +838,10 @@ var StagePanel2 = (function (_super) {
             .to({ alpha: 1 }, blink);
     };
     StagePanel2.prototype.setRightScore = function (rightScore) {
+        if (rightScore > 9)
+            this.rightScoreLabel.x = this.rightScoreLabelX - 18;
+        else
+            this.rightScoreLabel.x = this.rightScoreLabelX;
         this.rightScoreLabel.text = rightScore + "";
         var len = this.rightCircleArr.length;
         for (var i = 0; i < len; i++) {

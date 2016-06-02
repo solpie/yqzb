@@ -16,7 +16,9 @@ class StagePanel2 extends BasePanelView {
     leftCircleArr:any;
     rightCircleArr:any;
     leftScoreLabel:any;
+    leftScoreLabelX:number;
     rightScoreLabel:any;
+    rightScoreLabelX:number;
     curSelectCtn:any;
     // time = 0;
     gameId:number;
@@ -221,6 +223,7 @@ class StagePanel2 extends BasePanelView {
             leftScoreNum.x = bg.x + 230;
             leftScoreNum.y = bg.y + 48;
             this.leftScoreLabel = leftScoreNum;
+            this.leftScoreLabelX = leftScoreNum.x;
             ctnMove.addChild(leftScoreNum);
 
             var rightScoreNum = new createjs.BitmapText("0", sheet);
@@ -228,6 +231,7 @@ class StagePanel2 extends BasePanelView {
             rightScoreNum.x = bg.x + 390;
             rightScoreNum.y = leftScoreNum.y;
             this.rightScoreLabel = rightScoreNum;
+            this.rightScoreLabelX = rightScoreNum.x;
             ctnMove.addChild(rightScoreNum);
         }
 
@@ -407,7 +411,7 @@ class StagePanel2 extends BasePanelView {
             this.initOp();
         }
         if (param) {
-            console.log('init param',param.unLimitScore);
+            console.log('init param', param.unLimitScore);
             vue.isUnLimitScore = param.unLimitScore;
             this.initPlayerIdArr(param.playerIdArr);
             this.setLeftScore(param.leftScore);
@@ -928,6 +932,11 @@ class StagePanel2 extends BasePanelView {
 
     setLeftScore(leftScore) {
         this.leftScoreLabel.text = leftScore + "";
+        if (leftScore > 9)
+            this.leftScoreLabel.x = this.leftScoreLabelX - 18;
+        else
+            this.leftScoreLabel.x = this.leftScoreLabelX;
+        console.log("LeftScoreLabel width:", this.leftScoreLabel.getBounds().width);
         var len = this.leftCircleArr.length;
 
         for (var i = 0; i < this.leftCircleArr.length; i++) {
@@ -955,6 +964,10 @@ class StagePanel2 extends BasePanelView {
     }
 
     setRightScore(rightScore) {
+        if (rightScore > 9)
+            this.rightScoreLabel.x = this.rightScoreLabelX - 18;
+        else
+            this.rightScoreLabel.x = this.rightScoreLabelX;
         this.rightScoreLabel.text = rightScore + "";
         var len = this.rightCircleArr.length;
         for (var i = 0; i < len; i++) {
