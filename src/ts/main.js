@@ -554,6 +554,7 @@ var YuanqiTvView = (function () {
 var serverConf = {
     host: "localhost",
     port: 8086,
+    webPort: 80,
     staticPath: "."
 };
 /// <reference path="../../utils/JSONFile.ts"/>
@@ -612,6 +613,7 @@ var PlayerAdmin = (function () {
         newData.eloScore = parseInt(data.eloScore);
         newData.style = parseInt(data.style);
         newData.name = data.name;
+        newData.realName = data.realName;
         newData.activityId = parseInt(data.activityId);
         return newData;
     };
@@ -621,18 +623,12 @@ var PlayerAdmin = (function () {
         console.log('updatePlayer req:', JSON.stringify(req.body));
         var playerId = parseInt(req.body.id);
         var updateData = PlayerAdmin.makeRightType(req.body);
-        // updateData.phone = parseInt(req.body.phone);
-        // updateData.weight = parseInt(req.body.weight);
-        // updateData.height = parseInt(req.body.height);
-        // updateData.eloScore = parseInt(req.body.eloScore);
-        // updateData.style = parseInt(req.body.style);
-        // updateData.name = req.body.name;
-        // updateData.activityId = parseInt(req.body.activityId);
         function updateToDb(data) {
             console.log('updatePlayer data:', JSON.stringify(data));
-            dbPlayerInfo().update({ id: playerId }, { $set: data }, {}, function (err, doc) {
+            db.player.ds().update({ id: playerId }, { $set: data }, {}, function (err, doc) {
                 if (!err) {
                     console.log('db data:', JSON.stringify(doc));
+                    db.player.syncDataMap();
                     res.send("sus");
                 }
                 else {
@@ -755,7 +751,7 @@ var ActivityAdmin = (function () {
         actData.round = db.activity.getIdNew();
         for (var i = 0; i < actData.gameDataArr.length; i++) {
             var gameData = actData.gameDataArr[i];
-            gameData.id = actData.round * db.activity.getGameIdBase(actData.round) + i;
+            gameData.id = db.activity.getGameIdBase(actData.round) + i;
             actData.section = gameData.section;
         }
         console.log('gen activity ', JSON.stringify(actData));
@@ -1107,9 +1103,14 @@ var PlayerDB = (function (_super) {
         });
     };
     PlayerDB.prototype.getActivityPlayerDataArr = function (actId, callback) {
-        this.dataStore.find({ $not: { id: 0 }, activityId: actId }).sort({ eloScore: 1 }).exec(function (err, docs) {
+        this.dataStore.find({ $not: { id: 0 }, activityId: actId })
+            .sort({ eloScore: -1 })
+            .exec(function (err, docs) {
             callback(err, docs);
         });
+        // this.dataStore.find({$not: {id: 0}, activityId: actId}).sort({eloScore: 1}).exec(function (err, docs) {
+        //     callback(err, docs);
+        // });
     };
     PlayerDB.prototype.getPlayerDataMapByIdArr = function (idArr, callback) {
         this.dataStore.find({ '$or': idArr }, function (err, docs) {
@@ -1901,7 +1902,15 @@ var HttpServer = (function () {
     function HttpServer() {
         var _this = this;
         this.initEnv(function () {
-            _this.initWebServer();
+            jsonfile.readFile(pathEx("config.json"), null, function (err, confData) {
+                if (confData.server['host'])
+                    serverConf.host = confData.server['host'];
+                if (confData.server['wsPort'])
+                    serverConf.port = confData.server['wsPort'];
+                if (confData.server['port'])
+                    serverConf.webPort = confData.server['port'];
+                _this.initWebServer();
+            });
         });
     }
     HttpServer.prototype.getIPAddress = function () {
@@ -2019,9 +2028,9 @@ var HttpServer = (function () {
         //setup the web server
         app.server = http.createServer(app);
         //listen up
-        app.server.listen(80, function () {
+        app.server.listen(serverConf.webPort, function () {
             //and... we're live
-            console.log("wshost:", serverConf.host, "ws port:", serverConf.port);
+            console.log("host:", serverConf.host, ":", serverConf.webPort, "  ws port:", serverConf.port);
         });
         this.initWebSocket();
         this.handleOp();
@@ -2152,13 +2161,14 @@ var HttpServer = (function () {
 var cmd = new Command();
 var appInfo = new AppInfo();
 var server;
-jsonfile.readFile("config.json", null, function (err, confData) {
-    if (confData.server['host'])
-        serverConf.host = confData.server['host'];
-    if (confData.server['wsPort'])
-        serverConf.port = confData.server['wsPort'];
-    server = new HttpServer();
-});
+// jsonfile.readFile("config.json", null, (err, confData)=> {
+//     if (confData.server['host'])
+//         serverConf.host = confData.server['host'];
+//     if (confData.server['wsPort'])
+//         serverConf.port = confData.server['wsPort'];
+//     server = new HttpServer();
+// });
+server = new HttpServer();
 var app;
 appInfo.isServer = true;
 appInfo.savePlayerInfo = function (playerInfo) {

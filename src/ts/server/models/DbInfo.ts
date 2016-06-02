@@ -237,9 +237,14 @@ class PlayerDB extends BaseDB {
     }
 
     getActivityPlayerDataArr(actId, callback) {
-        this.dataStore.find({$not: {id: 0}, activityId: actId}).sort({eloScore: 1}).exec(function (err, docs) {
+        this.dataStore.find({$not: {id: 0}, activityId: actId})
+            .sort({eloScore: -1})
+            .exec(function (err, docs) {
             callback(err, docs);
         });
+        // this.dataStore.find({$not: {id: 0}, activityId: actId}).sort({eloScore: 1}).exec(function (err, docs) {
+        //     callback(err, docs);
+        // });
     }
 
     getPlayerDataMapByIdArr(idArr, callback) {

@@ -84,7 +84,7 @@ class ActivityAdmin {
         actData.round = db.activity.getIdNew();
         for (var i = 0; i < actData.gameDataArr.length; i++) {
             var gameData = actData.gameDataArr[i];
-            gameData.id = actData.round * db.activity.getGameIdBase(actData.round) + i;
+            gameData.id = db.activity.getGameIdBase(actData.round) + i;
             actData.section = gameData.section;
         }
         console.log('gen activity ', JSON.stringify(actData));

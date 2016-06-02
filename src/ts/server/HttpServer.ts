@@ -112,7 +112,7 @@ class HttpServer {
         app.post('/admin/game/genPrintPng', urlencodedParser, ActivityAdmin.genPrintPng);
         app.post('/admin/game/genRound', urlencodedParser, ActivityAdmin.genRound);
         app.post('/admin/game/add', urlencodedParser, ActivityAdmin.addGame);
-        
+
         app.post('/panel/act/op', urlencodedParser, ActivityPanelHandle.opHandle);
         app.post('/panel/player/op', urlencodedParser, PlayerPanelHandle.opHandle);
         app.post('/panel/stage/op', urlencodedParser, StagePanelHandle.opHandle);
@@ -148,9 +148,9 @@ class HttpServer {
 //setup the web server
         app.server = http.createServer(app);
         //listen up
-        app.server.listen(80, ()=> {
+        app.server.listen(serverConf.webPort, ()=> {
             //and... we're live
-            console.log("wshost:", serverConf.host, "ws port:", serverConf.port);
+            console.log("host:", serverConf.host, ":", serverConf.webPort, "  ws port:", serverConf.port);
         });
 
 
@@ -160,7 +160,15 @@ class HttpServer {
 
     constructor() {
         this.initEnv(()=> {
-            this.initWebServer();
+            jsonfile.readFile(pathEx("config.json"), null, (err, confData)=> {
+                if (confData.server['host'])
+                    serverConf.host = confData.server['host'];
+                if (confData.server['wsPort'])
+                    serverConf.port = confData.server['wsPort'];
+                if (confData.server['port'])
+                    serverConf.webPort = confData.server['port'];
+                this.initWebServer();
+            });
         });
     }
 

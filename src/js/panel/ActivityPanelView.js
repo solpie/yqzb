@@ -239,7 +239,7 @@ var ActivityPanelView = (function (_super) {
                 gameCount.x = item.x + 495;
                 gameCount.y = nameLabel.y;
                 _this.ctn.addChild(gameCount);
-                var winPercent = new createjs.Text((playerData.winpercent * 100).toFixed(2) + "%", "28px Arial", "#fff");
+                var winPercent = new createjs.Text(((playerData.winpercent || 0) * 100).toFixed(2) + "%", "28px Arial", "#fff");
                 winPercent.textAlign = 'center';
                 winPercent.x = item.x + 710;
                 winPercent.y = nameLabel.y;

@@ -32,6 +32,7 @@ var sortCompare = function (prop) {
 var serverConf = {
     host: "localhost",
     port: 8086,
+    webPort: 80,
     staticPath: "."
 };
 var EventDispatcher = (function () {

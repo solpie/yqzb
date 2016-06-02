@@ -9,13 +9,16 @@ var appInfo = new AppInfo();
 
 
 var server;
-jsonfile.readFile("config.json", null, (err, confData)=> {
-    if (confData.server['host'])
-        serverConf.host = confData.server['host'];
-    if (confData.server['wsPort'])
-        serverConf.port = confData.server['wsPort'];
-    server = new HttpServer();
-});
+// jsonfile.readFile("config.json", null, (err, confData)=> {
+//     if (confData.server['host'])
+//         serverConf.host = confData.server['host'];
+//     if (confData.server['wsPort'])
+//         serverConf.port = confData.server['wsPort'];
+//     server = new HttpServer();
+// });
+
+server = new HttpServer();
+
 
 var app:YuanqiTvView;
 appInfo.isServer = true;

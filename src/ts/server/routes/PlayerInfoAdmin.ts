@@ -55,6 +55,7 @@ class PlayerAdmin {
         newData.eloScore = parseInt(data.eloScore);
         newData.style = parseInt(data.style);
         newData.name = data.name;
+        newData.realName = data.realName;
         newData.activityId = parseInt(data.activityId);
         return newData;
     }
@@ -64,18 +65,12 @@ class PlayerAdmin {
         console.log('updatePlayer req:', JSON.stringify(req.body));
         var playerId = parseInt(req.body.id);
         var updateData:any = PlayerAdmin.makeRightType(req.body);
-        // updateData.phone = parseInt(req.body.phone);
-        // updateData.weight = parseInt(req.body.weight);
-        // updateData.height = parseInt(req.body.height);
-        // updateData.eloScore = parseInt(req.body.eloScore);
-        // updateData.style = parseInt(req.body.style);
-        // updateData.name = req.body.name;
-        // updateData.activityId = parseInt(req.body.activityId);
         function updateToDb(data) {
             console.log('updatePlayer data:', JSON.stringify(data));
-            dbPlayerInfo().update({id: playerId}, {$set: data}, {}, function (err, doc) {
+            db.player.ds().update({id: playerId}, {$set: data}, {}, function (err, doc) {
                 if (!err) {
                     console.log('db data:', JSON.stringify(doc));
+                    db.player.syncDataMap();
                     res.send("sus");
                 }
                 else {
