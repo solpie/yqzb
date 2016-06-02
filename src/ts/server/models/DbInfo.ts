@@ -116,7 +116,7 @@ class ActivityDB extends BaseDB {
                 //
                 // }
                 var gameData:any = {};
-                gameData.id = this.getGameIdBase(activityId) + doc.gameDataArr.length;
+                gameData.id = this.getGameIdBase(roundId) + doc.gameDataArr.length;
                 gameData.playerIdArr = playerIdArr;
                 gameData.section = section;
                 doc.gameDataArr.push(gameData);

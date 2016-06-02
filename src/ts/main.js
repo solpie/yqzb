@@ -318,6 +318,8 @@ var CommandId;
     CommandId[CommandId["fadeInRankPanel"] = 100055] = "fadeInRankPanel";
     CommandId[CommandId["cs_fadeOutRankPanel"] = 100056] = "cs_fadeOutRankPanel";
     CommandId[CommandId["fadeOutRankPanel"] = 100057] = "fadeOutRankPanel";
+    //db op
+    CommandId[CommandId["cs_findPlayerData"] = 100058] = "cs_findPlayerData";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {
@@ -798,6 +800,32 @@ var PlayerPanelHandle = (function () {
     };
     return PlayerPanelHandle;
 }());
+var DbHandle = (function () {
+    function DbHandle() {
+    }
+    DbHandle.opHandle = function (req, res) {
+        if (!req.body)
+            return res.sendStatus(400);
+        console.log('opHandle', JSON.stringify(req.body));
+        var reqCmd = req.body.cmd;
+        var param = req.body.param;
+        if (reqCmd === CommandId.cs_findPlayerData) {
+            var playerDataArr = [];
+            var playerDataMap = {};
+            for (var _i = 0, _a = param.playerIdArr; _i < _a.length; _i++) {
+                var playerId = _a[_i];
+                playerDataArr.push(db.player.dataMap[playerId]);
+                playerDataMap[playerId] = db.player.dataMap[playerId];
+            }
+            playerDataArr.sort(sortCompare('eloScore'));
+            res.send({ playerDataArr: playerDataArr, playerDataMap: playerDataMap });
+        }
+        else {
+            res.sendStatus(400);
+        }
+    };
+    return DbHandle;
+}());
 var StagePanelHandle = (function () {
     function StagePanelHandle() {
     }
@@ -981,7 +1009,7 @@ var ActivityDB = (function (_super) {
                 //
                 // }
                 var gameData = {};
-                gameData.id = _this.getGameIdBase(activityId) + doc.gameDataArr.length;
+                gameData.id = _this.getGameIdBase(roundId) + doc.gameDataArr.length;
                 gameData.playerIdArr = playerIdArr;
                 gameData.section = section;
                 doc.gameDataArr.push(gameData);
@@ -1890,6 +1918,7 @@ var RoundInfo = (function () {
 /// <reference path="routes/PlayerInfoAdmin.ts"/>
 /// <reference path="routes/ActivityAdmin.ts"/>
 /// <reference path="routes/PlayerPanelHandle.ts"/>
+/// <reference path="routes/DbHandle.ts"/>
 /// <reference path="routes/StagePanelHandle.ts"/>
 /// <reference path="routes/ActivityPanelHandle.ts"/>
 /// <reference path="models/DbInfo.ts"/>
@@ -2000,6 +2029,7 @@ var HttpServer = (function () {
         app.post('/panel/act/op', urlencodedParser, ActivityPanelHandle.opHandle);
         app.post('/panel/player/op', urlencodedParser, PlayerPanelHandle.opHandle);
         app.post('/panel/stage/op', urlencodedParser, StagePanelHandle.opHandle);
+        app.post('/db/player/op', urlencodedParser, DbHandle.opHandle);
         app.get('/panel/:id/:op', function (req, res) {
             var pid = req.params.id;
             var op = req.params.op;

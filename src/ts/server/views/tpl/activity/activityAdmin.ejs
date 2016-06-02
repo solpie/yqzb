@@ -197,7 +197,6 @@
         map[4] = "山"
         function addName(start, posY, styleY) {
             console.log("preview setting:", vue.nameSize, vue.nameX, vue.nameY);
-
 //            var gameIdLabel = new createjs.Text(vue.selGameId, "30px Arial", "#000");
 //            gameIdLabel.textAlign = 'center';
 //            gameIdLabel.x = 220;
@@ -207,8 +206,6 @@
             var invertY = 80;
             for (var i = start; i < start + 4; i++) {
                 var player = playerDataArr[i];
-
-
 
                 var playerName = new createjs.Text(player.name, "30px Arial", "#000");
                 playerName.textAlign = 'center';

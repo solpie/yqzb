@@ -5,6 +5,7 @@
 /// <reference path="routes/PlayerInfoAdmin.ts"/>
 /// <reference path="routes/ActivityAdmin.ts"/>
 /// <reference path="routes/PlayerPanelHandle.ts"/>
+/// <reference path="routes/DbHandle.ts"/>
 /// <reference path="routes/StagePanelHandle.ts"/>
 /// <reference path="routes/ActivityPanelHandle.ts"/>
 /// <reference path="models/DbInfo.ts"/>
@@ -116,7 +117,10 @@ class HttpServer {
         app.post('/panel/act/op', urlencodedParser, ActivityPanelHandle.opHandle);
         app.post('/panel/player/op', urlencodedParser, PlayerPanelHandle.opHandle);
         app.post('/panel/stage/op', urlencodedParser, StagePanelHandle.opHandle);
-
+        
+        app.post('/db/player/op', urlencodedParser, DbHandle.opHandle);
+        
+        
 
         app.get('/panel/:id/:op', function (req, res) {
             var pid = req.params.id;

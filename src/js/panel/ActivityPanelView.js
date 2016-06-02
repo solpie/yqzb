@@ -42,9 +42,13 @@ var ActivityPanelView = (function (_super) {
     ActivityPanelView.prototype.initVue = function () {
         var showGame;
         var fadeInGameArr;
+        var selectedSection;
+        var selectedActivityId;
+        var selectedRoundId;
         var vue = new Vue({
             el: '#panel',
             data: {
+                matchGameArr: [],
                 showGameArr: [],
                 playerIdArr: [],
                 roundDataArr: [],
@@ -66,19 +70,13 @@ var ActivityPanelView = (function (_super) {
             },
             methods: {
                 onClkMatch: function () {
+                    if (!this.showGameArr || !this.showGameArr.length)
+                        return alert("没有赛程数据");
                     var gameArr = this.showGameArr.concat();
                     var teamMap = {};
-                    function getLeftTeam(playerIdArr) {
+                    function getTeam(playerIdArr, start) {
                         var teamIdArr = [];
-                        for (var i = 0; i < 4; i++) {
-                            var playerId = playerIdArr[i];
-                            teamIdArr.push(playerId);
-                        }
-                        return teamIdArr;
-                    }
-                    function getRightTeam(playerIdArr) {
-                        var teamIdArr = [];
-                        for (var i = 4; i < 8; i++) {
+                        for (var i = start; i < 4 + start; i++) {
                             var playerId = playerIdArr[i];
                             teamIdArr.push(playerId);
                         }
@@ -86,13 +84,61 @@ var ActivityPanelView = (function (_super) {
                     }
                     for (var i = 0; i < gameArr.length; i++) {
                         var gameData = gameArr[i];
-                        var leftTeam = getLeftTeam(gameData.playerIdArr);
-                        var rightTeam = getRightTeam(gameData.playerIdArr);
+                        var leftTeam = getTeam(gameData.playerIdArr, 0);
+                        var rightTeam = getTeam(gameData.playerIdArr, 4);
                         teamMap[JSON.stringify(leftTeam)] = leftTeam;
-                        teamMap[JSON.stringify(rightTeam)] = leftTeam;
+                        teamMap[JSON.stringify(rightTeam)] = rightTeam;
                     }
-                    for (var team in teamMap) {
-                        console.log(JSON.stringify(team));
+                    var teamArr = [];
+                    var playerIdArrAll = [];
+                    for (var key in teamMap) {
+                        var playerIdArr = teamMap[key];
+                        playerIdArrAll = playerIdArrAll.concat(playerIdArr);
+                        teamArr.push(playerIdArr);
+                        console.log(JSON.stringify(playerIdArr));
+                    }
+                    //队伍混合 计算平均分 排两场
+                    function mixTeam(playerIdArrA, playerIdArrB) {
+                        // console.log(playerIdArrA);
+                        var tmp;
+                        tmp = playerIdArrA[1];
+                        playerIdArrA[1] = playerIdArrB[1];
+                        playerIdArrB[1] = tmp;
+                        tmp = playerIdArrA[3];
+                        playerIdArrA[3] = playerIdArrB[3];
+                        playerIdArrB[3] = tmp;
+                        var gameData = { playerIdArr: playerIdArrA.concat(playerIdArrB) };
+                        gameData.activityId = selectedActivityId;
+                        gameData.roundId = selectedRoundId;
+                        gameData.section = selectedSection;
+                        console.log("mixTeam GameData:", JSON.stringify(gameData));
+                        return gameData;
+                    }
+                    this.$http.post('/db/player/op', {
+                        cmd: CommandId.cs_findPlayerData,
+                        param: { playerIdArr: playerIdArrAll }
+                    })
+                        .then(function (res) {
+                        console.log("/db/player/op", res.data);
+                        var playerDataArr = res.data.playerDataArr; //eloScore low at 0
+                        var playerDataMap = res.data.playerDataMap; //eloScore low at 0
+                        var gameDataArr = [];
+                        gameDataArr.push(mixTeam(teamArr[0], teamArr[1]));
+                        gameDataArr.push(mixTeam(teamArr[2], teamArr[3]));
+                        //
+                        for (var i = 0; i < teamArr.length; i++) {
+                            var playerIdArr = teamArr[i];
+                        }
+                        vue.matchGameArr = gameDataArr;
+                        console.log(teamArr);
+                    });
+                },
+                onClkAddMatchGame: function () {
+                    for (var i = 0; i < vue.matchGameArr.length; i++) {
+                        var gameData = vue.matchGameArr[i];
+                        this.$http.post("/admin/game/add", { gameData: gameData }).then(function (res) {
+                            console.log('/admin/game/add', res.data);
+                        });
                     }
                 },
                 selectSection: function (start) {
@@ -115,10 +161,14 @@ var ActivityPanelView = (function (_super) {
                             low.push(gameData);
                         }
                     }
-                    if (start > 0)
+                    if (start > 0) {
+                        selectedSection = 1;
                         tmp = low;
-                    else
+                    }
+                    else {
+                        selectedSection = 0;
                         tmp = high;
+                    }
                     this.showGameArr = tmp;
                 },
                 onClkStartGame: function () {
@@ -144,9 +194,6 @@ var ActivityPanelView = (function (_super) {
                 },
                 onClkReset: function () {
                     this.showGameArr = [];
-                },
-                onClkAddGame: function () {
-                    // this.showGameArr.push(this.playerIdArr.concat());
                 },
                 onClkFadeInRank: function () {
                     if (this.selected < 1) {
@@ -204,11 +251,12 @@ var ActivityPanelView = (function (_super) {
                     }
                 },
                 onRoundSelected: function () {
-                    console.log('round change', this.roundSelected);
                     console.log(vue.roundDataArr[this.roundSelected]);
                     vue.gameOptionArr = [];
                     var high = [];
                     var low = [];
+                    selectedRoundId = vue.roundDataArr[this.roundSelected].round;
+                    console.log('round change', this.roundSelected, selectedRoundId);
                     for (var i = 0; i < vue.roundDataArr[this.roundSelected].gameDataArr.length; i++) {
                         var selGame = vue.roundDataArr[this.roundSelected].gameDataArr[i];
                         var optionData = { value: i, text: ' id:' + selGame.id };
@@ -229,6 +277,7 @@ var ActivityPanelView = (function (_super) {
                 onGetDateArr: function () {
                     console.log('activity change');
                     var actId = parseInt(this.selected);
+                    selectedActivityId = actId;
                     this.$http.post('/panel/act/op', { cmd: 'query', param: actId }).then(function (res) {
                         vue.roundDataArr = res.data;
                         vue.roundOptionArr = [];

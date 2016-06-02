@@ -166,6 +166,8 @@ var CommandId;
     CommandId[CommandId["fadeInRankPanel"] = 100055] = "fadeInRankPanel";
     CommandId[CommandId["cs_fadeOutRankPanel"] = 100056] = "cs_fadeOutRankPanel";
     CommandId[CommandId["fadeOutRankPanel"] = 100057] = "fadeOutRankPanel";
+    //db op
+    CommandId[CommandId["cs_findPlayerData"] = 100058] = "cs_findPlayerData";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {

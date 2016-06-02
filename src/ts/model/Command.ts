@@ -67,7 +67,8 @@ enum CommandId{
     fadeInRankPanel,
     cs_fadeOutRankPanel,
     fadeOutRankPanel,
-
+    //db op
+    cs_findPlayerData,
 }
 class CommandItem {
     id:number;

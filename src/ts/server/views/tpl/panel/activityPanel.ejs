@@ -23,7 +23,6 @@
         </option>
     </select>
 
-    <input type="button" value="addGame" @click="onClkAddGame"/>
     <input type="button" value="下半区" @click="onClkAddLowSection"/>
     <input type="button" value="上半区" @click="onClkAddHighSection"/>
     <input type="button" value="reset" @click="onClkReset"/>
@@ -32,6 +31,7 @@
 
 
     <input type="button" value="半区匹配" @click="onClkMatch"/>
+    <input type="button" value="添加匹配赛" @click="onClkAddMatchGame"/>
 
     <ul style="left: 500px;width: 300px;position: inherit;">
         <input class="OpButton" type="button" value="fadeIn" @click="onClkFadeIn"/>
@@ -48,6 +48,7 @@
     </ul>
     赛程数据：
     <pre id="raw">{{showGameArr | json}}</pre>
+    <pre id="raw2" style="position:fixed;left:850px;top:80px;z-index: 10">{{matchGameArr | json}}</pre>
 </div>
 <div class="Preloader" style="display: none">
     <img src="/img/panel/act/bg.png">
