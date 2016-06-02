@@ -111,6 +111,7 @@ class HttpServer {
         app.post('/admin/activity/getActPlayer', urlencodedParser, ActivityAdmin.getActivityPlayerArr);
         app.post('/admin/game/genPrintPng', urlencodedParser, ActivityAdmin.genPrintPng);
         app.post('/admin/game/genRound', urlencodedParser, ActivityAdmin.genRound);
+        app.post('/admin/game/add', urlencodedParser, ActivityAdmin.addGame);
         
         app.post('/panel/act/op', urlencodedParser, ActivityPanelHandle.opHandle);
         app.post('/panel/player/op', urlencodedParser, PlayerPanelHandle.opHandle);

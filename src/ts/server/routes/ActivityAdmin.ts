@@ -1,14 +1,32 @@
 class ActivityAdmin {
     static index(req, res) {
         var actId = req.params.id;
-        var data = {activityId: actId, lastRound: db.activity.config.idUsed, roundData: 'null'};
+        var data = {
+            activityId: actId,
+            lastRound: db.activity.config.idUsed,
+            roundData: 'null',
+            round: 0,
+            playerMap: "{}"
+        };
         res.render('activity/activityAdmin', data);
     }
 
     static round(req, res) {
         var actId = req.params.id;
         var roundId:number = parseInt(req.params.round);
-        var data:any = {activityId: actId, lastRound: db.activity.config.idUsed};
+
+        db.activity.getDataByRound(roundId, (err, doc)=> {
+            if (doc && doc.length) {
+
+            }
+        });
+
+        var data:any = {
+            activityId: actId,
+            lastRound: db.activity.config.idUsed,
+            round: roundId,
+            playerMap: JSON.stringify(db.player.dataMap)
+        };
         if (roundId) {
             db.activity.ds().find({round: roundId}, function (err, docs) {
                 if (!err) {
@@ -34,7 +52,6 @@ class ActivityAdmin {
         else {
             res.send('没有轮');
         }
-
     }
 
     static genPrintPng(req, res) {
@@ -43,18 +60,37 @@ class ActivityAdmin {
         })
     }
 
+    static addGame(req, res) {
+        if (!req.body) return res.sendStatus(400);
+        var gameData = req.body.gameData;
+        console.log("addGame req", JSON.stringify(req.body));
+        db.activity.addGame(gameData.activityId,
+            gameData.roundId,
+            gameData.playerIdArr,
+            gameData.section,
+            function (sus) {
+                if (sus) {
+                    res.sendStatus(200);
+                }
+                else {
+                    res.sendStatus(400);
+                }
+            })
+    }
+
     static genRound(req, res) {
         if (!req.body) return res.sendStatus(400);
         var actData:any = req.body.activityData;
         actData.round = db.activity.getIdNew();
         for (var i = 0; i < actData.gameDataArr.length; i++) {
             var gameData = actData.gameDataArr[i];
-            gameData.id = actData.round * 1000 + i;
+            gameData.id = actData.round * db.activity.getGameIdBase(actData.round) + i;
+            actData.section = gameData.section;
         }
         console.log('gen activity ', JSON.stringify(actData));
         db.activity.addRound(actData, (err, newdoc)=> {
             //todo return gameId to client
-            res.send(err);
+            res.send({roundId: actData.round});
         });
         // db.game.addGame();
     }

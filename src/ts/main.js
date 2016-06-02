@@ -679,13 +679,28 @@ var ActivityAdmin = (function () {
     }
     ActivityAdmin.index = function (req, res) {
         var actId = req.params.id;
-        var data = { activityId: actId, lastRound: db.activity.config.idUsed, roundData: 'null' };
+        var data = {
+            activityId: actId,
+            lastRound: db.activity.config.idUsed,
+            roundData: 'null',
+            round: 0,
+            playerMap: "{}"
+        };
         res.render('activity/activityAdmin', data);
     };
     ActivityAdmin.round = function (req, res) {
         var actId = req.params.id;
         var roundId = parseInt(req.params.round);
-        var data = { activityId: actId, lastRound: db.activity.config.idUsed };
+        db.activity.getDataByRound(roundId, function (err, doc) {
+            if (doc && doc.length) {
+            }
+        });
+        var data = {
+            activityId: actId,
+            lastRound: db.activity.config.idUsed,
+            round: roundId,
+            playerMap: JSON.stringify(db.player.dataMap)
+        };
         if (roundId) {
             db.activity.ds().find({ round: roundId }, function (err, docs) {
                 if (!err) {
@@ -717,6 +732,20 @@ var ActivityAdmin = (function () {
             res.send('/img/cache/game.png');
         });
     };
+    ActivityAdmin.addGame = function (req, res) {
+        if (!req.body)
+            return res.sendStatus(400);
+        var gameData = req.body.gameData;
+        console.log("addGame req", JSON.stringify(req.body));
+        db.activity.addGame(gameData.activityId, gameData.roundId, gameData.playerIdArr, gameData.section, function (sus) {
+            if (sus) {
+                res.sendStatus(200);
+            }
+            else {
+                res.sendStatus(400);
+            }
+        });
+    };
     ActivityAdmin.genRound = function (req, res) {
         if (!req.body)
             return res.sendStatus(400);
@@ -724,12 +753,13 @@ var ActivityAdmin = (function () {
         actData.round = db.activity.getIdNew();
         for (var i = 0; i < actData.gameDataArr.length; i++) {
             var gameData = actData.gameDataArr[i];
-            gameData.id = actData.round * 1000 + i;
+            gameData.id = actData.round * db.activity.getGameIdBase(actData.round) + i;
+            actData.section = gameData.section;
         }
         console.log('gen activity ', JSON.stringify(actData));
         db.activity.addRound(actData, function (err, newdoc) {
             //todo return gameId to client
-            res.send(err);
+            res.send({ roundId: actData.round });
         });
         // db.game.addGame();
     };
@@ -851,9 +881,6 @@ var db;
 function dbPlayerInfo() {
     return db.player.dataStore;
 }
-function dbActivityInfo() {
-    return db.activity;
-}
 // var Document = require('camo').Document;
 var Datastore = require('nedb');
 var BaseDB = (function () {
@@ -929,6 +956,52 @@ var ActivityDB = (function (_super) {
                 callback(err, newDoc);
         });
     };
+    ActivityDB.prototype.getGameIdBase = function (roundId) {
+        return roundId * 1000;
+    };
+    ActivityDB.prototype.getCurRound = function (callback) {
+        this.dataStore.find({ $not: { id: 0 } })
+            .sort({ round: -1 })
+            .exec(function (err, docs) {
+            callback(err, docs);
+        });
+    };
+    ActivityDB.prototype.addGame = function (activityId, roundId, playerIdArr, section, callback) {
+        var _this = this;
+        this.ds().findOne({ round: roundId }, function (err, doc) {
+            // this.ds().findOne({activityId: activityId, $and: {round: roundId}}, (err, doc) => {
+            console.log("findOne:", JSON.stringify(err), doc);
+            if (doc && doc.activityId === activityId) {
+                if (!doc.gameDataArr)
+                    doc.gameDataArr = [];
+                // if(RoundInfo.HIGH_SECTION)
+                // {
+                //
+                // }
+                var gameData = {};
+                gameData.id = _this.getGameIdBase(activityId) + doc.gameDataArr.length;
+                gameData.playerIdArr = playerIdArr;
+                gameData.section = section;
+                doc.gameDataArr.push(gameData);
+                console.log("update Round Data:", JSON.stringify(doc.gameDataArr.length));
+                console.log("update Round Data:", JSON.stringify(doc));
+                _this.ds().update({ round: roundId }, doc, {}, function (newNum) {
+                    console.log("addGame:", newNum);
+                    _this.syncDataMap();
+                    callback(true);
+                });
+            }
+            else {
+                console.log("no activity:", activityId, "round:", roundId);
+                callback(false);
+            }
+        });
+    };
+    ActivityDB.prototype.getDataByRound = function (roundId, callback) {
+        this.ds().findOne({ round: roundId }, function (err, doc) {
+            callback(err, doc);
+        });
+    };
     ActivityDB.prototype.getDateArrByActivityId = function (actId, callback) {
         this.dataStore.find({ activityId: actId }, function (err, docs) {
             for (var i = 0; i < docs.length; i++) {
@@ -952,9 +1025,10 @@ var GameDB = (function (_super) {
         _super.apply(this, arguments);
     }
     GameDB.prototype.startGame = function (gameData) {
+        var _this = this;
         this.ds().update({ id: gameData.id }, gameData, { upsert: true }, function (err, newDoc) {
+            _this.syncDataMap();
         });
-        this.syncDataMap();
     };
     GameDB.prototype.restartGame = function (gameId) {
         this.syncDataMap();
@@ -1785,6 +1859,8 @@ var RoundInfo = (function () {
     function RoundInfo() {
         this.gameInfoArr = [];
     }
+    RoundInfo.HIGH_SECTION = 'high';
+    RoundInfo.LOW_SECTION = 'low';
     return RoundInfo;
 }());
 /**
@@ -1892,6 +1968,7 @@ var HttpServer = (function () {
         app.post('/admin/activity/getActPlayer', urlencodedParser, ActivityAdmin.getActivityPlayerArr);
         app.post('/admin/game/genPrintPng', urlencodedParser, ActivityAdmin.genPrintPng);
         app.post('/admin/game/genRound', urlencodedParser, ActivityAdmin.genRound);
+        app.post('/admin/game/add', urlencodedParser, ActivityAdmin.addGame);
         app.post('/panel/act/op', urlencodedParser, ActivityPanelHandle.opHandle);
         app.post('/panel/player/op', urlencodedParser, PlayerPanelHandle.opHandle);
         app.post('/panel/stage/op', urlencodedParser, StagePanelHandle.opHandle);

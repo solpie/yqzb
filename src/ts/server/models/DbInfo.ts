@@ -12,9 +12,6 @@ var db:any;
 function dbPlayerInfo() {
     return db.player.dataStore;
 }
-function dbActivityInfo() {
-    return db.activity;
-}
 
 // var Document = require('camo').Document;
 var Datastore = require('nedb');
@@ -95,6 +92,55 @@ class ActivityDB extends BaseDB {
         })
     }
 
+    getGameIdBase(roundId) {
+        return roundId * 1000;
+    }
+
+    getCurRound(callback) {
+        this.dataStore.find({$not: {id: 0}})
+            .sort({round: -1})
+            .exec(function (err, docs) {
+                callback(err, docs);
+            });
+    }
+
+    addGame(activityId, roundId, playerIdArr, section, callback) {
+        this.ds().findOne({round: roundId}, (err, doc) => {
+            // this.ds().findOne({activityId: activityId, $and: {round: roundId}}, (err, doc) => {
+            console.log("findOne:", JSON.stringify(err), doc);
+            if (doc && doc.activityId === activityId) {
+                if (!doc.gameDataArr)
+                    doc.gameDataArr = [];
+                // if(RoundInfo.HIGH_SECTION)
+                // {
+                //
+                // }
+                var gameData:any = {};
+                gameData.id = this.getGameIdBase(activityId) + doc.gameDataArr.length;
+                gameData.playerIdArr = playerIdArr;
+                gameData.section = section;
+                doc.gameDataArr.push(gameData);
+                console.log("update Round Data:", JSON.stringify(doc.gameDataArr.length));
+                console.log("update Round Data:", JSON.stringify(doc));
+                this.ds().update({round: roundId}, doc, {}, (newNum) => {
+                    console.log("addGame:", newNum);
+                    this.syncDataMap();
+                    callback(true);
+                });
+            }
+            else {
+                console.log("no activity:", activityId, "round:", roundId);
+                callback(false)
+            }
+        })
+    }
+
+    getDataByRound(roundId, callback) {
+        this.ds().findOne({round: roundId}, (err, doc)=> {
+            callback(err, doc);
+        });
+    }
+
 
     getDateArrByActivityId(actId, callback) {
         this.dataStore.find({activityId: actId}, function (err, docs) {
@@ -117,8 +163,8 @@ class ActivityDB extends BaseDB {
 class GameDB extends BaseDB {
     startGame(gameData) {
         this.ds().update({id: gameData.id}, gameData, {upsert: true}, (err, newDoc) => {
+            this.syncDataMap();
         });
-        this.syncDataMap();
     }
 
     restartGame(gameId) {

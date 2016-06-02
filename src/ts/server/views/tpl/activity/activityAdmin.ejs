@@ -32,7 +32,7 @@
         }
 
         .Section {
-            border: 1px solid #ccc;
+            border-top: 1px solid #ccc;
         }
 
         li {
@@ -91,10 +91,27 @@
     </style>
 </head>
 <body style="display:inline;">
-<div id="app" style="width: 800px">
+<div id="app" style="position: absolute;width: 800px;z-index: 99">
     <button id="btnGen" type="button" class="btn btn-lg btn-default" @click="onGen">分区</button>
     <button id="btnGen" type="button" class="btn btn-lg btn-default" @click="onGenActivity">确定生成赛程</button>
-    <span>新一轮：<%= lastRound %></span>
+    <br>
+    第<span><%= round %></span>轮
+    <select v-model="sectionSelected">
+        <option v-for="option in sectionOptionArr" v-bind:value="option.value">
+            {{ option.text }}
+        </option>
+    </select>
+    <br>
+    <% for(var i = 0; i < 8; i++) { %>
+    <input v-model="playerIdArr[<%= i %>]" style="width: 50px"/>
+    <% } %>
+    <br>
+    <li v-for="playerId in playerIdArr" style="display: inline-block">
+        <img src="/img/player/{{playerId}}.png" style="width: 57px">
+    </li>
+    <br>
+
+    <input id="btnAddGame" type="button" class="btn btn-lg btn-default" value="添加比赛" @click="onAddGame"/>
     <item
             class="item"
             :model="sectionArr">
@@ -138,7 +155,7 @@
         </li>
     </div>
 </div>
-<div style="position: absolute;left: 450px;top: 0">
+<div style="position: absolute;left: 650px;top: 0;zoom: .8;">
     <canvas id="the-canvas"></canvas>
 </div>
 
@@ -151,7 +168,10 @@
 <script src="/js/client.js"></script>
 <script src="/js/pdf.js"></script>
 <script>
-    var activityId = parseInt('<%= activityId %>');
+    var activityId = <%- activityId %>;
+    var roundId = <%- round %>;
+    var playerMap = <%- playerMap %>;
+    var roundData = <%- roundData %>;
     var pdfData64;
     var stage;
     function genPrint(playerDataArr, py, py2) {
@@ -197,6 +217,14 @@
     var vue = new Vue({
         el: '#app',
         data: {
+            sectionSelected: 0,
+            sectionOptionArr: [
+                {text: "上半区", value: 0},
+                {text: "下半区", value: 1}
+            ],
+            playerMap: {},
+            playerIdArr: [11, 12, 10032, 10031, 10028, 10029, 10027, 10026],
+            gameData: {},
             showModal: false,
             lowSectionC: [],
             highSectionC: [],
@@ -205,6 +233,20 @@
             gameIdLow: 0
         },
         methods: {
+            onAddGame: function () {
+                //fixme use static RoundInfo.HIGH_SECTION
+                this.gameData = {
+                    activityId: activityId,
+                    section: this.sectionSelected,
+                    playerIdArr: this.playerIdArr,
+                    roundId: roundId
+                };
+                console.log('add game', JSON.stringify(this.gameData));
+
+                this.$http.post("/admin/game/add", {gameData: this.gameData}).then(function (res) {
+                    console.log('todo print!!!', res.data);
+                });
+            },
             combineTeam: function (arr, num) {
                 var r = [];
                 (function f(t, a, n) {
@@ -235,13 +277,17 @@
                                     gameData.playerIdArr.push(playerInfo.id());
                                 }
                             }
+                            gameData.section = idx;//high 0 low 1
                             activityData.gameDataArr.push(gameData);
                         }
                     }
                     console.log('onGenActivity data', activityData);
 
                     this.$http.post("/admin/game/genRound", {activityData: activityData}).then(function (res) {
-                        console.log('onGenActivity', res.data);
+                        if (res.ok) {
+                            window.location.href = activityData.activityId + '/' + res.data.roundId;
+                        }
+                        console.log('onGenActivity', JSON.stringify(res));
                     });
                 }
                 else {
@@ -289,27 +335,28 @@
 //                    console.log(res);
                     function getSection(playerDataArr, start) {
                         var playerData;
-                        var section = [];
+                        var teamInfoArr = [];
                         var teamInfo = new TeamInfo();
-                        teamInfo.name = "team" + (section.length + 1);
+                        teamInfo.name = "team" + (teamInfoArr.length + 1);
 
                         //low section
                         for (var i = start; i < start + 16; i++) {
                             playerData = playerDataArr[i];
                             if (teamInfo.length() == 4) {
-                                section.push(teamInfo);
+                                teamInfoArr.push(teamInfo);
                                 teamInfo = new TeamInfo();
-                                teamInfo.name = "team" + (section.length + 1);
+                                teamInfo.name = "team" + (teamInfoArr.length + 1);
                             }
                             teamInfo.push(new PlayerInfo(playerData));
 //                            console.log(playerData.name, 'elo score:', playerData.eloScore);
                         }
-                        section.push(teamInfo);
-                        return section;
+                        teamInfoArr.push(teamInfo);
+                        return teamInfoArr;
                     }
 
                     var lowSection = getSection(playerDataArr, 0);
                     var highSection = getSection(playerDataArr, 16);
+
                     this.sectionArr = [{idx: 0, name: '上半区：', teamArr: highSection, btnId: 'onGenHigh', gameArr: []},
                         {idx: 1, name: '下半区：', teamArr: lowSection, btnId: 'onGenLow', gameArr: []}]
                     //gen combine
@@ -320,10 +367,49 @@
                     gameArr.swap(1, 5);
                     this.sectionArr[1].gameArr = gameArr;
                 });
+            },
+            setSectionArr: function (lowSectionGameArr, highSectionGameArr) {
+                this.sectionArr = [{idx: 0, name: '上半区：', teamArr: [], btnId: 'onGenHigh', gameArr: highSectionGameArr},
+                    {idx: 1, name: '下半区：', teamArr: [], btnId: 'onGenLow', gameArr: lowSectionGameArr}]
             }
         }
     });
+    vue.playerMap = playerMap
+    if (roundData) {
+        var highSectionGameArr = [];
+        var lowSectionGameArr = [];
 
+        function getTeamInfoArr(gameData) {
+            var teamInfo = new TeamInfo();
+            teamInfo.name = 'team1'
+            var teamArr = [teamInfo];
+
+            for (var i = 0; i < gameData.playerIdArr.length; i++) {
+                var playerId = gameData.playerIdArr[i];
+                var playerInfo = new PlayerInfo(playerMap[playerId]);
+                teamInfo.push(playerInfo);
+                if (i === 3) {
+                    teamInfo = new TeamInfo()
+                    teamInfo.name = 'team2';
+                    teamArr.push(teamInfo);
+                }
+            }
+            return teamArr;
+        }
+
+        for (var i = 0; i < roundData.gameDataArr.length; i++) {
+            var gameData = roundData.gameDataArr[i];
+            if (gameData.section === 1) {
+                lowSectionGameArr.push(getTeamInfoArr(gameData));
+            }
+            else if (gameData.section === 0) {
+                highSectionGameArr.push(getTeamInfoArr(gameData));
+            }
+        }
+        vue.sectionArr = [{idx: 0, name: '上半区：', teamArr: [], btnId: 'onGenHigh', gameArr: highSectionGameArr},
+            {idx: 1, name: '下半区：', teamArr: [], btnId: 'onGenLow', gameArr: lowSectionGameArr}]
+
+    }
     PDFJS.getDocument('/img/gameSheet.pdf').then(function (pdf) {
         // Fetch the page.
         pdf.getPage(1).then(function (page) {
