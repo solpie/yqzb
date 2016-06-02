@@ -17,5 +17,9 @@ class StagePanelHandle {
             server.panel.stage.resetGame();
             res.sendStatus(200);
         }
+        else if (reqCmd === CommandId.cs_unLimitScore) {
+            server.panel.stage.setUnLimitScore(param);
+            res.sendStatus(200);
+        }
     }
 }

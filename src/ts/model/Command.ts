@@ -35,6 +35,8 @@ enum CommandId{
     notice,//小喇叭
     cs_notice,
     cs_resetGame,//重置比分 时间 player
+    cs_unLimitScore,//不限制比分显示
+    unLimitScore,//不限制比分显示
     //-----------------win panel
     fadeInWinPanel,
     cs_fadeInWinPanel,

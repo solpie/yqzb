@@ -31,7 +31,6 @@ interface JQuery {
     (selector:string): any;
 }
 
-export {$}
 declare var $:{
     get(val:string, func:any);
     (el:HTMLElement): JQuery;

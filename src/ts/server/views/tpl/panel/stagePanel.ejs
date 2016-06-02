@@ -58,6 +58,8 @@
     </div>
     <br> Mvp pos:<label id="txtMvpPos">0</label> <span>{{gameId}}</span>
     <br>
+    <input id="checkUnLimitScore" type="checkbox" v-model="isUnLimitScore" @click="onCheckUnLimitScore"/><label>无分数限制</label>
+
     <input id="btnShowWin" class="WinPanelButton" type="button" value="Show Win"/>
     <input id="btnHideWin" class="WinPanelButton" type="button" value="Hide Win"/>
     <input id="btnSaveGame" class="WinPanelButton" type="button" value="submit Game" @click="onClkSaveGame"/>

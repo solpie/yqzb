@@ -155,6 +155,7 @@ class StagePanelInfo extends BasePanelInfo {
     ctnXY:any;
     gameInfo:GameInfo;
     stageNotice:any;
+    unLimitScore:number = 0;
 
     constructor(pid, panelInfo) {
         super(pid, panelInfo);
@@ -197,6 +198,7 @@ class StagePanelInfo extends BasePanelInfo {
             time: this.gameInfo.time,
             state: this.gameInfo.timerState,
             ctnXY: this.ctnXY,
+            unLimitScore: this.unLimitScore,
             playerInfoArr: this.getPlayerDataArr()
         }
     }
@@ -206,7 +208,10 @@ class StagePanelInfo extends BasePanelInfo {
     }
 
     addLeftScore() {
-        this.gameInfo.leftScore = (this.gameInfo.leftScore + 1) % (this.gameInfo.winScore + 1);
+        if (this.unLimitScore === 1)
+            this.gameInfo.leftScore += 1;
+        else
+            this.gameInfo.leftScore = (this.gameInfo.leftScore + 1) % (this.gameInfo.winScore + 1);
         cmd.emit(CommandId.addLeftScore, this.gameInfo.leftScore, this.pid);
 
         this.gameInfo.straightScoreRight = 0;
@@ -222,7 +227,10 @@ class StagePanelInfo extends BasePanelInfo {
     }
 
     addRightScore() {
-        this.gameInfo.rightScore = (this.gameInfo.rightScore + 1) % (this.gameInfo.winScore + 1);
+        if (this.unLimitScore === 1)
+            this.gameInfo.rightScore += 1;
+        else
+            this.gameInfo.rightScore = (this.gameInfo.rightScore + 1) % (this.gameInfo.winScore + 1);
         cmd.emit(CommandId.addRightScore, this.gameInfo.rightScore, this.pid);
 
         this.gameInfo.straightScoreLeft = 0;
@@ -345,5 +353,11 @@ class StagePanelInfo extends BasePanelInfo {
 
     resetGame() {
         // this.gameInfo = new GameInfo();
+    }
+
+    setUnLimitScore(param) {
+        this.unLimitScore = param.unLimitScore;
+        console.log("isUnLimitScore", this.unLimitScore);
+        cmd.emit(CommandId.unLimitScore, {unLimitScore: this.unLimitScore}, this.pid);
     }
 }

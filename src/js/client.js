@@ -29,11 +29,6 @@ var sortCompare = function (prop) {
         }
     };
 };
-/// <reference path="JQuery.ts"/>
-/// <reference path="libs/createjs/easeljs.d.ts"/>
-/// <reference path="libs/createjs/createjs.d.ts"/>
-/// <reference path="libs/createjs/createjs-lib.d.ts"/>
-/// <reference path="libs/createjs/tweenjs.d.ts"/>
 var serverConf = {
     host: "localhost",
     port: 8086,
@@ -139,35 +134,37 @@ var CommandId;
     CommandId[CommandId["notice"] = 100028] = "notice";
     CommandId[CommandId["cs_notice"] = 100029] = "cs_notice";
     CommandId[CommandId["cs_resetGame"] = 100030] = "cs_resetGame";
+    CommandId[CommandId["cs_unLimitScore"] = 100031] = "cs_unLimitScore";
+    CommandId[CommandId["unLimitScore"] = 100032] = "unLimitScore";
     //-----------------win panel
-    CommandId[CommandId["fadeInWinPanel"] = 100031] = "fadeInWinPanel";
-    CommandId[CommandId["cs_fadeInWinPanel"] = 100032] = "cs_fadeInWinPanel";
-    CommandId[CommandId["fadeOutWinPanel"] = 100033] = "fadeOutWinPanel";
-    CommandId[CommandId["cs_fadeOutWinPanel"] = 100034] = "cs_fadeOutWinPanel";
-    CommandId[CommandId["saveGameRec"] = 100035] = "saveGameRec";
-    CommandId[CommandId["cs_saveGameRec"] = 100036] = "cs_saveGameRec";
+    CommandId[CommandId["fadeInWinPanel"] = 100033] = "fadeInWinPanel";
+    CommandId[CommandId["cs_fadeInWinPanel"] = 100034] = "cs_fadeInWinPanel";
+    CommandId[CommandId["fadeOutWinPanel"] = 100035] = "fadeOutWinPanel";
+    CommandId[CommandId["cs_fadeOutWinPanel"] = 100036] = "cs_fadeOutWinPanel";
+    CommandId[CommandId["saveGameRec"] = 100037] = "saveGameRec";
+    CommandId[CommandId["cs_saveGameRec"] = 100038] = "cs_saveGameRec";
     //---------------- player panel
-    CommandId[CommandId["cs_queryPlayerByPos"] = 100037] = "cs_queryPlayerByPos";
-    CommandId[CommandId["fadeInPlayerPanel"] = 100038] = "fadeInPlayerPanel";
-    CommandId[CommandId["cs_fadeInPlayerPanel"] = 100039] = "cs_fadeInPlayerPanel";
-    CommandId[CommandId["fadeOutPlayerPanel"] = 100040] = "fadeOutPlayerPanel";
-    CommandId[CommandId["cs_fadeOutPlayerPanel"] = 100041] = "cs_fadeOutPlayerPanel";
-    CommandId[CommandId["movePlayerPanel"] = 100042] = "movePlayerPanel";
-    CommandId[CommandId["cs_movePlayerPanel"] = 100043] = "cs_movePlayerPanel";
+    CommandId[CommandId["cs_queryPlayerByPos"] = 100039] = "cs_queryPlayerByPos";
+    CommandId[CommandId["fadeInPlayerPanel"] = 100040] = "fadeInPlayerPanel";
+    CommandId[CommandId["cs_fadeInPlayerPanel"] = 100041] = "cs_fadeInPlayerPanel";
+    CommandId[CommandId["fadeOutPlayerPanel"] = 100042] = "fadeOutPlayerPanel";
+    CommandId[CommandId["cs_fadeOutPlayerPanel"] = 100043] = "cs_fadeOutPlayerPanel";
+    CommandId[CommandId["movePlayerPanel"] = 100044] = "movePlayerPanel";
+    CommandId[CommandId["cs_movePlayerPanel"] = 100045] = "cs_movePlayerPanel";
     //自动三杀事件
-    CommandId[CommandId["straightScore3"] = 100044] = "straightScore3";
-    CommandId[CommandId["straightScore5"] = 100045] = "straightScore5";
-    CommandId[CommandId["initPanel"] = 100046] = "initPanel";
+    CommandId[CommandId["straightScore3"] = 100046] = "straightScore3";
+    CommandId[CommandId["straightScore5"] = 100047] = "straightScore5";
+    CommandId[CommandId["initPanel"] = 100048] = "initPanel";
     /////activity panel
-    CommandId[CommandId["cs_fadeInActPanel"] = 100047] = "cs_fadeInActPanel";
-    CommandId[CommandId["fadeInActPanel"] = 100048] = "fadeInActPanel";
-    CommandId[CommandId["cs_fadeOutActPanel"] = 100049] = "cs_fadeOutActPanel";
-    CommandId[CommandId["fadeOutActPanel"] = 100050] = "fadeOutActPanel";
-    CommandId[CommandId["cs_startGame"] = 100051] = "cs_startGame";
-    CommandId[CommandId["cs_fadeInRankPanel"] = 100052] = "cs_fadeInRankPanel";
-    CommandId[CommandId["fadeInRankPanel"] = 100053] = "fadeInRankPanel";
-    CommandId[CommandId["cs_fadeOutRankPanel"] = 100054] = "cs_fadeOutRankPanel";
-    CommandId[CommandId["fadeOutRankPanel"] = 100055] = "fadeOutRankPanel";
+    CommandId[CommandId["cs_fadeInActPanel"] = 100049] = "cs_fadeInActPanel";
+    CommandId[CommandId["fadeInActPanel"] = 100050] = "fadeInActPanel";
+    CommandId[CommandId["cs_fadeOutActPanel"] = 100051] = "cs_fadeOutActPanel";
+    CommandId[CommandId["fadeOutActPanel"] = 100052] = "fadeOutActPanel";
+    CommandId[CommandId["cs_startGame"] = 100053] = "cs_startGame";
+    CommandId[CommandId["cs_fadeInRankPanel"] = 100054] = "cs_fadeInRankPanel";
+    CommandId[CommandId["fadeInRankPanel"] = 100055] = "fadeInRankPanel";
+    CommandId[CommandId["cs_fadeOutRankPanel"] = 100056] = "cs_fadeOutRankPanel";
+    CommandId[CommandId["fadeOutRankPanel"] = 100057] = "fadeOutRankPanel";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {
@@ -482,7 +479,8 @@ var TeamInfo = (function () {
     };
     return TeamInfo;
 }());
-/// <reference path="../lib.ts"/>
+/// <reference path="../tsd/createjs.d.ts"/>
+/// <reference path="../tsd/JQuery.ts"/>
 /// <reference path="Config.ts"/>
 /// <reference path="../model/Command.ts"/>
 /// <reference path="../model/ElemID.ts"/>

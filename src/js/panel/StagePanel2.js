@@ -343,6 +343,8 @@ var StagePanel2 = (function (_super) {
             this.initOp();
         }
         if (param) {
+            console.log('init param', param.unLimitScore);
+            vue.isUnLimitScore = param.unLimitScore;
             this.initPlayerIdArr(param.playerIdArr);
             this.setLeftScore(param.leftScore);
             this.setRightScore(param.rightScore);
@@ -716,6 +718,10 @@ var StagePanel2 = (function (_super) {
             console.log("initPanel::::::::", param);
             _this.onInit(param);
         });
+        cmd.on(CommandId.unLimitScore, function (param) {
+            console.log("unLimitScore", JSON.stringify(param));
+            vue.isUnLimitScore = param.unLimitScore;
+        });
         cmd.on(CommandId.fadeInWinPanel, function (param) {
             _this.fadeInWinPanel(param.playerDataArr, param.mvp);
         });
@@ -905,10 +911,29 @@ $(function main() {
     vue = new Vue({
         el: '#panel',
         data: {
+            isUnLimitScore: 0,
             gameId: 0,
             playerIdArr: []
         },
+        // watch: {
+        //     isUnLimitScore: function (val) {
+        //
+        //     }
+        // },
         methods: {
+            onCheckUnLimitScore: function () {
+                console.log('isUnLimitScore');
+                // if (n != vue.isUnLimitScore) {
+                var n = this.isUnLimitScore ? 0 : 1;
+                this.$http.post('/panel/stage/op', {
+                    cmd: CommandId.cs_unLimitScore,
+                    param: { unLimitScore: n }
+                })
+                    .then(function (res) {
+                    console.log(res);
+                });
+                // }
+            },
             onClkResetGame: function () {
                 this.$http.post('/panel/stage/op', { cmd: CommandId.cs_resetGame })
                     .then(function (res) {
