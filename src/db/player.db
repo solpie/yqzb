@@ -2,7 +2,7 @@
 {"id":0,"idUsed":null,"_id":"37LEJfADIO5o2Fxd"}
 {"id":10007,"phone":15316880561,"weight":70,"height":178,"eloScore":2000,"style":1,"name":"黎昭华","activityId":2,"avatar":"/img/player/10007.png","_id":"3GhHFYMAKedBfKAE"}
 {"id":10027,"phone":18516275340,"weight":70,"height":170,"eloScore":2000,"style":1,"name":"维尼","activityId":2,"avatar":"/img/player/10027.png","_id":"9dZLJ4dSzBQrAfrL"}
-{"id":10030,"phone":13764072215,"weight":70,"height":182,"eloScore":2005,"style":2,"name":"黑斌","activityId":2,"avatar":"/img/player/10030.png","_id":"Au2S785BVse9gWTQ"}
+{"id":10030,"phone":13764072215,"weight":70,"height":182,"eloScore":1989,"style":2,"name":"黑斌","activityId":2,"avatar":"/img/player/10030.png","_id":"Au2S785BVse9gWTQ","dtScore":-16,"winpercent":0,"gameRec":[784000],"gameCount":1,"loseGameCount":1,"winGameCount":0,"pos":4,"isRed":true}
 {"id":10017,"phone":15921463715,"weight":70,"height":182,"eloScore":2000,"style":2,"name":"帅宽巨帅 ","activityId":2,"avatar":"/img/player/10017.png","_id":"C9GQyuRCZkvA8pgo"}
 {"id":10016,"phone":18702133292,"weight":70,"height":181,"eloScore":2000,"style":3,"name":"一手好铁","activityId":2,"avatar":"/img/player/10016.png","_id":"DjVks1s1OH0jP5Hi"}
 {"id":10019,"phone":13654872698,"weight":70,"height":175,"eloScore":2011,"style":1,"name":"大爷","activityId":2,"avatar":"/img/player/10019.png","_id":"EQ2OQuBnsWD4xbar"}
@@ -10,12 +10,12 @@
 {"id":10005,"phone":18202160861,"weight":70,"height":166,"eloScore":2000,"style":1,"name":"小胖","activityId":2,"avatar":"/img/player/10005.png","_id":"HKU0bs8PF0h5ZQuw"}
 {"id":10026,"phone":13958735768,"weight":70,"height":168,"eloScore":2000,"style":2,"name":"小五的粉丝","activityId":2,"avatar":"/img/player/10026.png","_id":"I8AlDDpPlpoYVznJ"}
 {"id":10022,"phone":18930125297,"weight":70,"height":150,"eloScore":2009,"style":1,"name":"冬天","activityId":2,"avatar":"/img/player/10022.png","_id":"KdXxuXn06309uWm7"}
-{"id":10025,"phone":18516141886,"weight":70,"height":178,"eloScore":2007,"style":2,"name":"上海申花","activityId":2,"avatar":"/img/player/10025.png","_id":"MEetnGPPvwBlCi6D"}
-{"id":10032,"phone":13661752068,"weight":70,"height":176,"eloScore":2001,"style":1,"name":"微醺好用力","activityId":2,"avatar":"/img/player/10032.png","_id":"NVHhhICaVD7zd7Xo"}
+{"id":10025,"phone":18516141886,"weight":70,"height":178,"eloScore":1991,"style":2,"name":"上海申花","activityId":2,"avatar":"/img/player/10025.png","_id":"MEetnGPPvwBlCi6D","dtScore":-16,"winpercent":0,"gameRec":[784000],"gameCount":1,"loseGameCount":1,"winGameCount":0,"pos":6,"isRed":true}
+{"id":10032,"phone":13661752068,"weight":70,"height":176,"eloScore":2017,"style":1,"name":"微醺好用力","activityId":2,"avatar":"/img/player/10032.png","_id":"NVHhhICaVD7zd7Xo","dtScore":16,"winpercent":1,"gameRec":[784000],"gameCount":1,"loseGameCount":0,"winGameCount":1,"pos":0,"isRed":false}
 {"id":10004,"phone":18512176937,"weight":70,"height":178,"eloScore":2000,"style":1,"name":"大西瓜","activityId":2,"avatar":"/img/player/10004.png","_id":"OGJ0D3L2Fhgveitp"}
-{"id":10003,"phone":13918911673,"weight":70,"height":165,"eloScore":2004,"style":3,"name":"啊泡","activityId":2,"avatar":"/img/player/10003.png","_id":"P92hrK3JpCUNkw6u"}
+{"id":10003,"phone":13918911673,"weight":70,"height":165,"eloScore":2020,"style":3,"name":"啊泡","activityId":2,"avatar":"/img/player/10003.png","_id":"P92hrK3JpCUNkw6u","dtScore":16,"winpercent":1,"gameRec":[784000],"gameCount":1,"loseGameCount":0,"winGameCount":1,"pos":3,"isRed":false}
 {"id":10029,"phone":15960006966,"weight":70,"height":171,"eloScore":2000,"style":2,"name":"蓝胖","activityId":2,"avatar":"/img/player/10029.png","_id":"T5Y5sYO899DPuo5x"}
-{"id":10031,"phone":15221160416,"weight":70,"height":177,"eloScore":2003,"style":1,"name":"秋千","activityId":2,"avatar":"/img/player/10031.png","_id":"TKlIVQk1nGVdWiN4"}
+{"id":10031,"phone":15221160416,"weight":70,"height":177,"eloScore":2019,"style":1,"name":"秋千","activityId":2,"avatar":"/img/player/10031.png","_id":"TKlIVQk1nGVdWiN4","dtScore":16,"winpercent":1,"gameRec":[784000],"gameCount":1,"loseGameCount":0,"winGameCount":1,"pos":2,"isRed":false}
 {"id":10009,"phone":18930635147,"weight":70,"height":178,"eloScore":2000,"style":3,"name":"翼冉大鸟队","activityId":2,"avatar":"/img/player/10009.png","_id":"X5PrDpYT2ZnjwBXI"}
 {"id":10008,"phone":18321315829,"weight":70,"height":175,"eloScore":2000,"style":1,"name":"浦东萨克雷","activityId":2,"avatar":"/img/player/10008.png","_id":"XGxTSLP8zufbYCPD"}
 {"id":10018,"phone":13524178761,"weight":70,"height":178,"eloScore":2013,"style":1,"name":"三步篮","activityId":2,"avatar":"/img/player/10018.png","_id":"a2Mu1yYVXFkzjQwa"}
@@ -24,10 +24,10 @@
 {"id":10011,"phone":18502139442,"weight":70,"height":168,"eloScore":2015,"style":1,"name":"红豆泥","activityId":2,"avatar":"/img/player/10011.png","_id":"fYmdb5guUJzYqZl8"}
 {"id":10010,"phone":13918684357,"weight":70,"height":168,"eloScore":2014,"style":1,"name":"桂贤阳","activityId":2,"avatar":"/img/player/10010.png","_id":"ftdzxNdq3G1nP5Eb"}
 {"id":10015,"phone":13654872698,"weight":70,"height":178,"eloScore":2012,"style":2,"name":"温寻旧梦","activityId":2,"avatar":"/img/player/10015.png","_id":"ftvW1iPkC936Y1cL"}
-{"id":10023,"phone":18621714735,"weight":70,"height":170,"eloScore":2008,"style":1,"name":"虎扑大表哥","activityId":2,"avatar":"/img/player/10023.png","_id":"kmDNMC5ujXKLeszD"}
+{"id":10023,"phone":18621714735,"weight":70,"height":170,"eloScore":1992,"style":1,"name":"虎扑大表哥","activityId":2,"avatar":"/img/player/10023.png","_id":"kmDNMC5ujXKLeszD","dtScore":-16,"winpercent":0,"gameRec":[784000],"gameCount":1,"loseGameCount":1,"winGameCount":0,"pos":7,"isRed":true}
 {"id":10012,"phone":18605916062,"weight":70,"height":177,"eloScore":2000,"style":3,"name":"小五","activityId":2,"avatar":"/img/player/10012.png","_id":"l0QNe5YZunUTKmyz"}
 {"id":10020,"phone":13023299071,"weight":70,"height":182,"eloScore":2000,"style":1,"name":"绿鲤鱼与驴","activityId":2,"avatar":"/img/player/10020.png","_id":"q7yF5CuTjxSXGvP6"}
-{"id":10033,"phone":13817477436,"weight":70,"height":188,"eloScore":2002,"style":2,"name":"艾利康","activityId":2,"avatar":"/img/player/10033.png","_id":"tJosWZo6z2NqOnBp"}
-{"id":10028,"phone":18358583152,"weight":70,"height":178,"eloScore":2006,"style":3,"name":"莫德里奇","activityId":2,"avatar":"/img/player/10028.png","_id":"wg67LzKCzLCgVpW3"}
+{"id":10033,"phone":13817477436,"weight":70,"height":188,"eloScore":2018,"style":2,"name":"艾利康","activityId":2,"avatar":"/img/player/10033.png","_id":"tJosWZo6z2NqOnBp","dtScore":16,"winpercent":1,"gameRec":[784000],"gameCount":1,"loseGameCount":0,"winGameCount":1,"pos":1,"isRed":false}
+{"id":10028,"phone":18358583152,"weight":70,"height":178,"eloScore":1990,"style":3,"name":"莫德里奇","activityId":2,"avatar":"/img/player/10028.png","_id":"wg67LzKCzLCgVpW3","dtScore":-16,"winpercent":0,"gameRec":[784000],"gameCount":1,"loseGameCount":1,"winGameCount":0,"pos":5,"isRed":true}
 {"id":10002,"phone":15901754662,"weight":70,"height":170,"eloScore":2000,"style":2,"name":"文亲禾","activityId":2,"avatar":"/img/player/10002.png","_id":"zMyyXBv59fP9GPag"}
 {"id":10021,"phone":15202167849,"weight":70,"height":183,"eloScore":2010,"style":1,"name":"树袋熊","activityId":2,"avatar":"/img/player/10021.png","_id":"zk9FRlJ2i2aIEsPn"}

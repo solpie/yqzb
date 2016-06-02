@@ -66,7 +66,34 @@ var ActivityPanelView = (function (_super) {
             },
             methods: {
                 onClkMatch: function () {
-                    // var gameArr = this.showGameArr.concat();
+                    var gameArr = this.showGameArr.concat();
+                    var teamMap = {};
+                    function getLeftTeam(playerIdArr) {
+                        var teamIdArr = [];
+                        for (var i = 0; i < 4; i++) {
+                            var playerId = playerIdArr[i];
+                            teamIdArr.push(playerId);
+                        }
+                        return teamIdArr;
+                    }
+                    function getRightTeam(playerIdArr) {
+                        var teamIdArr = [];
+                        for (var i = 4; i < 8; i++) {
+                            var playerId = playerIdArr[i];
+                            teamIdArr.push(playerId);
+                        }
+                        return teamIdArr;
+                    }
+                    for (var i = 0; i < gameArr.length; i++) {
+                        var gameData = gameArr[i];
+                        var leftTeam = getLeftTeam(gameData.playerIdArr);
+                        var rightTeam = getRightTeam(gameData.playerIdArr);
+                        teamMap[JSON.stringify(leftTeam)] = leftTeam;
+                        teamMap[JSON.stringify(rightTeam)] = leftTeam;
+                    }
+                    for (var team in teamMap) {
+                        console.log(JSON.stringify(team));
+                    }
                 },
                 selectSection: function (start) {
                     var tmp = [];
@@ -168,10 +195,22 @@ var ActivityPanelView = (function (_super) {
                     console.log('round change', this.roundSelected);
                     console.log(vue.roundDataArr[this.roundSelected]);
                     vue.gameOptionArr = [];
+                    var high = [];
+                    var low = [];
                     for (var i = 0; i < vue.roundDataArr[this.roundSelected].gameDataArr.length; i++) {
                         var selGame = vue.roundDataArr[this.roundSelected].gameDataArr[i];
-                        vue.gameOptionArr.push({ value: i, text: '第' + (i + 1) + '场 id:' + selGame.id });
+                        var optionData = { value: i, text: ' id:' + selGame.id };
+                        if (selGame.section === 0) {
+                            optionData.text = '上半区' + optionData.text;
+                            high.push(optionData);
+                        }
+                        else if (selGame.section === 1) {
+                            optionData.text = '下半区' + optionData.text;
+                            low.push(optionData);
+                        }
+                        console.log("optionData", optionData);
                     }
+                    vue.gameOptionArr = high.concat(low);
                     this.gameSelected = -1;
                     this.playerIdArr = [];
                 },

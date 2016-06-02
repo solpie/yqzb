@@ -200,11 +200,11 @@
                 label.y = posY + i * (90 );
                 stage.addChild(label)
 
-//                var playerId = new createjs.Text(player.id+"", "20px Arial", "#000");
-//                playerId.textAlign = 'right';
-//                playerId.x = 670;
-//                playerId.y = posY + i * (90 )+30;
-//                stage.addChild(playerId)
+                var playerId = new createjs.Text(player.id+"", "20px Arial", "#000");
+                playerId.textAlign = 'right';
+                playerId.x = 670;
+                playerId.y = posY + i * (90 )+30;
+                stage.addChild(playerId)
 
                 var style = new createjs.Text("/" + map[player.style], "38px Arial", "#000");
                 style.x = 570;
@@ -391,41 +391,41 @@
         }
     });
     vue.playerMap = playerMap;
-//    if (roundData) {
-//        var highSectionGameArr = [];
-//        var lowSectionGameArr = [];
-//
-//        function getTeamInfoArr(gameData) {
-//            var teamInfo = new TeamInfo();
-//            teamInfo.name = 'team1'
-//            var teamArr = [teamInfo];
-//
-//            for (var i = 0; i < gameData.playerIdArr.length; i++) {
-//                var playerId = gameData.playerIdArr[i];
-//                var playerInfo = new PlayerInfo(playerMap[playerId]);
-//                teamInfo.push(playerInfo);
-//                if (i === 3) {
-//                    teamInfo = new TeamInfo()
-//                    teamInfo.name = 'team2';
-//                    teamArr.push(teamInfo);
-//                }
-//            }
-//            return teamArr;
-//        }
-//
-//        for (var i = 0; i < roundData.gameDataArr.length; i++) {
-//            var gameData = roundData.gameDataArr[i];
-//            if (gameData.section === 1) {
-//                lowSectionGameArr.push(getTeamInfoArr(gameData));
-//            }
-//            else if (gameData.section === 0) {
-//                highSectionGameArr.push(getTeamInfoArr(gameData));
-//            }
-//        }
-//        vue.sectionArr = [{idx: 0, name: '上半区：', teamArr: [], btnId: 'onGenHigh', gameArr: highSectionGameArr},
-//            {idx: 1, name: '下半区：', teamArr: [], btnId: 'onGenLow', gameArr: lowSectionGameArr}]
-//
-//    }
+    if (roundData) {
+        var highSectionGameArr = [];
+        var lowSectionGameArr = [];
+
+        function getTeamInfoArr(gameData) {
+            var teamInfo = new TeamInfo();
+            teamInfo.name = 'team1'
+            var teamArr = [teamInfo];
+
+            for (var i = 0; i < gameData.playerIdArr.length; i++) {
+                var playerId = gameData.playerIdArr[i];
+                var playerInfo = new PlayerInfo(playerMap[playerId]);
+                teamInfo.push(playerInfo);
+                if (i === 3) {
+                    teamInfo = new TeamInfo()
+                    teamInfo.name = 'team2';
+                    teamArr.push(teamInfo);
+                }
+            }
+            return teamArr;
+        }
+
+        for (var i = 0; i < roundData.gameDataArr.length; i++) {
+            var gameData = roundData.gameDataArr[i];
+            if (gameData.section === 1) {
+                lowSectionGameArr.push(getTeamInfoArr(gameData));
+            }
+            else if (gameData.section === 0) {
+                highSectionGameArr.push(getTeamInfoArr(gameData));
+            }
+        }
+        vue.sectionArr = [{idx: 0, name: '上半区：', teamArr: [], btnId: 'onGenHigh', gameArr: highSectionGameArr},
+            {idx: 1, name: '下半区：', teamArr: [], btnId: 'onGenLow', gameArr: lowSectionGameArr}]
+
+    }
     PDFJS.getDocument('/img/gameSheet.pdf').then(function (pdf) {
         // Fetch the page.
         pdf.getPage(1).then(function (page) {
