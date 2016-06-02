@@ -748,6 +748,8 @@ var StagePanel2 = (function (_super) {
             _this.setPlayer(pos, playerData);
         });
         cmd.on(CommandId.updatePlayerAll, function (playerDataArr) {
+            _this.setLeftScore(0);
+            _this.setRightScore(0);
             var tweenCall = function (dt, pos, playerData) {
                 createjs.Tween.get(_this).wait(dt).call(function () {
                     _this.setPlayer(pos, playerData);

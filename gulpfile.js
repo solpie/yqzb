@@ -63,14 +63,14 @@ gulp.task("nwjs", function () {
             .pipe(gulp.dest(destPath+"/js"));
         gulp.src('./src/**/*.png')
             .pipe(gulp.dest(destPath));
-        gulp.src('./src/**/*.db')
-            .pipe(gulp.dest(destPath));
+        // gulp.src('./src/**/*.db')
+        //     .pipe(gulp.dest(destPath));
         gulp.src('./src/**/*.css')
             .pipe(gulp.dest(destPath));
         gulp.src('./src/**/*.pdf')
             .pipe(gulp.dest(destPath));
-        gulp.src('./src/**/config.json')
-            .pipe(gulp.dest(destPath));
+        // gulp.src('./src/**/config.json')
+        //     .pipe(gulp.dest(destPath));
     }).catch(function (error) {
         console.error(error);
     });

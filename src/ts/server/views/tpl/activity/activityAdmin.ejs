@@ -175,7 +175,12 @@
     var roundData = <%- roundData %>;
     var pdfData64;
     var stage;
-    function genPrint(playerDataArr, py, py2, py3, py4) {
+
+    function genPrint(playerDataArr) {
+        var py = 515;
+        var py2 = 560;
+        var py3 = 515;
+        var py4 = 555;
         if (!stage) {
             var canvas = document.getElementById('the-canvas');
             stage = new createjs.Stage(canvas);
@@ -190,31 +195,48 @@
         map[2] = "林"
         map[3] = "火"
         map[4] = "山"
-        function addName(start, posY,styleY) {
+        function addName(start, posY, styleY) {
             console.log("preview setting:", vue.nameSize, vue.nameX, vue.nameY);
+
+//            var gameIdLabel = new createjs.Text(vue.selGameId, "30px Arial", "#000");
+//            gameIdLabel.textAlign = 'center';
+//            gameIdLabel.x = 220;
+//            gameIdLabel.y = 500;
+//            stage.addChild(gameIdLabel)
+
+            var invertY = 80;
             for (var i = start; i < start + 4; i++) {
                 var player = playerDataArr[i];
-                var label = new createjs.Text(player.realName || player.name, "30px Arial", "#000");
-                label.textAlign = 'center';
-                label.x = 260;
-                label.y = posY + i * (90 );
-                stage.addChild(label)
 
-                var playerId = new createjs.Text(player.id+"", "20px Arial", "#000");
-                playerId.textAlign = 'right';
-                playerId.x = 670;
-                playerId.y = posY + i * (90 )+30;
-                stage.addChild(playerId)
+
+
+                var playerName = new createjs.Text(player.name, "30px Arial", "#000");
+                playerName.textAlign = 'center';
+                playerName.x = 220;
+                playerName.y = posY + i * invertY;
+                stage.addChild(playerName)
+
+                var playerRealName = new createjs.Text(player.realName, "30px Arial", "#000");
+                playerRealName.textAlign = 'center';
+                playerRealName.x = 420;
+                playerRealName.y = posY + i * invertY;
+                stage.addChild(playerRealName)
+
+//                var playerId = new createjs.Text(player.id + "", "20px Arial", "#000");
+//                playerId.textAlign = 'right';
+//                playerId.x = 670;
+//                playerId.y = posY + i * (80 ) + invertY;
+//                stage.addChild(playerId)
 
                 var style = new createjs.Text("/" + map[player.style], "38px Arial", "#000");
-                style.x = 570;
-                style.y = styleY + i * 95
+                style.x = 670;
+                style.y = styleY + i * invertY;
                 stage.addChild(style)
             }
         }
 
-        addName(0, py,py3)
-        addName(4, py2,py4)
+        addName(0, py, py3)
+        addName(4, py2, py4)
         stage.update();
     }
     Array.prototype.swap = function (x, y) {
@@ -230,6 +252,7 @@
             nameSize: 0,
             nameX: 0,
             nameY: 1,
+            selGameId: 0,
             sectionSelected: 0,
             sectionOptionArr: [
                 {text: "上半区", value: 0},
@@ -249,6 +272,7 @@
             onSetPreview: function () {
 
             },
+
             onAddGame: function () {
                 //fixme use static RoundInfo.HIGH_SECTION
                 this.gameData = {
@@ -263,6 +287,7 @@
                     console.log('todo print!!!', res.data);
                 });
             },
+
             combineTeam: function (arr, num) {
                 var r = [];
                 (function f(t, a, n) {
@@ -314,13 +339,15 @@
             onGameChanged: function (e) {
 //                console.log(e, e.target);
                 var gameId = e.target.value;
+                this.selGameId = gameId
                 var sectionIdx = 0;
                 if (gameId > 9)//low section
                 {
                     sectionIdx = 1;
                     gameId -= 10;
                 }
-                var game = this.sectionArr[sectionIdx].gameArr[gameId]
+                var game = this.sectionArr[sectionIdx].gameArr[gameId];
+//                this.selGameId = game.id;
 
                 var team1 = game[0]
                 var playerArr = team1.getNewPlayerDataArr()
@@ -335,8 +362,8 @@
                     var player = playerArr[i];
                     playerDataArr.push(player);
                 }
-                genPrint(playerDataArr, 535, 575, 515, 555);
-                console.log('onGameChanged', e.target.value, game);
+                genPrint(playerDataArr);
+                console.log('onGameChanged', this.selGameId, game);
             },
             onPrint: function () {
                 this.$http.post("/admin/game/genPrintPng", {base64: stage.toDataURL('rgba(0,0,0,0)', "image/png")}).then(function (res) {

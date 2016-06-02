@@ -860,6 +860,8 @@ class StagePanel2 extends BasePanelView {
             this.setPlayer(pos, playerData);
         });
         cmd.on(CommandId.updatePlayerAll, (playerDataArr)=> {
+            this.setLeftScore(0);
+            this.setRightScore(0);
             var tweenCall = (dt, pos, playerData)=> {
                 createjs.Tween.get(this).wait(dt).call(()=> {
                     this.setPlayer(pos, playerData);

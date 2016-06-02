@@ -107,14 +107,26 @@ class ActivityPanelView extends BasePanelView {
                     var tmp = [];
                     var selRound = this.roundDataArr[this.roundSelected];
                     console.log('selRound:', JSON.stringify(selRound));
-                    for (var i = start; i < start + 6; i++) {
+                    var high = [];
+                    var low = [];
+                    for (var i = 0; i < selRound.gameDataArr.length; i++) {
                         var game = selRound.gameDataArr[i];
                         console.log('selRound:', JSON.stringify(game));
                         var gameData:any = {};
                         gameData.id = game.id;
                         gameData.playerIdArr = game.playerIdArr;
-                        tmp.push(gameData);
+                        gameData.section = game.section;
+                        if (gameData.section === 0) {
+                            high.push(gameData);
+                        }
+                        else if (gameData.section === 1) {
+                            low.push(gameData);
+                        }
                     }
+                    if(start>0)
+                        tmp = low;
+                    else
+                        tmp = high;
                     this.showGameArr = tmp;
                 },
                 onClkStartGame: function () {
@@ -217,9 +229,9 @@ class ActivityPanelView extends BasePanelView {
                             optionData.text = '下半区' + optionData.text;
                             low.push(optionData);
                         }
-                        console.log("optionData",optionData);
+                        console.log("optionData", optionData);
                     }
-                    vue.gameOptionArr=high.concat(low);
+                    vue.gameOptionArr = high.concat(low);
                     this.gameSelected = -1;
                     this.playerIdArr = [];
                 },
