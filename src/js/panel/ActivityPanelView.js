@@ -367,13 +367,27 @@ var ActivityPanelView = (function (_super) {
         });
     };
     ActivityPanelView.prototype.fadeIn = function (gameInfoArr) {
+        var _this = this;
         this.ctn.removeAllChildren();
         this.ctn.alpha = 0;
         var modal = new createjs.Shape();
         modal.alpha = .8;
         modal.graphics.beginFill("#000").drawRect(0, 0, this.stageWidth, this.stageHeight);
         this.ctn.addChild(modal);
-        for (var i = 0; i < gameInfoArr.length; i++) {
+        // if (len > 6)
+        var len = gameInfoArr.length;
+        var fadeInCount = 0;
+        function fadeSingle(ctn, toX, delay) {
+            ctn.x = 1920;
+            createjs.Tween.get(ctn)
+                .wait(delay)
+                .to({ x: toX }, 200).call(function () {
+                fadeInCount++;
+            });
+        }
+        for (var i = 0; i < 6; i++) {
+            if (!gameInfoArr[i])
+                break;
             var gameInfo = gameInfoArr[i];
             var gameCtn = new createjs.Container();
             gameCtn.x = (this.stageWidth - 1540) * .5;
@@ -418,9 +432,22 @@ var ActivityPanelView = (function (_super) {
             rightAvgElo.y = leftAvgElo.y;
             gameCtn.addChild(rightAvgElo);
             this.ctn.addChild(gameCtn);
+            fadeSingle(gameCtn, gameCtn.x, i * 250);
         }
         createjs.Tween.get(this.ctn)
             .to({ alpha: 1 }, 300);
+        if (6 < gameInfoArr.length) {
+            var nextPage = [];
+            for (var i = 6; i < gameInfoArr.length; i++) {
+                var gameInfo = gameInfoArr[i];
+                nextPage.push(gameInfo);
+            }
+            createjs.Tween.get(this).wait(5000).call(function () {
+                _this.fadeIn(nextPage);
+            });
+        }
+        else {
+        }
     };
     ActivityPanelView.prototype.fadeOut = function () {
         var _this = this;
