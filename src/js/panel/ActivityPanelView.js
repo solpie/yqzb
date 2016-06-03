@@ -9,6 +9,7 @@ var __extends = (this && this.__extends) || function (d, b) {
  */
 /// <reference path="../clientDef.ts"/>
 /// <reference path="../../ts/server/models/RoundInfo.ts"/>
+/// <reference path="../../ts/utils/JsFunc.ts"/>
 /// <reference path="./BasePanelView.ts"/>
 var ActivityPanelView = (function (_super) {
     __extends(ActivityPanelView, _super);
@@ -98,8 +99,10 @@ var ActivityPanelView = (function (_super) {
                         console.log(JSON.stringify(playerIdArr));
                     }
                     //队伍混合 计算平均分 排两场
-                    function mixTeam(playerIdArrA, playerIdArrB) {
+                    function mixTeam(teamDataA, teamDataB) {
                         // console.log(playerIdArrA);
+                        var playerIdArrA = teamDataA.playerIdArr;
+                        var playerIdArrB = teamDataB.playerIdArr;
                         var tmp;
                         tmp = playerIdArrA[1];
                         playerIdArrA[1] = playerIdArrB[1];
@@ -107,7 +110,7 @@ var ActivityPanelView = (function (_super) {
                         tmp = playerIdArrA[3];
                         playerIdArrA[3] = playerIdArrB[3];
                         playerIdArrB[3] = tmp;
-                        var gameData = { playerIdArr: playerIdArrA.concat(playerIdArrB) };
+                        var gameData = { playerIdArr: teamDataA.playerIdArr.concat(teamDataB.playerIdArr) };
                         gameData.activityId = selectedActivityId;
                         gameData.roundId = selectedRoundId;
                         gameData.section = selectedSection;
@@ -122,13 +125,32 @@ var ActivityPanelView = (function (_super) {
                         console.log("/db/player/op", res.data);
                         var playerDataArr = res.data.playerDataArr; //eloScore low at 0
                         var playerDataMap = res.data.playerDataMap; //eloScore low at 0
-                        var gameDataArr = [];
-                        gameDataArr.push(mixTeam(teamArr[0], teamArr[1]));
-                        gameDataArr.push(mixTeam(teamArr[2], teamArr[3]));
-                        //
-                        for (var i = 0; i < teamArr.length; i++) {
-                            var playerIdArr = teamArr[i];
+                        var teamDataArr = [];
+                        for (var _i = 0, teamArr_1 = teamArr; _i < teamArr_1.length; _i++) {
+                            var playerIdArr = teamArr_1[_i];
+                            var teamData = { playerIdArr: playerIdArr };
+                            console.log("teamData:", JSON.stringify(teamData));
+                            var sum = 0;
+                            for (var _a = 0, playerIdArr_1 = playerIdArr; _a < playerIdArr_1.length; _a++) {
+                                var playerId = playerIdArr_1[_a];
+                                sum += playerDataMap[playerId].eloScore;
+                            }
+                            teamData.avgEloScore = sum / 4;
+                            teamDataArr.push(teamData);
                         }
+                        teamDataArr.sort(sortProp('avgEloScore'));
+                        var gameDataArr = [];
+                        gameDataArr.push(mixTeam(teamDataArr[0], teamDataArr[1]));
+                        gameDataArr.push(mixTeam(teamDataArr[2], teamDataArr[3]));
+                        // for (var gameData of gameDataArr) {
+                        //     var playerIdArr = gameData.playerIdArr;
+                        //     var sum = 0;
+                        //     for (var playerId of playerIdArr) {
+                        //         sum += playerDataMap[playerId].eloScore;
+                        //     }
+                        //     gameData.avgEloScore = sum / 4;
+                        //     console.log("team elo score avg:", sum);
+                        // }
                         vue.matchGameArr = gameDataArr;
                         console.log(teamArr);
                     });

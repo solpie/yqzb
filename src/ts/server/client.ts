@@ -1,5 +1,6 @@
 /// <reference path="../tsd/createjs.d.ts"/>
 /// <reference path="../tsd/JQuery.ts"/>
+/// <reference path="../utils/JsFunc.ts"/>
 /// <reference path="Config.ts"/>
 /// <reference path="../model/Command.ts"/>
 /// <reference path="../model/ElemID.ts"/>
