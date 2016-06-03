@@ -111,10 +111,7 @@ class ActivityDB extends BaseDB {
             if (doc && doc.activityId === activityId) {
                 if (!doc.gameDataArr)
                     doc.gameDataArr = [];
-                // if(RoundInfo.HIGH_SECTION)
-                // {
-                //
-                // }
+                
                 var gameData:any = {};
                 gameData.id = this.getGameIdBase(roundId) + doc.gameDataArr.length;
                 gameData.playerIdArr = playerIdArr;

@@ -149,6 +149,14 @@ class ActivityPanelInfo extends BasePanelInfo {
     fadeOutRankPanel(param:any) {
         cmd.emit(CommandId.fadeOutRankPanel, null, this.pid);
     }
+
+    fadeInCountDown(param:any) {
+        cmd.emit(CommandId.fadeInCountDown, param, this.pid);
+    }
+
+    fadeOutCountDown(param:any) {
+        cmd.emit(CommandId.fadeOutCountDown, null, this.pid);
+    }
 }
 
 class StagePanelInfo extends BasePanelInfo {

@@ -10,6 +10,8 @@ class ActivityPanelView extends BasePanelView {
     ctn:any;
     isInit:Boolean;
     vue:any;
+    cdTimer:any;
+    cdSec:number;
 
     constructor() {
         super();
@@ -37,6 +39,16 @@ class ActivityPanelView extends BasePanelView {
             console.log("fadeOutRankPanel", param);
             this.fadeOutRank();
         });
+
+        cmd.on(CommandId.fadeInCountDown, (param) => {
+            console.log("CommandId.fadeInCountDown", param);
+            this.fadeInCountDown(param.sec);
+        });
+
+        cmd.on(CommandId.fadeOutCountDown, (param) => {
+            console.log("CommandId.fadeOutCountDown", param);
+            this.fadeOutCountDown();
+        });
     }
 
     initVue() {
@@ -48,6 +60,9 @@ class ActivityPanelView extends BasePanelView {
         var vue = new Vue({
             el: '#panel',
             data: {
+                cdText: '距离下场比赛 ',
+                countDownSec: 300,
+
                 matchGameArr: [],
                 showGameArr: [],
 
@@ -108,8 +123,8 @@ class ActivityPanelView extends BasePanelView {
                     //队伍混合 计算平均分 排两场
                     function mixTeam(teamDataA, teamDataB) {
                         // console.log(playerIdArrA);
-                        var playerIdArrA =teamDataA.playerIdArr;
-                        var playerIdArrB =teamDataB.playerIdArr;
+                        var playerIdArrA = teamDataA.playerIdArr;
+                        var playerIdArrB = teamDataB.playerIdArr;
                         var tmp;
                         tmp = playerIdArrA[1];
                         playerIdArrA[1] = playerIdArrB[1];
@@ -170,9 +185,24 @@ class ActivityPanelView extends BasePanelView {
                         });
                 },
                 onClkAddMatchGame: function () {
+                    function addGame(idx, gameDataArr) {
+                        if (idx < gameDataArr.length) {
+                            var gameData = gameDataArr[idx];
+                            vue.$http.post("/admin/game/add", {gameData: gameData}).then(function (res) {
+                                console.log('/admin/game/add', res.data);
+                                idx++;
+                                if (res.ok) {
+                                    addGame(idx, vue.matchGameArr);
+                                }
+                            });
+
+                        }
+                        addGame(0, vue.matchGameArr);
+                    }
+
                     for (var i = 0; i < vue.matchGameArr.length; i++) {
                         var gameData = vue.matchGameArr[i];
-                        this.$http.post("/admin/game/add", {gameData: gameData}).then(function (res) {
+                        vue.$http.post("/admin/game/add", {gameData: gameData}).then(function (res) {
                             console.log('/admin/game/add', res.data);
                         });
                     }
@@ -232,6 +262,25 @@ class ActivityPanelView extends BasePanelView {
                     this.showGameArr = [];
                 },
 
+                onClkFadeInCountDown: function () {
+                    var sec = parseInt(this.countDownSec);
+                    if (sec > 0)
+                        this.$http.post('/panel/act/op', {
+                            cmd: CommandId.cs_fadeInCountDown,
+                            param: {sec: sec}
+                        }).then(function (res) {
+
+                        });
+                    else
+                        alert("没有设置正确时间！！");
+                },
+                onClkFadeOutCountDown: function () {
+                    this.$http.post('/panel/act/op', {
+                        cmd: CommandId.cs_fadeOutCountDown
+                    }).then(function (res) {
+
+                    });
+                },
                 onClkFadeInRank: function () {
                     if (this.selected < 1) {
                         alert("没有选择赛事！！")
@@ -522,6 +571,42 @@ class ActivityPanelView extends BasePanelView {
                 this.ctn.removeAllChildren();
             }
         );
+    }
+
+    fadeInCountDown(sec) {
+        this.ctn.removeAllChildren();
+        this.ctn.alpha = 0;
+        this.cdSec = sec;
+        var countDownCtn = new createjs.Container();
+        countDownCtn.x = 1920 - 479;
+        countDownCtn.y = 1080 - 200;
+
+        var bg = new createjs.Bitmap('/img/panel/act/countDownBg.png');
+        countDownCtn.addChild(bg);
+
+        var txt1 = new createjs.Text("", "40px Arial", "#fff");
+        txt1.x = 50;
+        txt1.y = 25;
+        countDownCtn.addChild(txt1);
+        if (this.cdTimer)
+            clearInterval(this.cdTimer);
+
+        this.cdTimer = setInterval(()=> {
+            this.cdSec--;
+            if (this.cdSec > 0)
+                txt1.text = this.vue.cdText + formatSecond(this.cdSec, '分', '秒');
+            else {
+                this.fadeOutCountDown();
+            }
+        }, 1000);
+
+        this.ctn.addChild(countDownCtn);
+        createjs.Tween.get(this.ctn)
+            .to({alpha: 1}, 300);
+    }
+
+    fadeOutCountDown() {
+        this.fadeOut();
     }
 
 }

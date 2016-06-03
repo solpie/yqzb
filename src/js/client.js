@@ -45,6 +45,19 @@ function sortProp(prop) {
         }
     };
 }
+function formatSecond(sec, minStr, secStr) {
+    if (minStr === void 0) { minStr = ":"; }
+    if (secStr === void 0) { secStr = ""; }
+    var min = Math.floor(sec / 60);
+    var s = sec % 60;
+    var strMin = min + "";
+    var strSec = s + "";
+    if (min < 10)
+        strMin = "0" + strMin;
+    if (s < 10)
+        strSec = "0" + strSec;
+    return strMin + minStr + strSec + secStr;
+}
 var serverConf = {
     host: "localhost",
     port: 8086,
@@ -182,8 +195,12 @@ var CommandId;
     CommandId[CommandId["fadeInRankPanel"] = 100055] = "fadeInRankPanel";
     CommandId[CommandId["cs_fadeOutRankPanel"] = 100056] = "cs_fadeOutRankPanel";
     CommandId[CommandId["fadeOutRankPanel"] = 100057] = "fadeOutRankPanel";
+    CommandId[CommandId["cs_fadeInCountDown"] = 100058] = "cs_fadeInCountDown";
+    CommandId[CommandId["fadeInCountDown"] = 100059] = "fadeInCountDown";
+    CommandId[CommandId["cs_fadeOutCountDown"] = 100060] = "cs_fadeOutCountDown";
+    CommandId[CommandId["fadeOutCountDown"] = 100061] = "fadeOutCountDown";
     //db op
-    CommandId[CommandId["cs_findPlayerData"] = 100058] = "cs_findPlayerData";
+    CommandId[CommandId["cs_findPlayerData"] = 100062] = "cs_findPlayerData";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {

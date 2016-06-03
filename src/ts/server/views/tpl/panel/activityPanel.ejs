@@ -1,11 +1,11 @@
 <style>
-    .OpButton{
+    .OpButton {
         width: 130px;
         height: 60px;
     }
 </style>
 <div id="panel" class="inputPanel">
-   赛事： <select v-model="selected" @change="onGetDateArr">
+    赛事： <select v-model="selected" @change="onGetDateArr">
         <option v-for="option in options" v-bind:value="option.value">
             {{ option.text }}
         </option>
@@ -39,6 +39,11 @@
         <br>
         <input class="OpButton" type="button" value="fadeInRank" @click="onClkFadeInRank"/>
         <input class="OpButton" type="button" value="fadeOutRank" @click="onClkFadeOutRank"/>
+        <br>
+        <input v-model="cdText"/>六个字
+        <input v-model="countDownSec" style="width:80px "/>秒
+        <input class="OpButton" type="button" value="Count down in" @click="onClkFadeInCountDown"/>
+        <input class="OpButton" type="button" value="Count down out" @click="onClkFadeOutCountDown"/>
     </ul>
 
     <ul>

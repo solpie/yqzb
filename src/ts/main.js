@@ -318,8 +318,12 @@ var CommandId;
     CommandId[CommandId["fadeInRankPanel"] = 100055] = "fadeInRankPanel";
     CommandId[CommandId["cs_fadeOutRankPanel"] = 100056] = "cs_fadeOutRankPanel";
     CommandId[CommandId["fadeOutRankPanel"] = 100057] = "fadeOutRankPanel";
+    CommandId[CommandId["cs_fadeInCountDown"] = 100058] = "cs_fadeInCountDown";
+    CommandId[CommandId["fadeInCountDown"] = 100059] = "fadeInCountDown";
+    CommandId[CommandId["cs_fadeOutCountDown"] = 100060] = "cs_fadeOutCountDown";
+    CommandId[CommandId["fadeOutCountDown"] = 100061] = "fadeOutCountDown";
     //db op
-    CommandId[CommandId["cs_findPlayerData"] = 100058] = "cs_findPlayerData";
+    CommandId[CommandId["cs_findPlayerData"] = 100062] = "cs_findPlayerData";
 })(CommandId || (CommandId = {}));
 var CommandItem = (function () {
     function CommandItem(id) {
@@ -889,6 +893,14 @@ var ActivityPanelHandle = (function () {
             server.panel.act.fadeOutRankPanel(param);
             res.send("sus");
         }
+        else if (reqCmd === CommandId.cs_fadeInCountDown) {
+            server.panel.act.fadeInCountDown(param);
+            res.sendStatus(200);
+        }
+        else if (reqCmd === CommandId.cs_fadeOutCountDown) {
+            server.panel.act.fadeOutCountDown(param);
+            res.sendStatus(200);
+        }
         else {
             db.activity.getDateArrByActivityId(param, function (docs) {
                 res.send(docs);
@@ -1004,10 +1016,6 @@ var ActivityDB = (function (_super) {
             if (doc && doc.activityId === activityId) {
                 if (!doc.gameDataArr)
                     doc.gameDataArr = [];
-                // if(RoundInfo.HIGH_SECTION)
-                // {
-                //
-                // }
                 var gameData = {};
                 gameData.id = _this.getGameIdBase(roundId) + doc.gameDataArr.length;
                 gameData.playerIdArr = playerIdArr;
@@ -1716,6 +1724,12 @@ var ActivityPanelInfo = (function (_super) {
     };
     ActivityPanelInfo.prototype.fadeOutRankPanel = function (param) {
         cmd.emit(CommandId.fadeOutRankPanel, null, this.pid);
+    };
+    ActivityPanelInfo.prototype.fadeInCountDown = function (param) {
+        cmd.emit(CommandId.fadeInCountDown, param, this.pid);
+    };
+    ActivityPanelInfo.prototype.fadeOutCountDown = function (param) {
+        cmd.emit(CommandId.fadeOutCountDown, null, this.pid);
     };
     return ActivityPanelInfo;
 }(BasePanelInfo));

@@ -29,6 +29,14 @@ class ActivityPanelHandle {
             server.panel.act.fadeOutRankPanel(param);
             res.send("sus");
         }
+        else if (reqCmd === CommandId.cs_fadeInCountDown) {
+            server.panel.act.fadeInCountDown(param);
+            res.sendStatus(200);
+        }
+        else if (reqCmd === CommandId.cs_fadeOutCountDown) {
+            server.panel.act.fadeOutCountDown(param);
+            res.sendStatus(200);
+        }
         else {
             db.activity.getDateArrByActivityId(param, function (docs) {
                 res.send(docs);

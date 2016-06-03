@@ -39,6 +39,14 @@ var ActivityPanelView = (function (_super) {
             console.log("fadeOutRankPanel", param);
             _this.fadeOutRank();
         });
+        cmd.on(CommandId.fadeInCountDown, function (param) {
+            console.log("CommandId.fadeInCountDown", param);
+            _this.fadeInCountDown(param.sec);
+        });
+        cmd.on(CommandId.fadeOutCountDown, function (param) {
+            console.log("CommandId.fadeOutCountDown", param);
+            _this.fadeOutCountDown();
+        });
     };
     ActivityPanelView.prototype.initVue = function () {
         var showGame;
@@ -49,6 +57,8 @@ var ActivityPanelView = (function (_super) {
         var vue = new Vue({
             el: '#panel',
             data: {
+                cdText: '距离下场比赛 ',
+                countDownSec: 300,
                 matchGameArr: [],
                 showGameArr: [],
                 playerIdArr: [],
@@ -156,9 +166,22 @@ var ActivityPanelView = (function (_super) {
                     });
                 },
                 onClkAddMatchGame: function () {
+                    function addGame(idx, gameDataArr) {
+                        if (idx < gameDataArr.length) {
+                            var gameData = gameDataArr[idx];
+                            vue.$http.post("/admin/game/add", { gameData: gameData }).then(function (res) {
+                                console.log('/admin/game/add', res.data);
+                                idx++;
+                                if (res.ok) {
+                                    addGame(idx, vue.matchGameArr);
+                                }
+                            });
+                        }
+                        addGame(0, vue.matchGameArr);
+                    }
                     for (var i = 0; i < vue.matchGameArr.length; i++) {
                         var gameData = vue.matchGameArr[i];
-                        this.$http.post("/admin/game/add", { gameData: gameData }).then(function (res) {
+                        vue.$http.post("/admin/game/add", { gameData: gameData }).then(function (res) {
                             console.log('/admin/game/add', res.data);
                         });
                     }
@@ -216,6 +239,23 @@ var ActivityPanelView = (function (_super) {
                 },
                 onClkReset: function () {
                     this.showGameArr = [];
+                },
+                onClkFadeInCountDown: function () {
+                    var sec = parseInt(this.countDownSec);
+                    if (sec > 0)
+                        this.$http.post('/panel/act/op', {
+                            cmd: CommandId.cs_fadeInCountDown,
+                            param: { sec: sec }
+                        }).then(function (res) {
+                        });
+                    else
+                        alert("没有设置正确时间！！");
+                },
+                onClkFadeOutCountDown: function () {
+                    this.$http.post('/panel/act/op', {
+                        cmd: CommandId.cs_fadeOutCountDown
+                    }).then(function (res) {
+                    });
                 },
                 onClkFadeInRank: function () {
                     if (this.selected < 1) {
@@ -477,6 +517,37 @@ var ActivityPanelView = (function (_super) {
             .to({ alpha: 0 }, 300).call(function () {
             _this.ctn.removeAllChildren();
         });
+    };
+    ActivityPanelView.prototype.fadeInCountDown = function (sec) {
+        var _this = this;
+        this.ctn.removeAllChildren();
+        this.ctn.alpha = 0;
+        this.cdSec = sec;
+        var countDownCtn = new createjs.Container();
+        countDownCtn.x = 1920 - 479;
+        countDownCtn.y = 1080 - 200;
+        var bg = new createjs.Bitmap('/img/panel/act/countDownBg.png');
+        countDownCtn.addChild(bg);
+        var txt1 = new createjs.Text("", "40px Arial", "#fff");
+        txt1.x = 50;
+        txt1.y = 25;
+        countDownCtn.addChild(txt1);
+        if (this.cdTimer)
+            clearInterval(this.cdTimer);
+        this.cdTimer = setInterval(function () {
+            _this.cdSec--;
+            if (_this.cdSec > 0)
+                txt1.text = _this.vue.cdText + formatSecond(_this.cdSec, '分', '秒');
+            else {
+                _this.fadeOutCountDown();
+            }
+        }, 1000);
+        this.ctn.addChild(countDownCtn);
+        createjs.Tween.get(this.ctn)
+            .to({ alpha: 1 }, 300);
+    };
+    ActivityPanelView.prototype.fadeOutCountDown = function () {
+        this.fadeOut();
     };
     return ActivityPanelView;
 }(BasePanelView));

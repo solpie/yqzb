@@ -65,8 +65,15 @@ enum CommandId{
     cs_startGame,
     cs_fadeInRankPanel,
     fadeInRankPanel,
+
     cs_fadeOutRankPanel,
     fadeOutRankPanel,
+
+    cs_fadeInCountDown,
+    fadeInCountDown,
+        
+    cs_fadeOutCountDown,
+    fadeOutCountDown,
     //db op
     cs_findPlayerData,
 }
