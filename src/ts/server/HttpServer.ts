@@ -104,6 +104,7 @@ class HttpServer {
         app.post('/admin/player/new', urlencodedParser, PlayerAdmin.newPlayer);
         app.post('/admin/player/update', urlencodedParser, PlayerAdmin.updatePlayerData);
         app.post('/admin/player/delete', urlencodedParser, PlayerAdmin.deletePlayerData);
+        app.post('/admin/player/clear', urlencodedParser, PlayerAdmin.clearPlayerGameData);
 
         //activity admin
         // app.get('/admin/game/', ActivityAdmin.index);

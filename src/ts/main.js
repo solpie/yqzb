@@ -579,9 +579,13 @@ var PlayerAdmin = (function () {
     PlayerAdmin.showPlayerById = function (req, res) {
         var playerId = req.params.id;
         var data = { adminId: 'player', op: '', playerData: {} };
-        if (playerId == "new") {
+        if (playerId === "new") {
             data.op = 'new';
             res.render('baseAdmin', data);
+        }
+        else if (playerId === 'clearAll') {
+            db.player.clearGameDataByPlayerAll();
+            res.send("sus");
         }
         else {
             playerId = parseInt(playerId);
@@ -653,6 +657,13 @@ var PlayerAdmin = (function () {
         else {
             updateToDb(updateData);
         }
+    };
+    PlayerAdmin.clearPlayerGameData = function (req, res) {
+        if (!req.body)
+            return res.sendStatus(400);
+        console.log("clearPlayerGameData");
+        db.player.clearGameDataByPlayerId(req.body.playerId);
+        res.send('sus');
     };
     PlayerAdmin.newPlayer = function (req, res) {
         if (!req.body)
@@ -1129,6 +1140,29 @@ var PlayerDB = (function (_super) {
     }
     PlayerDB.prototype.getNewId = function () {
         return this.config.idUsed;
+    };
+    PlayerDB.prototype.clearGameDataByPlayerId = function (playerId) {
+        var _this = this;
+        var playerData = this.dataMap[playerId];
+        if (playerData) {
+            playerData.eloScore = EloConf.score;
+            playerData.winpercent = 0;
+            playerData.gameCount = 0;
+            playerData.loseGameCount = 0;
+            playerData.winGameCount = 0;
+            playerData.gameRec = [];
+            this.ds().update({ id: playerId }, { $set: playerData }, {}, function (err, numUpdate) {
+                console.log("clearGameDataByPlayerId", playerId);
+                _this.syncDataMap();
+            });
+        }
+    };
+    PlayerDB.prototype.clearGameDataByPlayerAll = function () {
+        console.log('clearGameDataByPlayerAll');
+        for (var key in this.dataMap) {
+            var playerId = parseInt(key);
+            this.clearGameDataByPlayerId(playerId);
+        }
     };
     PlayerDB.prototype.getRankPlayerArr = function (actId, limit, callback) {
         this.dataStore.find({ $not: { id: 0 }, activityId: actId })
@@ -1917,6 +1951,7 @@ var StagePanelInfo = (function (_super) {
     return StagePanelInfo;
 }(BasePanelInfo));
 /// <reference path="./DbInfo.ts"/>
+/// <reference path="./GameInfo.ts"/>
 var RoundInfo = (function () {
     function RoundInfo() {
         this.gameInfoArr = [];
@@ -2032,6 +2067,7 @@ var HttpServer = (function () {
         app.post('/admin/player/new', urlencodedParser, PlayerAdmin.newPlayer);
         app.post('/admin/player/update', urlencodedParser, PlayerAdmin.updatePlayerData);
         app.post('/admin/player/delete', urlencodedParser, PlayerAdmin.deletePlayerData);
+        app.post('/admin/player/clear', urlencodedParser, PlayerAdmin.clearPlayerGameData);
         //activity admin
         // app.get('/admin/game/', ActivityAdmin.index);
         app.get('/admin/activity/:id', ActivityAdmin.index);

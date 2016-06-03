@@ -57,11 +57,13 @@ class ActivityPanelView extends BasePanelView {
         var selectedSection;
         var selectedActivityId;
         var selectedRoundId;
+        var playerDataMap;
         var vue = new Vue({
             el: '#panel',
             data: {
                 cdText: '距离下场比赛 ',
                 countDownSec: 300,
+                playerDataMap: {},
 
                 matchGameArr: [],
                 showGameArr: [],
@@ -150,7 +152,7 @@ class ActivityPanelView extends BasePanelView {
                         .then(function (res) {
                             console.log("/db/player/op", res.data);
                             var playerDataArr = res.data.playerDataArr;//eloScore low at 0
-                            var playerDataMap = res.data.playerDataMap;//eloScore low at 0
+                            playerDataMap = res.data.playerDataMap;//eloScore low at 0
 
 
                             var teamDataArr = [];
@@ -164,12 +166,10 @@ class ActivityPanelView extends BasePanelView {
                                 teamData.avgEloScore = sum / 4;
                                 teamDataArr.push(teamData);
                             }
-
                             teamDataArr.sort(sortProp('avgEloScore'));
                             var gameDataArr = [];
                             gameDataArr.push(mixTeam(teamDataArr[0], teamDataArr[1]));
                             gameDataArr.push(mixTeam(teamDataArr[2], teamDataArr[3]));
-
 
                             // for (var gameData of gameDataArr) {
                             //     var playerIdArr = gameData.playerIdArr;
@@ -336,6 +336,16 @@ class ActivityPanelView extends BasePanelView {
                     for (var i = 0; i < selGame.playerIdArr.length; i++) {
                         this.playerIdArr.push(selGame.playerIdArr[i]);
                     }
+
+                    this.$http.post('/db/player/op', {
+                        cmd: CommandId.cs_findPlayerData,
+                        param: {playerIdArr: this.playerIdArr}
+                    })
+                        .then(function (res) {
+                            console.log("/db/player/op");
+                            playerDataMap = res.data.playerDataMap;//eloScore low at 0
+                            vue.playerDataMap = playerDataMap;
+                        });
                 },
                 onRoundSelected: function () {
                     console.log(vue.roundDataArr[this.roundSelected]);
@@ -407,6 +417,7 @@ class ActivityPanelView extends BasePanelView {
             var playerData = playerDataArr[i];
             imgArr.push(playerData.avatar);
         }
+        
         loadImgArr(imgArr, ()=> {
             for (var i = 0; i < playerDataArr.length; i++) {
                 var playerData = playerDataArr[i];

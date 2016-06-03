@@ -14,9 +14,13 @@ class PlayerAdmin {
     static showPlayerById(req, res) {
         var playerId = req.params.id;
         var data = {adminId: 'player', op: '', playerData: {}};
-        if (playerId == "new") {
+        if (playerId === "new") {
             data.op = 'new';
             res.render('baseAdmin', data);
+        }
+        else if (playerId === 'clearAll') {
+            db.player.clearGameDataByPlayerAll();
+            res.send("sus");
         }
         else {
             playerId = parseInt(playerId);
@@ -65,6 +69,7 @@ class PlayerAdmin {
         console.log('updatePlayer req:', JSON.stringify(req.body));
         var playerId = parseInt(req.body.id);
         var updateData:any = PlayerAdmin.makeRightType(req.body);
+
         function updateToDb(data) {
             console.log('updatePlayer data:', JSON.stringify(data));
             db.player.ds().update({id: playerId}, {$set: data}, {}, function (err, doc) {
@@ -90,6 +95,13 @@ class PlayerAdmin {
         else {
             updateToDb(updateData);
         }
+    }
+
+    static clearPlayerGameData(req, res) {
+        if (!req.body) return res.sendStatus(400);
+        console.log("clearPlayerGameData");
+        db.player.clearGameDataByPlayerId(req.body.playerId);
+        res.send('sus');
     }
 
     static newPlayer(req, res) {

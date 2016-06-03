@@ -3,6 +3,7 @@
 <script src="/js/createjs/createjs.min.js"></script>
 <script src="/js/createjs/easeljs.min.js"></script>
 <script src="/js/vue.min.js"></script>
+<script src="/js/vue-resource.min.js"></script>
 <style>
     body {
         font-family: Helvetica Neue, Arial, sans-serif;
@@ -87,6 +88,10 @@
         <br>赛事:<input id="playerActivityId" name="activityId" value="2"/>
         <br> <input id="btnAdd" type='submit' value='提交'>
         <input id="btnUpdate" type='button' value='更新' onclick="onClickUpdate()">
+        <br>
+        <br>
+        <br>
+        <br>
         <input id="btnDelete" type='button' value='删除' onclick="onClickDelete()">
     </form>
 </div>
@@ -94,6 +99,7 @@
 
 <!-- demo root element -->
 <div id="SVG">
+    <input id="btnClear" type='button' value='清空比赛数据' @click="onClkClear()">
     <!-- Use the component -->
     <svg width="200" height="200">
         <polygraph :stats="stats"></polygraph>
@@ -444,15 +450,23 @@
             y: ty
         }
     }
-
+    var playerId = <%- playerData.id %>
     // bootstrap the demo
-    new Vue({
+    var vue = new Vue({
         el: '#SVG',
         data: {
             newLabel: '',
             stats: stats
         },
         methods: {
+            onClkClear: function (e) {
+                console.log('/admin/player/clear', playerId);
+                this.$http.post("/admin/player/clear", {playerId: playerId}).then(function (res) {
+                    console.log('/admin/player/clear', res.data);
+                    if (res.ok) {
+                    }
+                });
+            },
             add: function (e) {
                 e.preventDefault()
                 if (!this.newLabel) return

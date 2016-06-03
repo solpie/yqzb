@@ -48,11 +48,12 @@
 
     <ul>
         <li v-for="playerId in playerIdArr">
-            id:{{playerId}}<img src="/img/player/{{playerId}}.png" style="width: 60px;background: red;">
+            id:{{playerId}}<img src="/img/player/{{playerId}}.png" style="width: 60px;background: red;">{{playerDataMap[$index]}}
         </li>
     </ul>
     赛程数据：
     <pre id="raw">{{showGameArr | json}}</pre>
+    <!--<pre id="raw2" style="position:fixed;left:850px;top:80px;z-index: 10">{{playerDataMap | json}}</pre>-->
     <pre id="raw2" style="position:fixed;left:850px;top:80px;z-index: 10">{{matchGameArr | json}}</pre>
 </div>
 <div class="Preloader" style="display: none">

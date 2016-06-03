@@ -111,7 +111,7 @@ class ActivityDB extends BaseDB {
             if (doc && doc.activityId === activityId) {
                 if (!doc.gameDataArr)
                     doc.gameDataArr = [];
-                
+
                 var gameData:any = {};
                 gameData.id = this.getGameIdBase(roundId) + doc.gameDataArr.length;
                 gameData.playerIdArr = playerIdArr;
@@ -218,10 +218,37 @@ class GameDB extends BaseDB {
             }
         })
     }
+
+
 }
 class PlayerDB extends BaseDB {
     getNewId() {
         return this.config.idUsed;
+    }
+
+    clearGameDataByPlayerId(playerId) {
+        var playerData = this.dataMap[playerId];
+        if (playerData) {
+            playerData.eloScore = EloConf.score;
+            playerData.winpercent = 0;
+            playerData.gameCount = 0;
+            playerData.loseGameCount = 0;
+            playerData.winGameCount = 0;
+            playerData.gameRec = [];
+            this.ds().update({id: playerId},
+                {$set: playerData}, {}, (err, numUpdate)=> {
+                    console.log("clearGameDataByPlayerId", playerId);
+                    this.syncDataMap();
+                });
+        }
+    }
+
+    clearGameDataByPlayerAll() {
+        console.log('clearGameDataByPlayerAll');
+        for (var key in this.dataMap) {
+            var playerId = parseInt(key);
+            this.clearGameDataByPlayerId(playerId);
+        }
     }
 
     getRankPlayerArr(actId, limit, callback) {
@@ -237,8 +264,8 @@ class PlayerDB extends BaseDB {
         this.dataStore.find({$not: {id: 0}, activityId: actId})
             .sort({eloScore: -1})
             .exec(function (err, docs) {
-            callback(err, docs);
-        });
+                callback(err, docs);
+            });
         // this.dataStore.find({$not: {id: 0}, activityId: actId}).sort({eloScore: 1}).exec(function (err, docs) {
         //     callback(err, docs);
         // });

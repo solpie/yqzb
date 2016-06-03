@@ -1,4 +1,5 @@
 /// <reference path="./DbInfo.ts"/>
+/// <reference path="./GameInfo.ts"/>
 class RoundInfo {
     static HIGH_SECTION:string = 'high';
     static LOW_SECTION:string = 'low';
@@ -9,5 +10,4 @@ class RoundInfo {
     constructor() {
         this.gameInfoArr = [];
     }
-
 }
