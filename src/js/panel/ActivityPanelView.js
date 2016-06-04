@@ -54,11 +54,13 @@ var ActivityPanelView = (function (_super) {
         var selectedSection;
         var selectedActivityId;
         var selectedRoundId;
+        var playerDataMap;
         var vue = new Vue({
             el: '#panel',
             data: {
                 cdText: '距离下场比赛 ',
                 countDownSec: 300,
+                playerDataMap: {},
                 matchGameArr: [],
                 showGameArr: [],
                 playerIdArr: [],
@@ -134,7 +136,7 @@ var ActivityPanelView = (function (_super) {
                         .then(function (res) {
                         console.log("/db/player/op", res.data);
                         var playerDataArr = res.data.playerDataArr; //eloScore low at 0
-                        var playerDataMap = res.data.playerDataMap; //eloScore low at 0
+                        playerDataMap = res.data.playerDataMap; //eloScore low at 0
                         var teamDataArr = [];
                         for (var _i = 0, teamArr_1 = teamArr; _i < teamArr_1.length; _i++) {
                             var playerIdArr = teamArr_1[_i];
@@ -311,6 +313,15 @@ var ActivityPanelView = (function (_super) {
                     for (var i = 0; i < selGame.playerIdArr.length; i++) {
                         this.playerIdArr.push(selGame.playerIdArr[i]);
                     }
+                    this.$http.post('/db/player/op', {
+                        cmd: CommandId.cs_findPlayerData,
+                        param: { playerIdArr: this.playerIdArr }
+                    })
+                        .then(function (res) {
+                        console.log("/db/player/op");
+                        playerDataMap = res.data.playerDataMap; //eloScore low at 0
+                        vue.playerDataMap = playerDataMap;
+                    });
                 },
                 onRoundSelected: function () {
                     console.log(vue.roundDataArr[this.roundSelected]);
