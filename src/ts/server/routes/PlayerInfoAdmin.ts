@@ -2,13 +2,20 @@
 
 class PlayerAdmin {
     static  index(req, res) {
-        dbPlayerInfo().find({}, function (err, docs) {
+        dbPlayerInfo().find({$not: {id: 0}, activityId: 2}) .sort({eloScore: -1}).exec(function (err, docs) {
             var data:any = {adminId: 'playerList'};
             if (!err)
                 data.playerDataArr = docs;
             res.render('playerAdminIndex', data);
             console.log("/admin/player/ length:", docs.length, JSON.stringify(data.playerDataArr));
         });
+        // dbPlayerInfo().find({}, function (err, docs) {
+        //     var data:any = {adminId: 'playerList'};
+        //     if (!err)
+        //         data.playerDataArr = docs;
+        //     res.render('playerAdminIndex', data);
+        //     console.log("/admin/player/ length:", docs.length, JSON.stringify(data.playerDataArr));
+        // });
     }
 
     static showPlayerById(req, res) {

@@ -266,7 +266,7 @@ var ActivityPanelView = (function (_super) {
                     else {
                         this.$http.post('/panel/act/op', {
                             cmd: CommandId.cs_fadeInRankPanel,
-                            param: { activityId: this.selected, limit: 10 }
+                            param: { activityId: this.selected, limit: 40 }
                         }).then(function (res) {
                             console.log('cs_fadeInRankPanel', res);
                         });
@@ -371,8 +371,9 @@ var ActivityPanelView = (function (_super) {
         // this.ctn.addChild(bg);
         this.stage.addChild(this.ctn);
     };
-    ActivityPanelView.prototype.fadeInRank = function (playerDataArr) {
+    ActivityPanelView.prototype.fadeInRank = function (playerDataArr, pageNum) {
         var _this = this;
+        if (pageNum === void 0) { pageNum = 0; }
         this.ctn.removeAllChildren();
         this.ctn.alpha = 0;
         var modal = new createjs.Shape();
@@ -384,13 +385,17 @@ var ActivityPanelView = (function (_super) {
         title.y = 20;
         this.ctn.addChild(title);
         var imgArr = [];
-        for (var i = 0; i < playerDataArr.length; i++) {
+        for (var i = 0; i < 10; i++) {
             var playerData = playerDataArr[i];
+            if (!playerData)
+                break;
             imgArr.push(playerData.avatar);
         }
         loadImgArr(imgArr, function () {
-            for (var i = 0; i < playerDataArr.length; i++) {
+            for (var i = 0; i < 10; i++) {
                 var playerData = playerDataArr[i];
+                if (!playerData)
+                    break;
                 imgArr.push(playerData.avatar);
                 var item = new createjs.Bitmap('/img/panel/act/rankItem.png');
                 item.x = title.x;
@@ -422,7 +427,7 @@ var ActivityPanelView = (function (_super) {
                 eloScore.x = item.x + 900;
                 eloScore.y = nameLabel.y;
                 _this.ctn.addChild(eloScore);
-                var rankPos = new createjs.Text((i + 1).toString(), "28px Arial", "#fff");
+                var rankPos = new createjs.Text((pageNum * 10 + i + 1).toString(), "28px Arial", "#fff");
                 rankPos.textAlign = 'center';
                 rankPos.x = item.x + 1100;
                 rankPos.y = nameLabel.y;
@@ -431,6 +436,16 @@ var ActivityPanelView = (function (_super) {
         });
         createjs.Tween.get(this.ctn)
             .to({ alpha: 1 }, 300);
+        if (10 < playerDataArr.length) {
+            var nextPage = [];
+            for (var i = 10; i < playerDataArr.length; i++) {
+                var playerData = playerDataArr[i];
+                nextPage.push(playerData);
+            }
+            createjs.Tween.get(this).wait(10000).call(function () {
+                _this.fadeInRank(nextPage, pageNum + 1);
+            });
+        }
     };
     ActivityPanelView.prototype.fadeOutRank = function () {
         var _this = this;

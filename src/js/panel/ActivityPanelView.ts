@@ -288,7 +288,7 @@ class ActivityPanelView extends BasePanelView {
                     else {
                         this.$http.post('/panel/act/op', {
                             cmd: CommandId.cs_fadeInRankPanel,
-                            param: {activityId: this.selected, limit: 10}
+                            param: {activityId: this.selected, limit: 40}
                         }).then(function (res) {
                             console.log('cs_fadeInRankPanel', res);
                         });
@@ -398,7 +398,7 @@ class ActivityPanelView extends BasePanelView {
         this.stage.addChild(this.ctn);
     }
 
-    fadeInRank(playerDataArr) {
+    fadeInRank(playerDataArr, pageNum = 0) {
         this.ctn.removeAllChildren();
         this.ctn.alpha = 0;
 
@@ -413,14 +413,16 @@ class ActivityPanelView extends BasePanelView {
         this.ctn.addChild(title);
 
         var imgArr = [];
-        for (var i = 0; i < playerDataArr.length; i++) {
+        for (var i = 0; i < 10; i++) {
             var playerData = playerDataArr[i];
+            if (!playerData)break;
             imgArr.push(playerData.avatar);
         }
-        
+
         loadImgArr(imgArr, ()=> {
-            for (var i = 0; i < playerDataArr.length; i++) {
+            for (var i = 0; i < 10; i++) {
                 var playerData = playerDataArr[i];
+                if (!playerData)break;
                 imgArr.push(playerData.avatar);
 
                 var item = new createjs.Bitmap('/img/panel/act/rankItem.png');
@@ -459,7 +461,7 @@ class ActivityPanelView extends BasePanelView {
                 eloScore.y = nameLabel.y;
                 this.ctn.addChild(eloScore);
 
-                var rankPos = new createjs.Text((i + 1).toString(), "28px Arial", "#fff");
+                var rankPos = new createjs.Text((pageNum * 10 + i + 1).toString(), "28px Arial", "#fff");
                 rankPos.textAlign = 'center';
                 rankPos.x = item.x + 1100;
                 rankPos.y = nameLabel.y;
@@ -470,6 +472,17 @@ class ActivityPanelView extends BasePanelView {
 
         createjs.Tween.get(this.ctn)
             .to({alpha: 1}, 300);
+
+        if (10 < playerDataArr.length) {
+            var nextPage = [];
+            for (var i = 10; i < playerDataArr.length; i++) {
+                var playerData = playerDataArr[i];
+                nextPage.push(playerData);
+            }
+            createjs.Tween.get(this).wait(10000).call(()=> {
+                this.fadeInRank(nextPage, pageNum+1);
+            });
+        }
     }
 
     fadeOutRank() {
